@@ -6,3 +6,4 @@ lib/
 src/.vs/
 src/libs/qscanner/GeneratedFiles/
 src/libs/thirdparty/qjson/GeneratedFiles/
+bin/
