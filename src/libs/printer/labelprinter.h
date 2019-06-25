@@ -3,38 +3,38 @@
 #include "labelprinter_global.h"
 #include "qstring.h"
 
-struct PackageLabel					//ÊÖÊõÊÒ±êÇ©
+struct PackageLabel					//æ‰‹æœ¯å®¤æ ‡ç­¾
 {
-	QString packageId;				//°üID
-	QString packageName;			//°üÃû
-	QString packageFrom;			//°üÀ´Ô´
-	QString packageType;			//´ò°üÀàĞÍ
-	QString disinDate;				//Ãğ¾úÈÕÆÚ
-	QString expiryDate;				//Ê§Ğ§ÈÕÆÚ
-	QString operatorName;			//²Ù×÷Ô±
-	QString assessorName;			//ÉóºËÔ±
-	int count = 0;					//ÊıÁ¿
+	QString packageId;				//åŒ…ID
+	QString packageName;			//åŒ…å
+	QString packageFrom;			//åŒ…æ¥æº
+	QString packageType;			//æ‰“åŒ…ç±»å‹
+	QString disinDate;				//ç­èŒæ—¥æœŸ
+	QString expiryDate;				//å¤±æ•ˆæ—¥æœŸ
+	QString operatorName;			//æ“ä½œå‘˜
+	QString assessorName;			//å®¡æ ¸å‘˜
+	int count = 0;					//æ•°é‡
 };
 
-struct ClinicLabel					//ÁÙ´²±êÇ©
+struct ClinicLabel					//ä¸´åºŠæ ‡ç­¾
 {
-	QString packageId;				//°üID
-	QString packageName;			//°üÃû
-	QString packageFrom;			//°üÀ´Ô´
-	QString disinDate;				//Ãğ¾úÈÕÆÚ
-	QString expiryDate;				//Ê§Ğ§ÈÕÆÚ
-	QString operatorName;			//²Ù×÷Ô±
-	QString assessorName;			//ÉóºËÔ±
+	QString packageId;				//åŒ…ID
+	QString packageName;			//åŒ…å
+	QString packageFrom;			//åŒ…æ¥æº
+	QString disinDate;				//ç­èŒæ—¥æœŸ
+	QString expiryDate;				//å¤±æ•ˆæ—¥æœŸ
+	QString operatorName;			//æ“ä½œå‘˜
+	QString assessorName;			//å®¡æ ¸å‘˜
 };
 
-struct SterilizeLabel				//Ïû¶¾±êÇ©
+struct SterilizeLabel				//æ¶ˆæ¯’æ ‡ç­¾
 {
-	QString sterilizeId;			//Ãğ¾úÆ÷ID
-	QString sterilizeName;			//Ãğ¾úÆ÷Ãû
-	QString sterilizeDate;			//Ãğ¾úÈÕÆÚ
-	QString sterilizeTime;			//Ãğ¾úÊ±¼ä
-	int panNum = 0;					//Ãğ¾ú¹ø´Î
-	int packageNum = 0;				//Ãğ¾ú°üÊı
+	QString sterilizeId;			//ç­èŒå™¨ID
+	QString sterilizeName;			//ç­èŒå™¨å
+	QString sterilizeDate;			//ç­èŒæ—¥æœŸ
+	QString sterilizeTime;			//ç­èŒæ—¶é—´
+	int panNum = 0;					//ç­èŒé”…æ¬¡
+	int packageNum = 0;				//ç­èŒåŒ…æ•°
 };
 
 class LABELPRINTER_EXPORT LabelPrinter
@@ -44,17 +44,17 @@ public:
 	void close();
 	QString getName() const;
 
-	//´òÓ¡ÊÖÊõÊÒ°ü±êÇ©
+	//æ‰“å°æ‰‹æœ¯å®¤åŒ…æ ‡ç­¾
 	int printPackageLabel(const PackageLabel &label);
-	//´òÓ¡ÁÙ´²°ü±êÇ©
+	//æ‰“å°ä¸´åºŠåŒ…æ ‡ç­¾
 	int printClinicLabel(const ClinicLabel &label);
-	//´òÓ¡Ïû¶¾±êÇ©
+	//æ‰“å°æ¶ˆæ¯’æ ‡ç­¾
 	int printSterilizedLabel(const SterilizeLabel &label);
-	//ÉèÖÃ´òÓ¡×ÖÌå£¬Ä¬ÈÏÎªºÚÌå
+	//è®¾ç½®æ‰“å°å­—ä½“ï¼Œé»˜è®¤ä¸ºé»‘ä½“
 	virtual void setFontName(const QString &strFontName) = 0;
-	//ÉèÖÃ´òÓ¡·½Ïò£¬Ä¬ÈÏÎª·´Ïò
+	//è®¾ç½®æ‰“å°æ–¹å‘ï¼Œé»˜è®¤ä¸ºåå‘
 	virtual void setInversion(const bool inver) = 0;
-	//ÉèÖÃ´òÓ¡×ÖÌåÊÇ·ñÎª´ÖÌå£¬Ä¬ÈÏÎª·ñ
+	//è®¾ç½®æ‰“å°å­—ä½“æ˜¯å¦ä¸ºç²—ä½“ï¼Œé»˜è®¤ä¸ºå¦
 	virtual void setBold(const bool isBold) = 0;
 
 private:
