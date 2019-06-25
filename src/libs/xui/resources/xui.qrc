@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/xui">
+        <file>clear.png</file>
+        <file>search.png</file>
+    </qresource>
+</RCC>

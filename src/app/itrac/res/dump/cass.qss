@@ -1,0 +1,16 @@
+.LoginWidget {
+background-image:url(:/res/login.png);
+border:1px solid black;}
+
+QLineEdit{
+background-color: cornsilk;
+selection-color: #0a214c;
+selection-background-color: #C19A6B; }
+
+QLineEdit:read-only{ 
+color: darkgray;
+background-color: lightgray;}
+
+QLineEdit[echoMode="2"] {
+lineedit-password-character: 9679;
+}

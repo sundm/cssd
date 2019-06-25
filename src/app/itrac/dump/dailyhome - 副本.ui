@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DailyHome</class>
+ <widget class="QScrollArea" name="DailyHome">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1155</width>
+    <height>732</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>ScrollArea</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QScrollArea {
+background:white；
+}
+
+QScrollArea #scrollAreaWidgetContents{
+	background-color: white;
+}
+
+QLabel{
+	font:26px;
+}
+/*
+QToolButton{
+	font-family:FontAwesome;
+	font-size:50px;
+}*/
+
+.Separator {
+    border: none; 
+background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 255, 128), stop:1 rgba(255, 255, 255, 255));
+}</string>
+  </property>
+  <property name="alignment">
+   <set>Qt::AlignCenter</set>
+  </property>
+  <widget class="QWidget" name="scrollAreaWidgetContents">
+   <property name="geometry">
+    <rect>
+     <x>129</x>
+     <y>80</y>
+     <width>895</width>
+     <height>571</height>
+    </rect>
+   </property>
+   <widget class="QWidget" name="separator_2" native="true">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>252</y>
+      <width>491</width>
+      <height>1</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>1</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>1</height>
+     </size>
+    </property>
+    <property name="class" stdset="0">
+     <string>Separator</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>29</x>
+      <y>392</y>
+      <width>221</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>无菌物品存放区</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>10</y>
+      <width>171</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>去污区</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>29</x>
+      <y>207</y>
+      <width>221</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>检查包装及灭菌区</string>
+    </property>
+   </widget>
+   <widget class="QWidget" name="separator" native="true">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>64</y>
+      <width>471</width>
+      <height>1</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>1</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>1</height>
+     </size>
+    </property>
+    <property name="class" stdset="0">
+     <string>Separator</string>
+    </property>
+   </widget>
+   <widget class="QWidget" name="separator_3" native="true">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>440</y>
+      <width>481</width>
+      <height>1</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>1</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>1</height>
+     </size>
+    </property>
+    <property name="class" stdset="0">
+     <string>Separator</string>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="toolButton_18">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>90</y>
+      <width>151</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>外来器械登记</string>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="recycleButton">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>90</y>
+      <width>121</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>回收</string>
+    </property>
+    <property name="icon">
+     <iconset resource="../../../../v10-ref/src/app/casms.qrc">
+      <normaloff>:/res/userfolder.png</normaloff>:/res/userfolder.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>32</width>
+      <height>32</height>
+     </size>
+    </property>
+    <property name="toolButtonStyle">
+     <enum>Qt::ToolButtonTextUnderIcon</enum>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="washButton">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>90</y>
+      <width>131</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>清洗</string>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="recycleToolButton_2">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>280</y>
+      <width>121</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>配包</string>
+    </property>
+    <property name="icon">
+     <iconset resource="../../../../v10-ref/src/app/casms.qrc">
+      <normaloff>:/res/userfolder.png</normaloff>:/res/userfolder.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>32</width>
+      <height>32</height>
+     </size>
+    </property>
+    <property name="toolButtonStyle">
+     <enum>Qt::ToolButtonTextUnderIcon</enum>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="sterileButton">
+    <property name="geometry">
+     <rect>
+      <x>460</x>
+      <y>280</y>
+      <width>121</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>灭菌</string>
+    </property>
+    <property name="icon">
+     <iconset resource="../../../../v10-ref/src/app/casms.qrc">
+      <normaloff>:/res/userfolder.png</normaloff>:/res/userfolder.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>32</width>
+      <height>32</height>
+     </size>
+    </property>
+    <property name="toolButtonStyle">
+     <enum>Qt::ToolButtonTextUnderIcon</enum>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="dispatchButton">
+    <property name="geometry">
+     <rect>
+      <x>250</x>
+      <y>470</y>
+      <width>121</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>发放</string>
+    </property>
+    <property name="icon">
+     <iconset resource="../../../../v10-ref/src/app/casms.qrc">
+      <normaloff>:/res/userfolder.png</normaloff>:/res/userfolder.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>32</width>
+      <height>32</height>
+     </size>
+    </property>
+    <property name="toolButtonStyle">
+     <enum>Qt::ToolButtonTextUnderIcon</enum>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="sterileCheckButton">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>470</y>
+      <width>121</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>灭菌审核</string>
+    </property>
+    <property name="icon">
+     <iconset resource="../../../../v10-ref/src/app/casms.qrc">
+      <normaloff>:/res/userfolder.png</normaloff>:/res/userfolder.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>32</width>
+      <height>32</height>
+     </size>
+    </property>
+    <property name="toolButtonStyle">
+     <enum>Qt::ToolButtonTextUnderIcon</enum>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="washCheckButton">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>280</y>
+      <width>121</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>清洗审核</string>
+    </property>
+    <property name="icon">
+     <iconset resource="../../../../v10-ref/src/app/casms.qrc">
+      <normaloff>:/res/userfolder.png</normaloff>:/res/userfolder.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>32</width>
+      <height>32</height>
+     </size>
+    </property>
+    <property name="toolButtonStyle">
+     <enum>Qt::ToolButtonTextUnderIcon</enum>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <resources>
+  <include location="../../../../v10-ref/src/app/casms.qrc"/>
+ </resources>
+ <connections/>
+</ui>

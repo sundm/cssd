@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>UserPage</class>
+ <widget class="QWidget" name="UserPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>771</width>
+    <height>372</height>
+   </rect>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QTabWidget::pane { /* The tab widget frame */
+    border-top: 1px solid darkgray;
+	background-color:white;
+}
+
+QTabBar::tab { height: 36px; width: 100px; }
+
+QTabWidget QListView{
+	border:none;
+}
+
+QFrame#statusFrame{
+	border:0px solid darkgray;
+	border-top-width:1px;
+	background-color:rgb(238,238,238);
+}</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QLineEdit" name="filterEdit">
+     <property name="placeholderText">
+      <string>搜索用户</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>368</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="1" column="0" colspan="2">
+    <widget class="QListView" name="listView"/>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="itrac.qrc"/>
+ </resources>
+ <connections/>
+</ui>

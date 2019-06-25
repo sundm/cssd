@@ -1,0 +1,568 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
+      <Extensions>qrc;*</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Form Files">
+      <UniqueIdentifier>{99349809-55BA-4b9d-BF79-8FDBB0286EB3}</UniqueIdentifier>
+      <Extensions>ui</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
+      <Extensions>qrc;*</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Generated Files">
+      <UniqueIdentifier>{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}</UniqueIdentifier>
+      <Extensions>moc;h;cpp</Extensions>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
+    <Filter Include="Source Files\controls">
+      <UniqueIdentifier>{800317ce-7c5e-48ad-a103-7bc0dbb3768e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\core">
+      <UniqueIdentifier>{ec5d6e55-c5c0-4653-88c9-6e9c9e6002b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\platform">
+      <UniqueIdentifier>{c1d90442-948d-4609-b2e4-65d37f8a9b25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\platform\win">
+      <UniqueIdentifier>{06da6ac0-9c06-48cb-a489-08c3b291069f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+      <ParseFiles>true</ParseFiles>
+    </Filter>
+    <Filter Include="Source Files\ui">
+      <UniqueIdentifier>{7bc649db-0cc0-4c33-bd0a-bdcd265f4b03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\widget">
+      <UniqueIdentifier>{73fea41d-c8b2-40a5-b832-25ffe377e0dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\core\net">
+      <UniqueIdentifier>{ca4c8d1d-9976-4d5f-8716-4a43ff75024a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ui\composite">
+      <UniqueIdentifier>{696b349e-d8b7-4ac6-bc6a-1ea452c69fe5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\widget\overlays">
+      <UniqueIdentifier>{34082845-70d6-4a15-aa74-a42b40b882e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\model">
+      <UniqueIdentifier>{f3c509d5-7a29-4933-b9ee-52caa8ea97e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\widget\controls">
+      <UniqueIdentifier>{7379f5d8-35cd-41c8-8603-dd28587f9fa7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\widget\assets">
+      <UniqueIdentifier>{5c9c0c5e-c521-40f4-b2b4-4e0dce3acfae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\dialog">
+      <UniqueIdentifier>{3e4d91e3-32fc-45f3-907c-0bba7ce65236}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\widget\history">
+      <UniqueIdentifier>{abc85fb1-60c3-4ad8-8942-821673e62fbd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\util">
+      <UniqueIdentifier>{469dae49-cf38-4f31-b5b4-14f75946ec98}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="itrac.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="itrac.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="devicepage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="themewidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="deviceprogrampage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="userpage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xnotifier.cpp">
+      <Filter>Source Files\controls</Filter>
+    </ClCompile>
+    <ClCompile Include="historywidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\launcher.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\win\launcher_win.cpp">
+      <Filter>Source Files\platform\win</Filter>
+    </ClCompile>
+    <ClCompile Include="core\application.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\image.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\loginpage.cpp">
+      <Filter>Source Files\widget</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\container.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\buttons.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\ui_commons.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\inputfields.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\labels.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="core\net\url.cxx">
+      <Filter>Source Files\core\net</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\loader.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\cssdpage.cpp">
+      <Filter>Source Files\widget</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\composite\titles.cpp">
+      <Filter>Source Files\ui\composite</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\overlays\cssd_overlay.cpp">
+      <Filter>Source Files\widget\overlays</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\mainwindow.cpp">
+      <Filter>Source Files\widget</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\overlays\recycle.cpp">
+      <Filter>Source Files\widget\overlays</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\overlays\tips.cpp">
+      <Filter>Source Files\widget\overlays</Filter>
+    </ClCompile>
+    <ClCompile Include="model\spinboxdelegate.cpp">
+      <Filter>Source Files\model</Filter>
+    </ClCompile>
+    <ClCompile Include="core\barcode.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\assets.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\overlays\wash.cpp">
+      <Filter>Source Files\widget\overlays</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\overlays\devicewidget.cpp">
+      <Filter>Source Files\widget\overlays</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\controls\plateview.cpp">
+      <Filter>Source Files\widget\controls</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\overlays\pack.cpp">
+      <Filter>Source Files\widget\overlays</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\controls\packageview.cpp">
+      <Filter>Source Files\widget\controls</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\controls\sterile_p.cpp">
+      <Filter>Source Files\widget\controls</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\overlays\sterile.cpp">
+      <Filter>Source Files\widget\overlays</Filter>
+    </ClCompile>
+    <ClCompile Include="core\datawrapper.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\overlays\sterileexam.cpp">
+      <Filter>Source Files\widget\overlays</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\overlays\bd.cpp">
+      <Filter>Source Files\widget\overlays</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\overlays\dispatch.cpp">
+      <Filter>Source Files\widget\overlays</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\assetpage.cpp">
+      <Filter>Source Files\widget</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\assets\packagepage.cpp">
+      <Filter>Source Files\widget\assets</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\apploader.cpp">
+      <Filter>Source Files\widget</Filter>
+    </ClCompile>
+    <ClCompile Include="dialog\operatorchooser.cpp">
+      <Filter>Source Files\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\assets\instrumentpage.cpp">
+      <Filter>Source Files\widget\assets</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\assets\departmentpage.cpp">
+      <Filter>Source Files\widget\assets</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\history\tracepage.cpp">
+      <Filter>Source Files\widget\history</Filter>
+    </ClCompile>
+    <ClCompile Include="core\user.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\composite\waitingspinner.cpp">
+      <Filter>Source Files\ui\composite</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\composite\sliderbar.cpp">
+      <Filter>Source Files\ui\composite</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\topbar.cpp">
+      <Filter>Source Files\widget</Filter>
+    </ClCompile>
+    <ClCompile Include="dialog\userinfodialog.cpp">
+      <Filter>Source Files\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="dialog\addinstrumentdialog.cpp">
+      <Filter>Source Files\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="dialog\adduserdialog.cpp">
+      <Filter>Source Files\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="dialog\regexpinputdialog.cpp">
+      <Filter>Source Files\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="dialog\devicedialog.cpp">
+      <Filter>Source Files\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\composite\qpaginationwidget.cpp">
+      <Filter>Source Files\ui\composite</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\history\filter.cpp">
+      <Filter>Source Files\widget\history</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\history\filtergroup.cpp">
+      <Filter>Source Files\widget\history</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\history\filterrow.cpp">
+      <Filter>Source Files\widget\history</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\history\filterwidget.cpp">
+      <Filter>Source Files\widget\history</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\history\historypage.cpp">
+      <Filter>Source Files\widget\history</Filter>
+    </ClCompile>
+    <ClCompile Include="core\net\jsonhttpclient.cpp">
+      <Filter>Source Files\core\net</Filter>
+    </ClCompile>
+    <ClCompile Include="core\net\jsonhttpresponse.cpp">
+      <Filter>Source Files\core\net</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\clinicpage.cpp">
+      <Filter>Source Files\widget</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\views.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\overlays\clinic.cpp">
+      <Filter>Source Files\widget\overlays</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\overlays\ext.cpp">
+      <Filter>Source Files\widget\overlays</Filter>
+    </ClCompile>
+    <ClCompile Include="dialog\extdialog.cpp">
+      <Filter>Source Files\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\groups.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\controls\combos.cpp">
+      <Filter>Source Files\widget\controls</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\controls\idedit.cpp">
+      <Filter>Source Files\widget\controls</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\controls\idcompleter.cpp">
+      <Filter>Source Files\widget\controls</Filter>
+    </ClCompile>
+    <ClCompile Include="dialog\idpicker.cpp">
+      <Filter>Source Files\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="util\printermanager.cpp">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
+    <ClCompile Include="importextdialog.cpp">
+      <Filter>Source Files\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="dialog\programdialog.cpp">
+      <Filter>Source Files\dialog</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="devicepage.h">
+      <Filter>Source Files</Filter>
+    </QtMoc>
+    <QtMoc Include="deviceprogrampage.h">
+      <Filter>Source Files</Filter>
+    </QtMoc>
+    <QtMoc Include="historywidget.h">
+      <Filter>Source Files</Filter>
+    </QtMoc>
+    <QtMoc Include="themewidget.h">
+      <Filter>Source Files</Filter>
+    </QtMoc>
+    <QtMoc Include="userpage.h">
+      <Filter>Source Files</Filter>
+    </QtMoc>
+    <QtMoc Include="xnotifier.h">
+      <Filter>Source Files\controls</Filter>
+    </QtMoc>
+    <QtMoc Include="core\application.h">
+      <Filter>Source Files\core</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\loginpage.h">
+      <Filter>Source Files\widget</Filter>
+    </QtMoc>
+    <QtMoc Include="ui\container.h">
+      <Filter>Source Files\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="ui\buttons.h">
+      <Filter>Source Files\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="ui\inputfields.h">
+      <Filter>Source Files\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="ui\labels.h">
+      <Filter>Source Files\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="ui\loader.h">
+      <Filter>Source Files\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="ui\image.h">
+      <Filter>Source Files\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\cssdpage.h">
+      <Filter>Source Files\widget</Filter>
+    </QtMoc>
+    <QtMoc Include="ui\composite\titles.h">
+      <Filter>Source Files\ui\composite</Filter>
+    </QtMoc>
+    <QtMoc Include="ui\ui_commons.h">
+      <Filter>Source Files\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\overlays\cssd_overlay.h">
+      <Filter>Source Files\widget\overlays</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\mainwindow.h">
+      <Filter>Source Files\widget</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\overlays\recycle.h">
+      <Filter>Source Files\widget\overlays</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\overlays\tips.h">
+      <Filter>Source Files\widget\overlays</Filter>
+    </QtMoc>
+    <QtMoc Include="model\spinboxdelegate.h">
+      <Filter>Source Files\model</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\overlays\wash.h">
+      <Filter>Source Files\widget\overlays</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\overlays\devicewidget.h">
+      <Filter>Source Files\widget\overlays</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\controls\plateview.h">
+      <Filter>Source Files\widget\controls</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\overlays\pack.h">
+      <Filter>Source Files\widget\overlays</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\overlays\sterile.h">
+      <Filter>Source Files\widget\overlays</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\controls\packageview.h">
+      <Filter>Source Files\widget\controls</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\controls\sterile_p.h">
+      <Filter>Source Files\widget\controls</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\overlays\sterileexam.h">
+      <Filter>Source Files\widget\overlays</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\overlays\bd.h">
+      <Filter>Source Files\widget\overlays</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\overlays\dispatch.h">
+      <Filter>Source Files\widget\overlays</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\assetpage.h">
+      <Filter>Source Files\widget</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\assets\packagepage.h">
+      <Filter>Source Files\widget\assets</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\apploader.h">
+      <Filter>Source Files\widget</Filter>
+    </QtMoc>
+    <QtMoc Include="dialog\operatorchooser.h">
+      <Filter>Source Files\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\assets\instrumentpage.h">
+      <Filter>Source Files\widget\assets</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\assets\departmentpage.h">
+      <Filter>Source Files\widget\assets</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\history\tracepage.h">
+      <Filter>Source Files\widget\history</Filter>
+    </QtMoc>
+    <QtMoc Include="ui\composite\waitingspinner.h">
+      <Filter>Source Files\ui\composite</Filter>
+    </QtMoc>
+    <QtMoc Include="ui\composite\sliderbar.h">
+      <Filter>Source Files\ui\composite</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\topbar.h">
+      <Filter>Source Files\widget</Filter>
+    </QtMoc>
+    <QtMoc Include="dialog\userinfodialog.h">
+      <Filter>Source Files\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="dialog\addinstrumentdialog.h">
+      <Filter>Source Files\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="dialog\adduserdialog.h">
+      <Filter>Source Files\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="dialog\regexpinputdialog.h">
+      <Filter>Source Files\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="dialog\devicedialog.h">
+      <Filter>Source Files\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="ui\composite\qpaginationwidget.h">
+      <Filter>Source Files\ui\composite</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\history\filtergroup.h">
+      <Filter>Source Files\widget\history</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\history\filterrow.h">
+      <Filter>Source Files\widget\history</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\history\filterwidget.h">
+      <Filter>Source Files\widget\history</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\history\historypage.h">
+      <Filter>Source Files\widget\history</Filter>
+    </QtMoc>
+    <QtMoc Include="ui\views.h">
+      <Filter>Source Files\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\clinicpage.h">
+      <Filter>Source Files\widget</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\overlays\clinic.h">
+      <Filter>Source Files\widget\overlays</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\overlays\ext.h">
+      <Filter>Source Files\widget\overlays</Filter>
+    </QtMoc>
+    <QtMoc Include="dialog\extdialog.h">
+      <Filter>Source Files\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="ui\groups.h">
+      <Filter>Source Files\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\controls\combos.h">
+      <Filter>Source Files\widget\controls</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\controls\idedit.h">
+      <Filter>Source Files\widget\controls</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\controls\idcompleter.h">
+      <Filter>Source Files\widget\controls</Filter>
+    </QtMoc>
+    <QtMoc Include="dialog\idpicker.h">
+      <Filter>Source Files\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="importextdialog.h">
+      <Filter>Source Files\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="dialog\programdialog.h">
+      <Filter>Source Files\dialog</Filter>
+    </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="themewidget.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="historywidget.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="core\launcher.h">
+      <Filter>Source Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\win\launcher_win.h">
+      <Filter>Source Files\platform\win</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\platfom_specific.h">
+      <Filter>Source Files\platform</Filter>
+    </ClInclude>
+    <ClInclude Include="core\net\url.h">
+      <Filter>Source Files\core\net</Filter>
+    </ClInclude>
+    <ClInclude Include="core\ds.h">
+      <Filter>Source Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\itracnamespace.h">
+      <Filter>Source Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\barcode.h">
+      <Filter>Source Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\assets.h">
+      <Filter>Source Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\datawrapper.h">
+      <Filter>Source Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\user.h">
+      <Filter>Source Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\constants.h">
+      <Filter>Source Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="widget\history\filter.h">
+      <Filter>Source Files\widget\history</Filter>
+    </ClInclude>
+    <ClInclude Include="core\net\jsonhttpclient.h">
+      <Filter>Source Files\core\net</Filter>
+    </ClInclude>
+    <ClInclude Include="core\net\jsonhttpresponse.h">
+      <Filter>Source Files\core\net</Filter>
+    </ClInclude>
+    <ClInclude Include="util\printermanager.h">
+      <Filter>Source Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="core\inliner.h">
+      <Filter>Source Files\core</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
