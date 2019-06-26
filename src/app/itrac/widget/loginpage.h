@@ -25,6 +25,7 @@ namespace Widget {
 
 	private:
 		void login(const QString &, const QString &);
+		void version();
 
 		Ui::FlatEdit *userEdit;
 		Ui::FlatEdit *pwdEdit;

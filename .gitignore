@@ -2,8 +2,10 @@ src/app/itrac/GeneratedFiles/
 src/libs/thirdparty/hidapi/Debug/
 src/libs/xui/GeneratedFiles/
 temp/
-lib/
 src/.vs/
 src/libs/qscanner/GeneratedFiles/
 src/libs/thirdparty/qjson/GeneratedFiles/
+src/libs/update/Debug/
+src/libs/update/GeneratedFiles/
 bin/
+lib/

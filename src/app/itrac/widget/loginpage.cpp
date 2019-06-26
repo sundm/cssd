@@ -17,6 +17,7 @@
 #include <QPropertyAnimation>
 #include <QParallelAnimationGroup>
 #include <QGraphicsOpacityEffect>
+#include <QProcess>
 
 namespace Widget {
 
@@ -58,6 +59,8 @@ namespace Widget {
 		//Ui::addPrimaryShortcut(this, Qt::Key_Enter, SLOT(submit()));
 		connect(userEdit, SIGNAL(returnPressed()), this, SLOT(submit()));
 		connect(pwdEdit, SIGNAL(returnPressed()), this, SLOT(submit()));
+
+		version();
 	}
 
 	void LoginPanel::submit() {
@@ -79,6 +82,42 @@ namespace Widget {
 		if (bc.type() == Barcode::User) {
 			login(code.mid(2), "");
 		}
+	}
+
+	void LoginPanel::version()
+	{
+		Core::app()->startWaitingOn(this);
+
+		Url::post(Url::PATH_VERSION, "{}", [=](QNetworkReply *reply) {
+			Core::app()->stopWaiting();
+			JsonHttpResponse resp(reply);
+			if (!resp.success()) {
+				error->shake(QString("获取版本号错误：%1").arg(resp.errorString()));
+				updateSize();
+			}
+			else
+			{
+				const QString code = resp.getAsString("code");
+				if (!code.compare("9000")) {
+					const QString _version = resp.getAsString("version");
+					if (_version.compare(Url::Version)) {
+						QProcess *pro = new QProcess(this);
+						QStringList args(Url::PATH_BASE);
+#ifdef _DEBUG
+						pro->startDetached("updated.exe", args);
+#else
+						pro->startDetached("update.exe", args);
+#endif // DEBUG
+						qApp->quit();
+						
+					}
+				}
+				else {
+					error->shake(QString("获取版本号错误：%1").arg(resp.getAsString("msg")));
+					updateSize();
+				}
+			}
+		});
 	}
 
 	void LoginPanel::login(const QString &account, const QString &pwd) {

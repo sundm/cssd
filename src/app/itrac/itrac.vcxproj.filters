@@ -564,5 +564,11 @@
     <ClInclude Include="core\inliner.h">
       <Filter>Source Files\core</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="itrac.ico" />
   </ItemGroup>
 </Project>

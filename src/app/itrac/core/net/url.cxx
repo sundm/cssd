@@ -3,9 +3,9 @@
 #include <QVariantMap>
 
 namespace Url {
-
-	const char PATH_BASE[] = "http://120.76.128.123:8080/CSSD/";
-	//const char PATH_BASE[] = "http://192.168.16.102:8080/CSSD/";
+	const QString Version("V1.0.0");
+	//const char PATH_BASE[] = "http://120.76.128.123:8080/CSSD/";
+	const char PATH_BASE[] = "http://localhost:8080/CSSD/";
 	const char PATH_PLATE_SEARCH[] = "plate/search";
 	const char PATH_DEPT_SEARCH[] = "department/search";
 	const char PATH_DEVICE_ADD[] = "device/add";
@@ -52,4 +52,7 @@ namespace Url {
 	const char PATH_EXT_RETURN[] = "ext/return";
 
 	const char PATH_VENDOR_SEARCH[] = "supplier/search";
+
+	const char PATH_VERSION[] = "file/version";
+	const char PATH_UPDATE[] = "/";
 } // namespace Url

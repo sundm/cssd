@@ -9,6 +9,7 @@ class QNetworkReply;
 
 namespace Url {
 
+extern const QString Version;
 extern const char PATH_BASE[];
 extern const char PATH_PLATE_SEARCH[];
 extern const char PATH_DEPT_SEARCH[];
@@ -56,6 +57,9 @@ extern const char PATH_EXT_SEARCH[];
 extern const char PATH_EXT_RETURN[];
 
 extern const char PATH_VENDOR_SEARCH[];
+
+extern const char PATH_VERSION[];
+extern const char PATH_UPDATE[];
 
 inline QString url(const char *path) {
 	return QString(PATH_BASE).append(path);
