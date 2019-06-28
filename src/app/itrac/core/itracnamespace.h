@@ -38,7 +38,8 @@ namespace itrac {
 		PACKAGE,
 		INSTRUMENT,
 		DEPT,
-		USER
+		USER,
+		COST
 	};
 
 	enum Verdict {

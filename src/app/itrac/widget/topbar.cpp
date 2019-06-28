@@ -43,7 +43,7 @@ TopBar::TopBar(QWidget *parent) :
 		items = "物品申领";
 		break;
 	case Core::User::CssdUser:
-		items = "流程管理;历史查询;";
+		items = "流程管理;历史查询";
 		break;
 	default:
 		break;

@@ -42,8 +42,7 @@ void Winsupdate::on_click_btn()
 #else
 	pro->startDetached("itrac.exe");
 #endif // _DEBUG
-
-	
+		
 	qApp->quit();
 }
 

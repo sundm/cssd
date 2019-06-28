@@ -58,6 +58,13 @@ extern const char PATH_EXT_RETURN[];
 
 extern const char PATH_VENDOR_SEARCH[];
 
+extern const char PATH_PACKTYPE_GETCOUNT[];
+extern const char PATH_COST_GETMONTH[];
+extern const char PATH_COST_GETALL[];
+extern const char PATH_COST_SEARCH[];
+extern const char PATH_COST_ADD[];
+extern const char PATH_PRICE_ADD[];
+
 extern const char PATH_VERSION[];
 extern const char PATH_UPDATE[];
 

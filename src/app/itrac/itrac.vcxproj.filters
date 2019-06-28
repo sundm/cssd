@@ -312,6 +312,12 @@
     <ClCompile Include="dialog\programdialog.cpp">
       <Filter>Source Files\dialog</Filter>
     </ClCompile>
+    <ClCompile Include="costpage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dialog\addcostingdiaalog.cpp">
+      <Filter>Source Files\dialog</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="devicepage.h">
@@ -504,6 +510,12 @@
       <Filter>Source Files\dialog</Filter>
     </QtMoc>
     <QtMoc Include="dialog\programdialog.h">
+      <Filter>Source Files\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="costpage.h">
+      <Filter>Source Files</Filter>
+    </QtMoc>
+    <QtMoc Include="dialog\addcostingdiaalog.h">
       <Filter>Source Files\dialog</Filter>
     </QtMoc>
   </ItemGroup>
