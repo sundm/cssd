@@ -14,6 +14,8 @@ public:
 	int currentId() const { return _curId; };
 	QString currentName() const { return _curName; };
 
+	void setCurrentIdPicked(int id, const QString &name);
+
 signals:
 	void error(const QString &);
 	void changed(int id);

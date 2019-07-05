@@ -45,7 +45,7 @@ void ImportExtDialog::loadExt() {
 	vmap.insert("start_time", timeScope.from);
 	vmap.insert("end_time", timeScope.to);
 
-	Url::post(Url::PATH_EXT_SEARCH, vmap, [this](QNetworkReply *reply) {
+	Url::post(Url::PATH_EXTORDER_SEARCH, vmap, [this](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			//XNotifier::warn(QString("查询失败: ").append(resp.errorString()));

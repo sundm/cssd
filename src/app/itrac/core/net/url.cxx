@@ -48,7 +48,8 @@ namespace Url {
 	const char PATH_ORDER_PKGINFO[] = "order/pkgInfo";
 
 	const char PATH_EXT_ADD[] = "ext/add";
-	const char PATH_EXT_SEARCH[] = "ext/search";
+	const char PATH_EXTORDER_SEARCH[] = "ext/searchExtOrder";
+	const char PATH_EXT_SEARCH[] = "ext/searchExt";
 	const char PATH_EXT_RETURN[] = "ext/return";
 
 	const char PATH_VENDOR_SEARCH[] = "supplier/search";

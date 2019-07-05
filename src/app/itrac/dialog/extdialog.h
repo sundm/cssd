@@ -4,13 +4,19 @@
 
 namespace Ui {
 	class FlatEdit;
+	class NormalLabel;
 }
 
+class QLabel;
 class QSpinBox;
 class FormGroup;
 class PackageEdit;
 class VendorComboBox;
 class GenderComboBox;
+class QStandardItem;
+class QItemSelectionModel;
+class QStandardItemModel;
+class TableView;
 
 class ExtRecvDialog : public QDialog
 {
@@ -21,18 +27,24 @@ public:
 
 protected:
 	void accept() override;
-	
+
+private slots:
+	void slotRowDoubleClicked(const QModelIndex &index);
+
 private:
+	void initTableView();
 	void loadData();
 
-	PackageEdit * _pkgEdit;
-	QSpinBox * _countBox;
+	void add();
+	void remove();
+
 	VendorComboBox * _vendorCombo;
-	GenderComboBox *_genderCombo;
 	Ui::FlatEdit * _senderEdit;
 	Ui::FlatEdit * _senderPhoneEdit;
-	Ui::FlatEdit * _patientNameEdit;
-	Ui::FlatEdit * _patientAgeEdit;
-	Ui::FlatEdit * _patientIdEdit;
-	Ui::FlatEdit * _doctorEdit;
+	Ui::NormalLabel * _receiverEdit;
+	Ui::NormalLabel *_receiveTimeLabel;
+
+	TableView *_view;
+	QItemSelectionModel *_theSelectionModel;
+	QStandardItemModel *_model;
 };

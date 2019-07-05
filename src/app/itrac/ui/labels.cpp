@@ -18,6 +18,11 @@ Description::Description(const QString text, QWidget *parent /*= nullptr*/)
 	setProperty("desc", true);
 }
 
+NormalLabel::NormalLabel(const QString text, QWidget *parent /*= nullptr*/)
+	: QLabel(text, parent) {
+	setAlignment(Qt::AlignCenter);
+}
+
 ErrorLabel::ErrorLabel(const QString text, QWidget *parent /*= nullptr*/) 
 	: QLabel(text, parent)
 	, _anim(std::make_unique<QPropertyAnimation>(this, "pos")){

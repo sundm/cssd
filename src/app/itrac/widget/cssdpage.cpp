@@ -15,7 +15,7 @@
 #include "widget/overlays/sterileexam.h"
 #include "widget/overlays/bd.h"
 #include "widget/overlays/dispatch.h"
-
+#include "widget/overlays/clinic_dispatch.h"
 #include <QtGui/QtGui>
 #include <QtWidgets/QtWidgets>
 
@@ -161,6 +161,7 @@ void CssdAreaPanel::clickCallback(int id) {
 	case itrac::SterileExamAction: panel = new SterileExamPanel; break;
 	case itrac::BDAction: panel = new BDPanel; break;
 	case itrac::OrDispatchAction: panel = new OrDispatchPanel; break;
+	case itrac::ClinicDispatchAction: panel = new ClinicDispatchPanel; break;
 	default: return;
 	}
 

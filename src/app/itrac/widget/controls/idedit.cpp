@@ -95,6 +95,15 @@ void IdEdit::popupFullList() {
 	d.exec();
 }
 
+void IdEdit::setCurrentIdPicked(int id, const QString &name) {
+	if (_curId != id) {
+		_curId = id;
+		_curName = name;
+		setText(name);
+		emit changed(id);
+	}
+}
+
 void IdEdit::onIdPicked(int id, const QString &name) {
 	if (_curId != id) {
 		_curId = id;

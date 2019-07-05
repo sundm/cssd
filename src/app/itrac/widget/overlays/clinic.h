@@ -8,6 +8,7 @@ namespace Composite {
 
 class TableView;
 class QStandardItemModel;
+
 class ClinicPanel : public CssdOverlayPanel
 {
 	Q_OBJECT

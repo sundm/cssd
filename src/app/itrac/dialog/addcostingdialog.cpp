@@ -1,4 +1,4 @@
-#include "addcostingdiaalog.h"
+#include "addcostingdialog.h"
 #include "xnotifier.h"
 #include "core/application.h"
 #include "core/inliner.h"

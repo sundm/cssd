@@ -237,7 +237,8 @@
     <ClCompile Include="costpage.cpp" />
     <ClCompile Include="devicepage.cpp" />
     <ClCompile Include="deviceprogrampage.cpp" />
-    <ClCompile Include="dialog\addcostingdiaalog.cpp" />
+    <ClCompile Include="dialog\addcostingdialog.cpp" />
+    <ClCompile Include="dialog\addextdialog.cpp" />
     <ClCompile Include="dialog\addinstrumentdialog.cpp" />
     <ClCompile Include="dialog\adduserdialog.cpp" />
     <ClCompile Include="dialog\devicedialog.cpp" />
@@ -246,6 +247,7 @@
     <ClCompile Include="dialog\operatorchooser.cpp" />
     <ClCompile Include="dialog\programdialog.cpp" />
     <ClCompile Include="dialog\regexpinputdialog.cpp" />
+    <ClCompile Include="dialog\repayextdialog.cpp" />
     <ClCompile Include="dialog\userinfodialog.cpp" />
     <ClCompile Include="historywidget.cpp" />
     <ClCompile Include="importextdialog.cpp" />
@@ -291,6 +293,7 @@
     <ClCompile Include="widget\mainwindow.cpp" />
     <ClCompile Include="widget\overlays\bd.cpp" />
     <ClCompile Include="widget\overlays\clinic.cpp" />
+    <ClCompile Include="widget\overlays\clinic_dispatch.cpp" />
     <ClCompile Include="widget\overlays\cssd_overlay.cpp" />
     <ClCompile Include="widget\overlays\devicewidget.cpp" />
     <ClCompile Include="widget\overlays\dispatch.cpp" />
@@ -329,6 +332,7 @@
     <ClInclude Include="core\inliner.h" />
     <ClInclude Include="core\net\jsonhttpclient.h" />
     <ClInclude Include="core\net\jsonhttpresponse.h" />
+    <QtMoc Include="widget\overlays\clinic_dispatch.h" />
     <QtMoc Include="widget\overlays\ext.h" />
     <QtMoc Include="widget\overlays\clinic.h" />
     <QtMoc Include="widget\clinicpage.h" />
@@ -339,7 +343,9 @@
     <QtMoc Include="importextdialog.h" />
     <QtMoc Include="dialog\programdialog.h" />
     <QtMoc Include="costpage.h" />
-    <QtMoc Include="dialog\addcostingdiaalog.h" />
+    <QtMoc Include="dialog\addcostingdialog.h" />
+    <QtMoc Include="dialog\addextdialog.h" />
+    <QtMoc Include="dialog\repayextdialog.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="util\printermanager.h">
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog</IncludePath>

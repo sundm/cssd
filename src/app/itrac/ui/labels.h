@@ -15,6 +15,15 @@ namespace Ui {
 		~Title() = default;
 	};
 
+	class NormalLabel : public QLabel
+	{
+		Q_OBJECT
+
+	public:
+		NormalLabel(const QString text, QWidget *parent = nullptr);
+		~NormalLabel() = default;
+	};
+
 	class Description : public QLabel
 	{
 		Q_OBJECT

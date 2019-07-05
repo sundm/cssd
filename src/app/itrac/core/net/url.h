@@ -53,6 +53,7 @@ extern const char PATH_ORDER_RECYCLE[];
 extern const char PATH_ORDER_PKGINFO[];
 
 extern const char PATH_EXT_ADD[];
+extern const char PATH_EXTORDER_SEARCH[];
 extern const char PATH_EXT_SEARCH[];
 extern const char PATH_EXT_RETURN[];
 

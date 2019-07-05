@@ -315,8 +315,17 @@
     <ClCompile Include="costpage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dialog\addcostingdiaalog.cpp">
+    <ClCompile Include="dialog\addcostingdialog.cpp">
       <Filter>Source Files\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="dialog\addextdialog.cpp">
+      <Filter>Source Files\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="dialog\repayextdialog.cpp">
+      <Filter>Source Files\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\overlays\clinic_dispatch.cpp">
+      <Filter>Source Files\widget\overlays</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -515,8 +524,17 @@
     <QtMoc Include="costpage.h">
       <Filter>Source Files</Filter>
     </QtMoc>
-    <QtMoc Include="dialog\addcostingdiaalog.h">
+    <QtMoc Include="dialog\addcostingdialog.h">
       <Filter>Source Files\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="dialog\addextdialog.h">
+      <Filter>Source Files\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="dialog\repayextdialog.h">
+      <Filter>Source Files\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\overlays\clinic_dispatch.h">
+      <Filter>Source Files\widget\overlays</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

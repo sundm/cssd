@@ -4,7 +4,7 @@
 #include "core/net/url.h"
 #include "ui/buttons.h"
 #include "ui/views.h"
-#include "dialog/addcostingdiaalog.h"
+#include "dialog/addcostingdialog.h"
 #include <QtWidgets/QtWidgets>
 
 Costpage::Costpage(QWidget *parent)
