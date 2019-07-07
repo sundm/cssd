@@ -16,7 +16,11 @@ void Scanable::setCandidate(Scanable *c) {
 }
 
 Scanable::~Scanable() {
-	BarcodeScannerFactory::setScanable(_candidate ? _candidate : nullptr);
+	Scanable *s = BarcodeScannerFactory::scannable();
+	if (s == this) {
+		BarcodeScannerFactory::setScanable(_candidate ? _candidate : nullptr);
+	}
+	//BarcodeScannerFactory::setScanable(_candidate ? _candidate : nullptr);
 }
 
 
@@ -44,6 +48,10 @@ void BarcodeScannerFactory::setScanable(Scanable *s) {
 	if (activeScanner && activeScanner->_s != s) {
 		activeScanner->_s = s;
 	}
+}
+
+Scanable * BarcodeScannerFactory::scannable() {
+	return activeScanner->_s;
 }
 
 IBarcodeScanner* BarcodeScannerFactory::Create(BarcodeScannerType type, QObject *parent)

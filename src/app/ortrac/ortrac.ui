@@ -1,0 +1,25 @@
+<UI version="4.0" >
+ <class>ortracClass</class>
+ <widget class="QWidget" name="ortracClass" >
+  <property name="objectName" >
+   <string notr="true">ortracClass</string>
+  </property>
+  <property name="geometry" >
+   <rect>
+	<x>0</x>
+	<y>0</y>
+	<width>600</width>
+	<height>400</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>ortrac</string>
+  </property>
+ </widget>
+ <layoutDefault spacing="6" margin="11" />
+ <pixmapfunction></pixmapfunction>
+ <resources>
+   <include location="ortrac.qrc"/>
+ </resources>
+ <connections/>
+</UI>

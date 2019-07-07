@@ -87,7 +87,7 @@
     <ClCompile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>UNICODE;_UNICODE;WIN32;WIN64;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;QT_CHARTS_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;.\widget\assets;.\widget\analyse;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -104,8 +104,8 @@
     <QtMoc>
       <OutputFile>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</OutputFile>
       <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
-      <IncludePath>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts</IncludePath>
-      <Define>UNICODE;_UNICODE;WIN32;WIN64;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;QT_CHARTS_LIB;%(PreprocessorDefinitions)</Define>
+      <IncludePath>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;.\widget\assets;.\widget\analyse</IncludePath>
+      <Define>UNICODE;_UNICODE;WIN32;WIN64;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;QT_CHARTS_LIB;_USING_V110_SDK71_</Define>
     </QtMoc>
     <QtUic>
       <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
@@ -120,7 +120,7 @@
     <ClCompile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;UNICODE;_UNICODE;WIN32;WIN64;QT_CHARTS_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;.\widget\assets;.\widget\analyse;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -139,8 +139,8 @@
     <QtMoc>
       <OutputFile>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</OutputFile>
       <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
-      <IncludePath>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts</IncludePath>
-      <Define>QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;UNICODE;_UNICODE;WIN32;WIN64;QT_CHARTS_LIB;%(PreprocessorDefinitions)</Define>
+      <IncludePath>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;.\widget\assets;.\widget\analyse</IncludePath>
+      <Define>QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;UNICODE;_UNICODE;WIN32;WIN64;QT_CHARTS_LIB;_USING_V110_SDK71_</Define>
     </QtMoc>
     <QtUic>
       <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
@@ -155,7 +155,7 @@
     <ClCompile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>UNICODE;_UNICODE;WIN32;WIN64;QT_NO_DEBUG;NDEBUG;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;QT_CHARTS_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;.\widget\assets;.\widget\analyse;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat />
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
@@ -171,8 +171,8 @@
     <QtMoc>
       <OutputFile>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</OutputFile>
       <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
-      <IncludePath>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts</IncludePath>
-      <Define>UNICODE;_UNICODE;WIN32;WIN64;QT_NO_DEBUG;NDEBUG;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;QT_CHARTS_LIB;%(PreprocessorDefinitions)</Define>
+      <IncludePath>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;.\widget\assets;.\widget\analyse</IncludePath>
+      <Define>UNICODE;_UNICODE;WIN32;WIN64;QT_NO_DEBUG;NDEBUG;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;QT_CHARTS_LIB;_USING_V110_SDK71_</Define>
     </QtMoc>
     <QtUic>
       <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
@@ -187,7 +187,7 @@
     <ClCompile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>QT_NO_DEBUG;NDEBUG;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;UNICODE;_UNICODE;WIN32;WIN64;QT_CHARTS_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;.\widget\assets;.\widget\analyse;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>
       </DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -206,8 +206,8 @@
     <QtMoc>
       <OutputFile>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</OutputFile>
       <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
-      <IncludePath>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts</IncludePath>
-      <Define>QT_NO_DEBUG;NDEBUG;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;UNICODE;_UNICODE;WIN32;WIN64;QT_CHARTS_LIB;%(PreprocessorDefinitions)</Define>
+      <IncludePath>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;.\widget\assets;.\widget\analyse</IncludePath>
+      <Define>QT_NO_DEBUG;NDEBUG;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;UNICODE;_UNICODE;WIN32;WIN64;QT_CHARTS_LIB;_USING_V110_SDK71_</Define>
     </QtMoc>
     <QtUic>
       <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
@@ -249,12 +249,12 @@
     <ClCompile Include="dialog\regexpinputdialog.cpp" />
     <ClCompile Include="dialog\repayextdialog.cpp" />
     <ClCompile Include="dialog\userinfodialog.cpp" />
+    <ClCompile Include="dialog\warningdialog.cpp" />
     <ClCompile Include="historywidget.cpp" />
     <ClCompile Include="importextdialog.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="model\spinboxdelegate.cpp" />
     <ClCompile Include="platform\win\launcher_win.cpp" />
-    <ClCompile Include="themewidget.cpp" />
     <ClCompile Include="ui\buttons.cpp" />
     <ClCompile Include="ui\composite\qpaginationwidget.cpp" />
     <ClCompile Include="ui\composite\sliderbar.cpp" />
@@ -270,11 +270,15 @@
     <ClCompile Include="ui\views.cpp" />
     <ClCompile Include="userpage.cpp" />
     <ClCompile Include="util\printermanager.cpp" />
+    <ClCompile Include="widget\analysepage.cpp" />
+    <ClCompile Include="widget\analyse\kpipage.cpp" />
+    <ClCompile Include="widget\analyse\themewidget.cpp" />
     <ClCompile Include="widget\apploader.cpp" />
     <ClCompile Include="widget\assetpage.cpp" />
     <ClCompile Include="widget\assets\departmentpage.cpp" />
     <ClCompile Include="widget\assets\instrumentpage.cpp" />
     <ClCompile Include="widget\assets\packagepage.cpp" />
+    <ClCompile Include="widget\assets\recallpage.cpp" />
     <ClCompile Include="widget\clinicpage.cpp" />
     <ClCompile Include="widget\controls\idcompleter.cpp" />
     <ClCompile Include="widget\controls\idedit.cpp" />
@@ -326,7 +330,7 @@
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="historywidget.ui" />
-    <QtUic Include="themewidget.ui" />
+    <QtUic Include="widget\analyse\themewidget.ui" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\inliner.h" />
@@ -346,6 +350,7 @@
     <QtMoc Include="dialog\addcostingdialog.h" />
     <QtMoc Include="dialog\addextdialog.h" />
     <QtMoc Include="dialog\repayextdialog.h" />
+    <QtMoc Include="dialog\warningdialog.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="util\printermanager.h">
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog</IncludePath>
@@ -357,6 +362,10 @@
       <Define Condition="'$(Configuration)|$(Platform)'=='Release|x64'">UNICODE;_UNICODE;WIN32;WIN64;QT_DLL;QT_NO_DEBUG;NDEBUG;QT_CHARTS_LIB;QT_CORE_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_WIDGETS_LIB;_USING_V110_SDK71_</Define>
       <Define Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">UNICODE;_UNICODE;WIN32;WIN64;QT_DLL;QT_NO_DEBUG;NDEBUG;QT_CHARTS_LIB;QT_CORE_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_WIDGETS_LIB;_USING_V110_SDK71_</Define>
     </ClInclude>
+    <QtMoc Include="widget\assets\recallpage.h" />
+    <QtMoc Include="widget\analysepage.h" />
+    <QtMoc Include="widget\analyse\themewidget.h" />
+    <QtMoc Include="widget\analyse\kpipage.h" />
     <ClInclude Include="widget\history\filter.h" />
     <QtMoc Include="widget\history\historypage.h" />
     <QtMoc Include="widget\history\filterwidget.h" />
@@ -460,7 +469,6 @@
     <QtMoc Include="ui\composite\qpaginationwidget.h" />
     <QtMoc Include="userpage.h" />
     <QtMoc Include="deviceprogrampage.h" />
-    <QtMoc Include="themewidget.h" />
     <QtMoc Include="devicepage.h" />
   </ItemGroup>
   <ItemGroup>
@@ -474,7 +482,7 @@
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties MocDir=".\GeneratedFiles\$(ConfigurationName)" UicDir=".\GeneratedFiles" RccDir=".\GeneratedFiles" lupdateOptions="" lupdateOnBuild="0" lreleaseOptions="" Qt5Version_x0020_Win32="msvc2015" Qt5Version_x0020_x64="5.11.1" MocOptions="" />
+      <UserProperties MocDir=".\GeneratedFiles\$(ConfigurationName)" UicDir=".\GeneratedFiles" RccDir=".\GeneratedFiles" lupdateOptions="" lupdateOnBuild="0" lreleaseOptions="" Qt5Version_x0020_Win32="511-x86" Qt5Version_x0020_x64="5.11.1" MocOptions="" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

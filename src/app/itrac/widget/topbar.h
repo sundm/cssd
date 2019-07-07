@@ -14,6 +14,9 @@ public:
 signals:
 	void currentItemChanged(int, const QString&);
 
+private slots:
+	void showWarnings();
+
 private:
 	void popupUserInfo();
 

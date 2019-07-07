@@ -6,6 +6,7 @@
 #include "assets/packagepage.h"
 #include "assets/instrumentpage.h"
 #include "assets/departmentpage.h"
+#include "assets/recallpage.h"
 #include "core/itracnamespace.h"
 
 #include <QtWidgets/QtWidgets>
@@ -35,9 +36,10 @@ AssetPage::AssetPage(QWidget *parent)
 	vLayout->addWidget(deptButton);
 	QPushButton *userButton = new QPushButton("用户");
 	vLayout->addWidget(userButton);
-	
 	QPushButton *costButton = new QPushButton("成本核算");
 	vLayout->addWidget(costButton);
+	QPushButton *recallButton = new QPushButton("物品召回");
+	vLayout->addWidget(recallButton);
 	vLayout->addStretch(0);
 
 	QHBoxLayout *layout = new QHBoxLayout(this);
@@ -54,6 +56,7 @@ AssetPage::AssetPage(QWidget *parent)
 	btnGroup->addButton(deptButton, itrac::DEPT);
 	btnGroup->addButton(userButton, itrac::USER);
 	btnGroup->addButton(costButton, itrac::COST);
+	btnGroup->addButton(recallButton, itrac::RECALL);
 	connect(btnGroup, QOverload<int>::of(&QButtonGroup::buttonClicked), this, &AssetPage::showPage);
 }
 
@@ -91,6 +94,10 @@ void AssetPage::showPage(int id)
 		case itrac::COST:
 			page = new Costpage;
 			_tabWidget->addTab(page, "成本核算");
+			break;
+		case itrac::RECALL:
+			page = new RecallPage;
+			_tabWidget->addTab(page, "物品召回");
 			break;
 		default: // this should never happen
 			break;

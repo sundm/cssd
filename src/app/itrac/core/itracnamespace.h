@@ -39,7 +39,8 @@ namespace itrac {
 		INSTRUMENT,
 		DEPT,
 		USER,
-		COST
+		COST,
+		RECALL
 	};
 
 	enum Verdict {
@@ -56,6 +57,7 @@ namespace itrac {
 		Dispatched,
 		Used,
 		Recycled,
+		Recalled,
 		UnknownState
 	};
 

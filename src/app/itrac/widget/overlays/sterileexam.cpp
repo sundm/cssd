@@ -50,8 +50,7 @@ void SterileExamPanel::commit()
 
 	Sterile::Result verdicts = _checkGroup->verdicts();
 	if (verdicts.physics == itrac::NotChecked ||
-		verdicts.chemistry == itrac::NotChecked ||
-		verdicts.bio == itrac::NotChecked) return;
+		verdicts.chemistry == itrac::NotChecked) return;
 
 	int opId = OperatorChooser::get(this, this);
 	if (0 == opId) return;

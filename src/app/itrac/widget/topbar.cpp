@@ -3,6 +3,7 @@
 #include "ui/buttons.h"
 #include "ui/composite/sliderbar.h"
 #include "dialog/userinfodialog.h"
+#include "dialog/warningdialog.h"
 #include <QtWidgets/QtWidgets>
 
 TopBar::TopBar(QWidget *parent) :
@@ -21,6 +22,7 @@ TopBar::TopBar(QWidget *parent) :
 
 	Ui::IconButton *nofityButton= new Ui::IconButton(":/res/bell-64.png");
 	nofityButton->setIconSize(QSize(24, 24));
+	connect(nofityButton, SIGNAL(clicked()), this, SLOT(showWarnings()));
 
 	Ui::IconButton *settingsButton = new Ui::IconButton(":/res/cog-64.png");
 	settingsButton->setIconSize(QSize(24, 24));
@@ -65,6 +67,11 @@ TopBar::TopBar(QWidget *parent) :
 	layout->addWidget(nofityButton);
 	layout->addWidget(settingsButton);
 	layout->addWidget(aboutButton);
+}
+
+void TopBar::showWarnings() {
+	WarningDialog d(this);
+	d.exec();
 }
 
 void TopBar::popupUserInfo() {
