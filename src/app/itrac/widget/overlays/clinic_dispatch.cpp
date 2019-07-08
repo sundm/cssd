@@ -4,6 +4,7 @@
 #include "barcode.h"
 #include "core/net/url.h"
 #include "dialog/operatorchooser.h"
+#include "dialog/clinicerchooser.h"
 #include "ui/views.h"
 #include "ui/buttons.h"
 #include "ui/composite/titles.h"
@@ -97,7 +98,6 @@ bool ClinicDispatchPanel::hasPackage(const QString& id) {
 	QModelIndexList matches = _scanModel->match(_model->index(0, 0), Qt::UserRole + 1, id, 1);
 	if (matches.isEmpty()) return false;
 	else {
-		//todo  number++
 		return true;
 	}
 	
@@ -122,12 +122,14 @@ void ClinicDispatchPanel::addPackage(const QString& id) {
 			return;
 		}
 
+		/*
 		if (_codeList->contains(id))
 		{
 			XNotifier::warn(QString("请勿重复扫描: ").append(id), -1);
 			return;
 		}
-		
+		*/
+
 		int num = _scanMap->value(pktId);
 		if (num < _detailMap->value(pktId))
 		{
@@ -162,9 +164,9 @@ void ClinicDispatchPanel::addPackage(const QString& id) {
 
 bool ClinicDispatchPanel::checkNumber() {
 	bool bIsMatch = true;
-	QMapIterator<QString, int> i(*_scanMap);
+	QMapIterator<QString, int> i(*_detailMap);
 	while (i.hasNext()) {
-		if (_detailMap->value(i.next().key()) != i.value())
+		if (_scanMap->value(i.next().key()) != i.value())
 			bIsMatch = false;
 	}
 
@@ -180,21 +182,33 @@ void ClinicDispatchPanel::reset() {
 void ClinicDispatchPanel::commit() {
 	QModelIndexList indices = _view->selectedRows();
 	if (indices.isEmpty()) return;
+	if (indices.size() > 1) return;
+	
+	QModelIndex index = indices.first();
 
-	QVariantList orders;
-	for (auto &idx : indices) {
-		orders << _model->data(_model->index(idx.row(), 0)).toInt();
-	}
+	int order = _model->data(_model->index(index.row(), 0)).toInt();
+	int deptId = _model->data(_model->index(index.row(), 1), Qt::UserRole + 1).toInt();
+
+	int recvId = ClinicerChooser::get(this, this);
+	if (0 == recvId) return;
 
 	int opId = OperatorChooser::get(this, this);
 	if (0 == opId) return;
 
-	QVariantMap vmap;
-	vmap.insert("plate_id", 16000006); // TODO
-	vmap.insert("operator_id", opId);
-	vmap.insert("order_ids", orders);
+	QVariantList pkgList;
+	for (int i = 0; i < _scanModel->rowCount(); i++) {
+		QString pkgIdStr = _scanModel->item(i, 0)->text();
+		pkgList.append(pkgIdStr);
+	}
 
-	Url::post(Url::PATH_ORDER_RECYCLE, vmap, [=](QNetworkReply *reply) {
+	QVariantMap vmap;
+	vmap.insert("package_ids", pkgList); // TODO
+	vmap.insert("department_id", deptId);
+	vmap.insert("operator_id", opId);
+	vmap.insert("order_id", order);
+	vmap.insert("r_operator_id", recvId);
+
+	Url::post(Url::PATH_ISSUE_ADD, vmap, [=](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success())
 			XNotifier::warn(QString("发放登记错误: ").append(resp.errorString()));

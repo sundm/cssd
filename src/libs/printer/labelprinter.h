@@ -71,6 +71,7 @@ class LABELPRINTER_EXPORT PrinterFactory {
 public:
 	enum PRINTER_TYPE {
 		ZEBRA_GT8,
+		PNG
 	};
 
 	LabelPrinter * Create(PRINTER_TYPE type);

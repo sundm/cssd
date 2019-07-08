@@ -5,8 +5,6 @@
 
 #define ERR_LAUNCH 1
 
-const QString version("V1.0.0");
-
 void testPrinter()
 {
 	LabelPrinter *printer = PrinterManager::currentPrinter();

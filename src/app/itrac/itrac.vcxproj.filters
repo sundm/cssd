@@ -327,6 +327,9 @@
     <ClCompile Include="widget\overlays\clinic_dispatch.cpp">
       <Filter>Source Files\widget\overlays</Filter>
     </ClCompile>
+    <ClCompile Include="dialog\clinicerchooser.cpp">
+      <Filter>Source Files\dialog</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="devicepage.h">
@@ -535,6 +538,9 @@
     </QtMoc>
     <QtMoc Include="widget\overlays\clinic_dispatch.h">
       <Filter>Source Files\widget\overlays</Filter>
+    </QtMoc>
+    <QtMoc Include="dialog\clinicerchooser.h">
+      <Filter>Source Files\dialog</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
