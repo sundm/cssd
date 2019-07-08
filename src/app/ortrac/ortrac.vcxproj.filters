@@ -1,0 +1,264 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
+      <Extensions>qrc;*</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Form Files">
+      <UniqueIdentifier>{99349809-55BA-4b9d-BF79-8FDBB0286EB3}</UniqueIdentifier>
+      <Extensions>ui</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
+      <Extensions>qrc;*</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Generated Files">
+      <UniqueIdentifier>{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}</UniqueIdentifier>
+      <Extensions>moc;h;cpp</Extensions>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
+    <Filter Include="Source Files\core">
+      <UniqueIdentifier>{88403450-e5b8-46a4-9c16-c960a4f157e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\platform">
+      <UniqueIdentifier>{6f217c8e-fb95-431a-8e10-d760484bac35}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\platform\win">
+      <UniqueIdentifier>{b91681e2-b440-4226-b91a-103da5ca798d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\widget">
+      <UniqueIdentifier>{05a3d6b4-2551-4381-aa9d-7acf05a987f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ui">
+      <UniqueIdentifier>{88c3e7e8-89f0-44ca-9dcb-8a729b41a36e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ui\composite">
+      <UniqueIdentifier>{ac48fc0a-4bf6-4f6b-be9f-8e148daba9ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\core\net">
+      <UniqueIdentifier>{64b189ea-5e60-45cb-953e-265e249ed54b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\widget\controls">
+      <UniqueIdentifier>{d36495ee-9981-4ba7-acf8-3446bd03c258}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\dialog">
+      <UniqueIdentifier>{e30ed360-230b-42bc-a2ad-de4e2bcc6c83}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ortrac.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\launcher.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\win\launcher_win.cpp">
+      <Filter>Source Files\platform\win</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\apploader.cpp">
+      <Filter>Source Files\widget</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\loginpage.cpp">
+      <Filter>Source Files\widget</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\mainwindow.cpp">
+      <Filter>Source Files\widget</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\leftbar.cpp">
+      <Filter>Source Files\widget</Filter>
+    </ClCompile>
+    <ClCompile Include="core\application.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\user.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\buttons.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\container.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\groups.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\image.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\inputfields.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\labels.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\loader.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\views.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\composite\waitingspinner.cpp">
+      <Filter>Source Files\ui\composite</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\composite\titles.cpp">
+      <Filter>Source Files\ui\composite</Filter>
+    </ClCompile>
+    <ClCompile Include="core\net\jsonhttpclient.cpp">
+      <Filter>Source Files\core\net</Filter>
+    </ClCompile>
+    <ClCompile Include="core\net\jsonhttpresponse.cpp">
+      <Filter>Source Files\core\net</Filter>
+    </ClCompile>
+    <ClCompile Include="core\net\url.cxx">
+      <Filter>Source Files\core\net</Filter>
+    </ClCompile>
+    <ClCompile Include="core\barcode.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\ui_commons.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\usepanel.cpp">
+      <Filter>Source Files\widget</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\controls\packageview.cpp">
+      <Filter>Source Files\widget\controls</Filter>
+    </ClCompile>
+    <ClCompile Include="core\assets.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="xnotifier.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dialog\operatorchooser.cpp">
+      <Filter>Source Files\dialog</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="ortrac.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\apploader.h">
+      <Filter>Source Files\widget</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\loginpage.h">
+      <Filter>Source Files\widget</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\mainwindow.h">
+      <Filter>Source Files\widget</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\leftbar.h">
+      <Filter>Source Files\widget</Filter>
+    </QtMoc>
+    <QtMoc Include="core\application.h">
+      <Filter>Source Files\core</Filter>
+    </QtMoc>
+    <QtMoc Include="ui\buttons.h">
+      <Filter>Source Files\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="ui\container.h">
+      <Filter>Source Files\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="ui\groups.h">
+      <Filter>Source Files\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="ui\image.h">
+      <Filter>Source Files\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="ui\inputfields.h">
+      <Filter>Source Files\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="ui\labels.h">
+      <Filter>Source Files\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="ui\loader.h">
+      <Filter>Source Files\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="ui\views.h">
+      <Filter>Source Files\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="ui\composite\waitingspinner.h">
+      <Filter>Source Files\ui\composite</Filter>
+    </QtMoc>
+    <QtMoc Include="ui\composite\titles.h">
+      <Filter>Source Files\ui\composite</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\usepanel.h">
+      <Filter>Source Files\widget</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\controls\packageview.h">
+      <Filter>Source Files\widget\controls</Filter>
+    </QtMoc>
+    <QtMoc Include="xnotifier.h">
+      <Filter>Source Files</Filter>
+    </QtMoc>
+    <QtMoc Include="dialog\operatorchooser.h">
+      <Filter>Source Files\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="ui\ui_commons.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="ortrac.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="widget\leftbar.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="widget\usepanel.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="ortrac.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ortrac.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="core\launcher.h">
+      <Filter>Source Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\platfom_specific.h">
+      <Filter>Source Files\platform</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\win\launcher_win.h">
+      <Filter>Source Files\platform\win</Filter>
+    </ClInclude>
+    <ClInclude Include="core\user.h">
+      <Filter>Source Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\net\jsonhttpclient.h">
+      <Filter>Source Files\core\net</Filter>
+    </ClInclude>
+    <ClInclude Include="core\net\jsonhttpresponse.h">
+      <Filter>Source Files\core\net</Filter>
+    </ClInclude>
+    <ClInclude Include="core\net\url.h">
+      <Filter>Source Files\core\net</Filter>
+    </ClInclude>
+    <ClInclude Include="core\barcode.h">
+      <Filter>Source Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\assets.h">
+      <Filter>Source Files\core</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

@@ -4,8 +4,8 @@
 
 namespace Url {
 	const QString Version("V1.0.1");
-	//const char PATH_BASE[] = "http://120.76.128.123:8080/CSSD/";
-	const char PATH_BASE[] = "http://localhost:8080/CSSD/";
+	const char PATH_BASE[] = "http://120.76.128.123:8080/CSSD/";
+	//const char PATH_BASE[] = "http://localhost:8080/CSSD/";
 	const char PATH_PLATE_SEARCH[] = "plate/search";
 	const char PATH_DEPT_SEARCH[] = "department/search";
 	const char PATH_DEVICE_ADD[] = "device/add";
@@ -60,6 +60,10 @@ namespace Url {
 	const char PATH_COST_SEARCH[] = "cost/search";
 	const char PATH_COST_ADD[] = "cost/add";
 	const char PATH_PRICE_ADD[] = "price/add";
+
+	const char PATH_WARN_PKGS[] = "warning/warningPackage";
+	const char PATH_RECALL[] = "warning/recall";
+	const char PATH_RECALL_SEARCH[] = "warning/recallSearch";
 
 	const char PATH_VERSION[] = "file/version";
 	const char PATH_UPDATE[] = "/";

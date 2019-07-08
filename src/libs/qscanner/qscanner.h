@@ -64,6 +64,7 @@ public:
 	static IBarcodeScanner * Create(BarcodeScannerType type, QObject *parent);
 
 	static void setScanable(Scanable *s);
+	static Scanable *scannable();
 	//static bool connect(const QObject * receiver, const char * method, Qt::ConnectionType type = Qt::AutoConnection);
 	//static bool connect(QObject *context, std::function<void(const QString &)> method);
 };

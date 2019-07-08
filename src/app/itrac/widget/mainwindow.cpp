@@ -4,7 +4,7 @@
 #include "clinicpage.h"
 #include "historywidget.h"
 #include "widget/assetpage.h"
-#include "themewidget.h"
+#include "analysepage.h"
 
 #include "core/application.h"
 
@@ -96,7 +96,7 @@ void MainWindow::swithToPage(int index, const QString &item)
 			_centerWidget->insertWidget(index, new AssetPage);
 			break;
 		case IDX_REPORT:
-			_centerWidget->insertWidget(index, new ThemeWidget);
+			_centerWidget->insertWidget(index, new AnalysePage);
 			break;
 		default:
 			break;

@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/">
+        <file>res/910108.png</file>
+        <file>res/qr.png</file>
+        <file>res/package.png</file>
+        <file>res/minus-24.png</file>
+        <file>res/patient.png</file>
+        <file>res/history-36.png</file>
+        <file>res/trace-36.png</file>
+        <file>res/write-36.png</file>
+        <file>res/user_female_96.png</file>
+        <file>res/patient-128.png</file>
+        <file>res/edit-border-focus.png</file>
+        <file>res/login-bg.jpg</file>
+    </qresource>
+</RCC>
