@@ -2,6 +2,7 @@
 
 #include "labelprinter_global.h"
 #include "qstring.h"
+#include "qzint.h"
 
 struct PackageLabel					//手术室标签
 {
@@ -59,19 +60,23 @@ public:
 
 private:
 	QString m_szPrinterName;
-
+	
 	virtual int buildPackageLabels(const PackageLabel &label, QString &szLabelBuilder) = 0;
 	virtual int buildClinicLabels(const ClinicLabel &label, QString &szLabelBuilder) = 0;
 	virtual int buildSterilizedLabels(const SterilizeLabel &label, QString &szLabelBuilder) = 0;
 
-
+	//virtual printer, draw jpg to c:/cssd
+	int printPackageLabelsToImg(const PackageLabel &label);
+	int printClinicLabelsToImg(const ClinicLabel &label);
+	int printSterilizedLabelsToImg(const SterilizeLabel &label);
+	mutable Zint::QZint bc;
 };
 
 class LABELPRINTER_EXPORT PrinterFactory {
 public:
 	enum PRINTER_TYPE {
 		ZEBRA_GT8,
-		PNG
+		//IMG_PRINTER,
 	};
 
 	LabelPrinter * Create(PRINTER_TYPE type);

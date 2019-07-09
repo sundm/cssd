@@ -17,7 +17,7 @@ ZebraGT8::ZebraGT8()
 {
 	m_isInit = true;
 	//dll_instance = LoadLibrary(CharToWchar(QString("fnthex32.dll")));
-    dll_instance = LoadLibrary(L"d:\\Project\\cssd\\repo\\v12\\bin\\x64-Debug\\Fnthex32.DLL");
+    dll_instance = LoadLibrary(L"Fnthex32.dll");
     DWORD res = GetLastError();
 	pDLLAddress = (GETFONTHEX)(GetProcAddress(dll_instance, "GETFONTHEX"));
 

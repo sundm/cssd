@@ -73,10 +73,10 @@ User & Application::currentUser() const {
 void Application::setupScanner()
 {
 	// HID-POS mode
-	IBarcodeScanner *scanner = BarcodeScannerFactory::Create(BarcodeScannerType::USB_HID_POS_NLOY20, NULL);
+	//IBarcodeScanner *scanner = BarcodeScannerFactory::Create(BarcodeScannerType::USB_HID_POS_NLOY20, NULL);
 
-	// HID-KBW mode, need installation of event filter on QApplication/widgets
-	//IBarcodeScanner *scanner = BarcodeScannerFactory::Create(BarcodeScannerType::HID_KBW, NULL);
+	//HID-KBW mode, need installation of event filter on QApplication/widgets
+	IBarcodeScanner *scanner = BarcodeScannerFactory::Create(BarcodeScannerType::HID_KBW, NULL);
 	scanner->start();
 }
 

@@ -104,8 +104,8 @@
       <ImportLibrary>$(SolutionDir)..\lib\$(Platform)\$(TargetName).lib</ImportLibrary>
     </Link>
     <QtMoc>
-      <Define>UNICODE;_UNICODE;WIN32;WIN64;QT_CORE_LIB;QJSON_MAKEDLL;QT_NO_CAST_FROM_ASCII;QT_NO_CAST_TO_ASCII;QT_USE_QSTRINGBUILDER;_USING_V110_SDK71_;_WINDLL</Define>
-      <IncludePath>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCore;.\src</IncludePath>
+      <Define>UNICODE;_UNICODE;WIN32;WIN64;QT_CORE_LIB;QJSON_MAKEDLL;QT_NO_CAST_FROM_ASCII;QT_NO_CAST_TO_ASCII;QT_USE_QSTRINGBUILDER;%(PreprocessorDefinitions)</Define>
+      <IncludePath>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;.\src</IncludePath>
       <OutputFile>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</OutputFile>
       <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
     </QtMoc>
@@ -131,8 +131,8 @@
       <AdditionalOptions> /SUBSYSTEM:WINDOWS</AdditionalOptions>
     </Link>
     <QtMoc>
-      <Define>QT_CORE_LIB;QJSON_MAKEDLL;QT_NO_CAST_FROM_ASCII;QT_NO_CAST_TO_ASCII;QT_USE_QSTRINGBUILDER;UNICODE;_UNICODE;WIN32;WIN64;_USING_V110_SDK71_;_WINDLL</Define>
-      <IncludePath>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCore;.\src</IncludePath>
+      <Define>QT_CORE_LIB;QJSON_MAKEDLL;QT_NO_CAST_FROM_ASCII;QT_NO_CAST_TO_ASCII;QT_USE_QSTRINGBUILDER;UNICODE;_UNICODE;WIN32;WIN64;%(PreprocessorDefinitions)</Define>
+      <IncludePath>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;.\src</IncludePath>
       <OutputFile>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</OutputFile>
       <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
     </QtMoc>
@@ -155,8 +155,8 @@
       <ImportLibrary>$(SolutionDir)..\lib\$(Platform)\$(TargetName).lib</ImportLibrary>
     </Link>
     <QtMoc>
-      <Define>UNICODE;_UNICODE;WIN32;WIN64;QT_NO_DEBUG;NDEBUG;QT_CORE_LIB;QJSON_MAKEDLL;QT_NO_CAST_FROM_ASCII;QT_NO_CAST_TO_ASCII;QT_USE_QSTRINGBUILDER;_USING_V110_SDK71_;_WINDLL</Define>
-      <IncludePath>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCore;.\src</IncludePath>
+      <Define>UNICODE;_UNICODE;WIN32;WIN64;QT_NO_DEBUG;NDEBUG;QT_CORE_LIB;QJSON_MAKEDLL;QT_NO_CAST_FROM_ASCII;QT_NO_CAST_TO_ASCII;QT_USE_QSTRINGBUILDER;%(PreprocessorDefinitions)</Define>
+      <IncludePath>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;.\src</IncludePath>
       <OutputFile>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</OutputFile>
       <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
     </QtMoc>
@@ -182,8 +182,8 @@
       <AdditionalOptions> /SUBSYSTEM:WINDOWS</AdditionalOptions>
     </Link>
     <QtMoc>
-      <Define>QT_NO_DEBUG;NDEBUG;QT_CORE_LIB;QJSON_MAKEDLL;QT_NO_CAST_FROM_ASCII;QT_NO_CAST_TO_ASCII;QT_USE_QSTRINGBUILDER;UNICODE;_UNICODE;WIN32;WIN64;_USING_V110_SDK71_;_WINDLL</Define>
-      <IncludePath>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCore;.\src</IncludePath>
+      <Define>QT_NO_DEBUG;NDEBUG;QT_CORE_LIB;QJSON_MAKEDLL;QT_NO_CAST_FROM_ASCII;QT_NO_CAST_TO_ASCII;QT_USE_QSTRINGBUILDER;UNICODE;_UNICODE;WIN32;WIN64;%(PreprocessorDefinitions)</Define>
+      <IncludePath>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;.\src</IncludePath>
       <OutputFile>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</OutputFile>
       <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
     </QtMoc>
@@ -213,7 +213,7 @@
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties MocDir=".\GeneratedFiles\$(ConfigurationName)" UicDir=".\GeneratedFiles" RccDir=".\GeneratedFiles" lupdateOptions="" lupdateOnBuild="0" lreleaseOptions="" Qt5Version_x0020_Win32="511-x86" Qt5Version_x0020_x64="5.11.1" MocOptions="" />
+      <UserProperties MocDir=".\GeneratedFiles\$(ConfigurationName)" UicDir=".\GeneratedFiles" RccDir=".\GeneratedFiles" lupdateOptions="" lupdateOnBuild="0" lreleaseOptions="" Qt5Version_x0020_Win32="msvc2015" Qt5Version_x0020_x64="5.11.1" MocOptions="" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

@@ -27,9 +27,11 @@ candidate/
 dump/
 
 # temp backups
-*¸±±¾*
+*ï¿½ï¿½ï¿½ï¿½*
 
 # VC++ user profile
 *.vcxproj.user
 
 log.txt
+src/libs/printer/imgprinter.h
+src/libs/printer/imgprinter.cpp

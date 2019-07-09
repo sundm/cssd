@@ -1,14 +1,15 @@
 #include "core/launcher.h"
 
-#include <printer/labelprinter.h>
-#include "util/printermanager.h"
+//#include <printer/labelprinter.h>
+//#include "util/printermanager.h"
 
 #define ERR_LAUNCH 1
 
+/*
 void testPrinter()
 {
 	LabelPrinter *printer = PrinterManager::currentPrinter();
-	if (0 != printer->open("ZDesigner GT800 (ZPL)")) {
+	if (0 != printer->open("ZDesigner GT800 (EPL)")) {
 		return;
 	}
 	printer->setInversion(true);
@@ -27,10 +28,11 @@ void testPrinter()
 
 	printer->close();
 }
+*/
 
 int main(int argc, char *argv[]) {
-	/*testPrinter();
-	return 0;*/
+	//testPrinter();
+	//return 0;
 
 	const auto launcher = Core::Launcher::create(argc, argv);
 	return launcher ? launcher->start(): ERR_LAUNCH;

@@ -25,7 +25,7 @@ DeptCompleter::DeptCompleter(QObject *parent /*= nullptr*/)
 	: IdCompleter(parent) {
 }
 
-void DeptCompleter::load() {
+void DeptCompleter::load(const int deptTypeId) {
 	Url::post(Url::PATH_DEPT_SEARCH, "{}", [=](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
@@ -38,10 +38,14 @@ void DeptCompleter::load() {
 		QList<QVariant> deps = resp.getAsList("department_list");
 		for (auto &dep : deps) {
 			QVariantMap map = dep.toMap();
-			QStandardItem *depItem = new QStandardItem(map["department_name"].toString());
-			depItem->setData(map["department_id"], Constant::IdRole);
-			depItem->setData(map["pinyin_code"], Constant::PinyinRole);
-			_model->appendRow(depItem);
+			if (deptTypeId == 0 || deptTypeId == map["is_or"].toInt())
+			{
+				QStandardItem *depItem = new QStandardItem(map["department_name"].toString());
+				depItem->setData(map["department_id"], Constant::IdRole);
+				depItem->setData(map["pinyin_code"], Constant::PinyinRole);
+				_model->appendRow(depItem);
+			}
+			
 		}
 	});
 }

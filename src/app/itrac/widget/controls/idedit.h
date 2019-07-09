@@ -37,8 +37,14 @@ protected:
 class DeptEdit : public IdEdit {
 	Q_OBJECT
 public:
+	enum DEPTYPE {
+		ALL = 0,
+		OPERATING_ROOM = 3,
+		CLINIC = 4,
+		CSSD = 5
+	};
 	DeptEdit(QWidget *parent = nullptr);
-	void load();
+	void load(DEPTYPE deptType);
 };
 
 class PackageEdit : public IdEdit {

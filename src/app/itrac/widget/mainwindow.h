@@ -15,7 +15,7 @@ public:
 	static MainWindow *instance();
 
 	//enum { IDX_OR, IDX_CLINIC, IDX_CSSD, IDX_HISTORY, IDX_ASSET, IDX_REPORT };
-	enum { IDX_CLINIC, IDX_CSSD, IDX_HISTORY, IDX_ASSET, IDX_REPORT };
+	enum {IDX_CSSD, IDX_HISTORY, IDX_ASSET, IDX_REPORT };
 	QWidget *currentPage() const;
 	void setTopbarEnabled(bool);
 

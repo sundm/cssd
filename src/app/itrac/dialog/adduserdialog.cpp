@@ -38,7 +38,7 @@ AddUserDialog::AddUserDialog(QWidget *parent)
 	setFixedHeight(sizeHint().height());
 	resize(parent ? parent->width() / 3 : 360, height());
 
-	_deptEdit->load();
+	_deptEdit->load(DeptEdit::ALL);
 }
 
 void AddUserDialog::accept() {

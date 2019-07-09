@@ -64,7 +64,7 @@ NoBCRecyclePanel::NoBCRecyclePanel(QWidget *parent)
 	layout->addWidget(_pkgView, 1, 0);
 	layout->addWidget(tip, 1, 1);
 
-	QTimer::singleShot(500, [this] { _deptEdit->load(); });
+	QTimer::singleShot(500, [this] { _deptEdit->load(DeptEdit::ALL); });
 }
 
 bool NoBCRecyclePanel::accept() {

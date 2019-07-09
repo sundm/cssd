@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 	// ownership of the widget is passed to center widget
 	//_centerWidget->addWidget(new QWidget);
-	_centerWidget->addWidget(new ClinicPage);
+	//_centerWidget->addWidget(new ClinicPage);
 	_centerWidget->addWidget(new CssdPage);
 	for (int i = IDX_HISTORY; i <= IDX_REPORT; ++i) {
 		// for better performance and less memory cost, left the other pages blank,

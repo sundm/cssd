@@ -118,10 +118,10 @@ DeptEdit::DeptEdit(QWidget *parent /*= nullptr*/)
 	setCompleter(new DeptCompleter(this));
 }
 
-void DeptEdit::load() {
+void DeptEdit::load(DEPTYPE deptType) {
 	reset();
 	DeptCompleter *completer = static_cast<DeptCompleter *>(this->completer());
-	completer->load();
+	completer->load(deptType);
 }
 
 PackageEdit::PackageEdit(QWidget *parent /*= nullptr*/)

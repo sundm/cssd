@@ -37,7 +37,7 @@ OrDispatchPanel::OrDispatchPanel(QWidget *parent)
 	layout->addWidget(_pkgView, 1, 0);
 	layout->addWidget(tip, 0, 1, 2, 1);
 
-	QTimer::singleShot(500, [this] { _deptEdit->load(); });
+	QTimer::singleShot(500, [this] { _deptEdit->load(DeptEdit::OPERATING_ROOM); });
 }
 
 void OrDispatchPanel::handleBarcode(const QString &code) {

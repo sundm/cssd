@@ -2,7 +2,9 @@
 #include <printer/labelprinter.h>
 
 PrinterManager::PrinterManager() {
+
 	_printer = PrinterFactory().Create(PrinterFactory::ZEBRA_GT8);
+
 	_printer->setInversion(true);
 }
 

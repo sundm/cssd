@@ -80,7 +80,7 @@ namespace Widget {
 	void LoginPanel::handleBarcode(const QString &code) {
 		Barcode bc(code);
 		if (bc.type() == Barcode::User) {
-			login(code.mid(2), "");
+			login(code, "");
 		}
 	}
 
@@ -124,10 +124,15 @@ namespace Widget {
 		Core::app()->startWaitingOn(this);
 
 		QVariantMap vmap;
-		vmap.insert("account", account);
+
 		if (!pwd.isEmpty()) {
+			vmap.insert("account", account);
 			vmap.insert("pwd", pwd);
 		}
+		else {
+			vmap.insert("operator_id", account);
+		}
+
 		vmap.insert("sign_flag", "O");
 
 		/*Core::User &user = Core::currentUser();

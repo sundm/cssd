@@ -19,6 +19,53 @@
 #include <QGraphicsOpacityEffect>
 #include <QProcess>
 
+#include <printer/labelprinter.h>
+#include "util/printermanager.h"
+
+void testPrinter()
+{
+	LabelPrinter *printer = PrinterManager::currentPrinter();
+	if (0 != printer->open("ZDesigner GT800 (EPL)")) {
+		return;
+	}
+	printer->setInversion(true);
+	/*
+	PackageLabel label;
+	label.packageId = "100000861904230005";
+	label.packageName = "胸腔器械（每份84把共1份）";
+	label.packageFrom = "手术室";
+	label.packageType = "棉布";
+	label.disinDate = "2019-04-23 18:47:02";
+	label.expiryDate = "2019-04-30";
+	label.operatorName = "张爱琴";
+	label.assessorName = "李建";
+	label.count = 54;
+
+	printer->printPackageLabel(label);
+	
+	ClinicLabel label;
+	label.packageId = "100000861904230001";
+	label.packageName = "清创器械";
+	label.packageFrom = "外科";
+	label.disinDate = "2019-04-23 18:47:02";
+	label.expiryDate = "2019-04-30";
+	label.operatorName = "张爱琴";
+	label.assessorName = "李建";
+
+	printer->printClinicLabel(label);
+	*/
+	SterilizeLabel label;
+	label.sterilizeId = "100000861904230002";
+	label.sterilizeName = "灭菌器001号";
+	label.sterilizeDate = "2019-04-23";
+	label.sterilizeTime = "18:47:02";
+	label.panNum = 1;
+	label.packageNum = 3;
+	printer->printSterilizedLabel(label);
+	
+	printer->close();
+}
+
 namespace Widget {
 
 	LoginPanel::LoginPanel(Ui::Container *container /*= nullptr*/)
@@ -64,6 +111,9 @@ namespace Widget {
 	}
 
 	void LoginPanel::submit() {
+		//testPrinter();
+		//return;
+		
 		QString user(userEdit->text());
 		QString pwd(pwdEdit->text());
 		if (user.isEmpty()) {

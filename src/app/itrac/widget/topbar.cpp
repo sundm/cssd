@@ -36,7 +36,7 @@ TopBar::TopBar(QWidget *parent) :
 	case Core::User::Admin:
 	case Core::User::HeadNurse:
 		//items = "使用登记;物品申领;流程管理;历史查询;物资管理;报表统计";
-		items = "物品申领;流程管理;历史查询;物资管理;报表统计";
+		items = "流程管理;历史查询;物资管理;报表统计";
 		break;
 	case Core::User::OrUser:
 		items = "使用登记;历史查询";

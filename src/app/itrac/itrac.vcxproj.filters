@@ -74,6 +74,9 @@
     <Filter Include="Source Files\util">
       <UniqueIdentifier>{469dae49-cf38-4f31-b5b4-14f75946ec98}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\widget\analyse">
+      <UniqueIdentifier>{077a843b-f60f-4d32-bc91-9785b40c9ec9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="itrac.qrc">
@@ -88,9 +91,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="devicepage.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="themewidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="deviceprogrampage.cpp">
@@ -330,6 +330,21 @@
     <ClCompile Include="dialog\clinicerchooser.cpp">
       <Filter>Source Files\dialog</Filter>
     </ClCompile>
+    <ClCompile Include="widget\assets\recallpage.cpp">
+      <Filter>Source Files\widget\assets</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\analyse\kpipage.cpp">
+      <Filter>Source Files\widget\analyse</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\analyse\themewidget.cpp">
+      <Filter>Source Files\widget\analyse</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\analysepage.cpp">
+      <Filter>Source Files\widget</Filter>
+    </ClCompile>
+    <ClCompile Include="dialog\warningdialog.cpp">
+      <Filter>Source Files\dialog</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="devicepage.h">
@@ -339,9 +354,6 @@
       <Filter>Source Files</Filter>
     </QtMoc>
     <QtMoc Include="historywidget.h">
-      <Filter>Source Files</Filter>
-    </QtMoc>
-    <QtMoc Include="themewidget.h">
       <Filter>Source Files</Filter>
     </QtMoc>
     <QtMoc Include="userpage.h">
@@ -542,13 +554,28 @@
     <QtMoc Include="dialog\clinicerchooser.h">
       <Filter>Source Files\dialog</Filter>
     </QtMoc>
+    <QtMoc Include="widget\assets\recallpage.h">
+      <Filter>Source Files\widget\assets</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\analyse\kpipage.h">
+      <Filter>Source Files\widget\analyse</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\analyse\themewidget.h">
+      <Filter>Source Files\widget\analyse</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\analysepage.h">
+      <Filter>Source Files\widget</Filter>
+    </QtMoc>
+    <QtMoc Include="dialog\warningdialog.h">
+      <Filter>Source Files\dialog</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
-    <QtUic Include="themewidget.ui">
-      <Filter>Form Files</Filter>
-    </QtUic>
     <QtUic Include="historywidget.ui">
       <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="widget\analyse\themewidget.ui">
+      <Filter>Source Files\widget\analyse</Filter>
     </QtUic>
   </ItemGroup>
   <ItemGroup>

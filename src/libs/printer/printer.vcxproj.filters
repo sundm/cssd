@@ -27,15 +27,24 @@
     <ClCompile Include="ZebraGT8.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="qzint.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="labelprinter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="labelprinter_global.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ZebraGT8.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="zint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="qzint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="labelprinter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

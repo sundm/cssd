@@ -119,7 +119,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;UNICODE;_UNICODE;WIN32;WIN64;QT_CHARTS_LIB;SELL_DEMO;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;UNICODE;_UNICODE;WIN32;WIN64;QT_CHARTS_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -140,7 +140,7 @@
       <OutputFile>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</OutputFile>
       <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
       <IncludePath>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts</IncludePath>
-      <Define>QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;UNICODE;_UNICODE;WIN32;WIN64;QT_CHARTS_LIB;SELL_DEMO;%(PreprocessorDefinitions)</Define>
+      <Define>QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;UNICODE;_UNICODE;WIN32;WIN64;QT_CHARTS_LIB;%(PreprocessorDefinitions)</Define>
     </QtMoc>
     <QtUic>
       <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
@@ -250,12 +250,12 @@
     <ClCompile Include="dialog\regexpinputdialog.cpp" />
     <ClCompile Include="dialog\repayextdialog.cpp" />
     <ClCompile Include="dialog\userinfodialog.cpp" />
+    <ClCompile Include="dialog\warningdialog.cpp" />
     <ClCompile Include="historywidget.cpp" />
     <ClCompile Include="importextdialog.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="model\spinboxdelegate.cpp" />
     <ClCompile Include="platform\win\launcher_win.cpp" />
-    <ClCompile Include="themewidget.cpp" />
     <ClCompile Include="ui\buttons.cpp" />
     <ClCompile Include="ui\composite\qpaginationwidget.cpp" />
     <ClCompile Include="ui\composite\sliderbar.cpp" />
@@ -271,11 +271,15 @@
     <ClCompile Include="ui\views.cpp" />
     <ClCompile Include="userpage.cpp" />
     <ClCompile Include="util\printermanager.cpp" />
+    <ClCompile Include="widget\analysepage.cpp" />
+    <ClCompile Include="widget\analyse\kpipage.cpp" />
+    <ClCompile Include="widget\analyse\themewidget.cpp" />
     <ClCompile Include="widget\apploader.cpp" />
     <ClCompile Include="widget\assetpage.cpp" />
     <ClCompile Include="widget\assets\departmentpage.cpp" />
     <ClCompile Include="widget\assets\instrumentpage.cpp" />
     <ClCompile Include="widget\assets\packagepage.cpp" />
+    <ClCompile Include="widget\assets\recallpage.cpp" />
     <ClCompile Include="widget\clinicpage.cpp" />
     <ClCompile Include="widget\controls\idcompleter.cpp" />
     <ClCompile Include="widget\controls\idedit.cpp" />
@@ -327,7 +331,7 @@
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="historywidget.ui" />
-    <QtUic Include="themewidget.ui" />
+    <QtUic Include="widget\analyse\themewidget.ui" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\inliner.h" />
@@ -348,6 +352,7 @@
     <QtMoc Include="dialog\addextdialog.h" />
     <QtMoc Include="dialog\repayextdialog.h" />
     <QtMoc Include="dialog\clinicerchooser.h" />
+    <QtMoc Include="dialog\warningdialog.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="util\printermanager.h">
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog</IncludePath>
@@ -359,6 +364,10 @@
       <Define Condition="'$(Configuration)|$(Platform)'=='Release|x64'">UNICODE;_UNICODE;WIN32;WIN64;QT_DLL;QT_NO_DEBUG;NDEBUG;QT_CHARTS_LIB;QT_CORE_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_WIDGETS_LIB;_USING_V110_SDK71_</Define>
       <Define Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">UNICODE;_UNICODE;WIN32;WIN64;QT_DLL;QT_NO_DEBUG;NDEBUG;QT_CHARTS_LIB;QT_CORE_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_WIDGETS_LIB;_USING_V110_SDK71_</Define>
     </ClInclude>
+    <QtMoc Include="widget\assets\recallpage.h" />
+    <QtMoc Include="widget\analyse\kpipage.h" />
+    <QtMoc Include="widget\analyse\themewidget.h" />
+    <QtMoc Include="widget\analysepage.h" />
     <ClInclude Include="widget\history\filter.h" />
     <QtMoc Include="widget\history\historypage.h" />
     <QtMoc Include="widget\history\filterwidget.h" />
@@ -462,7 +471,6 @@
     <QtMoc Include="ui\composite\qpaginationwidget.h" />
     <QtMoc Include="userpage.h" />
     <QtMoc Include="deviceprogrampage.h" />
-    <QtMoc Include="themewidget.h" />
     <QtMoc Include="devicepage.h" />
   </ItemGroup>
   <ItemGroup>

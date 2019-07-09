@@ -26,7 +26,7 @@ class DeptCompleter : public IdCompleter
 	Q_OBJECT
 public:
 	DeptCompleter(QObject *parent = nullptr);
-	void load();
+	void load(const int deptTypeId);
 };
 
 class PackageCompleter : public IdCompleter
