@@ -110,7 +110,6 @@ void ClinicDispatchPanel::addPackage(const QString& id) {
 	Url::post(Url::PATH_PKG_INFO, data, [=](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
-			//XNotifier::warn(this, QString("无法获取清洗网篮数据: ").append(resp.errorString()), -1);
 			return;
 		}
 
@@ -121,14 +120,22 @@ void ClinicDispatchPanel::addPackage(const QString& id) {
 			XNotifier::warn(QString("该条码%1所对应的包，不在当前订单中。").arg(id), -1);
 			return;
 		}
-
-		/*
+		
 		if (_codeList->contains(id))
 		{
-			XNotifier::warn(QString("请勿重复扫描: ").append(id), -1);
+			XNotifier::warn(QString("该条码包已录入，请勿重复扫描: ").append(id), -1);
 			return;
 		}
-		*/
+
+		if (!resp.getAsBool("sterilize_qualified")) {
+			XNotifier::warn(QString("该条码包灭菌未合格"), -1);
+			return;
+		}
+
+		if (!resp.getAsBool("expired")) {
+			XNotifier::warn(QString("该条码包已过期"), -1);
+			return;
+		}
 
 		int num = _scanMap->value(pktId);
 		if (num < _detailMap->value(pktId))
@@ -175,6 +182,7 @@ bool ClinicDispatchPanel::checkNumber() {
 
 void ClinicDispatchPanel::reset() {
 	_detailView->clear();
+	_scanView->clear();
 	_title->setTitle("订单详情");
 	loadOrders();
 }

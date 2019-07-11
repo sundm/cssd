@@ -51,8 +51,9 @@ protected:
 private slots:
 	void addEntry();
 	void removeEntry();
-	void choosePlate();
+	void chooseExt();
 	void commit();
+	void setExtPkg(const QString&, const QString&);
 
 private:
 	void updatePlate(const QString &);

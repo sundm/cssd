@@ -84,7 +84,7 @@ bool UsbHidKbwScanner::eventFilter(QObject *obj, QEvent *event)
 		if (!w) {
 			return false;
 		}
-		//qDebug() << w;
+		qDebug() << w;
 
 		if (keyEvent->isAutoRepeat()) return false;
 
@@ -108,9 +108,9 @@ bool UsbHidKbwScanner::eventFilter(QObject *obj, QEvent *event)
 		}
 		else {
 			//if (Qt::Key_BracketRight != keyEvent->key()) {
-			//if (Qt::Key_F6 != keyEvent->key()) {
+			if (Qt::Key_F6 != keyEvent->key()) {
 			// propagate the event if key is not ']'
-			if (!QChar::isDigit(keyEvent->key())) {
+			//if (!QChar::isDigit(keyEvent->key())) {
 				// propagate the event for non-digit keys
 				return false;
 			}
@@ -118,7 +118,7 @@ bool UsbHidKbwScanner::eventFilter(QObject *obj, QEvent *event)
 		}
 
 		_timer->start(); // start or restart the timer
-		return false;
+		return true;
 	}
 	else {
 		// standard event processing

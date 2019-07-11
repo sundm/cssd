@@ -1,7 +1,9 @@
 #include "clinic.h"
 #include "xnotifier.h"
+#include "core/barcode.h"
 #include "core/application.h"
 #include "core/net/url.h"
+#include "core/assets.h"
 #include "dialog/operatorchooser.h"
 #include "ui/views.h"
 #include "ui/buttons.h"
@@ -14,15 +16,15 @@ ClinicPanel::ClinicPanel(QWidget *parent)
 	: CssdOverlayPanel(parent)
 	, _view(new TableView)
 	, _detailView(new TableView)
-	, _model(new QStandardItemModel(0, 4, _view))
-	, _detailModel(new QStandardItemModel(0, 2, _view))
+	, _model(new QStandardItemModel(0, 3, _view))
+	, _detailModel(new QStandardItemModel(0, 3, _view))
 	, _title(new Composite::Title("订单详情", false))
 {
 	// setup package view info
 	_model->setHeaderData(0, Qt::Horizontal, "订单号");
 	_model->setHeaderData(1, Qt::Horizontal, "科室");
 	_model->setHeaderData(2, Qt::Horizontal, "订单生成时间");
-	_model->setHeaderData(3, Qt::Horizontal, "操作");
+	//_model->setHeaderData(3, Qt::Horizontal, "操作");
 	_view->setModel(_model);
 	_view->setSelectionMode(QAbstractItemView::SingleSelection);
 	_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -31,6 +33,7 @@ ClinicPanel::ClinicPanel(QWidget *parent)
 	// setup package view info
 	_detailModel->setHeaderData(0, Qt::Horizontal, "物品");
 	_detailModel->setHeaderData(1, Qt::Horizontal, "数量");
+	_detailModel->setHeaderData(2, Qt::Horizontal, "装篮");
 	_detailView->setModel(_detailModel);
 	_detailView->setSelectionMode(QAbstractItemView::SingleSelection);
 	_detailView->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -55,13 +58,36 @@ ClinicPanel::ClinicPanel(QWidget *parent)
 	layout->addWidget(_view);
 	layout->addWidget(detailPanel);
 	layout->addWidget(tip);
-	layout->setStretch(0, 1);
+	layout->setStretch(0, 3);
+	layout->setStretch(1, 2);
 
 	QTimer::singleShot(0, this, SLOT(loadOrders()));
 }
 
-void ClinicPanel::handleBarcode(const QString &) {
+void ClinicPanel::handleBarcode(const QString &code) {
+	Barcode bc(code);
+	if (bc.type() == Barcode::Plate) {
+		updatePlate(code);
+	}
+}
 
+void ClinicPanel::updatePlate(const QString &plateId) {
+	Plate::fetchOnce(plateId, [this](Plate* plate) {
+		if (!plate->err.isEmpty()) {
+			return;
+		}
+
+		if (!plate->idle) {
+			XNotifier::warn(QString("该篮筐<%1>正在使用，无法添加").arg(plate->name));
+			return;
+		}
+
+		for (int i = 0; i != _detailModel->rowCount(); ++i) {
+			QStandardItem *item = _detailModel->item(i, 2);
+			item->setText(plate->name);
+			item->setData(plate->id);
+		}
+	});
 }
 
 void ClinicPanel::reset() {
@@ -79,11 +105,14 @@ void ClinicPanel::commit() {
 		orders << _model->data(_model->index(idx.row(), 0)).toInt();
 	}
 
+	int plateId = _detailModel->item(0, 2)->data().toInt();
+	if (0 == plateId) return;
+
 	int opId = OperatorChooser::get(this, this);
 	if (0 == opId) return;
 
 	QVariantMap vmap;
-	vmap.insert("plate_id", 16000006); // TODO
+	vmap.insert("plate_id", plateId); // TODO
 	vmap.insert("operator_id", opId);
 	vmap.insert("order_ids", orders);
 
@@ -123,7 +152,7 @@ void ClinicPanel::loadOrders() {
 			_model->setData(_model->index(i, 0), map["order_id"]);
 			_model->setData(_model->index(i, 1), map["dept_name"]);
 			_model->setData(_model->index(i, 2), map["s_date"]);
-			_view->setIndexWidget(_model->index(i, 3), new QPushButton("查看详情"));
+			//_view->setIndexWidget(_model->index(i, 3), new QPushButton("查看详情"));
 		}
 	});
 }
@@ -151,6 +180,7 @@ void ClinicPanel::showDetail(const QModelIndex &index) {
 			QVariantMap map = orders[i].toMap();
 			_detailModel->setData(_detailModel->index(i, 0), map["package_type_name"]);
 			_detailModel->setData(_detailModel->index(i, 1), map["num"]);
+			_detailModel->setData(_detailModel->index(i, 2), QString("请扫描篮筐条码"));
 		}
 	});
 }

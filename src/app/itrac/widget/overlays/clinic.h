@@ -31,4 +31,6 @@ private:
 	QStandardItemModel *_model;
 	QStandardItemModel *_detailModel;
 	Composite::Title *_title;
+
+	void updatePlate(const QString &);
 };

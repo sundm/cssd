@@ -66,7 +66,7 @@ WasherItem::WasherItem(Device *device, QWidget *parent)
 	_comboBox = new ProgramComboBox(_device->id);
 	layout->addWidget(_comboBox, 3, 0, 1, 2);
 
-	_button = new QPushButton("结束清洗");
+	_button = new QPushButton("完成");
 	connect(_button, SIGNAL(clicked()), this, SLOT(stop()));
 	layout->addWidget(_button, 4, 0, 1, 2);
 
@@ -105,7 +105,7 @@ void WasherItem::stop() {
 	Url::post(Url::PATH_DEVICE_STOP, data, [this](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
-			XNotifier::warn(QString("结束清洗机出错: ").append(resp.errorString()));
+			XNotifier::warn(QString("结束程序出错: ").append(resp.errorString()));
 			return;
 		}
 		setIdle();
@@ -135,8 +135,8 @@ void DeviceArea::load(DeviceArea::Type type)
 {
 	clear();
 
-	QString data = QString("{\"device_type\":\"000%1\"}").arg(
-		(DeviceArea::Washer == type) ? 1: 2);
+	QString data = QString("{\"device_type\":\"000%1\"}").arg((DeviceArea::Washer == type) ? 1: 2);
+
 	Url::post(Url::PATH_DEVICE_SEARCH, QByteArray().append(data), [this](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {

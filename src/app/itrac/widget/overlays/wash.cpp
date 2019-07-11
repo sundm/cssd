@@ -30,7 +30,6 @@ WashPanel::WashPanel(QWidget *parent)
 	layout->addWidget(tip, 0, 1, 2, 1);
 	layout->setRowStretch(1, 1);
 
-	//_deviceArea->load();
 	QTimer::singleShot(200, [this] { _deviceArea->load(DeviceArea::Washer); });
 }
 
@@ -39,6 +38,7 @@ void WashPanel::handleBarcode(const QString &code) {
 	if (bc.type() == Barcode::Plate) {
 		int id = bc.intValue();
 		if (!_plateView->hasPlate(id)) {
+
 			_plateView->addPlate(id);
 		}
 	}

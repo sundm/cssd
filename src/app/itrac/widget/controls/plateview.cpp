@@ -31,18 +31,21 @@ void PlateView::addPlate(int id) {
 	Url::post(Url::PATH_PKG_IN_PLATE, data, [=](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
-			//XNotifier::warn(this, QString("无法获取清洗网篮数据: ").append(resp.errorString()), -1);
+			XNotifier::warn(QString("无法获取清洗网篮数据: ").append(resp.errorString()), -1);
 			return;
 		}
 
 		QList<QVariant> pkgTypes = resp.getAsList("package_types");
 		if (pkgTypes.isEmpty()) {
+			XNotifier::warn(QString("该清洗网篮没有包信息"), -1);
 			return;
 		}
 
+		clear();
+
 		QStandardItem *plateItem = new QStandardItem(QString("托盘 %1").arg(id));
 		plateItem->setData(id);
-
+		
 		for(auto &pkgType: pkgTypes) {
 			QVariantMap map = pkgType.toMap();
 			QStandardItem *nameItem = new QStandardItem(map["package_type_name"].toString());
@@ -84,6 +87,7 @@ PackPlateView::PackPlateView(QWidget *parent)
 
 	QHeaderView *header = this->header();
 	header->setSectionResizeMode(QHeaderView::Stretch);
+
 }
 
 void PackPlateView::addPlate(int id)
@@ -100,8 +104,11 @@ void PackPlateView::addPlate(int id)
 
 		QList<QVariant> pkgTypes = resp.getAsList("package_types");
 		if (pkgTypes.isEmpty()) {
+			XNotifier::warn(QString("该网篮为空！"));
 			return;
 		}
+
+		_model->removeRows(0, _model->rowCount());
 
 		QStandardItem *plateItem = new QStandardItem(QString("托盘 %1").arg(id));
 		plateItem->setData(id);
@@ -192,6 +199,7 @@ void PackPlateView::doPack(int opId, int checkId) {
 			label.count = map["instrument_num"].toInt();
 			printer->printPackageLabel(label);
 		}
+
 	});
 }
 

@@ -15,9 +15,17 @@ public:
 protected:
 	void accept() override;
 
+signals:
+	void extPkgImport(const QString&, const QString&);
+private slots:
+	void onRowClicked(const QModelIndex &);
+
 private:
 	void loadExt();
 
 	TableView * _view;
 	QStandardItemModel * _model;
+
+	TableView * _detailView;
+	QStandardItemModel * _detailModel;
 };

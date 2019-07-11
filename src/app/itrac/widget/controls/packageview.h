@@ -25,6 +25,7 @@ class OrRecyclePackageView : public AbstractPackageView
 public:
 	enum { Barcode, Name, PackType, Department, ExpireDate, VPlate };
 	OrRecyclePackageView(QWidget *parent = nullptr);
+	void addExtPackage(const QString&, const QString&);
 	void addPackage(const QString &) override;
 	void updatePlate(const QString &);
 	int plate() const;

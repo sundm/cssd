@@ -3,9 +3,9 @@
 #include <QVariantMap>
 
 namespace Url {
-	const QString Version("V1.0.1");
-	//const char PATH_BASE[] = "http://120.76.128.123:8080/CSSD/";
-	const char PATH_BASE[] = "http://localhost:8080/CSSD/";
+	const QString Version("V1.0.0");
+	const char PATH_BASE[] = "http://120.76.128.123:8082/CSSD/";
+	//const char PATH_BASE[] = "http://localhost:8080/CSSD/";
 	const char PATH_PLATE_SEARCH[] = "plate/search";
 	const char PATH_DEPT_SEARCH[] = "department/search";
 	const char PATH_USER_LOGIN[] = "user/login";
@@ -18,6 +18,5 @@ namespace Url {
 
 	const char PATH_USE_ADD[] = "use/add";
 
-	const char PATH_VERSION[] = "file/version";
-	const char PATH_UPDATE[] = "/";
+	const char PATH_VERSION[] = "file/version/ortrac";
 } // namespace Url

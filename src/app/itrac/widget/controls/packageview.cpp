@@ -121,9 +121,20 @@ void OrRecyclePackageView::addPackage(const QString &id) {
 		rowItems.append(new QStandardItem(pkg->packName));
 		rowItems.append(new QStandardItem(pkg->usedBy));
 		rowItems.append(new QStandardItem(pkg->expireDate));
-		rowItems.append(new QStandardItem("-"));
+		rowItems.append(new QStandardItem("请扫描篮筐条码"));
 		_model->appendRow(rowItems);
 	});
+}
+
+void OrRecyclePackageView::addExtPackage(const QString& pkgId, const QString& pkgName) {
+	QList<QStandardItem *> rowItems;
+	rowItems.append(new QStandardItem(pkgId));
+	rowItems.append(new QStandardItem(pkgName));
+	rowItems.append(new QStandardItem(""));
+	rowItems.append(new QStandardItem("外来器械"));
+	rowItems.append(new QStandardItem(""));
+	rowItems.append(new QStandardItem("请扫描篮筐条码"));
+	_model->appendRow(rowItems);
 }
 
 void OrRecyclePackageView::updatePlate(const QString &plateId)
@@ -134,6 +145,7 @@ void OrRecyclePackageView::updatePlate(const QString &plateId)
 		}
 
 		if (!plate->idle) {
+			XNotifier::warn("该篮筐正在使用中，请扫描其他篮筐。");
 			return;
 		}
 

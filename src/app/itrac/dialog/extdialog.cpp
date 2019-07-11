@@ -82,6 +82,13 @@ void ExtRecvDialog::accept() {
 	QString receiver = Core::currentUser().name;
 
 	if (0 == vendorId || sender.isEmpty() || senderPhone.isEmpty()) {
+		XNotifier::warn(QString("暂时无法提交登记: 缺少必要字段"));
+		return;
+	}
+
+	if (0 == _model->rowCount())
+	{
+		XNotifier::warn(QString("暂时无法提交登记: 未添加任何器械"));
 		return;
 	}
 

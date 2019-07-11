@@ -24,7 +24,6 @@ extern const char PATH_TRACE_PATIENT[];
 extern const char PATH_USE_ADD[];
 
 extern const char PATH_VERSION[];
-extern const char PATH_UPDATE[];
 
 inline QString url(const char *path) {
 	return QString(PATH_BASE).append(path);

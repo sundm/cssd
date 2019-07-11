@@ -60,7 +60,7 @@ namespace Widget {
 		connect(userEdit, SIGNAL(returnPressed()), this, SLOT(submit()));
 		connect(pwdEdit, SIGNAL(returnPressed()), this, SLOT(submit()));
 
-		//version();
+		version();
 	}
 
 	void LoginPanel::submit() {

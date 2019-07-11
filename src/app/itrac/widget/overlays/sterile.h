@@ -20,4 +20,5 @@ private slots:
 private:
 	DeviceArea * _deviceArea;
 	SterilePackageView * _pkgView;
+	void reset();
 };

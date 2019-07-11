@@ -77,6 +77,7 @@ void SterilePanel::commit() {
 
 	bool chemInvolved = true; //TODO
 	bool bioInvolved = false;
+
 	vmap.insert("chemical_test", chemInvolved);
 	vmap.insert("biological_test", bioInvolved);
 
@@ -106,5 +107,11 @@ void SterilePanel::commit() {
 		printer->close();
 
 		XNotifier::warn("已完成灭菌登记");
+		reset();
 	});
+}
+
+void SterilePanel::reset() {
+	_pkgView->clear();
+	_deviceArea->load(DeviceArea::Sterilizer);
 }

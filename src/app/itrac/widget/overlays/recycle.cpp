@@ -95,7 +95,7 @@ void NoBCRecyclePanel::addEntry() {
 		pkgItem->setData(_pkgEdit->currentId());
 		QStandardItem *plateItem = new QStandardItem("-");
 		plateItem->setData(0);
-		items << depItem << pkgItem << new QStandardItem("1") << new QStandardItem("-");
+		items << depItem << pkgItem << new QStandardItem("1") << new QStandardItem("请扫描篮筐条码");
 		_pkgModel->appendRow(items);
 	}
 	else {
@@ -187,6 +187,7 @@ void NoBCRecyclePanel::updatePlate(const QString &plateId) {
 		}
 
 		if (!plate->idle) {
+			XNotifier::warn(QString("该篮筐<%1>正在使用，无法添加").arg(plate->name));
 			return;
 		}
 
@@ -219,9 +220,9 @@ OrRecyclePanel::OrRecyclePanel(QWidget *parent /*= nullptr*/)
 
 	hLayout->addWidget(Ui::createSeperator(Qt::Vertical));
 
-	Ui::IconButton *plateButton = new Ui::IconButton(":/res/fill-plate-24.png", "装篮");
-	hLayout->addWidget(plateButton);
-	connect(plateButton, SIGNAL(clicked()), this, SLOT(choosePlate()));
+	Ui::IconButton *extImportButton = new Ui::IconButton(":/res/fill-plate-24.png", "外部器械导入   ");
+	hLayout->addWidget(extImportButton);
+	connect(extImportButton, SIGNAL(clicked()), this, SLOT(chooseExt()));
 
 	hLayout->addStretch();
 
@@ -237,9 +238,14 @@ OrRecyclePanel::OrRecyclePanel(QWidget *parent /*= nullptr*/)
 	layout->addWidget(tip, 1, 1);
 }
 
-void OrRecyclePanel::choosePlate() {
+void OrRecyclePanel::chooseExt() {
 	ImportExtDialog d(this);
+	connect(&d, SIGNAL(extPkgImport(const QString&,const QString&)), this, SLOT(setExtPkg(const QString&, const QString&)));
 	d.exec();
+}
+
+void OrRecyclePanel::setExtPkg(const QString& pkgId, const QString& pkgName) {
+	_pkgView->addExtPackage(pkgId, pkgName);
 }
 
 void OrRecyclePanel::handleBarcode(const QString &code) {

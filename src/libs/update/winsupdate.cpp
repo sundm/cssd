@@ -7,9 +7,17 @@
 #include <QJsonValue>
 #include <QProcess>
 
+//#define ITRAC
 
-const QString sz_version_url("file/version");
-const QString sz_update_url("file/update");
+#ifdef ITRAC
+const QString sz_version_url("file/version/itrac");
+const QString sz_update_url("file/updateItrac");
+#else
+const QString sz_version_url("file/version/ortrac");
+const QString sz_update_url("file/updateOrtrac");
+#endif // ITRAC
+
+
 
 Winsupdate::Winsupdate(QString &path_url, QWidget *parent)
 	: QMainWindow(parent)
@@ -37,11 +45,21 @@ void Winsupdate::on_click_btn()
 {
 	QProcess *pro = new QProcess(this);
 
+#ifdef ITRAC
 #ifdef _DEBUG
 	pro->startDetached("itracd.exe");
 #else
 	pro->startDetached("itrac.exe");
 #endif // _DEBUG
+#else
+#ifdef _DEBUG
+	pro->startDetached("ortracd.exe");
+#else
+	pro->startDetached("ortrac.exe");
+#endif // _DEBUG
+#endif // ITRAC
+
+
 		
 	qApp->quit();
 }
