@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "leftbar.h"
 #include "usepanel.h"
-
+#include "issuepanel.h"
 #include "core/application.h"
 #include <QVBoxLayout>
 #include <QStackedWidget>
@@ -10,19 +10,20 @@
 #include <QGraphicsOpacityEffect>
 
 MainWindow::MainWindow(QWidget *parent)
-	: Ui::Source(parent) {
+	: Ui::Source(parent) 
+{
 
-	QWidget *leftBar = new LeftBar(this);
+	LeftBar *leftBar = new LeftBar(this);
 	leftBar->setMinimumWidth(256);
 	leftBar->setMaximumWidth(256);
 
 	QHBoxLayout *layout = new QHBoxLayout(this);
-	Ui::Loader *loader = new Ui::Loader(this);
-	loader->setSource(new UsePanel);
+	_loader = new Ui::Loader(this);
+	_loader->setSource(new UsePanel);
 	layout->setSpacing(0);
 	layout->setContentsMargins(0, 0, 0, 0);
 	layout->addWidget(leftBar);
-	layout->addWidget(loader);
+	layout->addWidget(_loader);
 
 	connect(leftBar, SIGNAL(currentChanged(int)), this, SLOT(swithToPage(int)));
 
@@ -64,4 +65,15 @@ void MainWindow::showAnimated() {
 
 void MainWindow::swithToPage(int index)
 {
+	switch (index)
+	{
+	case 0:
+		_loader->setSource(new UsePanel);
+		break;
+	case 1:
+		_loader->setSource(new IssuePanel);
+		break;
+	default:
+		break;
+	}
 }

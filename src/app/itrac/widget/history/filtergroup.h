@@ -41,3 +41,30 @@ private:
 	FilterRow * deptRow;
 };
 
+class WashFilterGroup : public FilterGroup
+{
+	Q_OBJECT
+
+public:
+	WashFilterGroup(QWidget *parent);
+
+private:
+	FilterRow * dateRow;
+	FilterRow * userRow;
+	FilterRow * deviceRow;
+	FilterRow * cycleRow;
+};
+
+
+class DispatchFilterGroup : public FilterGroup
+{
+	Q_OBJECT
+
+public:
+	DispatchFilterGroup(QWidget *parent);
+
+private:
+	FilterRow * dateRow;
+	FilterRow * userRow;
+	FilterRow * deptRow;
+};

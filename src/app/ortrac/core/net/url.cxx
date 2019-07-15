@@ -16,6 +16,8 @@ namespace Url {
 	const char PATH_TRACE_PACKAGE[] = "trace/package";
 	const char PATH_TRACE_PATIENT[] = "trace/patient";
 
+	const char PATH_ISSUE_SEARCH[] = "use/search";
+
 	const char PATH_USE_ADD[] = "use/add";
 
 	const char PATH_VERSION[] = "file/version/ortrac";

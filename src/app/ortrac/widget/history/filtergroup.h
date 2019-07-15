@@ -27,17 +27,14 @@ private:
 	QList<FilterRow*> _rows;
 };
 
-class RecycleFilterGroup : public FilterGroup
+class IssueFilterGroup : public FilterGroup
 {
 	Q_OBJECT
 
 public:
-	RecycleFilterGroup(QWidget *parent);
+	IssueFilterGroup(QWidget *parent);
 
 private:
 	FilterRow * dateRow;
-	FilterRow * userRow;
-	FilterRow * packageRow;
-	FilterRow * deptRow;
 };
 

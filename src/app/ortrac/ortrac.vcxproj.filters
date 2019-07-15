@@ -55,6 +55,9 @@
     <Filter Include="Source Files\dialog">
       <UniqueIdentifier>{e30ed360-230b-42bc-a2ad-de4e2bcc6c83}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\widget\history">
+      <UniqueIdentifier>{dd7fd2c3-016e-4dd2-a668-c5de3e19bfd6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -147,6 +150,27 @@
     <ClCompile Include="dialog\operatorchooser.cpp">
       <Filter>Source Files\dialog</Filter>
     </ClCompile>
+    <ClCompile Include="widget\history\filter.cpp">
+      <Filter>Source Files\widget\history</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\history\filtergroup.cpp">
+      <Filter>Source Files\widget\history</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\history\filterrow.cpp">
+      <Filter>Source Files\widget\history</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\history\filterwidget.cpp">
+      <Filter>Source Files\widget\history</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\history\historypage.cpp">
+      <Filter>Source Files\widget\history</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\issuepanel.cpp">
+      <Filter>Source Files\widget</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\composite\qpaginationwidget.cpp">
+      <Filter>Source Files\ui\composite</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="ortrac.h">
@@ -212,6 +236,24 @@
     <QtMoc Include="ui\ui_commons.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="widget\history\filtergroup.h">
+      <Filter>Source Files\widget\history</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\history\filterrow.h">
+      <Filter>Source Files\widget\history</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\history\filterwidget.h">
+      <Filter>Source Files\widget\history</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\history\historypage.h">
+      <Filter>Source Files\widget\history</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\issuepanel.h">
+      <Filter>Source Files\widget</Filter>
+    </QtMoc>
+    <QtMoc Include="ui\composite\qpaginationwidget.h">
+      <Filter>Source Files\ui\composite</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="ortrac.ui">
@@ -221,6 +263,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="widget\usepanel.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="widget\issuepanel.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>
@@ -254,6 +299,9 @@
     </ClInclude>
     <ClInclude Include="core\assets.h">
       <Filter>Source Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="widget\history\filter.h">
+      <Filter>Source Files\widget\history</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -291,6 +339,18 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="res\login-bg.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\backward.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\end.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\forward.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\home.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

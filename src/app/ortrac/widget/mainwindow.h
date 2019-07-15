@@ -6,6 +6,10 @@
 class TopBar;
 class QStackedWidget;
 
+namespace Ui {
+	Loader;
+}
+
 class MainWindow : public Ui::Source
 {
     Q_OBJECT
@@ -25,6 +29,7 @@ private slots:
 	void swithToPage(int index);
 
 private:
+	Ui::Loader *_loader;
 	TopBar *_topBar;
     QStackedWidget *_centerWidget;
 	QWidget* _reservedWidgets[IDX_REPORT - IDX_HISTORY + 1];

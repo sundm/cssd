@@ -22,4 +22,5 @@ private slots:
 
 private:
 	QButtonGroup * _btns;
+	int _currentCheckedId;
 };

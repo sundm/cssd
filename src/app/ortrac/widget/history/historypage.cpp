@@ -24,9 +24,6 @@ HistoryPage::HistoryPage(QWidget *parent)
 	
 	QWidget *toolBar = new QWidget(this);
 	QHBoxLayout *hlayout = new QHBoxLayout(toolBar);
-	/*QLabel *searchIcon = new QLabel(toolBar);
-	searchIcon->setPixmap(QPixmap(":/res/search.png"));
-	hlayout->addWidget(searchIcon);*/
 
 	_filterButton->setIcon(QIcon(":/res/filter-24.png"));
 	_filterButton->setCheckable(true);
@@ -65,7 +62,7 @@ void HistoryPage::onFilterChanged(Filter &f) {
 	*_filter = std::move(f);
 
 	_filterButton->setChecked(false);
-	doSearch(0);
+	doSearch(1);
 }
 
 void HistoryPage::showFilterPopup(bool show) {
@@ -99,26 +96,23 @@ void HistoryPage::showFilterPopup(bool show) {
 	}
 }
 
-RecycleHistoryPage::RecycleHistoryPage(QWidget *parent) :HistoryPage(parent) {
-	_historyModel = new QStandardItemModel(0, 7, _view);
-	_historyModel->setHeaderData(0, Qt::Horizontal, "包ID");
-	_historyModel->setHeaderData(1, Qt::Horizontal, "包名");
-	_historyModel->setHeaderData(2, Qt::Horizontal, "回收人员");
-	_historyModel->setHeaderData(3, Qt::Horizontal, "回收时间");
-	_historyModel->setHeaderData(4, Qt::Horizontal, "回收方式");
-	_historyModel->setHeaderData(5, Qt::Horizontal, "来源科室");
-	_historyModel->setHeaderData(6, Qt::Horizontal, "清洗盘");
+IssueHistoryPage::IssueHistoryPage(QWidget *parent) :HistoryPage(parent) {
+	_historyModel = new QStandardItemModel(0, 4, _view);
+	_historyModel->setHeaderData(0, Qt::Horizontal, "操作人");
+	_historyModel->setHeaderData(1, Qt::Horizontal, "患者编号");
+	_historyModel->setHeaderData(2, Qt::Horizontal, "使用数量");
+	_historyModel->setHeaderData(3, Qt::Horizontal, "使用时间");
 	_view->setModel(_historyModel);
 
-	doSearch();
+	doSearch(1);
 }
 
-FilterGroup * RecycleHistoryPage::createFilterGroup()
+FilterGroup * IssueHistoryPage::createFilterGroup()
 {
-	return new RecycleFilterGroup(this);
+	return new IssueFilterGroup(this);
 }
 
-void RecycleHistoryPage::doSearch(int page)
+void IssueHistoryPage::doSearch(int page)
 {
 	_historyModel->removeRows(0, _historyModel->rowCount());
 	Core::app()->startWaitingOn(this);
@@ -135,7 +129,7 @@ void RecycleHistoryPage::doSearch(int page)
 	vmap.insert("page", page);
 	vmap.insert("page_count", _visibleCount);
 
-	Url::post(Url::PATH_RECYCLE_SEARCH, vmap, [this, page](QNetworkReply *reply) {
+	Url::post(Url::PATH_ISSUE_SEARCH, vmap, [this, page](QNetworkReply *reply) {
 		Core::app()->stopWaiting();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
@@ -143,235 +137,19 @@ void RecycleHistoryPage::doSearch(int page)
 			return;
 		}
 
-		int count = resp.getAsInt("items_count");
+		int count = resp.getAsInt("total_count");
 		_paginator->setTotalPages(count / _visibleCount + (count % _visibleCount > 0));
 		
-		QList<QVariant> packages = resp.getAsList("packages");
+		QList<QVariant> packages = resp.getAsList("use_infos");
 		_historyModel->insertRows(0, packages.count());
 		for (int i = 0; i != packages.count(); ++i) {
 			QVariantMap map = packages[i].toMap();
-			_historyModel->setData(_historyModel->index(i, 0), map["package_id"]);
-			_historyModel->setData(_historyModel->index(i, 1), map["package_type_name"]);
-			_historyModel->setData(_historyModel->index(i, 2), map["operator_name"]);
-			_historyModel->setData(_historyModel->index(i, 3), map["operation_time"]);
-			_historyModel->setData(_historyModel->index(i, 4), map["recycle_reason"]);
-			_historyModel->setData(_historyModel->index(i, 5), map["department_name"]);
-			_historyModel->setData(_historyModel->index(i, 6), map["plate_name"]);
+			_historyModel->setData(_historyModel->index(i, 0), map["nurse_name"]);
+			_historyModel->setData(_historyModel->index(i, 1), map["patient_id"]);
+			_historyModel->setData(_historyModel->index(i, 2), map["package_number"]);
+			_historyModel->setData(_historyModel->index(i, 3), map["use_time"]);
 			_historyModel->setHeaderData(i, Qt::Vertical, (page - 1)*_visibleCount + 1 + i);
 		}
 	});
 }
 
-WashHistoryPage::WashHistoryPage(QWidget *parent) :HistoryPage(parent) {
-	_historyModel = new QStandardItemModel(0, 8, _view);
-	_historyModel->setHeaderData(0, Qt::Horizontal, "清洗机");
-	_historyModel->setHeaderData(1, Qt::Horizontal, "锅次");
-	_historyModel->setHeaderData(2, Qt::Horizontal, "总锅次");
-	_historyModel->setHeaderData(3, Qt::Horizontal, "清洗程序");
-	_historyModel->setHeaderData(4, Qt::Horizontal, "清洗时间");
-	_historyModel->setHeaderData(5, Qt::Horizontal, "清洗人");
-	_historyModel->setHeaderData(6, Qt::Horizontal, "清洗审核人");
-	_historyModel->setHeaderData(7, Qt::Horizontal, "审核结果");
-	//_historyModel->setHeaderData(, Qt::Horizontal, "清洗盘");
-	_view->setModel(_historyModel);
-	doSearch();
-}
-
-FilterGroup * WashHistoryPage::createFilterGroup()
-{
-	//return new WashFilterGroup(this);
-	return nullptr;
-}
-
-void WashHistoryPage::doSearch(int page) {
-	_historyModel->removeRows(0, _historyModel->rowCount());
-	Core::app()->startWaitingOn(this);
-
-	QVariantMap vmap;
-	if (_filter) {
-		vmap.insert("start_time", _filter->condition(FilterFlag::StartDate).toDate());
-		vmap.insert("end_time", _filter->condition(FilterFlag::EndDate).toDate());
-	}
-	else {
-		vmap.insert("start_time", QDate::currentDate());
-		vmap.insert("end_time", QDate::currentDate());
-	}
-	vmap.insert("page", page);
-	vmap.insert("page_count", _visibleCount);
-
-	Url::post(Url::PATH_WASH_SEARCH, vmap, [this](QNetworkReply *reply) {
-		Core::app()->stopWaiting();
-		JsonHttpResponse resp(reply);
-		if (!resp.success()) {
-			XNotifier::warn(QString("暂时无法查询历史记录：").append(resp.errorString()));
-			return;
-		}
-
-		int count = resp.getAsInt("total_count");
-		_paginator->setTotalPages(count / _visibleCount + (count % _visibleCount > 0));
-
-		QList<QVariant> washes = resp.getAsList("items");
-		for (auto &wash : washes) {
-			QVariantMap map = wash.toMap();
-			QList<QStandardItem *> rowItems;
-			rowItems.append(new QStandardItem(map["device_name"].toString()));
-			rowItems.append(new QStandardItem(map["device_cycle"].toString()));
-			rowItems.append(new QStandardItem(map["total_cycle"].toString()));
-			rowItems.append(new QStandardItem(map["program_name"].toString()));
-			rowItems.append(new QStandardItem(map["wash_time"].toString()));
-			rowItems.append(new QStandardItem(map["operator_name"].toString()));
-			rowItems.append(new QStandardItem(map["operator_name"].toString()));
-			rowItems.append(new QStandardItem(map["check_result"].toString()));
-			_historyModel->appendRow(rowItems);
-		}
-	});
-}
-
-PackHistoryPage::PackHistoryPage(QWidget *parent) :HistoryPage(parent) {
-	_historyModel = new QStandardItemModel(0, 6, _view);
-	_historyModel->setHeaderData(0, Qt::Horizontal, "包ID");
-	_historyModel->setHeaderData(1, Qt::Horizontal, "包名");
-	_historyModel->setHeaderData(2, Qt::Horizontal, "打包时间");
-	_historyModel->setHeaderData(3, Qt::Horizontal, "打包方式");
-	_historyModel->setHeaderData(4, Qt::Horizontal, "配包人");
-	_historyModel->setHeaderData(5, Qt::Horizontal, "审核人");
-	_view->setModel(_historyModel);
-
-	doSearch();
-}
-
-FilterGroup * PackHistoryPage::createFilterGroup() {
-	return 0;
-}
-
-void PackHistoryPage::doSearch(int page /*= 1*/) {
-	_historyModel->removeRows(0, _historyModel->rowCount());
-	Core::app()->startWaitingOn(this);
-
-	QVariantMap vmap;
-	if (_filter) {
-		vmap.insert("start_time", _filter->condition(FilterFlag::StartDate).toDate());
-		vmap.insert("end_time", _filter->condition(FilterFlag::EndDate).toDate());
-	}
-	else {
-		vmap.insert("start_time", QDate::currentDate());
-		vmap.insert("end_time", QDate::currentDate());
-	}
-	vmap.insert("page", page);
-	vmap.insert("page_count", _visibleCount);
-
-	Url::post(Url::PATH_PACK_SEARCH, vmap, [this](QNetworkReply *reply) {
-		Core::app()->stopWaiting();
-		JsonHttpResponse resp(reply);
-		if (!resp.success()) {
-			XNotifier::warn(QString("暂时无法查询历史记录：").append(resp.errorString()));
-			return;
-		}
-
-		int count = resp.getAsInt("total_count");
-		_paginator->setTotalPages(count / _visibleCount + (count % _visibleCount > 0));
-
-		QList<QVariant> washes = resp.getAsList("pack_info");
-		for (auto &wash : washes) {
-			QVariantMap map = wash.toMap();
-			QList<QStandardItem *> rowItems;
-			rowItems.append(new QStandardItem(map["package_id"].toString()));
-			rowItems.append(new QStandardItem(map["package_name"].toString()));
-			rowItems.append(new QStandardItem(map["pack_time"].toString()));
-			rowItems.append(new QStandardItem(map["pack_type_name"].toString()));
-			rowItems.append(new QStandardItem(map["operator_name"].toString()));
-			rowItems.append(new QStandardItem(map["check_operator_name"].toString()));
-			_historyModel->appendRow(rowItems);
-		}
-	});
-}
-
-SterileHistoryPage::SterileHistoryPage(QWidget *parent) :HistoryPage(parent) {
-	_historyModel = new QStandardItemModel(0, 16, _view);
-	_historyModel->setHeaderData(0, Qt::Horizontal, "灭菌器");
-	_historyModel->setHeaderData(1, Qt::Horizontal, "锅次");
-	_historyModel->setHeaderData(2, Qt::Horizontal, "总锅次");
-	_historyModel->setHeaderData(3, Qt::Horizontal, "灭菌程序");
-	_historyModel->setHeaderData(4, Qt::Horizontal, "灭菌时间");
-	_historyModel->setHeaderData(5, Qt::Horizontal, "灭菌员");
-	_historyModel->setHeaderData(6, Qt::Horizontal, "包数量");
-	_historyModel->setHeaderData(7, Qt::Horizontal, "物理监测审核人");
-	_historyModel->setHeaderData(8, Qt::Horizontal, "物理监测审核时间");
-	_historyModel->setHeaderData(9, Qt::Horizontal, "物理监测审核结果");
-	_historyModel->setHeaderData(10, Qt::Horizontal, "化学监测审核人");
-	_historyModel->setHeaderData(11, Qt::Horizontal, "化学监测审核时间");
-	_historyModel->setHeaderData(12, Qt::Horizontal, "化学监测审核结果");
-	_historyModel->setHeaderData(13, Qt::Horizontal, "生物监测审核人");
-	_historyModel->setHeaderData(14, Qt::Horizontal, "生物监测审核时间");
-	_historyModel->setHeaderData(15, Qt::Horizontal, "生物监测审核结果");
-	_view->setModel(_historyModel);
-
-	doSearch();
-}
-
-FilterGroup * SterileHistoryPage::createFilterGroup() {
-	return 0;
-}
-
-void SterileHistoryPage::doSearch(int page /*= 1*/) {
-	_historyModel->removeRows(0, _historyModel->rowCount());
-	Core::app()->startWaitingOn(this);
-
-	QVariantMap vmap;
-	if (_filter) {
-		vmap.insert("start_time", _filter->condition(FilterFlag::StartDate).toDate());
-		vmap.insert("end_time", _filter->condition(FilterFlag::EndDate).toDate());
-	}
-	else {
-		vmap.insert("start_time", QDate::currentDate());
-		vmap.insert("end_time", QDate::currentDate());
-	}
-	vmap.insert("page", page);
-	vmap.insert("page_count", _visibleCount);
-
-	Url::post(Url::PATH_STERILE_SEARCH, vmap, [this](QNetworkReply *reply) {
-		Core::app()->stopWaiting();
-		JsonHttpResponse resp(reply);
-		if (!resp.success()) {
-			XNotifier::warn(QString("暂时无法查询历史记录：").append(resp.errorString()));
-			return;
-		}
-
-		int count = resp.getAsInt("total_count");
-		_paginator->setTotalPages(count / _visibleCount + (count % _visibleCount > 0));
-
-		QList<QVariant> items = resp.getAsList("sterilize_info_list");
-		for (auto &item : items) {
-			QVariantMap map = item.toMap();
-			QList<QStandardItem *> rowItems;
-			rowItems.append(new QStandardItem(map["ste_device_name"].toString()));
-			rowItems.append(new QStandardItem(map["ste_cycle"].toString()));
-			rowItems.append(new QStandardItem(map["total_cycle"].toString()));
-			rowItems.append(new QStandardItem(map["program_name"].toString()));
-			rowItems.append(new QStandardItem(map["sterilize_time"].toString()));
-			rowItems.append(new QStandardItem(map["operator_id"].toString())); // TODO
-			rowItems.append(new QStandardItem(map["chemistry_test_operator"].toString()));
-			rowItems.append(new QStandardItem(map["physical_test_time"].toString()));
-			rowItems.append(new QStandardItem(map["physical_test_result"].toString()));
-			rowItems.append(new QStandardItem(map["chemistry_test_operator"].toString()));
-			rowItems.append(new QStandardItem(map["chemistry_test_time"].toString()));
-			rowItems.append(new QStandardItem(map["chemistry_test_result"].toString()));
-			rowItems.append(new QStandardItem()); // TODO
-			rowItems.append(new QStandardItem()); // TODO
-			rowItems.append(new QStandardItem(map["biology_test_result"].toString()));
-			_historyModel->appendRow(rowItems);
-		}
-	});
-}
-
-IssueHistoryPage::IssueHistoryPage(QWidget *parent /*= Q_NULLPTR*/) {
-
-}
-
-FilterGroup * IssueHistoryPage::createFilterGroup() {
-	return 0;
-}
-
-void IssueHistoryPage::doSearch(int page /*= 1*/) {
-
-}

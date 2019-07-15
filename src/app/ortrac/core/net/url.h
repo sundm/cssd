@@ -21,6 +21,8 @@ extern const char PATH_PKG_IN_PLATE[];
 extern const char PATH_TRACE_PACKAGE[];
 extern const char PATH_TRACE_PATIENT[];
 
+extern const char PATH_ISSUE_SEARCH[];
+
 extern const char PATH_USE_ADD[];
 
 extern const char PATH_VERSION[];

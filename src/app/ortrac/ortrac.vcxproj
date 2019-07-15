@@ -244,6 +244,7 @@
     <ClCompile Include="ortrac.cpp" />
     <ClCompile Include="platform\win\launcher_win.cpp" />
     <ClCompile Include="ui\buttons.cpp" />
+    <ClCompile Include="ui\composite\qpaginationwidget.cpp" />
     <ClCompile Include="ui\composite\titles.cpp" />
     <ClCompile Include="ui\composite\waitingspinner.cpp" />
     <ClCompile Include="ui\container.cpp" />
@@ -256,6 +257,12 @@
     <ClCompile Include="ui\views.cpp" />
     <ClCompile Include="widget\apploader.cpp" />
     <ClCompile Include="widget\controls\packageview.cpp" />
+    <ClCompile Include="widget\history\filter.cpp" />
+    <ClCompile Include="widget\history\filtergroup.cpp" />
+    <ClCompile Include="widget\history\filterrow.cpp" />
+    <ClCompile Include="widget\history\filterwidget.cpp" />
+    <ClCompile Include="widget\history\historypage.cpp" />
+    <ClCompile Include="widget\issuepanel.cpp" />
     <ClCompile Include="widget\leftbar.cpp" />
     <ClCompile Include="widget\loginpage.cpp" />
     <ClCompile Include="widget\mainwindow.cpp" />
@@ -267,6 +274,7 @@
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="ortrac.ui" />
+    <QtUic Include="widget\issuepanel.ui" />
     <QtUic Include="widget\leftbar.ui" />
     <QtUic Include="widget\usepanel.ui" />
   </ItemGroup>
@@ -284,6 +292,13 @@
     <ClInclude Include="core\net\jsonhttpresponse.h" />
     <ClInclude Include="core\net\url.h" />
     <ClInclude Include="core\user.h" />
+    <QtMoc Include="ui\composite\qpaginationwidget.h" />
+    <ClInclude Include="widget\history\filter.h" />
+    <QtMoc Include="widget\issuepanel.h" />
+    <QtMoc Include="widget\history\historypage.h" />
+    <QtMoc Include="widget\history\filterwidget.h" />
+    <QtMoc Include="widget\history\filterrow.h" />
+    <QtMoc Include="widget\history\filtergroup.h" />
     <QtMoc Include="dialog\operatorchooser.h" />
     <ClInclude Include="platform\platfom_specific.h" />
     <ClInclude Include="platform\win\launcher_win.h" />
@@ -316,18 +331,22 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </Image>
+    <Image Include="res\backward.png" />
     <Image Include="res\edit-border-focus.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </Image>
+    <Image Include="res\end.png" />
+    <Image Include="res\forward.png" />
     <Image Include="res\history-36.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </Image>
+    <Image Include="res\home.png" />
     <Image Include="res\login-bg.jpg">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>

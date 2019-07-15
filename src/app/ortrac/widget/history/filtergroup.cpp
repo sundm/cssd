@@ -46,15 +46,9 @@ void FilterGroup::reset()
 }
 
 
-RecycleFilterGroup::RecycleFilterGroup(QWidget *parent)
+IssueFilterGroup::IssueFilterGroup(QWidget *parent)
 	:FilterGroup(parent)
 {
 	dateRow = new DateFilterRow("日期", this);
-	userRow = new UserFilterRow("操作员", this);
-	deptRow = new DeptFilterRow("来源科室", this);
 	addRow(dateRow);
-	addSeperator();
-	addRow(userRow);
-	addSeperator();
-	addRow(deptRow);
 }

@@ -12,5 +12,9 @@
         <file>res/patient-128.png</file>
         <file>res/edit-border-focus.png</file>
         <file>res/login-bg.jpg</file>
+        <file>res/backward.png</file>
+        <file>res/end.png</file>
+        <file>res/forward.png</file>
+        <file>res/home.png</file>
     </qresource>
 </RCC>

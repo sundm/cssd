@@ -188,35 +188,6 @@ QToolButton::checked {
        </property>
       </widget>
      </item>
-     <item>
-      <widget class="QToolButton" name="traceButton">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>信息追溯</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../ortrac.qrc">
-         <normaloff>:/res/trace-36.png</normaloff>:/res/trace-36.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>24</width>
-         <height>24</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-       <property name="toolButtonStyle">
-        <enum>Qt::ToolButtonTextUnderIcon</enum>
-       </property>
-      </widget>
-     </item>
     </layout>
    </item>
    <item>

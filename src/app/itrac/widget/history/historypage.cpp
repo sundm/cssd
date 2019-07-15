@@ -37,7 +37,7 @@ HistoryPage::HistoryPage(QWidget *parent)
 	refreshButton->setIcon(QIcon(":/res/refresh-24.png"));
 	hlayout->addWidget(refreshButton);
 	hlayout->addStretch();
-
+	
 	connect(_paginator, &QPaginationWidget::currentPageChanged, this, &HistoryPage::doSearch);
 	hlayout->addWidget(_paginator);
 
@@ -65,7 +65,7 @@ void HistoryPage::onFilterChanged(Filter &f) {
 	*_filter = std::move(f);
 
 	_filterButton->setChecked(false);
-	doSearch(0);
+	doSearch(1);
 }
 
 void HistoryPage::showFilterPopup(bool show) {
@@ -365,7 +365,15 @@ void SterileHistoryPage::doSearch(int page /*= 1*/) {
 }
 
 IssueHistoryPage::IssueHistoryPage(QWidget *parent /*= Q_NULLPTR*/) {
+	_historyModel = new QStandardItemModel(0, 5, _view);
+	_historyModel->setHeaderData(0, Qt::Horizontal, "部门名称");
+	_historyModel->setHeaderData(1, Qt::Horizontal, "操作员");
+	_historyModel->setHeaderData(2, Qt::Horizontal, "患者编号");
+	_historyModel->setHeaderData(3, Qt::Horizontal, "使用包数量");
+	_historyModel->setHeaderData(4, Qt::Horizontal, "使用时间");
+	_view->setModel(_historyModel);
 
+	doSearch();
 }
 
 FilterGroup * IssueHistoryPage::createFilterGroup() {

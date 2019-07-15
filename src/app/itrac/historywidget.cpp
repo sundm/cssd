@@ -57,6 +57,8 @@ void HistoryWidget::showPage(int id)
 			tabWidget->addTab(page, "设备");*/
 			break;
 		case itrac::Use:
+			page = new IssueHistoryPage;
+			tabWidget->addTab(page, "使用查询");
 			break;
 		case itrac::Trace:
 			page = new TracePage;

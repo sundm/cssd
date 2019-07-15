@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QWidget>
-
 /**
  * Classes for different history pages.
  * We use polymorphism here, maybe a template class would be better.
@@ -40,54 +39,6 @@ protected:
 	Filter *_filter;
 	QStandardItemModel * _historyModel;
 	int _visibleCount;
-};
-
-class RecycleHistoryPage : public HistoryPage
-{
-	Q_OBJECT
-
-public:
-	RecycleHistoryPage(QWidget *parent = Q_NULLPTR);
-
-protected:
-	FilterGroup * createFilterGroup() override;
-	void doSearch(int page = 1) override;
-};
-
-class WashHistoryPage : public HistoryPage
-{
-	Q_OBJECT
-
-public:
-	WashHistoryPage(QWidget *parent = Q_NULLPTR);
-
-protected:
-	FilterGroup * createFilterGroup() override;
-	void doSearch(int page = 1) override;
-};
-
-class PackHistoryPage : public HistoryPage
-{
-	Q_OBJECT
-
-public:
-	PackHistoryPage(QWidget *parent = Q_NULLPTR);
-
-protected:
-	FilterGroup * createFilterGroup() override;
-	void doSearch(int page = 1) override;
-};
-
-class SterileHistoryPage : public HistoryPage
-{
-	Q_OBJECT
-
-public:
-	SterileHistoryPage(QWidget *parent = Q_NULLPTR);
-
-protected:
-	FilterGroup * createFilterGroup() override;
-	void doSearch(int page = 1) override;
 };
 
 class IssueHistoryPage : public HistoryPage
