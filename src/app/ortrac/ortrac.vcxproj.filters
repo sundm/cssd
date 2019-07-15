@@ -171,6 +171,9 @@
     <ClCompile Include="ui\composite\qpaginationwidget.cpp">
       <Filter>Source Files\ui\composite</Filter>
     </ClCompile>
+    <ClCompile Include="dialog\regexpinputdialog.cpp">
+      <Filter>Source Files\dialog</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="ortrac.h">
@@ -253,6 +256,9 @@
     </QtMoc>
     <QtMoc Include="ui\composite\qpaginationwidget.h">
       <Filter>Source Files\ui\composite</Filter>
+    </QtMoc>
+    <QtMoc Include="dialog\regexpinputdialog.h">
+      <Filter>Source Files\dialog</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

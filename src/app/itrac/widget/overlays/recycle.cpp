@@ -261,14 +261,18 @@ void OrRecyclePanel::handleBarcode(const QString &code) {
 void OrRecyclePanel::addEntry() {
 	bool ok;
 	QRegExp regExp("\\d{10,}");
-	QString code = RegExpInputDialog::getText(this, "手工输入条码", "请输入包上的条码", "", regExp, &ok);
+	QString code = RegExpInputDialog::getText(this, "手工输入条码", "请输入包或篮筐条码", "", regExp, &ok);
 	if (ok) {
 		handleBarcode(code);
 	}
 }
 
 void OrRecyclePanel::removeEntry() {
-
+	QItemSelectionModel *selModel = _pkgView->selectionModel();
+	QModelIndexList indexes = selModel->selectedRows();
+	int countRow = indexes.count();
+	for (int i = countRow; i > 0; i--)
+		_pkgView->model()->removeRow(indexes.at(i - 1).row());
 }
 
 void OrRecyclePanel::commit() {

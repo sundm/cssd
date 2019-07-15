@@ -15,7 +15,7 @@ public:
 	bool hasPackage(const QString &) const;
 	QVariantList packages() const;
 	void addPackage(const QString &);
-
+	void rmPackage();
 private:
 	QStandardItemModel * _model;
 };

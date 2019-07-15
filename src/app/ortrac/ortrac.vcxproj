@@ -240,6 +240,7 @@
     <ClCompile Include="core\net\url.cxx" />
     <ClCompile Include="core\user.cpp" />
     <ClCompile Include="dialog\operatorchooser.cpp" />
+    <ClCompile Include="dialog\regexpinputdialog.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ortrac.cpp" />
     <ClCompile Include="platform\win\launcher_win.cpp" />
@@ -293,6 +294,7 @@
     <ClInclude Include="core\net\url.h" />
     <ClInclude Include="core\user.h" />
     <QtMoc Include="ui\composite\qpaginationwidget.h" />
+    <QtMoc Include="dialog\regexpinputdialog.h" />
     <ClInclude Include="widget\history\filter.h" />
     <QtMoc Include="widget\issuepanel.h" />
     <QtMoc Include="widget\history\historypage.h" />

@@ -15,6 +15,8 @@ public:
 	void handleBarcode(const QString &) override;
 
 private slots:
+	void addEntry();
+	void remove();
 	void submit();
 	void reset();
 };
