@@ -87,20 +87,33 @@ void ClinicPanel::handleBarcode(const QString &code) {
 }
 
 void ClinicPanel::updatePlate(const QString &plateId) {
-	Plate::fetchOnce(plateId, [this](Plate* plate) {
-		if (!plate->err.isEmpty()) {
+	QByteArray data("{\"plate_id\":");
+	data.append(plateId).append('}');
+	post(url(PATH_PLATE_SEARCH), data, [plateId, this](QNetworkReply *reply) {
+		JsonHttpResponse resp(reply);
+		if (!resp.success()) {
+			XNotifier::warn(QString("无法获取编号[%1]的网篮信息").arg(plateId));
 			return;
 		}
 
-		if (!plate->idle) {
-			XNotifier::warn(QString("该篮筐<%1>正在使用，无法添加").arg(plate->name));
+		QList<QVariant> plates = resp.getAsList("plates");
+		if (plates.isEmpty()) {
+			XNotifier::warn(QString("编号[%1]的网篮不在系统资产目录中").arg(plateId));
+			return;
+		}
+
+		QVariantMap map = plates[0].toMap();
+		bool idle = "1" == map["is_finished"].toString();
+
+		if (!idle) {
+			XNotifier::warn(QString("网篮<%1>正在使用，无法添加").arg(plateId));
 			return;
 		}
 
 		for (int i = 0; i != _detailModel->rowCount(); ++i) {
 			QStandardItem *item = _detailModel->item(i, 2);
-			item->setText(plate->name);
-			item->setData(plate->id);
+			item->setText(map["plate_name"].toString());
+			item->setData(plateId.toInt());
 		}
 	});
 }

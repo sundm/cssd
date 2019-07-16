@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ui/views.h"
+#include "core/net/jsonhttpclient.h"
 
 class QStandardItemModel;
 class AbstractPackageView : public TableView
@@ -16,6 +17,7 @@ public:
 
 protected:
 	QStandardItemModel * _model;
+	JsonHttpClient _http;
 };
 
 class OrRecyclePackageView : public AbstractPackageView
@@ -29,8 +31,6 @@ public:
 	void addPackage(const QString &) override;
 	void updatePlate(const QString &);
 	int plate() const;
-
-private:
 };
 
 class SterilePackageView : public AbstractPackageView

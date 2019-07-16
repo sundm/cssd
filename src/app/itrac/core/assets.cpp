@@ -46,7 +46,7 @@ void Plate::fetchOnce(const QString &id, const std::function<void(Plate*)> &fn) 
 
 		fn(plate);
 		delete plate;
-		delete http; //todo
+		//delete http; //todo
 	});
 }
 

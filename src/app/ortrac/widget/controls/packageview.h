@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ui/views.h"
+#include "core/net/jsonhttpclient.h"
 
 class QStandardItemModel;
 
@@ -18,6 +19,7 @@ public:
 	void rmPackage();
 private:
 	QStandardItemModel * _model;
+	JsonHttpClient _http;
 };
 
 

@@ -2,9 +2,10 @@
 
 #include "ui/loader.h"
 #include "ui_usepanel.h"
+#include "core/net/jsonhttpclient.h"
 #include <qscanner/qscanner.h>
 
-class UsePanel : public Ui::Source, public Ui::UsePanel, public Scanable
+class UsePanel : public Ui::Source, public Ui::UsePanel, public Scanable, public JsonHttpClient
 {
 	Q_OBJECT
 

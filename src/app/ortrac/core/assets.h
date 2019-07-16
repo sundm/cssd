@@ -11,7 +11,6 @@ struct Asset {
 
 struct Plate : public Asset {
 	bool idle;
-	static void fetchOnce(const QString &id, const std::function<void(Plate*)> &fn);
 };
 
 struct Device : public Asset {
@@ -55,6 +54,5 @@ struct Package : public Asset{
 	bool steQualified;
 
 	Package();
-	static void fetchOnce(const QString &id, const std::function<void(Package*)> &fn);
 };
 

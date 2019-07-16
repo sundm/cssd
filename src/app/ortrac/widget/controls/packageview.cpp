@@ -1,6 +1,7 @@
 #include "packageview.h"
 #include "core/itracnamespace.h"
 #include "core/assets.h"
+#include "core/net/url.h"
 #include "xnotifier.h"
 #include <QStandardItemModel>
 
@@ -34,22 +35,30 @@ QVariantList PackageView::packages() const {
 }
 
 void PackageView::addPackage(const QString &id) {
-	Package::fetchOnce(id, [this, id](Package *pkg) {
-		if (pkg->state == itrac::Recalled) {
+	QString data = QString("{\"package_id\":\"%1\"}").arg(id);
+	_http.post(url(PATH_PKG_INFO), QByteArray().append(data), [=](QNetworkReply *reply) {
+		JsonHttpResponse resp(reply);
+		if (!resp.success()) {
+			XNotifier::warn(QString("无法获取包信息: ").append(resp.errorString()));
+			return;
+		}
+
+		QString state = resp.getAsString("state");
+		if (state == "X") {
 			XNotifier::warn("该包已被召回，严禁使用");
 			return;
 		}
-		if (pkg->state != itrac::Dispatched) {
+		if (state != "I") {
 			XNotifier::warn("该包处于不可使用状态，请检查包的来源");
 			return;
 		}
 
 		QList<QStandardItem *> rowItems;
-		rowItems.append(new QStandardItem(id));
-		rowItems.append(new QStandardItem(pkg->name));
-		rowItems.append(new QStandardItem(pkg->packName));
-		rowItems.append(new QStandardItem(pkg->usedBy));
-		rowItems.append(new QStandardItem(pkg->expireDate));
+		rowItems << new QStandardItem(id);
+		rowItems << new QStandardItem(resp.getAsString("package_type_name"));
+		rowItems << new QStandardItem(resp.getAsString("pack_type_name"));
+		rowItems << new QStandardItem(resp.getAsString("from_department_name"));
+		rowItems << new QStandardItem(resp.getAsString("valid_date"));
 		_model->appendRow(rowItems);
 	});
 }

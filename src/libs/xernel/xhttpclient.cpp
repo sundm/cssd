@@ -52,10 +52,10 @@ void XHttpClient::post(const QString &url,
 
 	// call finish handler
 	QObject::connect(reply, &QNetworkReply::finished, [=] {
+		_replies.removeAll(reply);
 		if (nullptr != finishCallback) {
 			finishCallback(reply);
 		}
-		_replies.removeAll(reply);
 		reply->deleteLater();
 	});
 

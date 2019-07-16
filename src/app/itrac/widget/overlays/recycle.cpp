@@ -195,20 +195,33 @@ int NoBCRecyclePanel::findRow(int deptId, int pkgId) {
 }
 
 void NoBCRecyclePanel::updatePlate(const QString &plateId) {
-	Plate::fetchOnce(plateId, [this](Plate* plate) {
-		if (!plate->err.isEmpty()) {
+	QByteArray data("{\"plate_id\":");
+	data.append(plateId).append('}');
+	post(url(PATH_PLATE_SEARCH), data, [plateId, this](QNetworkReply *reply) {
+		JsonHttpResponse resp(reply);
+		if (!resp.success()) {
+			XNotifier::warn(QString("无法获取编号[%1]的网篮信息").arg(plateId));
 			return;
 		}
 
-		if (!plate->idle) {
-			XNotifier::warn(QString("该篮筐<%1>正在使用，无法添加").arg(plate->name));
+		QList<QVariant> plates = resp.getAsList("plates");
+		if (plates.isEmpty()) {
+			XNotifier::warn(QString("编号[%1]的网篮不在系统资产目录中").arg(plateId));
+			return;
+		}
+
+		QVariantMap map = plates[0].toMap();
+		bool idle = "1" == map["is_finished"].toString();
+
+		if (!idle) {
+			XNotifier::warn(QString("网篮<%1>正在使用，无法添加").arg(plateId));
 			return;
 		}
 
 		for (int i = 0; i != _pkgModel->rowCount(); ++i) {
 			QStandardItem *item = _pkgModel->item(i, 3);
-			item->setText(plate->name);
-			item->setData(plate->id);
+			item->setText(map["plate_name"].toString());
+			item->setData(plateId.toInt());
 		}
 	});
 }
@@ -254,7 +267,7 @@ OrRecyclePanel::OrRecyclePanel(QWidget *parent /*= nullptr*/)
 
 void OrRecyclePanel::chooseExt() {
 	ImportExtDialog d(this);
-	connect(&d, SIGNAL(extPkgImport(const QString&,const QString&)), this, SLOT(setExtPkg(const QString&, const QString&)));
+	connect(&d, SIGNAL(extPkgImport(const QString&, const QString&)), this, SLOT(setExtPkg(const QString&, const QString&)));
 	d.exec();
 }
 

@@ -129,7 +129,7 @@ void IssueHistoryPage::doSearch(int page)
 	vmap.insert("page", page);
 	vmap.insert("page_count", _visibleCount);
 
-	Url::post(Url::PATH_ISSUE_SEARCH, vmap, [this, page](QNetworkReply *reply) {
+	post(url(PATH_ISSUE_SEARCH), vmap, [this, page](QNetworkReply *reply) {
 		Core::app()->stopWaiting();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {

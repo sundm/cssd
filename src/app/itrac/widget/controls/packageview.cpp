@@ -1,7 +1,7 @@
 #include "packageview.h"
 #include "core/assets.h"
 #include "core/itracnamespace.h"
-//#include "core/net/url.h"
+#include "core/net/url.h"
 #include "xnotifier.h"
 #include <QStandardItemModel>
 
@@ -38,17 +38,24 @@ SterilePackageView::SterilePackageView(QWidget *parent /*= nullptr*/)
 }
 
 void SterilePackageView::addPackage(const QString &id) {
-	Package::fetchOnce(id, [this, id](Package *pkg) {
-		if (pkg->state != itrac::Packed) {
+	QString data = QString("{\"package_id\":\"%1\"}").arg(id);
+	_http.post(url(PATH_PKG_INFO), QByteArray().append(data), [=](QNetworkReply *reply) {
+		JsonHttpResponse resp(reply);
+		if (!resp.success()) {
+			XNotifier::warn(QString("无法获取包信息: ").append(resp.errorString()));
+			return;
+		}
+
+		if (resp.getAsString("state") != "P") {
 			XNotifier::warn(QString("包 [%1] 已进行过灭菌，请勿重复登记").arg(id));
 			return;
 		}
 		QList<QStandardItem *> rowItems;
 		rowItems << new QStandardItem(id);
-		rowItems << new QStandardItem(pkg->name);
-		rowItems << new QStandardItem(pkg->packName);
-		rowItems << new QStandardItem(pkg->deparment);
-		rowItems << new QStandardItem(pkg->expireDate);
+		rowItems << new QStandardItem(resp.getAsString("package_type_name"));
+		rowItems << new QStandardItem(resp.getAsString("pack_type_name"));
+		rowItems << new QStandardItem(resp.getAsString("department_name"));
+		rowItems << new QStandardItem(resp.getAsString("valid_date"));
 		_model->appendRow(rowItems);
 	});
 }
@@ -78,21 +85,29 @@ DispatchPackageView::DispatchPackageView(QWidget *parent /*= nullptr*/)
 }
 
 void DispatchPackageView::addPackage(const QString &id) {
-	Package::fetchOnce(id, [this, id](Package *pkg) {
-		if (pkg->state != itrac::SteExamined) {
+	QString data = QString("{\"package_id\":\"%1\"}").arg(id);
+	_http.post(url(PATH_PKG_INFO), QByteArray().append(data), [=](QNetworkReply *reply) {
+		JsonHttpResponse resp(reply);
+		if (!resp.success()) {
+			XNotifier::warn(QString("无法获取包信息: ").append(resp.errorString()));
+			return;
+		}
+
+		if (resp.getAsString("state") != "ST") {
 			XNotifier::warn(QString("包 [%1] 尚未完成灭菌审核，或者已发放").arg(id));
 			return;
 		}
-		else if (!pkg->steQualified) {
+		else if (!resp.getAsBool("sterilize_qualified")) {
 			XNotifier::warn(QString("包 [%1] 灭菌不合格，不能对其发放").arg(id));
 			return;
 		}
+
 		QList<QStandardItem *> rowItems;
 		rowItems << new QStandardItem(id);
-		rowItems << new QStandardItem(pkg->name);
-		rowItems << new QStandardItem(pkg->packName);
-		rowItems << new QStandardItem(pkg->deparment);
-		rowItems << new QStandardItem(pkg->expireDate);
+		rowItems << new QStandardItem(resp.getAsString("package_type_name"));
+		rowItems << new QStandardItem(resp.getAsString("pack_type_name"));
+		rowItems << new QStandardItem(resp.getAsString("department_name"));
+		rowItems << new QStandardItem(resp.getAsString("valid_date"));
 		_model->appendRow(rowItems);
 	});
 }
@@ -109,18 +124,25 @@ OrRecyclePackageView::OrRecyclePackageView(QWidget *parent /*= nullptr*/)
 }
 
 void OrRecyclePackageView::addPackage(const QString &id) {
-	Package::fetchOnce(id, [this, id](Package *pkg) {
-		if (pkg->state == itrac::Recycled) {
+	QString data = QString("{\"package_id\":\"%1\"}").arg(id);
+	_http.post(url(PATH_PKG_INFO), QByteArray().append(data), [=](QNetworkReply *reply) {
+		JsonHttpResponse resp(reply);
+		if (!resp.success()) {
+			XNotifier::warn(QString("无法获取包信息: ").append(resp.errorString()));
+			return;
+		}
+
+		if (resp.getAsString("state") != "R") {
 			XNotifier::warn("该包已回收，请勿重复操作");
 			return;
 		}
 
 		QList<QStandardItem *> rowItems;
 		rowItems.append(new QStandardItem(id));
-		rowItems.append(new QStandardItem(pkg->name));
-		rowItems.append(new QStandardItem(pkg->packName));
-		rowItems.append(new QStandardItem(pkg->usedBy));
-		rowItems.append(new QStandardItem(pkg->expireDate));
+		rowItems << new QStandardItem(resp.getAsString("package_type_name"));
+		rowItems << new QStandardItem(resp.getAsString("pack_type_name"));
+		rowItems << new QStandardItem(resp.getAsString("from_department_name"));
+		rowItems << new QStandardItem(resp.getAsString("valid_date"));
 		rowItems.append(new QStandardItem("请扫描篮筐条码"));
 		_model->appendRow(rowItems);
 	});
@@ -139,20 +161,33 @@ void OrRecyclePackageView::addExtPackage(const QString& pkgId, const QString& pk
 
 void OrRecyclePackageView::updatePlate(const QString &plateId)
 {
-	Plate::fetchOnce(plateId, [this](Plate* plate) {
-		if (!plate->err.isEmpty()) {
+	QByteArray data("{\"plate_id\":");
+	data.append(plateId).append('}');
+	_http.post(url(PATH_PLATE_SEARCH), data, [plateId, this](QNetworkReply *reply) {
+		JsonHttpResponse resp(reply);
+		if (!resp.success()) {
+			XNotifier::warn(QString("无法获取编号[%1]的网篮信息").arg(plateId));
 			return;
 		}
 
-		if (!plate->idle) {
-			XNotifier::warn("该篮筐正在使用中，请扫描其他篮筐。");
+		QList<QVariant> plates = resp.getAsList("plates");
+		if (plates.isEmpty()) {
+			XNotifier::warn(QString("编号[%1]的网篮不在系统资产目录中").arg(plateId));
+			return;
+		}
+
+		QVariantMap map = plates[0].toMap();
+		bool idle = "1" == map["is_finished"].toString();
+
+		if (!idle) {
+			XNotifier::warn(QString("网篮<%1>正在使用，无法添加").arg(plateId));
 			return;
 		}
 
 		for (int i = 0; i != _model->rowCount(); ++i) {
 			QStandardItem *item = _model->item(i, OrRecyclePackageView::VPlate);
-			item->setText(plate->name);
-			item->setData(plate->id);
+			item->setText(map["plate_name"].toString());
+			item->setData(plateId.toInt());
 		}
 	});
 }

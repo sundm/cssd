@@ -82,7 +82,7 @@ void UsePanel::submit()
 	if (room.length()) vmap.insert("operator_room", room);
 	if (deskNo.length()) vmap.insert("operator_table", deskNo.toInt());
 
-	Url::post(Url::PATH_USE_ADD, vmap, [this](QNetworkReply *reply) {
+	post(url(PATH_USE_ADD), vmap, [this](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("登记失败: ").append(resp.errorString()));
