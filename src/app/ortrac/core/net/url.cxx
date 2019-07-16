@@ -3,7 +3,7 @@
 #include <QVariantMap>
 
 namespace Url {
-	const QString Version("V1.0.0");
+	const QString Version("V1.0.1");
 	const char PATH_BASE[] = "http://120.76.128.123:8082/CSSD/";
 	//const char PATH_BASE[] = "http://localhost:8080/CSSD/";
 	const char PATH_PLATE_SEARCH[] = "plate/search";

@@ -3,7 +3,7 @@
 #include <QVariantMap>
 
 namespace Url {
-	const QString Version("V1.0.1");
+	const QString Version("V1.0.2");
 	const char PATH_BASE[] = "http://120.76.128.123:8082/CSSD/";
 	//const char PATH_BASE[] = "http://localhost:8080/CSSD/";
 	const char PATH_PLATE_SEARCH[] = "plate/search";
@@ -32,6 +32,7 @@ namespace Url {
 	const char PATH_WASH_SEARCH[] = "wash/search";
 	const char PATH_PACK_ADD[] = "pack/add";
 	const char PATH_PACK_SEARCH[] = "pack/search";
+	const char PATH_PACKTYPE_SEARCH[] = "packType/search";
 	const char PATH_STERILE_ADD[] = "sterilize/add";
 	const char PATH_STERILE_INFO[] = "sterilize/info";
 	const char PATH_STERILE_CHECK[] = "sterilize/addPlateTest";

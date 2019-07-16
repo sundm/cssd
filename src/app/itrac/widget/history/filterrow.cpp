@@ -241,21 +241,39 @@ PackTypeFilterRow::PackTypeFilterRow(const QString &head, QWidget *parent)
 	:FilterRow(head, parent)
 {
 	_typeBox = new QComboBox(this);
-	_typeBox->addItem(QString("不限"), 0);
-	_typeBox->addItem(QString("无纺布"), 1);
-	_typeBox->addItem(QString("棉布"), 2);
-	_typeBox->addItem(QString("硬质容器"), 3);
-	_typeBox->addItem(QString("纺织品"), 4);
-	_typeBox->addItem(QString("纸塑"), 5);
+	_typeBox->setFixedWidth(150);
+
 	_layout->addWidget(_typeBox);
 
 	_layout->addStretch(1);
 	setLayout(_layout);
+
+	reset();
 }
 
 void PackTypeFilterRow::reset()
 {
-	_typeBox->setCurrentIndex(0);
+	_typeBox->clear();
+
+	QString data = QString("{}");
+
+	Url::post(Url::PATH_PACKTYPE_SEARCH, QByteArray().append(data), [this](QNetworkReply *reply) {
+		JsonHttpResponse resp(reply);
+		if (!resp.success()) {
+			XNotifier::warn(QString("无法获取类型列表: ").append(resp.errorString()));
+			return;
+		}
+
+		_typeBox->addItem(QString("不限"), 0);
+
+		QList<QVariant> devices = resp.getAsList("pack_types");
+		for (auto &device : devices) {
+			QVariantMap map = device.toMap();
+			_typeBox->addItem(map["pack_type_name"].toString(), map["pack_type_id"].toInt());
+		}
+
+		updateGeometry();
+	});
 }
 
 void PackTypeFilterRow::setCondition2Filter(Filter *f)

@@ -37,6 +37,7 @@ extern const char PATH_WASH_CHECK[];
 extern const char PATH_WASH_SEARCH[];
 extern const char PATH_PACK_ADD[];
 extern const char PATH_PACK_SEARCH[];
+extern const char PATH_PACKTYPE_SEARCH[];
 extern const char PATH_STERILE_ADD[];
 extern const char PATH_STERILE_INFO[];
 extern const char PATH_STERILE_CHECK[];

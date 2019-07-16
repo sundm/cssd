@@ -436,7 +436,7 @@ void DispatchHistoryPage::doSearch(int page /*= 1*/) {
 		int count = resp.getAsInt("items_count");
 		_paginator->setTotalPages(count / _visibleCount + (count % _visibleCount > 0));
 
-		QList<QVariant> packages = resp.getAsList("packages");
+		QList<QVariant> packages = resp.getAsList("issue_infos");
 		_historyModel->insertRows(0, packages.count());
 		for (int i = 0; i != packages.count(); ++i) {
 			QVariantMap map = packages[i].toMap();
