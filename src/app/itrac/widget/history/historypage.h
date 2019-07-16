@@ -90,12 +90,12 @@ protected:
 	void doSearch(int page = 1) override;
 };
 
-class IssueHistoryPage : public HistoryPage
+class DispatchHistoryPage : public HistoryPage
 {
 	Q_OBJECT
 
 public:
-	IssueHistoryPage(QWidget *parent = Q_NULLPTR);
+	DispatchHistoryPage(QWidget *parent = Q_NULLPTR);
 
 protected:
 	FilterGroup * createFilterGroup() override;

@@ -24,6 +24,7 @@ protected:
 private slots:
 	void addEntry();
 	void removeEntry();
+	void addPlate();
 	void commit();
 
 private:

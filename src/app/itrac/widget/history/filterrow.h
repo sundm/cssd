@@ -1,12 +1,17 @@
 #pragma once
 
 #include <QWidget>
+#include "itracnamespace.h"
 
 class QHBoxLayout;
 class QRadioButton;
 class QLineEdit;
 class QDateEdit;
+class QComboBox;
+class QSpinBox;
 class Filter;
+class DeptEdit;
+
 class FilterRow : public QWidget
 {
 	Q_OBJECT
@@ -50,13 +55,20 @@ private:
 class UserFilterRow : public FilterRow
 {
 	Q_OBJECT
-
+	
 public:
-	UserFilterRow(const QString &head, QWidget *parent);
+	enum USER
+	{
+		Operator,
+		Checker
+	};
+
+	UserFilterRow(const QString &head, QWidget *parent, USER type);
 	void reset() override;
 	void setCondition2Filter(Filter *f) override;
 
 private:
+	USER _type;
 	QLineEdit * _userEdit;
 };
 
@@ -70,5 +82,58 @@ public:
 	void setCondition2Filter(Filter *f) override;
 
 private:
-	QLineEdit * _deptEdit;
+	DeptEdit * _deptEdit;
+};
+
+class DeviceFilterRow : public FilterRow
+{
+	Q_OBJECT
+
+public:
+	DeviceFilterRow(const QString &head, QWidget *parent, itrac::DeviceType type);
+	void reset() override;
+	void setCondition2Filter(Filter *f) override;
+
+private:
+	int _type;
+	QComboBox * _deviceBox;
+};
+
+class PackTypeFilterRow : public FilterRow
+{
+	Q_OBJECT
+
+public:
+	PackTypeFilterRow(const QString &head, QWidget *parent);
+	void reset() override;
+	void setCondition2Filter(Filter *f) override;
+
+private:
+	QComboBox * _typeBox;
+};
+
+class CycleFilterRow : public FilterRow
+{
+	Q_OBJECT
+
+public:
+	CycleFilterRow(const QString &head, QWidget *parent);
+	void reset() override;
+	void setCondition2Filter(Filter *f) override;
+
+private:
+	QSpinBox * _cycleBox;
+};
+
+class CheckFilterRow : public FilterRow
+{
+	Q_OBJECT
+
+public:
+	CheckFilterRow(const QString &head, QWidget *parent);
+	void reset() override;
+	void setCondition2Filter(Filter *f) override;
+
+private:
+	QComboBox * _checkBox;
 };

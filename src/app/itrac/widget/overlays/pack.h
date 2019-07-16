@@ -15,6 +15,7 @@ protected:
 
 private slots:
 	void commit();
+	void addPlate();
 	//void print(const std::list<std::list<std::string>> & labels);
 
 private:

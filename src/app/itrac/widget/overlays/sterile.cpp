@@ -9,6 +9,7 @@
 #include "ui/inputfields.h"
 #include "widget/controls/packageview.h"
 #include "dialog/operatorchooser.h"
+#include "dialog/regexpinputdialog.h"
 
 #include "util/printermanager.h"
 #include <printer/labelprinter.h>
@@ -29,14 +30,27 @@ SterilePanel::SterilePanel(QWidget *parent)
 	tip->addButton(commitButton);
 	connect(commitButton, SIGNAL(clicked()), this, SLOT(commit()));
 
+	Ui::IconButton *addButton = new Ui::IconButton(":/res/plus-24.png", "手工添加");
+	connect(addButton, SIGNAL(clicked()), this, SLOT(addEntry()));
+
 	QGridLayout *layout = new QGridLayout(this);
 	layout->addWidget(_deviceArea, 0, 0);
-	layout->addWidget(_pkgView, 1, 0);
-	layout->addWidget(tip, 0, 1, 2, 1);
-	layout->setRowStretch(1, 1);
+	layout->addWidget(addButton, 1, 0);
+	layout->addWidget(_pkgView, 2, 0);
+	layout->addWidget(tip, 0, 1, 3, 1);
+	layout->setRowStretch(2, 1);
 
 	//_deviceArea->load();
-	QTimer::singleShot(200, [this] { _deviceArea->load(DeviceArea::Sterilizer); });
+	QTimer::singleShot(200, [this] { _deviceArea->load(itrac::DeviceType::Sterilizer); });
+}
+
+void SterilePanel::addEntry() {
+	bool ok;
+	QRegExp regExp("\\d{10,}");
+	QString code = RegExpInputDialog::getText(this, "手工输入条码", "请输入包条码", "", regExp, &ok);
+	if (ok) {
+		handleBarcode(code);
+	}
 }
 
 void SterilePanel::handleBarcode(const QString &code) {
@@ -113,5 +127,5 @@ void SterilePanel::commit() {
 
 void SterilePanel::reset() {
 	_pkgView->clear();
-	_deviceArea->load(DeviceArea::Sterilizer);
+	_deviceArea->load(itrac::DeviceType::Sterilizer);
 }

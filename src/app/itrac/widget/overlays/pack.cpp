@@ -4,6 +4,7 @@
 #include "tips.h"
 #include "ui/buttons.h"
 #include "widget/controls/plateview.h"
+#include "dialog/regexpinputdialog.h"
 #include "dialog/operatorchooser.h"
 #include "core/net/url.h"
 #include "xnotifier.h"
@@ -21,9 +22,23 @@ PackPanel::PackPanel(QWidget *parent) : CssdOverlayPanel(parent) {
 	tip->addButton(commitButton);
 	connect(commitButton, SIGNAL(clicked()), this, SLOT(commit()));
 
+	Ui::IconButton *addPlateButton = new Ui::IconButton(":/res/fill-plate-24.png");
+	addPlateButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
+	connect(addPlateButton, SIGNAL(clicked()), this, SLOT(addPlate()));
+
 	QGridLayout *layout = new QGridLayout(this);
-	layout->addWidget(_plateView, 0, 0);
-	layout->addWidget(tip, 0, 1);
+	layout->addWidget(addPlateButton, 0, 0);
+	layout->addWidget(_plateView, 1, 0);
+	layout->addWidget(tip, 0, 1, 2, 1);
+}
+
+void PackPanel::addPlate() {
+	bool ok;
+	QRegExp regExp("\\d{10,}");
+	QString code = RegExpInputDialog::getText(this, "手工输入条码", "请输入篮筐条码", "", regExp, &ok);
+	if (ok) {
+		handleBarcode(code);
+	}
 }
 
 void PackPanel::handleBarcode(const QString &code) {

@@ -16,6 +16,7 @@ protected:
 
 private slots:
 	void commit();
+	void addEntry();
 
 private:
 	DeviceArea * _deviceArea;

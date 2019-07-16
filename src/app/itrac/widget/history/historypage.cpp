@@ -127,6 +127,8 @@ void RecycleHistoryPage::doSearch(int page)
 	if (_filter) {
 		vmap.insert("start_time", _filter->condition(FilterFlag::StartDate).toDate());
 		vmap.insert("end_time", _filter->condition(FilterFlag::EndDate).toDate());
+		vmap.insert("operator_id", _filter->condition(FilterFlag::Operator).toInt());
+		vmap.insert("department_id", _filter->condition(FilterFlag::Department).toInt());
 	}
 	else {
 		vmap.insert("start_time", QDate::currentDate());
@@ -179,8 +181,8 @@ WashHistoryPage::WashHistoryPage(QWidget *parent) :HistoryPage(parent) {
 
 FilterGroup * WashHistoryPage::createFilterGroup()
 {
-	//return new WashFilterGroup(this);
-	return nullptr;
+	return new WashFilterGroup(this);
+	//return nullptr;
 }
 
 void WashHistoryPage::doSearch(int page) {
@@ -191,6 +193,9 @@ void WashHistoryPage::doSearch(int page) {
 	if (_filter) {
 		vmap.insert("start_time", _filter->condition(FilterFlag::StartDate).toDate());
 		vmap.insert("end_time", _filter->condition(FilterFlag::EndDate).toDate());
+		vmap.insert("operator_id", _filter->condition(FilterFlag::Operator).toInt());
+		vmap.insert("device_id", _filter->condition(FilterFlag::Device).toInt());
+		vmap.insert("device_cycle", _filter->condition(FilterFlag::cycle).toInt());
 	}
 	else {
 		vmap.insert("start_time", QDate::currentDate());
@@ -221,7 +226,7 @@ void WashHistoryPage::doSearch(int page) {
 			rowItems.append(new QStandardItem(map["wash_time"].toString()));
 			rowItems.append(new QStandardItem(map["operator_name"].toString()));
 			rowItems.append(new QStandardItem(map["operator_name"].toString()));
-			rowItems.append(new QStandardItem(map["check_result"].toString()));
+			rowItems.append(map["check_result"].toBool()? new QStandardItem(QString("合格")): new QStandardItem(QString("不合格")));
 			_historyModel->appendRow(rowItems);
 		}
 	});
@@ -241,7 +246,7 @@ PackHistoryPage::PackHistoryPage(QWidget *parent) :HistoryPage(parent) {
 }
 
 FilterGroup * PackHistoryPage::createFilterGroup() {
-	return 0;
+	return new PackFilterGroup(this);
 }
 
 void PackHistoryPage::doSearch(int page /*= 1*/) {
@@ -252,6 +257,9 @@ void PackHistoryPage::doSearch(int page /*= 1*/) {
 	if (_filter) {
 		vmap.insert("start_time", _filter->condition(FilterFlag::StartDate).toDate());
 		vmap.insert("end_time", _filter->condition(FilterFlag::EndDate).toDate());
+		vmap.insert("operator_id", _filter->condition(FilterFlag::Operator).toInt());
+		vmap.insert("check_operator_id", _filter->condition(FilterFlag::Auditor).toInt());
+		vmap.insert("pack_type_id", _filter->condition(FilterFlag::PackType).toInt());
 	}
 	else {
 		vmap.insert("start_time", QDate::currentDate());
@@ -310,7 +318,7 @@ SterileHistoryPage::SterileHistoryPage(QWidget *parent) :HistoryPage(parent) {
 }
 
 FilterGroup * SterileHistoryPage::createFilterGroup() {
-	return 0;
+	return new SterileFilterGroup(this);
 }
 
 void SterileHistoryPage::doSearch(int page /*= 1*/) {
@@ -321,6 +329,10 @@ void SterileHistoryPage::doSearch(int page /*= 1*/) {
 	if (_filter) {
 		vmap.insert("start_time", _filter->condition(FilterFlag::StartDate).toDate());
 		vmap.insert("end_time", _filter->condition(FilterFlag::EndDate).toDate());
+		vmap.insert("operator_id", _filter->condition(FilterFlag::Operator).toInt());
+		vmap.insert("device_id", _filter->condition(FilterFlag::Device).toInt());
+		vmap.insert("cycle", _filter->condition(FilterFlag::cycle).toInt());
+		vmap.insert("test_result", _filter->condition(FilterFlag::Check).toString());
 	}
 	else {
 		vmap.insert("start_time", QDate::currentDate());
@@ -350,36 +362,74 @@ void SterileHistoryPage::doSearch(int page /*= 1*/) {
 			rowItems.append(new QStandardItem(map["program_name"].toString()));
 			rowItems.append(new QStandardItem(map["sterilize_time"].toString()));
 			rowItems.append(new QStandardItem(map["operator_id"].toString())); // TODO
+			rowItems.append(new QStandardItem(map["package_number"].toString())); // TODO
 			rowItems.append(new QStandardItem(map["chemistry_test_operator"].toString()));
 			rowItems.append(new QStandardItem(map["physical_test_time"].toString()));
-			rowItems.append(new QStandardItem(map["physical_test_result"].toString()));
+			rowItems.append(new QStandardItem(map["physical_test_result"].toInt() == 1 ? QString("合格") : QString("不合格")));
 			rowItems.append(new QStandardItem(map["chemistry_test_operator"].toString()));
 			rowItems.append(new QStandardItem(map["chemistry_test_time"].toString()));
-			rowItems.append(new QStandardItem(map["chemistry_test_result"].toString()));
-			rowItems.append(new QStandardItem()); // TODO
-			rowItems.append(new QStandardItem()); // TODO
-			rowItems.append(new QStandardItem(map["biology_test_result"].toString()));
+			rowItems.append(new QStandardItem(map["chemistry_test_result"].toInt() == 1 ? QString("合格") : QString("不合格")));
+			rowItems.append(new QStandardItem(map["biology_test_operator"].toString())); // TODO
+			rowItems.append(new QStandardItem(map["biology_test_time"].toString())); // TODO
+			rowItems.append(new QStandardItem(map["biology_test_result"].toInt() == 1 ? QString("合格") : QString("不合格")));
 			_historyModel->appendRow(rowItems);
 		}
 	});
 }
 
-IssueHistoryPage::IssueHistoryPage(QWidget *parent /*= Q_NULLPTR*/) {
-	_historyModel = new QStandardItemModel(0, 5, _view);
-	_historyModel->setHeaderData(0, Qt::Horizontal, "部门名称");
-	_historyModel->setHeaderData(1, Qt::Horizontal, "操作员");
-	_historyModel->setHeaderData(2, Qt::Horizontal, "患者编号");
-	_historyModel->setHeaderData(3, Qt::Horizontal, "使用包数量");
-	_historyModel->setHeaderData(4, Qt::Horizontal, "使用时间");
+DispatchHistoryPage::DispatchHistoryPage(QWidget *parent /*= Q_NULLPTR*/) {
+	_historyModel = new QStandardItemModel(0, 4, _view);
+	_historyModel->setHeaderData(0, Qt::Horizontal, "发放人员");
+	_historyModel->setHeaderData(1, Qt::Horizontal, "发放时间");
+	_historyModel->setHeaderData(2, Qt::Horizontal, "发放部门");
+	_historyModel->setHeaderData(3, Qt::Horizontal, "包数量");
 	_view->setModel(_historyModel);
 
 	doSearch();
 }
 
-FilterGroup * IssueHistoryPage::createFilterGroup() {
-	return 0;
+FilterGroup * DispatchHistoryPage::createFilterGroup() {
+	return new DispatchFilterGroup(this);
 }
 
-void IssueHistoryPage::doSearch(int page /*= 1*/) {
+void DispatchHistoryPage::doSearch(int page /*= 1*/) {
+	_historyModel->removeRows(0, _historyModel->rowCount());
+	Core::app()->startWaitingOn(this);
 
+	QVariantMap vmap;
+	if (_filter) {
+		vmap.insert("start_time", _filter->condition(FilterFlag::StartDate).toDate());
+		vmap.insert("end_time", _filter->condition(FilterFlag::EndDate).toDate());
+		vmap.insert("operator_id", _filter->condition(FilterFlag::Operator).toInt());
+		vmap.insert("department_id", _filter->condition(FilterFlag::Department).toInt());
+	}
+	else {
+		vmap.insert("start_time", QDate::currentDate());
+		vmap.insert("end_time", QDate::currentDate());
+	}
+	vmap.insert("page", page);
+	vmap.insert("page_count", _visibleCount);
+
+	Url::post(Url::PATH_ISSUE_SEARCH, vmap, [this, page](QNetworkReply *reply) {
+		Core::app()->stopWaiting();
+		JsonHttpResponse resp(reply);
+		if (!resp.success()) {
+			XNotifier::warn(QString("暂时无法查询历史记录：").append(resp.errorString()));
+			return;
+		}
+
+		int count = resp.getAsInt("items_count");
+		_paginator->setTotalPages(count / _visibleCount + (count % _visibleCount > 0));
+
+		QList<QVariant> packages = resp.getAsList("packages");
+		_historyModel->insertRows(0, packages.count());
+		for (int i = 0; i != packages.count(); ++i) {
+			QVariantMap map = packages[i].toMap();
+			_historyModel->setData(_historyModel->index(i, 0), map["operator_name"]);
+			_historyModel->setData(_historyModel->index(i, 1), map["issue_time"]);
+			_historyModel->setData(_historyModel->index(i, 2), map["department_name"]);
+			_historyModel->setData(_historyModel->index(i, 3), map["package_number"]);
+			_historyModel->setHeaderData(i, Qt::Vertical, (page - 1)*_visibleCount + 1 + i);
+		}
+	});
 }

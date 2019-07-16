@@ -22,6 +22,7 @@ protected:
 
 private slots:
 	void commit();
+	void addPlate();
 	void loadOrders();
 	void showDetail(const QModelIndex &);
 

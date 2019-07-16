@@ -8,6 +8,7 @@
 #include "ui/views.h"
 #include "ui/buttons.h"
 #include "ui/composite/titles.h"
+#include "dialog/regexpinputdialog.h"
 #include "widget/overlays/tips.h"
 #include <xernel/xtimescope.h>
 #include <QtWidgets/QtWidgets>
@@ -38,12 +39,17 @@ ClinicPanel::ClinicPanel(QWidget *parent)
 	_detailView->setSelectionMode(QAbstractItemView::SingleSelection);
 	_detailView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
+	Ui::IconButton *addPlateButton = new Ui::IconButton(":/res/fill-plate-24.png");
+	addPlateButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
+	connect(addPlateButton, SIGNAL(clicked()), this, SLOT(addPlate()));
+
 	// detail panel
 	QWidget *detailPanel = new QWidget(this);
 	QVBoxLayout *vlayout = new QVBoxLayout(detailPanel);
 	vlayout->setContentsMargins(0, 0, 0, 0);
 	vlayout->setSpacing(0);
 	vlayout->addWidget(_title);
+	vlayout->addWidget(addPlateButton);
 	vlayout->addWidget(_detailView);
 
 	// tip
@@ -62,6 +68,15 @@ ClinicPanel::ClinicPanel(QWidget *parent)
 	layout->setStretch(1, 2);
 
 	QTimer::singleShot(0, this, SLOT(loadOrders()));
+}
+
+void ClinicPanel::addPlate() {
+	bool ok;
+	QRegExp regExp("\\d{10,}");
+	QString code = RegExpInputDialog::getText(this, "手工输入条码", "请输入篮筐条码", "", regExp, &ok);
+	if (ok) {
+		handleBarcode(code);
+	}
 }
 
 void ClinicPanel::handleBarcode(const QString &code) {

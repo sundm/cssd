@@ -55,6 +55,34 @@ private:
 	FilterRow * cycleRow;
 };
 
+class SterileFilterGroup : public FilterGroup
+{
+	Q_OBJECT
+
+public:
+	SterileFilterGroup(QWidget *parent);
+
+private:
+	FilterRow * dateRow;
+	FilterRow * userRow;
+	FilterRow * deviceRow;
+	FilterRow * cycleRow;
+	FilterRow * checkRow;
+};
+
+class PackFilterGroup : public FilterGroup
+{
+	Q_OBJECT
+
+public:
+	PackFilterGroup(QWidget *parent);
+
+private:
+	FilterRow * dateRow;
+	FilterRow * opRow;
+	FilterRow * cpRow;
+	FilterRow * typeRow;
+};
 
 class DispatchFilterGroup : public FilterGroup
 {

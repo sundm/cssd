@@ -2,6 +2,7 @@
 
 #include <QScrollArea>
 #include <QGroupBox>
+#include "itracnamespace.h"
 
 struct Device;
 class ProgramComboBox;
@@ -60,12 +61,11 @@ class DeviceArea : public QScrollArea
 {
 	Q_OBJECT
 public:
-	enum Type { Washer, Sterilizer }; // todo, use global enum
 
 	DeviceArea(QWidget *parent = nullptr);
 	void addDeviceItem(DeviceItem *);
 	DeviceItem *currentItem() const { return _curItem; };
-	void load(DeviceArea::Type type);
+	void load(itrac::DeviceType type);
 
 public:
 	QSize minimumSizeHint() const override;

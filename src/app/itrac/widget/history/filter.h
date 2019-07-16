@@ -8,8 +8,12 @@ enum class FilterFlag : int {
 	StartDate,
 	EndDate,
 	Operator,  // id
+	Auditor,
 	Department, // id
-	cycle
+	Device,
+	cycle,
+	PackType,
+	Check
 };
 
 inline uint qHash(const FilterFlag &key, uint seed = 0)

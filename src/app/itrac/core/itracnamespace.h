@@ -67,6 +67,7 @@ namespace itrac {
 		Clinic
 	};
 
+	enum DeviceType { Washer, Sterilizer };
 }
 
 #endif // ITRACNAMESPACE_H

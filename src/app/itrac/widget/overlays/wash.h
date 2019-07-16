@@ -16,7 +16,7 @@ protected:
 
 private slots:
 	void commit();
-
+	void addPlate();
 private:
 	void reset();
 

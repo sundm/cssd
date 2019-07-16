@@ -15,7 +15,7 @@ HistoryWidget::HistoryWidget(QWidget *parent)
 	btnGroup->addButton(packButton, itrac::Pack);
 	btnGroup->addButton(sterileButton, itrac::Sterile);
 	btnGroup->addButton(dispatchButton, itrac::Dispatch);
-	btnGroup->addButton(useButton, itrac::Use);
+	//btnGroup->addButton(useButton, itrac::Use);
 	btnGroup->addButton(traceButton, itrac::Trace);
 	//traceButton->hide();
 	connect(btnGroup, QOverload<int>::of(&QButtonGroup::buttonClicked), this, &HistoryWidget::showPage);
@@ -53,12 +53,8 @@ void HistoryWidget::showPage(int id)
 			tabWidget->addTab(page, "灭菌查询");
 			break;
 		case itrac::Dispatch:
-			/*page = new DevicePage;
-			tabWidget->addTab(page, "设备");*/
-			break;
-		case itrac::Use:
-			page = new IssueHistoryPage;
-			tabWidget->addTab(page, "使用查询");
+			page = new DispatchHistoryPage;
+			tabWidget->addTab(page, "发放查询");
 			break;
 		case itrac::Trace:
 			page = new TracePage;

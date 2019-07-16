@@ -47,6 +47,11 @@ NoBCRecyclePanel::NoBCRecyclePanel(QWidget *parent)
 	hLayout->addWidget(minusButton);
 	connect(minusButton, SIGNAL(clicked()), this, SLOT(removeEntry()));
 
+	Ui::IconButton *addPlateButton = new Ui::IconButton(":/res/fill-plate-24.png");
+	addPlateButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
+	hLayout->addWidget(addPlateButton);
+	connect(addPlateButton, SIGNAL(clicked()), this, SLOT(addPlate()));
+
 	hLayout->addStretch(0);
 
 	// setup package view info
@@ -77,6 +82,15 @@ void NoBCRecyclePanel::handleBarcode(const QString &code) {
 	Barcode bc(code);
 	if (bc.type() == Barcode::Plate) {
 		updatePlate(code);
+	}
+}
+
+void NoBCRecyclePanel::addPlate() {
+	bool ok;
+	QRegExp regExp("\\d{10,}");
+	QString code = RegExpInputDialog::getText(this, "手工输入条码", "请输入篮筐条码", "", regExp, &ok);
+	if (ok) {
+		handleBarcode(code);
 	}
 }
 
