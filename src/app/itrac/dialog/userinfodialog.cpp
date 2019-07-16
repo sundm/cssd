@@ -82,7 +82,7 @@ void UserInfoDialog::changePwd() {
 	vmap.insert("pwd", newPwd);
 
 	Core::app()->startWaitingOn(this);
-	Url::post(Url::PATH_USER_MODIFY_PWD, vmap, [this](QNetworkReply *reply) {
+	post(url(PATH_USER_MODIFY_PWD), vmap, [this](QNetworkReply *reply) {
 		Core::app()->stopWaiting();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {

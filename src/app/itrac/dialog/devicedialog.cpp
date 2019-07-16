@@ -70,7 +70,7 @@ void AddDeviceDialog::accept() {
 	vmap.insert("support_program_ids", programs);
 
 	Core::app()->startWaitingOn(this);
-	Url::post(Url::PATH_DEVICE_ADD, vmap, [this](QNetworkReply *reply) {
+	post(url(PATH_DEVICE_ADD), vmap, [this](QNetworkReply *reply) {
 		Core::app()->stopWaiting();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
@@ -110,7 +110,7 @@ void AddDeviceDialog::loadPrograms(int index) {
 	QByteArray data;
 	data.append("{\"program_type\":\"").append(deviceType).append("\"}");
 
-	Url::post(Url::PATH_PROGRAM_SEARCH, data, [this](QNetworkReply *reply) {
+	post(url(PATH_PROGRAM_SEARCH), data, [this](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("无法获取设备程序列表: ").append(resp.errorString()));
@@ -185,7 +185,7 @@ void ModifyDeviceDialog::accept() {
 	vmap.insert("support_program_ids", programs);
 
 	Core::app()->startWaitingOn(this);
-	Url::post(Url::PATH_DEVICE_MODIFY, vmap, [this](QNetworkReply *reply) {
+	post(url(PATH_DEVICE_MODIFY), vmap, [this](QNetworkReply *reply) {
 		Core::app()->stopWaiting();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
@@ -224,7 +224,7 @@ void ModifyDeviceDialog::loadPrograms()
 	QByteArray data;
 	data.append("{\"program_type\":\"").append(deviceType).append("\"}");
 
-	Url::post(Url::PATH_PROGRAM_SEARCH, data, [this](QNetworkReply *reply) {
+	post(url(PATH_PROGRAM_SEARCH), data, [this](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("无法获取设备程序列表: ").append(resp.errorString()));
@@ -250,7 +250,7 @@ void ModifyDeviceDialog::loadPrograms()
 void ModifyDeviceDialog::selectPrograms() {
 	QByteArray data("{\"device_id\":");
 	data.append(QString::number(_device->id)).append('}');
-	Url::post(Url::PATH_PROGRAM_SUPPORT, data, [this](QNetworkReply *reply) {
+	post(url(PATH_PROGRAM_SUPPORT), data, [this](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			//XNotifier::warn(this, QString("无法获取清洗程序列表: ").append(resp.errorString()), -1);

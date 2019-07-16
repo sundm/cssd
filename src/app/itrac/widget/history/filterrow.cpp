@@ -165,7 +165,7 @@ void DeviceFilterRow::reset()
 
 	QString data = QString("{\"device_type\":\"000%1\"}").arg((itrac::DeviceType::Washer == _type) ? 1 : 2);
 
-	Url::post(Url::PATH_DEVICE_SEARCH, QByteArray().append(data), [this](QNetworkReply *reply) {
+	_http.post(url(PATH_DEVICE_SEARCH), QByteArray().append(data), [this](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("无法获取设备列表: ").append(resp.errorString()));
@@ -257,7 +257,7 @@ void PackTypeFilterRow::reset()
 
 	QString data = QString("{}");
 
-	Url::post(Url::PATH_PACKTYPE_SEARCH, QByteArray().append(data), [this](QNetworkReply *reply) {
+	_http.post(url(PATH_PACKTYPE_SEARCH), QByteArray().append(data), [this](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("无法获取类型列表: ").append(resp.errorString()));

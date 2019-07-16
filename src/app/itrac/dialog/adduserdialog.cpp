@@ -69,7 +69,7 @@ void AddUserDialog::accept() {
 	vmap.insert("dept_id", deptId);
 
 	Core::app()->startWaitingOn(this);
-	Url::post(Url::PATH_USER_ADD, vmap, [this](QNetworkReply *reply) {
+	post(url(PATH_USER_ADD), vmap, [this](QNetworkReply *reply) {
 		Core::app()->stopWaiting();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {

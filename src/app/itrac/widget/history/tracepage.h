@@ -2,6 +2,7 @@
 
 #include <QGroupBox>
 #include <qscanner/qscanner.h>
+#include "core/net/jsonhttpclient.h"
 
 class SearchEdit;
 class QTextEdit;
@@ -19,7 +20,7 @@ private:
 	QFormLayout * _formLayout;
 };
 
-class TracePage : public QWidget, public Scanable
+class TracePage : public QWidget, public Scanable, public JsonHttpClient
 {
 	Q_OBJECT
 

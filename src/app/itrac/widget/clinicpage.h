@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QTabWidget>
+#include "core/net/jsonhttpclient.h"
 
 namespace Ui {
 	class FlatEdit;
@@ -12,7 +13,7 @@ class QStandardItemModel;
 class QComboBox;
 class QDateEdit;
 
-class OrderPanel : public QWidget
+class OrderPanel : public QWidget, public JsonHttpClient
 {
 	Q_OBJECT
 

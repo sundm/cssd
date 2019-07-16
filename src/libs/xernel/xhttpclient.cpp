@@ -2,26 +2,26 @@
 #include <qnetworkreply>
 #include <QEventLoop>
 
-class XHttpClientPrivate
-{
-	X_DECLARE_SIMPLE_PUBLIC(XHttpClient)
-	//Q_DISABLE_COPY(XHttpClientPrivate)
-	QHash<QString, QString> headers;
-};
-
-
 XHttpClient::XHttpClient()
-	:d(new XHttpClientPrivate)
 {
 }
 
 XHttpClient::~XHttpClient()
 {
+	QNetworkReply *reply = nullptr;
+	for (int i = 0; i < _replies.size(); ++i) {
+		reply = _replies.at(i);
+		if (reply->isRunning()) {
+			reply->disconnect(SIGNAL(finished()), 0, 0);
+			reply->abort();
+		}
+		reply->deleteLater();
+	}
 }
 
 void XHttpClient::setHeader(const QString &headerName, const QString &headerValue)
 {
-	d->headers[headerName] = headerValue;
+	_headers[headerName] = headerValue;
 }
 
 void XHttpClient::post(const QString &url,
@@ -32,7 +32,7 @@ void XHttpClient::post(const QString &url,
 	QUrl u(url);
 	QNetworkRequest request(u);
 
-	QHashIterator<QString, QString> iter(d->headers);
+	QHashIterator<QString, QString> iter(_headers);
 	while (iter.hasNext()) {
 		iter.next();
 		request.setRawHeader(iter.key().toUtf8(), iter.value().toUtf8());
@@ -44,8 +44,8 @@ void XHttpClient::post(const QString &url,
 	// !!! DO NOT create the QNetworkAccessManager object on stack here, otherwise, 
 	// it's destroyed immediately, cause the QNetworkAccessManager::finished signal never be emitted,
 	// we should DELETE it later.
-	QNetworkAccessManager *nam = new QNetworkAccessManager;
-	QNetworkReply *reply = nam->post(request, data);
+	QNetworkReply *reply = _nam.post(request, data);
+	_replies.append(reply);
 
 	//endTime = clock();
 	//qDebug() << endTime - startTime;
@@ -55,8 +55,8 @@ void XHttpClient::post(const QString &url,
 		if (nullptr != finishCallback) {
 			finishCallback(reply);
 		}
+		_replies.removeAll(reply);
 		reply->deleteLater();
-		nam->deleteLater();
 	});
 
 	// call error handler if neccessary.
@@ -76,7 +76,7 @@ QNetworkReply * XHttpClient::post(const QString &url, const QByteArray &data)
 	QUrl destUrl(url);
 	QNetworkRequest request(destUrl);
 
-	QHashIterator<QString, QString> iter(d->headers);
+	QHashIterator<QString, QString> iter(_headers);
 	while (iter.hasNext()) {
 		iter.next();
 		request.setRawHeader(iter.key().toUtf8(), iter.value().toUtf8());

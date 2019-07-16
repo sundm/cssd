@@ -1,12 +1,13 @@
 #pragma once
 
 #include <QDialog>
+#include "core/net/jsonhttpclient.h"
 
 namespace Ui {
 	class FlatEdit;
 }
 
-class UserInfoDialog : public QDialog
+class UserInfoDialog : public QDialog, public JsonHttpClient
 {
 	Q_OBJECT
 

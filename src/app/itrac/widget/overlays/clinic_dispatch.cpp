@@ -138,7 +138,7 @@ void ClinicDispatchPanel::addPackage(const QString& id) {
 	QByteArray data("{\"package_id\":");
 	data.append(id).append('}');
 
-	Url::post(Url::PATH_PKG_INFO, data, [=](QNetworkReply *reply) {
+	post(url(PATH_PKG_INFO), data, [=](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			return;
@@ -247,7 +247,7 @@ void ClinicDispatchPanel::commit() {
 	vmap.insert("order_id", order);
 	vmap.insert("r_operator_id", recvId);
 
-	Url::post(Url::PATH_ISSUE_ADD, vmap, [=](QNetworkReply *reply) {
+	post(url(PATH_ISSUE_ADD), vmap, [=](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success())
 			XNotifier::warn(QString("发放登记错误: ").append(resp.errorString()));
@@ -266,7 +266,7 @@ void ClinicDispatchPanel::loadOrders() {
 	vmap.insert("end_time", timeScope.to);
 
 	Core::app()->startWaitingOn(_view);
-	Url::post(Url::PATH_ORDER_SEARCH, vmap, [this](QNetworkReply *reply) {
+	post(url(PATH_ORDER_SEARCH), vmap, [this](QNetworkReply *reply) {
 		Core::app()->stopWaiting();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
@@ -324,7 +324,7 @@ void ClinicDispatchPanel::showDetail(const QModelIndex &index) {
 	QByteArray data("{\"order_id\":");
 	data.append(QString::number(order)).append('}');
 	Core::app()->startWaitingOn(this);
-	Url::post(Url::PATH_ORDER_PKGINFO, data, [this](QNetworkReply *reply) {
+	post(url(PATH_ORDER_PKGINFO), data, [this](QNetworkReply *reply) {
 		Core::app()->stopWaiting();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {

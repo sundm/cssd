@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QDialog>
+#include "core/net/jsonhttpclient.h"
 
 namespace Ui {
 	class FlatEdit;
@@ -16,7 +17,7 @@ class QStandardItem;
 class QStandardItemModel;
 class TableView;
 
-class ExtRepayDialog : public QDialog
+class ExtRepayDialog : public QDialog, public JsonHttpClient
 {
 	Q_OBJECT
 

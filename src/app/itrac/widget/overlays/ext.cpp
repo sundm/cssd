@@ -44,7 +44,7 @@ void ExtView::load(const int orderId, int page /*= 0*/) {
 	vmap.insert("ext_order_id", orderId);
 
 	Core::app()->startWaitingOn(this);
-	Url::post(Url::PATH_EXT_SEARCH, vmap, [this](QNetworkReply *reply) {
+	_http.post(url(PATH_EXT_SEARCH), vmap, [this](QNetworkReply *reply) {
 		Core::app()->stopWaiting();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
@@ -157,7 +157,7 @@ void ExtOrderView::load(const QDate& fromDate, const QDate& endDate, int page /*
 	vmap.insert("end_time", endDate);
 
 	Core::app()->startWaitingOn(this);
-	Url::post(Url::PATH_EXTORDER_SEARCH, vmap, [this](QNetworkReply *reply) {
+	_http.post(url(PATH_EXTORDER_SEARCH), vmap, [this](QNetworkReply *reply) {
 		Core::app()->stopWaiting();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {

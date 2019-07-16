@@ -4,6 +4,7 @@
 #include "ui/loader.h"
 #include <QWidget>
 #include <qscanner/qscanner.h>
+#include "core/net/jsonhttpclient.h"
 
 namespace Ui {
 	class Picture;
@@ -13,7 +14,7 @@ namespace Ui {
 } // namespace Ui 
 
 namespace Widget {
-	class LoginPanel : public Ui::Inner, public Scanable
+	class LoginPanel : public Ui::Inner, public Scanable, public JsonHttpClient
 	{
 		Q_OBJECT
 	public:

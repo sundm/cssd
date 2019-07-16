@@ -136,7 +136,7 @@ void DevicePage::updateDeviceView(const QString& deviceType/* = QString()*/)
 	else
 		data.append("{\"device_type\":\"").append(deviceType).append("\"}");
 
-	Url::post(Url::PATH_DEVICE_SEARCH, data, [=](QNetworkReply *reply) {
+	post(url(PATH_DEVICE_SEARCH), data, [=](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("无法获取设备列表: ").append(resp.errorString()));
@@ -176,7 +176,7 @@ void DevicePage::setDeviceEnabled(bool enabled)
 		QByteArray data;
 		data.append(req.arg(id, enabled ? "0" : "1"));
 
-		Url::post(Url::PATH_DEVICE_MODIFY, data, [=](QNetworkReply *reply) {
+		post(url(PATH_DEVICE_MODIFY), data, [=](QNetworkReply *reply) {
 			JsonHttpResponse resp(reply);
 			if (!resp.success()) {
 				XNotifier::warn(QString("更改设备状态失败: ").append(resp.errorString()));

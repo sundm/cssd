@@ -104,7 +104,7 @@ void DeviceProgramPage::updateProgramView(const QString& programType /*= QString
 	else
 		data.append("{\"program_type\":\"").append(programType).append("\"}");
 
-	Url::post(Url::PATH_PROGRAM_SEARCH, data, [=](QNetworkReply *reply) {
+	post(url(PATH_PROGRAM_SEARCH), data, [=](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("无法获取设备程序列表: ").append(resp.errorString()));

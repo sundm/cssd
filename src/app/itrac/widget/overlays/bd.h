@@ -1,9 +1,10 @@
 #pragma once
 
 #include "cssd_overlay.h"
+#include "core/net/jsonhttpclient.h"
 
 class DeviceArea;
-class BDPanel : public CssdOverlayPanel
+class BDPanel : public CssdOverlayPanel, public JsonHttpClient
 {
 	Q_OBJECT
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QDialog>
+#include "core/net/jsonhttpclient.h"
 
 class QDateEdit;
 class QStandardItem;
@@ -8,7 +9,7 @@ class QItemSelectionModel;
 class QStandardItemModel;
 class TableView;
 
-class Addcostingdialog : public QDialog
+class Addcostingdialog : public QDialog, public JsonHttpClient
 {
 	Q_OBJECT
 

@@ -2,6 +2,7 @@
 #include "itracnamespace.h"
 
 #include "core/net/url.h"
+#include "core/net/jsonhttpclient.h"
 
 namespace {
 	inline int getPackageState(const QString &s) {
@@ -21,7 +22,8 @@ void Plate::fetchOnce(const QString &id, const std::function<void(Plate*)> &fn) 
 	QByteArray data("{\"plate_id\":");
 	data.append(id).append('}');
 
-	Url::post(Url::PATH_PLATE_SEARCH, data, [=](QNetworkReply *reply) {
+	JsonHttpClient *http = new JsonHttpClient;
+	http->post(url(PATH_PLATE_SEARCH), data, [=](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		do {
 			if (!resp.success()) {
@@ -44,6 +46,7 @@ void Plate::fetchOnce(const QString &id, const std::function<void(Plate*)> &fn) 
 
 		fn(plate);
 		delete plate;
+		delete http; //todo
 	});
 }
 
@@ -72,7 +75,8 @@ void Package::fetchOnce(const QString &id, const std::function<void(Package*)> &
 	Package *package = new Package;
 
 	QString data = QString("{\"package_id\":\"%1\"}").arg(id);
-	Url::post(Url::PATH_PKG_INFO, QByteArray().append(data), [=](QNetworkReply *reply) {
+	JsonHttpClient *http = new JsonHttpClient;
+	http->post(url(PATH_PKG_INFO), QByteArray().append(data), [=](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			package->err = QString("无法获取包信息: ").append(resp.errorString());
@@ -92,5 +96,6 @@ void Package::fetchOnce(const QString &id, const std::function<void(Package*)> &
 
 		fn(package);
 		delete package;
+		delete http; // todo
 	});
 }

@@ -1,10 +1,11 @@
 #pragma once
 
 #include <QDialog>
+#include "core/net/jsonhttpclient.h"
 
 class TableView;
 class QStandardItemModel;
-class WarningDialog : public QDialog
+class WarningDialog : public QDialog, public JsonHttpClient
 {
 	Q_OBJECT
 

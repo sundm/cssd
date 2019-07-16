@@ -28,7 +28,7 @@ namespace Internal {
 			QRegExp re("[a-zA-Z]+");
 			data.insert(re.exactMatch(kw) ? "pinyin_code" : "package_type_name", kw);
 		}
-		Url::post(Url::PATH_PKGTPYE_SEARCH, data, [=](QNetworkReply *reply) {
+		_http.post(url(PATH_PKGTPYE_SEARCH), data, [=](QNetworkReply *reply) {
 			JsonHttpResponse resp(reply);
 			if (!resp.success()) {
 				XNotifier::warn(QString("获取包列表失败: ").append(resp.errorString()));

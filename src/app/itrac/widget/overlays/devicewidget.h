@@ -3,6 +3,7 @@
 #include <QScrollArea>
 #include <QGroupBox>
 #include "itracnamespace.h"
+#include "core/net/jsonhttpclient.h"
 
 struct Device;
 class ProgramComboBox;
@@ -36,6 +37,7 @@ protected:
 	std::unique_ptr<Device> _device;
 	Ui::CheckableImageLabel *_icon;
 	QLabel *_title;
+	JsonHttpClient _http;
 };
 
 
@@ -57,7 +59,7 @@ private:
 };
 
 
-class DeviceArea : public QScrollArea
+class DeviceArea : public QScrollArea, public JsonHttpClient
 {
 	Q_OBJECT
 public:

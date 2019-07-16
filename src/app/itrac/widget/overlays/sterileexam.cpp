@@ -64,7 +64,7 @@ void SterileExamPanel::commit()
 	QString bioResult = verdicts.toString(verdicts.bio);
 	if (!bioResult.isEmpty()) vmap.insert("bio_test_result", bioResult);
 
-	Url::post(Url::PATH_STERILE_CHECK, vmap, [=](QNetworkReply *reply) {
+	post(url(PATH_STERILE_CHECK), vmap, [=](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success())
 			XNotifier::warn(QString("提交灭菌合格登记失败: ").append(resp.errorString()));
@@ -80,7 +80,7 @@ void SterileExamPanel::updateSterileInfo(const QString &testId) {
 
 	QByteArray data("{\"test_id\":");
 	data.append(testId).append('}');
-	Url::post(Url::PATH_STERILE_INFO, data, [this, testId](QNetworkReply *reply) {
+	post(url(PATH_STERILE_INFO), data, [this, testId](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("无法获取灭菌监测批次 [%1] 的数据: %2").arg(testId));

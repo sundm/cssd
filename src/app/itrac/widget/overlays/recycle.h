@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cssd_overlay.h"
+#include "core/net/jsonhttpclient.h"
 
 class DeptEdit;
 class PackageEdit;
@@ -9,7 +10,7 @@ class TableView;
 class OrRecyclePackageView;
 class QStandardItemModel;
 
-class NoBCRecyclePanel : public CssdOverlayPanel
+class NoBCRecyclePanel : public CssdOverlayPanel, public JsonHttpClient
 {
 	Q_OBJECT
 
@@ -39,7 +40,7 @@ private:
 	QStandardItemModel *_pkgModel;
 };
 
-class OrRecyclePanel : public CssdOverlayPanel
+class OrRecyclePanel : public CssdOverlayPanel, public JsonHttpClient
 {
 	Q_OBJECT
 

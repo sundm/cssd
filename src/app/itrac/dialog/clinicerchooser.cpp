@@ -68,7 +68,7 @@ void ClinicerChooser::apply() {
 		QByteArray data;
 		data.append(req.arg(_opId));
 
-		Url::post(Url::PATH_USER_SEARCH, data, [=](QNetworkReply *reply) {
+		post(url(PATH_USER_SEARCH), data, [=](QNetworkReply *reply) {
 			JsonHttpResponse resp(reply);
 			if (!resp.success()) {
 				return;

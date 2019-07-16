@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QTreeView>
+#include "core/net/jsonhttpclient.h"
 
 class QStandardItemModel;
 class PlateView : public QTreeView
@@ -16,6 +17,7 @@ public:
 
 private:
 	QStandardItemModel * _model;
+	JsonHttpClient _http;
 };
 
 
@@ -44,4 +46,5 @@ private:
 	QList<int> getSelectedPackages(QVariantList &) const;
 
 	QStandardItemModel * _model;
+	JsonHttpClient _http;
 };

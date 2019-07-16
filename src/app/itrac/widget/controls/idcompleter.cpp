@@ -26,7 +26,7 @@ DeptCompleter::DeptCompleter(QObject *parent /*= nullptr*/)
 }
 
 void DeptCompleter::load(const int deptTypeId) {
-	Url::post(Url::PATH_DEPT_SEARCH, "{}", [=](QNetworkReply *reply) {
+	_http.post(url(PATH_DEPT_SEARCH), "{}", [=](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			emit error(resp.errorString());
@@ -67,7 +67,7 @@ void PackageCompleter::loadForCategory(const QString &category) {
 }
 
 void PackageCompleter::loadInternal(const QByteArray &data) {
-	Url::post(Url::PATH_PKGTPYE_SEARCH, data, [=](QNetworkReply *reply) {
+	_http.post(url(PATH_PKGTPYE_SEARCH), data, [=](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			emit error(resp.errorString());

@@ -47,7 +47,7 @@ void RecallPage::onDeviceChanged(int index)
 
 	QVariantMap v;
 	v.insert("device_id", _comboBox->itemData(index));
-	Url::post(Url::PATH_RECALL_SEARCH, v, [this](QNetworkReply *reply) {
+	post(url(PATH_RECALL_SEARCH), v, [this](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("无法获取待召回物品包列表: ").append(resp.errorString()));
@@ -68,7 +68,7 @@ void RecallPage::onDeviceChanged(int index)
 void RecallPage::recall() {
 	QVariantMap v;
 	v.insert("device_id", _comboBox->currentData());
-	Url::post(Url::PATH_RECALL, v, [this](QNetworkReply *reply) {
+	post(url(PATH_RECALL), v, [this](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("暂时无法召回: ").append(resp.errorString()));
@@ -84,7 +84,7 @@ void RecallPage::recall() {
 void RecallPage::loadSterilizer() {
 	QByteArray data;
 	data.append("{\"device_type\":\"0002\"}");
-	Url::post(Url::PATH_DEVICE_SEARCH, data, [this](QNetworkReply *reply) {
+	post(url(PATH_DEVICE_SEARCH), data, [this](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("无法获取设备列表: ").append(resp.errorString()));

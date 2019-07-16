@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QDialog>
+#include "core/net/jsonhttpclient.h"
 
 namespace Ui {
 	class FlatEdit;
@@ -10,7 +11,7 @@ class QComboBox;
 class QStandardItemModel;
 class TableView;
 
-class AddDeviceDialog : public QDialog
+class AddDeviceDialog : public QDialog, public JsonHttpClient
 {
 	Q_OBJECT
 
@@ -35,7 +36,7 @@ private:
 
 struct Device;
 
-class ModifyDeviceDialog : public QDialog
+class ModifyDeviceDialog : public QDialog, public JsonHttpClient
 {
 	Q_OBJECT
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QComboBox>
+#include "core/net/jsonhttpclient.h"
 
 class GenderComboBox : public QComboBox
 {
@@ -21,6 +22,7 @@ public:
 
 private:
 	int _deviceId;
+	JsonHttpClient _http;
 };
 
 class VendorComboBox : public QComboBox
@@ -30,4 +32,7 @@ class VendorComboBox : public QComboBox
 public:
 	VendorComboBox(QWidget *parent = nullptr);
 	void updateEntry();
+
+private:
+	JsonHttpClient _http;
 };
