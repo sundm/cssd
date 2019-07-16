@@ -24,10 +24,7 @@ HistoryPage::HistoryPage(QWidget *parent)
 	
 	QWidget *toolBar = new QWidget(this);
 	QHBoxLayout *hlayout = new QHBoxLayout(toolBar);
-	/*QLabel *searchIcon = new QLabel(toolBar);
-	searchIcon->setPixmap(QPixmap(":/res/search.png"));
-	hlayout->addWidget(searchIcon);*/
-
+	
 	_filterButton->setIcon(QIcon(":/res/filter-24.png"));
 	_filterButton->setCheckable(true);
 	hlayout->addWidget(_filterButton);
@@ -152,11 +149,28 @@ void RecycleHistoryPage::doSearch(int page)
 		_historyModel->insertRows(0, packages.count());
 		for (int i = 0; i != packages.count(); ++i) {
 			QVariantMap map = packages[i].toMap();
-			_historyModel->setData(_historyModel->index(i, 0), map["package_id"]);
+			_historyModel->setData(_historyModel->index(i, 0), map["package_id"].toInt() == 0 ? QString("-"): map["package_id"]);
 			_historyModel->setData(_historyModel->index(i, 1), map["package_type_name"]);
 			_historyModel->setData(_historyModel->index(i, 2), map["operator_name"]);
 			_historyModel->setData(_historyModel->index(i, 3), map["operation_time"]);
-			_historyModel->setData(_historyModel->index(i, 4), map["recycle_reason"]);
+			switch (map["recycle_reason"].toInt())
+			{
+			case 1:
+				_historyModel->setData(_historyModel->index(i, 4),QString("手术器械有码回收"));
+				break;
+			case 2:
+				_historyModel->setData(_historyModel->index(i, 4), QString("外来器械回收"));
+				break;
+			case 3:
+				_historyModel->setData(_historyModel->index(i, 4), QString("手术器械无码回收"));
+				break;
+			case 4:
+				_historyModel->setData(_historyModel->index(i, 4), QString("临床器械回收"));
+				break;
+			default:
+				break;
+			}
+			
 			_historyModel->setData(_historyModel->index(i, 5), map["department_name"]);
 			_historyModel->setData(_historyModel->index(i, 6), map["plate_name"]);
 			_historyModel->setHeaderData(i, Qt::Vertical, (page - 1)*_visibleCount + 1 + i);
@@ -407,6 +421,7 @@ void DispatchHistoryPage::doSearch(int page /*= 1*/) {
 		vmap.insert("start_time", QDate::currentDate());
 		vmap.insert("end_time", QDate::currentDate());
 	}
+
 	vmap.insert("page", page);
 	vmap.insert("page_count", _visibleCount);
 
