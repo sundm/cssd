@@ -2,6 +2,7 @@
 
 #include <QWidget>
 #include "itracnamespace.h"
+#include "core/net/jsonhttpclient.h"
 
 class QHBoxLayout;
 class QRadioButton;
@@ -97,6 +98,7 @@ public:
 private:
 	int _type;
 	QComboBox * _deviceBox;
+	JsonHttpClient _http;
 };
 
 class PackTypeFilterRow : public FilterRow

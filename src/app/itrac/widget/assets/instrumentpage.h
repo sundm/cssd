@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ui/views.h"
+#include "core/net/jsonhttpclient.h"
 
 class QStandardItemModel;
 
@@ -17,13 +18,14 @@ public:
 
 private:
 	QStandardItemModel * _model;
+	JsonHttpClient _http;
 };
 
 QString getVipLiteral(const QString &vip);
 
 } //namespace Internal
 
-class InstrumentPage : public QWidget
+class InstrumentPage : public QWidget, public JsonHttpClient
 {
 	Q_OBJECT
 

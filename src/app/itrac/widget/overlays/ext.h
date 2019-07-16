@@ -2,6 +2,7 @@
 
 #include "cssd_overlay.h"
 #include "ui/views.h"
+#include "core/net/jsonhttpclient.h"
 
 class QStandardItemModel;
 class QButtonGroup;
@@ -29,6 +30,7 @@ namespace Internal {
 		void load(const int orderId, int page = 0);
 	private:
 		QStandardItemModel * _model;
+		JsonHttpClient _http;
 	};
 
 	class ExtOrderView : public PaginationView
@@ -57,6 +59,7 @@ namespace Internal {
 	private:
 		QStandardItemModel *_model;
 		QVariantMap *_map;
+		JsonHttpClient _http;
 	};
 }
 

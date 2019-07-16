@@ -58,7 +58,7 @@ void AddProgramDialog::accept() {
 	vmap.insert("program_type", _typeCombo->currentData());
 
 	Core::app()->startWaitingOn(this);
-	Url::post(Url::PATH_PROGRAM_ADD, vmap, [this](QNetworkReply *reply) {
+	post(url(PATH_PROGRAM_ADD), vmap, [this](QNetworkReply *reply) {
 		Core::app()->stopWaiting();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {

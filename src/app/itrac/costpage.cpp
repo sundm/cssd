@@ -58,7 +58,7 @@ void Costpage::refresh()
 	QByteArray data;
 	data.append("{}");
 
-	Url::post(Url::PATH_COST_GETMONTH, data, [=](QNetworkReply *reply) {
+	post(url(PATH_COST_GETMONTH), data, [=](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("无法获取核算数据: ").append(resp.errorString()));
@@ -121,7 +121,7 @@ void Costpage::updateDetailView(const QString& date)
 	QByteArray data;
 	data.append("{\"month\":\"").append(date).append("\"}");
 
-	Url::post(Url::PATH_COST_SEARCH, data, [=](QNetworkReply *reply) {
+	post(url(PATH_COST_SEARCH), data, [=](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("无法获取该月明细: ").append(resp.errorString()));

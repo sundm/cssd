@@ -105,7 +105,7 @@ void OrderPanel::commit() {
 	vmap.insert("s_operator_id", user.id);
 	vmap.insert("package_ids", packages);
 
-	Url::post(Url::PATH_ORDER_ADD, vmap, [this](QNetworkReply *reply) {
+	post(url(PATH_ORDER_ADD), vmap, [this](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("提交订单失败: ").append(resp.errorString()));

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cssd_overlay.h"
+#include "core/net/jsonhttpclient.h"
 
 namespace Composite {
 	class Title;
@@ -14,7 +15,7 @@ class TableView;
 class QStandardItemModel;
 class QStringList;
 
-class ClinicDispatchPanel : public CssdOverlayPanel
+class ClinicDispatchPanel : public CssdOverlayPanel, public JsonHttpClient
 {
 	Q_OBJECT
 

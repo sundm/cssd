@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QTableView>
+#include "core/net/jsonhttpclient.h"
 
 class QStandardItemModel;
 
@@ -18,11 +19,12 @@ public:
 private:
 	void clear();
 	QStandardItemModel * _model;
+	JsonHttpClient _http;
 };
 
 } //namespace Internal
 
-class DepartmentPage : public QWidget
+class DepartmentPage : public QWidget, public JsonHttpClient
 {
 	Q_OBJECT
 

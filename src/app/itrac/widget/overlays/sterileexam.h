@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cssd_overlay.h"
+#include "core/net/jsonhttpclient.h"
 
 class SterileInfoGroup;
 class SterileCheckGroup;
@@ -10,7 +11,7 @@ namespace Sterile {
 	struct TestInfo;
 };
 
-class SterileExamPanel : public CssdOverlayPanel
+class SterileExamPanel : public CssdOverlayPanel, public JsonHttpClient
 {
 	Q_OBJECT
 

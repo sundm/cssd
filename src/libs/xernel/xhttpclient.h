@@ -3,15 +3,12 @@
 
 #include "xernel_global.h"
 #include <functional>
-#include <QScopedPointer>
+#include <QNetworkAccessManager>
 
-QT_FORWARD_DECLARE_CLASS(XHttpClientPrivate)
 QT_FORWARD_DECLARE_CLASS(QNetworkReply)
 
 class XERNEL_EXPORT XHttpClient
 {
-	X_DECLARE_SIMPLE_PRIVATE(XHttpClient)
-
 public:
 	XHttpClient();
 	virtual ~XHttpClient();
@@ -28,6 +25,10 @@ public:
 	// synchronous post method
 	QNetworkReply *post(const QString &url, const QByteArray &data);
 
+private:
+	QHash<QString, QString> _headers;
+	QNetworkAccessManager _nam;
+	QList<QNetworkReply *> _replies;
 };
 
 #endif // !XHTTPCLIENT_H

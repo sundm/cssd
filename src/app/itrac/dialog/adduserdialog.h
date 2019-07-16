@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QDialog>
+#include "core/net/jsonhttpclient.h"
 
 namespace Ui {
 	class FlatEdit;
@@ -10,7 +11,7 @@ class QCheckBox;
 class GenderComboBox;
 class DeptEdit;
 
-class AddUserDialog : public QDialog
+class AddUserDialog : public QDialog, public JsonHttpClient
 {
 	Q_OBJECT
 

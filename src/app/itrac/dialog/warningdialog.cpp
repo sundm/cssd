@@ -47,7 +47,7 @@ void WarningDialog::load() {
 	QVariantMap vmap;
 	vmap.insert("date", 100);
 
-	Url::post(Url::PATH_WARN_PKGS, vmap, [this](QNetworkReply *reply) {
+	post(url(PATH_WARN_PKGS), vmap, [this](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			//XNotifier::warn(QString("无法获取设备程序列表: ").append(resp.errorString()));

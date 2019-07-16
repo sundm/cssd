@@ -1,11 +1,12 @@
 #pragma once
 
 #include <QWidget>
+#include "core/net/jsonhttpclient.h"
 
 class QStandardItemModel;
 class QComboBox;
 class TableView;
-class DevicePage : public QWidget
+class DevicePage : public QWidget, public JsonHttpClient
 {
 	Q_OBJECT
 

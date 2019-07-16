@@ -89,7 +89,7 @@ void OrDispatchPanel::commit() {
 	vmap.insert("operator_id", opId);
 	vmap.insert("package_ids", packages);
 
-	Url::post(Url::PATH_ISSUE_ADD, vmap, [=](QNetworkReply *reply) {
+	post(url(PATH_ISSUE_ADD), vmap, [=](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("提交发放失败: ").append(resp.errorString()));

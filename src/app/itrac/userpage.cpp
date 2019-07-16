@@ -47,7 +47,7 @@ void UserPage::updateView()
 	if (_userModel->rowCount() > 0)
 		_userModel->clear();
 
-	Url::post(Url::PATH_USER_SEARCH, "{}", [=](QNetworkReply *reply) {
+	post(url(PATH_USER_SEARCH), "{}", [=](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("无法获取用户列表: ").append(resp.errorString()));

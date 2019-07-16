@@ -48,7 +48,7 @@ namespace Internal {
 
 	void DeptAssetView::load(int page /*= 0*/, int count /*= 10*/)
 	{
-		Url::post(Url::PATH_DEPT_SEARCH, "{}", [=](QNetworkReply *reply) {
+		_http.post(url(PATH_DEPT_SEARCH), "{}", [=](QNetworkReply *reply) {
 			JsonHttpResponse resp(reply);
 			if (!resp.success()) {
 				XNotifier::warn(QString("获取科室列表失败: ").append(resp.errorString()));

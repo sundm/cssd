@@ -80,7 +80,7 @@ void WashPanel::commit() {
 	vmap.insert("program_id", programId);
 	vmap.insert("operator_id", opId);
 
-	Url::post(Url::PATH_WASH_ADD, vmap, [=](QNetworkReply *reply) {
+	post(url(PATH_WASH_ADD), vmap, [=](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success())
 			XNotifier::warn(QString("无法完成清洗登记: ").append(resp.errorString()));

@@ -131,7 +131,7 @@ void ClinicPanel::commit() {
 	vmap.insert("operator_id", opId);
 	vmap.insert("order_ids", orders);
 
-	Url::post(Url::PATH_ORDER_RECYCLE, vmap, [=](QNetworkReply *reply) {
+	post(url(PATH_ORDER_RECYCLE), vmap, [=](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success())
 			XNotifier::warn(QString("回收登记错误: ").append(resp.errorString()));
@@ -150,7 +150,7 @@ void ClinicPanel::loadOrders() {
 	vmap.insert("end_time", timeScope.to);
 
 	Core::app()->startWaitingOn(_view);
-	Url::post(Url::PATH_ORDER_SEARCH, vmap, [this](QNetworkReply *reply) {
+	post(url(PATH_ORDER_SEARCH), vmap, [this](QNetworkReply *reply) {
 		Core::app()->stopWaiting();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
@@ -182,7 +182,7 @@ void ClinicPanel::showDetail(const QModelIndex &index) {
 	QByteArray data("{\"order_id\":");
 	data.append(QString::number(order)).append('}');
 	Core::app()->startWaitingOn(this);
-	Url::post(Url::PATH_ORDER_PKGINFO, data, [this](QNetworkReply *reply) {
+	post(url(PATH_ORDER_PKGINFO), data, [this](QNetworkReply *reply) {
 		Core::app()->stopWaiting();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {

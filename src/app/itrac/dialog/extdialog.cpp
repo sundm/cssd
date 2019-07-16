@@ -117,7 +117,7 @@ void ExtRecvDialog::accept() {
 	data.insert("p_operator_name", receiver);
 	data.insert("ext_info", ext_info_list);
 
-	Url::post(Url::PATH_EXT_ADD, data, [this](QNetworkReply *reply) {
+	post(url(PATH_EXT_ADD), data, [this](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("暂时无法提交登记: ").append(resp.errorString()));

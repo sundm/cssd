@@ -3,12 +3,13 @@
 
 #include <QDialog>
 #include <qscanner/qscanner.h>
+#include "core/net/jsonhttpclient.h"
 
 namespace Ui {
 	class FlatEdit;
 }
 
-class ClinicerChooser : public QDialog, public Scanable
+class ClinicerChooser : public QDialog, public Scanable, public JsonHttpClient
 {
     Q_OBJECT
 

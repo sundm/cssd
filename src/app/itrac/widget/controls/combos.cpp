@@ -22,7 +22,7 @@ void ProgramComboBox::updateEntry(bool force)
 
 	QByteArray data("{\"device_id\":");
 	data.append(QString::number(_deviceId)).append('}');
-	Url::post(Url::PATH_PROGRAM_SUPPORT, data, [=](QNetworkReply *reply) {
+	_http.post(url(PATH_PROGRAM_SUPPORT), data, [=](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			//XNotifier::warn(this, QString("无法获取清洗程序列表: ").append(resp.errorString()), -1);
@@ -50,7 +50,7 @@ void VendorComboBox::updateEntry() {
 	clear();
 
 	QByteArray data("{}");
-	Url::post(Url::PATH_VENDOR_SEARCH, data, [this](QNetworkReply *reply) {
+	_http.post(url(PATH_VENDOR_SEARCH), data, [this](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			return;

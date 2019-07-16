@@ -112,7 +112,7 @@ void SterilePanel::commit() {
 	vmap.insert("chemical_test", chemInvolved);
 	vmap.insert("biological_test", bioInvolved);
 
-	Url::post(Url::PATH_STERILE_ADD, vmap, [=](QNetworkReply *reply) {
+	post(url(PATH_STERILE_ADD), vmap, [=](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			printer->close();

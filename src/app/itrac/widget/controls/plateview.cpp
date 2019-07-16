@@ -28,7 +28,7 @@ void PlateView::addPlate(int id) {
 	QByteArray data("{\"plate_id\":");
 	data.append(QString::number(id)).append('}');
 
-	Url::post(Url::PATH_PKG_IN_PLATE, data, [=](QNetworkReply *reply) {
+	_http.post(url(PATH_PKG_IN_PLATE), data, [=](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("无法获取清洗网篮数据: ").append(resp.errorString()), -1);
@@ -95,7 +95,7 @@ void PackPlateView::addPlate(int id)
 	QByteArray data("{\"plate_id\":");
 	data.append(QString::number(id)).append('}');
 
-	Url::post(Url::PATH_PKG_IN_PLATE, data, [this, id](QNetworkReply *reply) {
+	_http.post(url(PATH_PKG_IN_PLATE), data, [this, id](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("无法获取清洗网篮数据: ").append(resp.errorString()));
@@ -161,7 +161,7 @@ void PackPlateView::doPack(int opId, int checkId) {
 	vmap.insert("operator_id", opId);
 	vmap.insert("check_operator_id", checkId);
 
-	Url::post(Url::PATH_PACK_ADD, vmap, [this, rows, printer](QNetworkReply *reply) {
+	_http.post(url(PATH_PACK_ADD), vmap, [this, rows, printer](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			printer->close();

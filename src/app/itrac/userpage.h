@@ -2,11 +2,12 @@
 #define OPERATORWIDGET_H
 
 #include <QWidget>
+#include "core/net/jsonhttpclient.h"
 
 class QStandardItemModel;
 class QListView;
 class SearchEdit;
-class UserPage : public QWidget
+class UserPage : public QWidget, public JsonHttpClient
 {
 	Q_OBJECT
 

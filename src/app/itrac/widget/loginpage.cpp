@@ -138,7 +138,7 @@ namespace Widget {
 	{
 		Core::app()->startWaitingOn(this);
 
-		Url::post(Url::PATH_VERSION, "{}", [=](QNetworkReply *reply) {
+		post(url(PATH_VERSION), "{}", [=](QNetworkReply *reply) {
 			Core::app()->stopWaiting();
 			JsonHttpResponse resp(reply);
 			if (!resp.success()) {
@@ -150,9 +150,9 @@ namespace Widget {
 				const QString code = resp.getAsString("code");
 				if (!code.compare("9000")) {
 					const QString _version = resp.getAsString("version");
-					if (_version.compare(Url::Version)) {
+					if (_version.compare(Constant::Version)) {
 						QProcess *pro = new QProcess(this);
-						QStringList args(Url::PATH_BASE);
+						QStringList args(PATH_BASE);
 #ifdef _DEBUG
 						pro->startDetached("updateCSSDd.exe", args);
 #else
@@ -185,8 +185,8 @@ namespace Widget {
 
 		vmap.insert("sign_flag", "C");
 
-		/*
-		Core::User &user = Core::currentUser();
+
+		/*Core::User &user = Core::currentUser();
 		user.role = Core::User::Admin;
 		user.deptId = 12000021;
 		user.id = 11000008;
@@ -194,7 +194,7 @@ namespace Widget {
 		container()->accept();
 		return;*/
 
-		Url::post(Url::PATH_USER_LOGIN, vmap, [this](QNetworkReply *reply) {
+		post(url(PATH_USER_LOGIN), vmap, [this](QNetworkReply *reply) {
 			Core::app()->stopWaiting();
 			JsonHttpResponse resp(reply);
 			if (!resp.success()) {

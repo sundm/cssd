@@ -102,7 +102,7 @@ void WasherItem::setIdle() {
 void WasherItem::stop() {
 	QByteArray data("{\"device_id\":");
 	data.append(QString::number(_device->id)).append('}');
-	Url::post(Url::PATH_DEVICE_STOP, data, [this](QNetworkReply *reply) {
+	_http.post(url(PATH_DEVICE_STOP), data, [this](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("结束程序出错: ").append(resp.errorString()));
@@ -137,7 +137,7 @@ void DeviceArea::load(itrac::DeviceType type)
 
 	QString data = QString("{\"device_type\":\"000%1\"}").arg((itrac::DeviceType::Washer == type) ? 1: 2);
 
-	Url::post(Url::PATH_DEVICE_SEARCH, QByteArray().append(data), [this](QNetworkReply *reply) {
+	post(url(PATH_DEVICE_SEARCH), QByteArray().append(data), [this](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("无法获取设备列表: ").append(resp.errorString()));

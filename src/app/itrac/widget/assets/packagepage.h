@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ui/views.h"
+#include "core/net/jsonhttpclient.h"
 
 class QStandardItemModel;
 class SearchEdit;
@@ -18,6 +19,7 @@ public:
 
 private:
 	QStandardItemModel * _model;
+	JsonHttpClient _http;
 };
 
 QString literalSteType(int type);

@@ -88,7 +88,7 @@ void ExtRepayDialog::load() {
 	vmap.insert("ext_order_id", _orderId);
 
 	Core::app()->startWaitingOn(this);
-	Url::post(Url::PATH_EXT_SEARCH, vmap, [this](QNetworkReply *reply) {
+	post(url(PATH_EXT_SEARCH), vmap, [this](QNetworkReply *reply) {
 		Core::app()->stopWaiting();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
@@ -166,7 +166,7 @@ void ExtRepayDialog::accept() {
 	data.insert("repay_name", repay);
 	data.insert("repay_phone", repayPhone);
 
-	Url::post(Url::PATH_EXT_RETURN, data, [this](QNetworkReply *reply) {
+	post(url(PATH_EXT_RETURN), data, [this](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("暂时无法提交归还登记: ").append(resp.errorString()));

@@ -3,6 +3,8 @@
 #include <QString>
 #include <functional>
 
+class JsonHttpClient;
+
 struct Asset {
 	int id;
 	QString name;

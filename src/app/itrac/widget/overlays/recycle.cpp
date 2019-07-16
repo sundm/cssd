@@ -155,7 +155,7 @@ void NoBCRecyclePanel::commit() {
 	vmap.insert("plate_id", plateId);
 	vmap.insert("operator_id", opId);
 
-	Url::post(Url::PATH_RECYCLE_ADD, vmap, [this](QNetworkReply *reply) {
+	post(url(PATH_RECYCLE_ADD), vmap, [this](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("回收登记失败: ").append(resp.errorString()));
@@ -312,7 +312,7 @@ void OrRecyclePanel::commit() {
 	vmap.insert("plate_id", plateId);
 	vmap.insert("operator_id", opId);
 
-	Url::post(Url::PATH_RECYCLE_ADD, vmap, [this](QNetworkReply *reply) {
+	post(url(PATH_RECYCLE_ADD), vmap, [this](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("回收登记失败: ").append(resp.errorString()));

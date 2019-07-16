@@ -46,7 +46,7 @@ void TracePage::startTrace() {
 
 void TracePage::tracePackage(const QString &id) {
 	QString data = QString("{\"package_id\":\"%1\"}").arg(id);
-	Url::post(Url::PATH_TRACE_PACKAGE, QByteArray().append(data), [=](QNetworkReply *reply) {
+	post(url(PATH_TRACE_PACKAGE), QByteArray().append(data), [=](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("查询失败: ").append(resp.errorString()));

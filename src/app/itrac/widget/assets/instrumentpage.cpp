@@ -61,7 +61,7 @@ namespace Internal {
 
 	void InstrumentAssetView::load(int page /*= 0*/, int count /*= 10*/)
 	{
-		Url::post(Url::PATH_INSTRUMENT_SEARCH, "{}", [=](QNetworkReply *reply) {
+		_http.post(url(PATH_INSTRUMENT_SEARCH), "{}", [=](QNetworkReply *reply) {
 			JsonHttpResponse resp(reply);
 			if (!resp.success()) {
 				XNotifier::warn(QString("获取器械列表失败: ").append(resp.errorString()));

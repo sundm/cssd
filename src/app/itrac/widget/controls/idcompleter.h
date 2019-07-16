@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QCompleter>
+#include "core/net/jsonhttpclient.h"
 
 class QStandardItemModel;
 
@@ -27,6 +28,8 @@ class DeptCompleter : public IdCompleter
 public:
 	DeptCompleter(QObject *parent = nullptr);
 	void load(const int deptTypeId);
+private:
+	JsonHttpClient _http;
 };
 
 class PackageCompleter : public IdCompleter
@@ -39,4 +42,5 @@ public:
 
 private:
 	void loadInternal(const QByteArray &data);
+	JsonHttpClient _http;
 };

@@ -137,7 +137,7 @@ void Addcostingdialog::dateChanged(const QDate &date)
 	QByteArray data;
 	data.append("{\"month\":\"").append(date.toString("yyyyMM")).append("\"}");
 
-	Url::post(Url::PATH_COST_GETALL, data, [=](QNetworkReply *reply) {
+	post(url(PATH_COST_GETALL), data, [=](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("无法获取该月明细: ").append(resp.errorString()));
@@ -331,7 +331,7 @@ void Addcostingdialog::accept() {
 	vmap.insert("costings", costings);
 
 	Core::app()->startWaitingOn(this);
-	Url::post(Url::PATH_COST_ADD, vmap, [this](QNetworkReply *reply) {
+	post(url(PATH_COST_ADD), vmap, [this](QNetworkReply *reply) {
 		Core::app()->stopWaiting();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
@@ -378,7 +378,7 @@ void Addcostingdialog::savePriceTemplate() {
 	vmap.insert("prices", prices);
 
 	Core::app()->startWaitingOn(this);
-	Url::post(Url::PATH_PRICE_ADD, vmap, [this](QNetworkReply *reply) {
+	post(url(PATH_PRICE_ADD), vmap, [this](QNetworkReply *reply) {
 		Core::app()->stopWaiting();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {

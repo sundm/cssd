@@ -134,7 +134,7 @@ void RecycleHistoryPage::doSearch(int page)
 	vmap.insert("page", page);
 	vmap.insert("page_count", _visibleCount);
 
-	Url::post(Url::PATH_RECYCLE_SEARCH, vmap, [this, page](QNetworkReply *reply) {
+	post(url(PATH_RECYCLE_SEARCH), vmap, [this, page](QNetworkReply *reply) {
 		Core::app()->stopWaiting();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
@@ -218,7 +218,7 @@ void WashHistoryPage::doSearch(int page) {
 	vmap.insert("page", page);
 	vmap.insert("page_count", _visibleCount);
 
-	Url::post(Url::PATH_WASH_SEARCH, vmap, [this](QNetworkReply *reply) {
+	post(url(PATH_WASH_SEARCH), vmap, [this](QNetworkReply *reply) {
 		Core::app()->stopWaiting();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
@@ -282,7 +282,7 @@ void PackHistoryPage::doSearch(int page /*= 1*/) {
 	vmap.insert("page", page);
 	vmap.insert("page_count", _visibleCount);
 
-	Url::post(Url::PATH_PACK_SEARCH, vmap, [this](QNetworkReply *reply) {
+	post(url(PATH_PACK_SEARCH), vmap, [this](QNetworkReply *reply) {
 		Core::app()->stopWaiting();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
@@ -355,7 +355,7 @@ void SterileHistoryPage::doSearch(int page /*= 1*/) {
 	vmap.insert("page", page);
 	vmap.insert("page_count", _visibleCount);
 
-	Url::post(Url::PATH_STERILE_SEARCH, vmap, [this](QNetworkReply *reply) {
+	post(url(PATH_STERILE_SEARCH), vmap, [this](QNetworkReply *reply) {
 		Core::app()->stopWaiting();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
@@ -425,7 +425,7 @@ void DispatchHistoryPage::doSearch(int page /*= 1*/) {
 	vmap.insert("page", page);
 	vmap.insert("page_count", _visibleCount);
 
-	Url::post(Url::PATH_ISSUE_SEARCH, vmap, [this, page](QNetworkReply *reply) {
+	post(url(PATH_ISSUE_SEARCH), vmap, [this, page](QNetworkReply *reply) {
 		Core::app()->stopWaiting();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {

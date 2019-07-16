@@ -64,7 +64,7 @@ void BDPanel::commit(bool ok) {
 	vmap.insert("test_result", ok ? "1" : "0");
 	vmap.insert("operator_id", opId);
 
-	Url::post(Url::PATH_BD_ADD, vmap, [=](QNetworkReply *reply) {
+	post(url(PATH_BD_ADD), vmap, [=](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("提交BD登记失败: ").append(resp.errorString()));

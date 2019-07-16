@@ -54,7 +54,7 @@ void AddInstrumentDialog::accept() {
 	vmap.insert("pinyin_code", pinyin);
 
 	Core::app()->startWaitingOn(this);
-	Url::post(Url::PATH_INSTRUMENT_ADD, vmap, [this](QNetworkReply *reply) {
+	post(url(PATH_INSTRUMENT_ADD), vmap, [this](QNetworkReply *reply) {
 		Core::app()->stopWaiting();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {

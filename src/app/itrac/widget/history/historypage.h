@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QWidget>
+#include "core/net/jsonhttpclient.h"
 
 /**
  * Classes for different history pages.
@@ -14,7 +15,7 @@ class QStandardItemModel;
 class QTableView;
 class QPushButton;
 class QPaginationWidget;
-class HistoryPage : public QWidget
+class HistoryPage : public QWidget, public JsonHttpClient
 {
 	Q_OBJECT
 
