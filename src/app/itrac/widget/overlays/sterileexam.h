@@ -22,7 +22,6 @@ protected:
 
 private slots:
 	void commit();
-
 private:
 	void updateSterileInfo(const QString &);
 	void reset();

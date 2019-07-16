@@ -31,7 +31,8 @@ private slots:
 	void showDetail(const QModelIndex &);
 	bool hasPackage(const QString& id);
 	void addPackage(const QString& id);
-
+	void addEntry();
+	void removeEntry();
 private:
 	bool checkNumber();
 

@@ -72,7 +72,7 @@ ClinicPanel::ClinicPanel(QWidget *parent)
 
 void ClinicPanel::addPlate() {
 	bool ok;
-	QRegExp regExp("\\d{10,}");
+	QRegExp regExp("\\d{8,}");
 	QString code = RegExpInputDialog::getText(this, "手工输入条码", "请输入篮筐条码", "", regExp, &ok);
 	if (ok) {
 		handleBarcode(code);

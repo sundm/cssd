@@ -31,6 +31,7 @@ SterileExamPanel::SterileExamPanel(QWidget *parent)
 	QGridLayout *layout = new QGridLayout(this);
 	layout->addWidget(_infoGroup, 0, 0);
 	layout->addWidget(_checkGroup, 1, 0);
+
 	layout->addWidget(_view, 0, 1, 2, 1);
 	layout->addWidget(tip, 0, 2, 2, 1);
 	layout->setColumnStretch(1, 1);

@@ -33,9 +33,18 @@ SterilePanel::SterilePanel(QWidget *parent)
 	Ui::IconButton *addButton = new Ui::IconButton(":/res/plus-24.png", "手工添加");
 	connect(addButton, SIGNAL(clicked()), this, SLOT(addEntry()));
 
+	Ui::IconButton *minusButton = new Ui::IconButton(":/res/delete-24.png", "删除选中");
+	connect(minusButton, SIGNAL(clicked()), this, SLOT(removeEntry()));
+
+	QHBoxLayout *hLayout = new QHBoxLayout;
+	hLayout->setContentsMargins(0, 0, 0, 0);
+	hLayout->addWidget(addButton);
+	hLayout->addWidget(minusButton);
+	hLayout->addStretch();
+
 	QGridLayout *layout = new QGridLayout(this);
 	layout->addWidget(_deviceArea, 0, 0);
-	layout->addWidget(addButton, 1, 0);
+	layout->addLayout(hLayout, 1, 0);
 	layout->addWidget(_pkgView, 2, 0);
 	layout->addWidget(tip, 0, 1, 3, 1);
 	layout->setRowStretch(2, 1);
@@ -51,6 +60,14 @@ void SterilePanel::addEntry() {
 	if (ok) {
 		handleBarcode(code);
 	}
+}
+
+void SterilePanel::removeEntry() {
+	QItemSelectionModel *selModel = _pkgView->selectionModel();
+	QModelIndexList indexes = selModel->selectedRows();
+	int countRow = indexes.count();
+	for (int i = countRow; i > 0; i--)
+		_pkgView->model()->removeRow(indexes.at(i - 1).row());
 }
 
 void SterilePanel::handleBarcode(const QString &code) {

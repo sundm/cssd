@@ -9,7 +9,7 @@
 #include "widget/controls/idedit.h"
 #include "widget/controls/packageview.h"
 #include "dialog/operatorchooser.h"
-
+#include "dialog/regexpinputdialog.h"
 #include <QtWidgets/QtWidgets>
 
 
@@ -32,12 +32,39 @@ OrDispatchPanel::OrDispatchPanel(QWidget *parent)
 	tip->addButton(commitButton);
 	connect(commitButton, SIGNAL(clicked()), this, SLOT(commit()));
 
+	Ui::IconButton *addButton = new Ui::IconButton(":/res/plus-24.png", "手工添加");
+	hLayout->addWidget(addButton);
+	connect(addButton, SIGNAL(clicked()), this, SLOT(addEntry()));
+
+	Ui::IconButton *minusButton = new Ui::IconButton(":/res/delete-24.png", "删除选中");
+	hLayout->addWidget(minusButton);
+	connect(minusButton, SIGNAL(clicked()), this, SLOT(removeEntry()));
+
+	hLayout->addStretch();
+
 	QGridLayout *layout = new QGridLayout(this);
 	layout->addLayout(hLayout, 0, 0);
 	layout->addWidget(_pkgView, 1, 0);
 	layout->addWidget(tip, 0, 1, 2, 1);
 
 	QTimer::singleShot(500, [this] { _deptEdit->load(DeptEdit::OPERATING_ROOM); });
+}
+
+void OrDispatchPanel::addEntry() {
+	bool ok;
+	QRegExp regExp("\\d{10,}");
+	QString code = RegExpInputDialog::getText(this, "手工输入条码", "请输入包条码", "", regExp, &ok);
+	if (ok) {
+		handleBarcode(code);
+	}
+}
+
+void OrDispatchPanel::removeEntry() {
+	QItemSelectionModel *selModel = _pkgView->selectionModel();
+	QModelIndexList indexes = selModel->selectedRows();
+	int countRow = indexes.count();
+	for (int i = countRow; i > 0; i--)
+		_pkgView->model()->removeRow(indexes.at(i - 1).row());
 }
 
 void OrDispatchPanel::handleBarcode(const QString &code) {

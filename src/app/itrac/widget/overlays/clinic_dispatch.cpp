@@ -8,6 +8,7 @@
 #include "ui/views.h"
 #include "ui/buttons.h"
 #include "ui/composite/titles.h"
+#include "dialog/regexpinputdialog.h"
 #include "widget/overlays/tips.h"
 #include <xernel/xtimescope.h>
 #include <QtWidgets/QtWidgets>
@@ -54,6 +55,19 @@ ClinicDispatchPanel::ClinicDispatchPanel(QWidget *parent)
 	_scanView->setSelectionMode(QAbstractItemView::SingleSelection);
 	_scanView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
+	QHBoxLayout *hLayout = new QHBoxLayout;
+	hLayout->setContentsMargins(0, 0, 0, 0);
+
+	Ui::IconButton *addButton = new Ui::IconButton(":/res/plus-24.png", "手工添加");
+	hLayout->addWidget(addButton);
+	connect(addButton, SIGNAL(clicked()), this, SLOT(addEntry()));
+
+	Ui::IconButton *minusButton = new Ui::IconButton(":/res/delete-24.png", "删除选中");
+	hLayout->addWidget(minusButton);
+	connect(minusButton, SIGNAL(clicked()), this, SLOT(removeEntry()));
+
+	hLayout->addStretch();
+
 	// detail panel
 	QWidget *detailPanel = new QWidget(this);
 	QVBoxLayout *vlayout = new QVBoxLayout(detailPanel);
@@ -61,7 +75,7 @@ ClinicDispatchPanel::ClinicDispatchPanel(QWidget *parent)
 	vlayout->setSpacing(0);
 	vlayout->addWidget(_title);
 	vlayout->addWidget(_detailView);
-	vlayout->addWidget(_scan_title);
+	vlayout->addLayout(hLayout);
 	vlayout->addWidget(_scanView);
 
 
@@ -82,6 +96,23 @@ ClinicDispatchPanel::ClinicDispatchPanel(QWidget *parent)
 	layout->setStretch(1, 2);
 
 	QTimer::singleShot(0, this, SLOT(loadOrders()));
+}
+
+void ClinicDispatchPanel::addEntry() {
+	bool ok;
+	QRegExp regExp("\\d{10,}");
+	QString code = RegExpInputDialog::getText(this, "手工输入条码", "请输入包条码", "", regExp, &ok);
+	if (ok) {
+		handleBarcode(code);
+	}
+}
+
+void ClinicDispatchPanel::removeEntry() {
+	QItemSelectionModel *selModel = _scanView->selectionModel();
+	QModelIndexList indexes = selModel->selectedRows();
+	int countRow = indexes.count();
+	for (int i = countRow; i > 0; i--)
+		_scanView->model()->removeRow(indexes.at(i - 1).row());
 }
 
 void ClinicDispatchPanel::handleBarcode(const QString &code) {

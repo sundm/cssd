@@ -16,7 +16,8 @@ protected:
 
 private slots:
 	void commit();
-
+	void addEntry();
+	void removeEntry();
 private:
 	void reset();
 
