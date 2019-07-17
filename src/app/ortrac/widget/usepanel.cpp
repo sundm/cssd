@@ -62,15 +62,24 @@ void UsePanel::handleBarcode(const QString &code) {
 void UsePanel::submit()
 {
 	QString patientId = idEdit->text();
-	if (patientId.isEmpty()) return;
+	if (patientId.isEmpty()) {
+		XNotifier::warn(QString("请输入患者编码"));
+		return;
+	}
 	QString room = roomEdit->text();
 	QString deskNo = deskEdit->text();
 
 	QVariantList packages = pkgView->packages();
-	if (packages.isEmpty()) return;
+	if (packages.isEmpty()) {
+		XNotifier::warn(QString("请先添加需要使用的包"));
+		return;
+	}
 
 	int opId = OperatorChooser::get(this, this);
-	if (0 == opId) return;
+	if (0 == opId) {
+		XNotifier::warn(QString("未找到操作员"));
+		return;
+	}
 
 	Core::User &user = Core::currentUser();
 
