@@ -86,10 +86,10 @@ namespace Widget {
 
 	void LoginPanel::version()
 	{
-		Core::app()->startWaitingOn(this);
+		_waiter->start();
 
 		post(url(PATH_VERSION), "{}", [=](QNetworkReply *reply) {
-			Core::app()->stopWaiting();
+			_waiter->stop();
 			JsonHttpResponse resp(reply);
 			if (!resp.success()) {
 				error->shake(QString("获取版本号错误：%1").arg(resp.errorString()));
@@ -121,7 +121,7 @@ namespace Widget {
 	}
 
 	void LoginPanel::login(const QString &account, const QString &pwd) {
-		Core::app()->startWaitingOn(this);
+		_waiter->start();
 
 		QVariantMap vmap;
 
@@ -139,12 +139,12 @@ namespace Widget {
 		user.role = Core::User::Admin;
 		user.deptId = 12000021;
 		user.id = 11000008;
-		Core::app()->stopWaiting();
+		_waiter->stop();
 		container()->accept();
 		return;*/
 
 		post(url(PATH_USER_LOGIN), vmap, [this](QNetworkReply *reply) {
-			Core::app()->stopWaiting();
+			_waiter->stop();
 			JsonHttpResponse resp(reply);
 			if (!resp.success()) {
 				error->shake(resp.errorString());

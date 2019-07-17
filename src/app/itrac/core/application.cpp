@@ -4,7 +4,7 @@
 #include "mainwindow.h"
 #include "user.h"
 
-#include "ui/composite/waitingspinner.h"
+//#include "ui/composite/waitingspinner.h"
 
 #include <qscanner/qscanner.h>
 #include <QFile>
@@ -15,7 +15,6 @@ Application::Application(Core::Launcher* launcher, int &argc, char **argv)
 	: QApplication(argc, argv)
 	, _launcher(launcher)
 	, _op(new User)
-	, _waiter(nullptr)
 {
 	//setStyleSheet("QWidget{background-color:red;}"
 	//"Picture{background-color:white;}");
@@ -43,19 +42,19 @@ void Application::updateStyle()
 	}
 }
 
-void Application::startWaitingOn(QWidget* w) {
-	if (_waiter) { _waiter->stop(); }
-	_waiter.reset(new WaitingSpinner(w));
-	_waiter->start();
-}
-
-void Application::stopWaiting() {
-	if (_waiter) {
-		//_waiter->hide();
-		_waiter->stop();
-		_waiter.reset(nullptr);
-	}
-}
+//void Application::startWaitingOn(QWidget* w) {
+//	if (_waiter) { _waiter->stop(); }
+//	_waiter.reset(new WaitingSpinner(w));
+//	_waiter->start();
+//}
+//
+//void Application::stopWaiting() {
+//	if (_waiter) {
+//		//_waiter->hide();
+//		_waiter->stop();
+//		_waiter.reset(nullptr);
+//	}
+//}
 
 const Ui::Loader * Application::loader() const
 {

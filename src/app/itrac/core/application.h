@@ -3,7 +3,6 @@
 #include <QApplication>
 
 class MainWindow;
-class WaitingSpinner;
 
 namespace Ui {
 	class Loader;
@@ -23,8 +22,8 @@ public:
 	~Application();
 
 	void updateStyle();
-	void startWaitingOn(QWidget*);
-	void stopWaiting();
+	//void startWaitingOn(QWidget*);
+	//void stopWaiting();
 
 	const Ui::Loader *loader() const;
 	MainWindow *mainWindow() const;
@@ -36,7 +35,6 @@ private:
 	Core::Launcher *_launcher;
 	std::unique_ptr<Ui::Loader> _loader;
 	std::unique_ptr<User> _op;
-	std::unique_ptr<WaitingSpinner> _waiter;
 };
 
 Application *app();

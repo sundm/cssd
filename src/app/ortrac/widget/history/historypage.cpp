@@ -115,7 +115,7 @@ FilterGroup * IssueHistoryPage::createFilterGroup()
 void IssueHistoryPage::doSearch(int page)
 {
 	_historyModel->removeRows(0, _historyModel->rowCount());
-	Core::app()->startWaitingOn(this);
+	_waiter->start();
 
 	QVariantMap vmap;
 	if (_filter) {
@@ -130,7 +130,7 @@ void IssueHistoryPage::doSearch(int page)
 	vmap.insert("page_count", _visibleCount);
 
 	post(url(PATH_ISSUE_SEARCH), vmap, [this, page](QNetworkReply *reply) {
-		Core::app()->stopWaiting();
+		_waiter->stop();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("暂时无法查询历史记录：").append(resp.errorString()));

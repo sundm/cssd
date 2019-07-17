@@ -164,7 +164,7 @@ void ClinicPanel::loadOrders() {
 	vmap.insert("start_time", timeScope.from);
 	vmap.insert("end_time", timeScope.to);
 
-	Core::app()->startWaitingOn(_view);
+	_waiter->start();
 	post(url(PATH_ORDER_SEARCH), vmap, [this](QNetworkReply *reply) {
 		_waiter->stop();
 		JsonHttpResponse resp(reply);
