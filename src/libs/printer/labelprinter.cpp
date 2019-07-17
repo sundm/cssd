@@ -8,7 +8,6 @@
 #include <qtextstream.h>
 
 #include "ZebraGT8.h"
-#include "imgprinter.h"
 #include "qdebug.h"
 
 HANDLE m_hPrinter;
