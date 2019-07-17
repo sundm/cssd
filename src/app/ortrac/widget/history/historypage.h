@@ -15,6 +15,7 @@ class QStandardItemModel;
 class QTableView;
 class QPushButton;
 class QPaginationWidget;
+class WaitingSpinner;
 class HistoryPage : public QWidget, public JsonHttpClient
 {
 	Q_OBJECT
@@ -40,6 +41,7 @@ protected:
 	FilterWidget *_filterWidget;
 	Filter *_filter;
 	QStandardItemModel * _historyModel;
+	WaitingSpinner *_waiter;
 	int _visibleCount;
 };
 

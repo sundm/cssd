@@ -137,18 +137,18 @@ int LabelPrinter::printPackageLabelsToImg(const PackageLabel &label) {
 	painter->drawPixmap(0, 0, *backgroundPix);
 
 	//draw text
-	QFont titleFont("ºÚÌå", 24, QFont::Bold);
+	QFont titleFont("é»‘ä½“", 24, QFont::Bold);
 	painter->setFont(titleFont);
 	painter->drawText(180, 70, label.packageName);
-	QFont txtFont("ºÚÌå", 18, QFont::Bold);
+	QFont txtFont("é»‘ä½“", 18, QFont::Bold);
 	painter->setFont(txtFont);
 	QString packageTpye = QString("%1[%2]").arg(label.packageFrom).arg(label.packageType);
 	painter->drawText(180, 120, packageTpye);
-	painter->drawText(180, 170, QString::fromLocal8Bit("Ãð¾úÈÕÆÚ:%1").arg(label.disinDate));
-	painter->drawText(180, 220, QString::fromLocal8Bit("Ê§Ð§ÈÕÆÚ:%1").arg(label.expiryDate));
-	painter->drawText(180, 270, QString::fromLocal8Bit("»ØÊÕ¼þÊý:%1").arg(QString::number(label.count)));
-	painter->drawText(180, 320, QString::fromLocal8Bit("Åä°üÈË:%1").arg(label.operatorName));
-	painter->drawText(500, 320, QString::fromLocal8Bit("ÉóºËÈË:%1").arg(label.assessorName));
+	painter->drawText(180, 170, QString::fromLocal8Bit("ç­èŒæ—¥æœŸ:%1").arg(label.disinDate));
+	painter->drawText(180, 220, QString::fromLocal8Bit("å¤±æ•ˆæ—¥æœŸ:%1").arg(label.expiryDate));
+	painter->drawText(180, 270, QString::fromLocal8Bit("å›žæ”¶ä»¶æ•°:%1").arg(QString::number(label.count)));
+	painter->drawText(180, 320, QString::fromLocal8Bit("é…åŒ…äºº:%1").arg(label.operatorName));
+	painter->drawText(500, 320, QString::fromLocal8Bit("å®¡æ ¸äºº:%1").arg(label.assessorName));
 
 	//draw barcode
 	bc.setText(label.packageId);
@@ -181,16 +181,16 @@ int LabelPrinter::printClinicLabelsToImg(const ClinicLabel &label) {
 	painter->drawPixmap(0, 0, *backgroundPix);
 
 	//draw text
-	QFont titleFont("ºÚÌå", 24, QFont::Bold);
+	QFont titleFont("é»‘ä½“", 24, QFont::Bold);
 	painter->setFont(titleFont);
 	painter->drawText(180, 70, label.packageName);
-	QFont txtFont("ºÚÌå", 18, QFont::Bold);
+	QFont txtFont("é»‘ä½“", 18, QFont::Bold);
 	painter->setFont(txtFont);
-	painter->drawText(180, 120, QString::fromLocal8Bit("¿ÆÊÒ:%1").arg(label.packageFrom));
-	painter->drawText(180, 160, QString::fromLocal8Bit("Ãð¾úÈÕÆÚ:%1").arg(label.disinDate));
-	painter->drawText(180, 200, QString::fromLocal8Bit("Ê§Ð§ÈÕÆÚ:%1").arg(label.expiryDate));
-	painter->drawText(180, 240, QString::fromLocal8Bit("Åä°üÈË:%1").arg(label.operatorName));
-	painter->drawText(500, 240, QString::fromLocal8Bit("ÉóºËÈË:%1").arg(label.assessorName));
+	painter->drawText(180, 120, QString::fromLocal8Bit("ç§‘å®¤:%1").arg(label.packageFrom));
+	painter->drawText(180, 160, QString::fromLocal8Bit("ç­èŒæ—¥æœŸ:%1").arg(label.disinDate));
+	painter->drawText(180, 200, QString::fromLocal8Bit("å¤±æ•ˆæ—¥æœŸ:%1").arg(label.expiryDate));
+	painter->drawText(180, 240, QString::fromLocal8Bit("é…åŒ…äºº:%1").arg(label.operatorName));
+	painter->drawText(500, 240, QString::fromLocal8Bit("å®¡æ ¸äºº:%1").arg(label.assessorName));
 
 	//draw barcode
 	bc.setText(label.packageId);
@@ -224,14 +224,14 @@ int LabelPrinter::printSterilizedLabelsToImg(const SterilizeLabel &label) {
 	painter->drawPixmap(0, 0, *backgroundPix);
 
 	//draw text
-	QFont titleFont("ºÚÌå", 24, QFont::Bold);
+	QFont titleFont("é»‘ä½“", 24, QFont::Bold);
 	painter->setFont(titleFont);
 	painter->drawText(180, 70, label.sterilizeName);
-	QFont txtFont("ºÚÌå", 18, QFont::Bold);
+	QFont txtFont("é»‘ä½“", 18, QFont::Bold);
 	painter->setFont(txtFont);
-	painter->drawText(180, 120, QString::fromLocal8Bit("Ãð¾úÈÕÆÚ:%1").arg(label.sterilizeDate));
-	painter->drawText(180, 170, QString::fromLocal8Bit("Ãð¾úÊ±¼ä:%1").arg(label.sterilizeTime));
-	painter->drawText(180, 220, QString::fromLocal8Bit("µÚ%1¹ø´Î£¬¹²%2°ü").arg(label.panNum).arg(label.packageNum));
+	painter->drawText(180, 120, QString::fromLocal8Bit("ç­èŒæ—¥æœŸ:%1").arg(label.sterilizeDate));
+	painter->drawText(180, 170, QString::fromLocal8Bit("ç­èŒæ—¶é—´:%1").arg(label.sterilizeTime));
+	painter->drawText(180, 220, QString::fromLocal8Bit("ç¬¬%1é”…æ¬¡ï¼Œå…±%2åŒ…").arg(label.panNum).arg(label.packageNum));
 
 	//draw barcode
 	bc.setText(label.sterilizeId);
