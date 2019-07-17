@@ -13,6 +13,8 @@ namespace Ui {
 	class ErrorLabel;
 } // namespace Ui 
 
+class WaitingSpinner;
+
 namespace Widget {
 	class LoginPanel : public Ui::Inner, public Scanable, public JsonHttpClient
 	{
@@ -31,6 +33,7 @@ namespace Widget {
 		Ui::FlatEdit *userEdit;
 		Ui::FlatEdit *pwdEdit;
 		Ui::ErrorLabel *error;
+		WaitingSpinner *_waiter;
 	};
 
 	class LoginPage : public Ui::Source

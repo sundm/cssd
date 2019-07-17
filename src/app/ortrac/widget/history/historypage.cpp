@@ -6,6 +6,7 @@
 #include "core/application.h"
 #include "core/net/url.h"
 #include "ui/composite/qpaginationwidget.h"
+#include "ui/composite/waitingspinner.h"
 #include <QtWidgets/QtWidgets>
 
 HistoryPage::HistoryPage(QWidget *parent)
@@ -15,6 +16,7 @@ HistoryPage::HistoryPage(QWidget *parent)
 	, _view(new QTableView(this))
 	, _filterWidget(nullptr)
 	, _filter(nullptr)
+	, _waiter(new WaitingSpinner(this))
 	, _visibleCount(10)
 {
 	setStyleSheet("QTableView{border-style:solid;border-width:1px 0 0 0}");

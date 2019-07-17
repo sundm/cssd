@@ -5,6 +5,7 @@
 #include "ui/labels.h"
 #include "ui/container.h"
 #include "ui/ui_commons.h"
+#include "ui/composite/waitingspinner.h"
 
 #include "core/net/url.h"
 #include "core/user.h"
@@ -25,8 +26,9 @@ namespace Widget {
 		: Inner(container)
 		, userEdit(new Ui::FlatEdit(this, "工号"))
 		, pwdEdit(new Ui::FlatEdit(this, "密码"))
-		, error(new Ui::ErrorLabel("用户名或密码不正确")) {
-
+		, error(new Ui::ErrorLabel("用户名或密码不正确"))
+		, _waiter(new WaitingSpinner(this))
+	{
 		QVBoxLayout *layout = new QVBoxLayout(this);
 
 		Ui::Title *titleLabel = new Ui::Title("欢迎使用 Winstrac 桌面");
