@@ -165,7 +165,7 @@ void ClinicDispatchPanel::addPackage(const QString& id) {
 			return;
 		}
 
-		if (!resp.getAsBool("expired")) {
+		if (resp.getAsBool("expired")) {
 			XNotifier::warn(QString("该条码包已过期"), -1);
 			return;
 		}

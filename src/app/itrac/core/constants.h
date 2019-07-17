@@ -7,5 +7,5 @@ namespace Constant {
 	constexpr int fixedLineEditHeight = 36;
 	constexpr int IdRole = Qt::UserRole + 1;
 	constexpr int PinyinRole = IdRole + 1;
-	constexpr char Version[] = "V1.1.4";
+	constexpr char Version[] = "V1.1.5";
 }
