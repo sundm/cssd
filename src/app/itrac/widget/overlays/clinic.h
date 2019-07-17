@@ -9,6 +9,7 @@ namespace Composite {
 
 class TableView;
 class QStandardItemModel;
+class WaitingSpinner;
 
 class ClinicPanel : public CssdOverlayPanel, public JsonHttpClient
 {
@@ -33,6 +34,7 @@ private:
 	QStandardItemModel *_model;
 	QStandardItemModel *_detailModel;
 	Composite::Title *_title;
+	WaitingSpinner *_waiter;
 
 	void updatePlate(const QString &);
 };

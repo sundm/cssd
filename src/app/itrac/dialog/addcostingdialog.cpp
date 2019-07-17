@@ -9,6 +9,7 @@
 #include "ui/inputfields.h"
 #include "ui/ui_commons.h"
 #include "ui/views.h"
+#include "ui/composite/waitingspinner.h"
 #include <QtWidgets/QtWidgets>
 
 Addcostingdialog::Addcostingdialog(QWidget *parent)
@@ -16,6 +17,7 @@ Addcostingdialog::Addcostingdialog(QWidget *parent)
 	, _dateEdit(new QDateEdit)
 	, _view(new TableView)
 	, _model(new QStandardItemModel(0, 4, _view))
+	, _waiter(new WaitingSpinner(this))
 {
 	setWindowTitle("新增成本核算");
 
@@ -330,9 +332,9 @@ void Addcostingdialog::accept() {
 	vmap.insert("month", szDate);
 	vmap.insert("costings", costings);
 
-	Core::app()->startWaitingOn(this);
+	_waiter->start();
 	post(url(PATH_COST_ADD), vmap, [this](QNetworkReply *reply) {
-		Core::app()->stopWaiting();
+		_waiter->stop();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			//return; // TODO
@@ -377,9 +379,9 @@ void Addcostingdialog::savePriceTemplate() {
 	QVariantMap vmap;
 	vmap.insert("prices", prices);
 
-	Core::app()->startWaitingOn(this);
+	_waiter->start();
 	post(url(PATH_PRICE_ADD), vmap, [this](QNetworkReply *reply) {
-		Core::app()->stopWaiting();
+		_waiter->stop();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			//return; // TODO

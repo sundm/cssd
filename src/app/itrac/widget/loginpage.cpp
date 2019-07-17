@@ -5,6 +5,7 @@
 #include "ui/labels.h"
 #include "ui/container.h"
 #include "ui/ui_commons.h"
+#include "ui/composite/waitingspinner.h"
 
 #include "core/net/url.h"
 #include "core/user.h"
@@ -72,8 +73,9 @@ namespace Widget {
 		: Inner(container)
 		, userEdit(new Ui::FlatEdit("工号"))
 		, pwdEdit(new Ui::FlatEdit("密码"))
-		, error(new Ui::ErrorLabel("用户名或密码不正确")) {
-
+		, error(new Ui::ErrorLabel("用户名或密码不正确"))
+		, _waiter(new WaitingSpinner(this))
+	{
 		QVBoxLayout *layout = new QVBoxLayout(this);
 
 		Ui::Title *titleLabel = new Ui::Title("欢迎使用 Winstrac 桌面");
@@ -136,10 +138,10 @@ namespace Widget {
 
 	void LoginPanel::version()
 	{
-		Core::app()->startWaitingOn(this);
+		_waiter->start();
 
 		post(url(PATH_VERSION), "{}", [=](QNetworkReply *reply) {
-			Core::app()->stopWaiting();
+			_waiter->stop();
 			JsonHttpResponse resp(reply);
 			if (!resp.success()) {
 				error->shake(QString("获取版本号错误：%1").arg(resp.errorString()));
@@ -171,7 +173,7 @@ namespace Widget {
 	}
 
 	void LoginPanel::login(const QString &account, const QString &pwd) {
-		Core::app()->startWaitingOn(this);
+		_waiter->start();
 
 		QVariantMap vmap;
 		
@@ -190,12 +192,12 @@ namespace Widget {
 		user.role = Core::User::Admin;
 		user.deptId = 12000021;
 		user.id = 11000008;
-		Core::app()->stopWaiting();
+		_waiter->stop();
 		container()->accept();
 		return;*/
 
 		post(url(PATH_USER_LOGIN), vmap, [this](QNetworkReply *reply) {
-			Core::app()->stopWaiting();
+			_waiter->stop();
 			JsonHttpResponse resp(reply);
 			if (!resp.success()) {
 				error->shake(resp.errorString());

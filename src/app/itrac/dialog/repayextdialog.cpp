@@ -13,6 +13,7 @@
 #include "widget/controls/idedit.h"
 #include <xernel/xtimescope.h>
 #include "ui/views.h"
+#include "ui/composite/waitingspinner.h"
 #include "addextdialog.h"
 #include <QtWidgets/QtWidgets>
 #include <QDateTime>
@@ -25,6 +26,7 @@ ExtRepayDialog::ExtRepayDialog(const QVariantMap *map, QWidget *parent)
 	, _model(new QStandardItemModel(0, Barcode + 1, this))
 	, _repayEdit(new Ui::FlatEdit)
 	, _repayPhoneEdit(new Ui::FlatEdit)
+	, _waiter(new WaitingSpinner(this))
 {
 	setWindowTitle("外来器械归还登记");
 
@@ -87,9 +89,9 @@ void ExtRepayDialog::load() {
 	QVariantMap vmap;
 	vmap.insert("ext_order_id", _orderId);
 
-	Core::app()->startWaitingOn(this);
+	_waiter->start();
 	post(url(PATH_EXT_SEARCH), vmap, [this](QNetworkReply *reply) {
-		Core::app()->stopWaiting();
+		_waiter->stop();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("查询失败: ").append(resp.errorString()));

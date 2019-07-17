@@ -4,6 +4,7 @@
 #include "core/net/url.h"
 #include "ui/buttons.h"
 #include "ui/views.h"
+#include "ui/composite/waitingspinner.h"
 #include <xernel/xtimescope.h>
 #include <QVBoxLayout>
 #include <QStandardItemModel>
@@ -14,6 +15,7 @@ ImportExtDialog::ImportExtDialog(QWidget *parent)
 	, _model(new QStandardItemModel(0,4,_view))
 	, _detailView(new TableView(this))
 	, _detailModel(new QStandardItemModel(0, 5, _view))
+	, _waiter(new WaitingSpinner(this))
 {
 	_model->setHeaderData(0, Qt::Horizontal, "供应商");
 	_model->setHeaderData(1, Qt::Horizontal, "送货人");
@@ -63,9 +65,9 @@ void ImportExtDialog::onRowClicked(const QModelIndex &index) {
 	QVariantMap vmap;
 	vmap.insert("ext_order_id", orderId);
 
-	Core::app()->startWaitingOn(this);
+	_waiter->start();
 	post(url(PATH_EXT_SEARCH), vmap, [this](QNetworkReply *reply) {
-		Core::app()->stopWaiting();
+		_waiter->stop();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("查询失败: ").append(resp.errorString()));

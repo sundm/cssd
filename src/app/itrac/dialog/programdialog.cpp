@@ -5,6 +5,7 @@
 #include "core/net/url.h"
 #include "ui/inputfields.h"
 #include "ui/ui_commons.h"
+#include "ui/composite/waitingspinner.h"
 #include <QtWidgets/QtWidgets>
 
 AddProgramDialog::AddProgramDialog(QWidget *parent)
@@ -12,6 +13,7 @@ AddProgramDialog::AddProgramDialog(QWidget *parent)
 	, _typeCombo(new QComboBox)
 	, _nameEdit(new Ui::FlatEdit)
 	, _descEdit(new Ui::FlatEdit)
+	, _waiter(new WaitingSpinner(this))
 {
 	setWindowTitle("添加新的设备程序");
 
@@ -57,9 +59,9 @@ void AddProgramDialog::accept() {
 	vmap.insert("program_desc", _descEdit->text());
 	vmap.insert("program_type", _typeCombo->currentData());
 
-	Core::app()->startWaitingOn(this);
+	_waiter->start();
 	post(url(PATH_PROGRAM_ADD), vmap, [this](QNetworkReply *reply) {
-		Core::app()->stopWaiting();
+		_waiter->stop();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			//return; // TODO

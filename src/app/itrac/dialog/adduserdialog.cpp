@@ -3,6 +3,7 @@
 #include "core/net/url.h"
 #include "ui/inputfields.h"
 #include "ui/ui_commons.h"
+#include "ui/composite/waitingspinner.h"
 #include "widget/controls/idedit.h"
 #include "widget/controls/combos.h"
 #include <QtWidgets/QtWidgets>
@@ -14,6 +15,7 @@ AddUserDialog::AddUserDialog(QWidget *parent)
 	, _deptEdit(new DeptEdit)
 	, _genderCombo(new GenderComboBox)
 	, _checkBox(new QCheckBox("管理权限"))
+	, _waiter(new WaitingSpinner(this))
 {
 	setWindowTitle("添加新用户");
 	_phoneEdit->setInputValidator(Ui::InputValitor::NumberOnly);
@@ -68,9 +70,9 @@ void AddUserDialog::accept() {
 	vmap.insert("gender", _genderCombo->currentData());
 	vmap.insert("dept_id", deptId);
 
-	Core::app()->startWaitingOn(this);
+	_waiter->start();
 	post(url(PATH_USER_ADD), vmap, [this](QNetworkReply *reply) {
-		Core::app()->stopWaiting();
+		_waiter->stop();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			//return; // TODO

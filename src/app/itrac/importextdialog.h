@@ -5,6 +5,7 @@
 
 class TableView;
 class QStandardItemModel;
+class WaitingSpinner;
 class ImportExtDialog : public QDialog, public JsonHttpClient
 {
 	Q_OBJECT
@@ -29,4 +30,5 @@ private:
 
 	TableView * _detailView;
 	QStandardItemModel * _detailModel;
+	WaitingSpinner *_waiter;
 };

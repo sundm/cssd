@@ -6,6 +6,7 @@
 #include "core/application.h"
 #include "core/net/url.h"
 #include "ui/composite/qpaginationwidget.h"
+#include "ui/composite/waitingspinner.h"
 #include <QtWidgets/QtWidgets>
 
 HistoryPage::HistoryPage(QWidget *parent)
@@ -15,6 +16,7 @@ HistoryPage::HistoryPage(QWidget *parent)
 	, _view(new QTableView(this))
 	, _filterWidget(nullptr)
 	, _filter(nullptr)
+	, _waiter(new WaitingSpinner(this))
 	, _visibleCount(10)
 {
 	setStyleSheet("QTableView{border-style:solid;border-width:1px 0 0 0}");
@@ -118,7 +120,7 @@ FilterGroup * RecycleHistoryPage::createFilterGroup()
 void RecycleHistoryPage::doSearch(int page)
 {
 	_historyModel->removeRows(0, _historyModel->rowCount());
-	Core::app()->startWaitingOn(this);
+	_waiter->start();
 
 	QVariantMap vmap;
 	if (_filter) {
@@ -135,7 +137,8 @@ void RecycleHistoryPage::doSearch(int page)
 	vmap.insert("page_count", _visibleCount);
 
 	post(url(PATH_RECYCLE_SEARCH), vmap, [this, page](QNetworkReply *reply) {
-		Core::app()->stopWaiting();
+		_waiter->stop();
+		_waiter->stop();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("暂时无法查询历史记录：").append(resp.errorString()));
@@ -201,7 +204,7 @@ FilterGroup * WashHistoryPage::createFilterGroup()
 
 void WashHistoryPage::doSearch(int page) {
 	_historyModel->removeRows(0, _historyModel->rowCount());
-	Core::app()->startWaitingOn(this);
+	_waiter->start();
 
 	QVariantMap vmap;
 	if (_filter) {
@@ -219,7 +222,7 @@ void WashHistoryPage::doSearch(int page) {
 	vmap.insert("page_count", _visibleCount);
 
 	post(url(PATH_WASH_SEARCH), vmap, [this](QNetworkReply *reply) {
-		Core::app()->stopWaiting();
+		_waiter->stop();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("暂时无法查询历史记录：").append(resp.errorString()));
@@ -265,7 +268,7 @@ FilterGroup * PackHistoryPage::createFilterGroup() {
 
 void PackHistoryPage::doSearch(int page /*= 1*/) {
 	_historyModel->removeRows(0, _historyModel->rowCount());
-	Core::app()->startWaitingOn(this);
+	_waiter->start();
 
 	QVariantMap vmap;
 	if (_filter) {
@@ -283,7 +286,7 @@ void PackHistoryPage::doSearch(int page /*= 1*/) {
 	vmap.insert("page_count", _visibleCount);
 
 	post(url(PATH_PACK_SEARCH), vmap, [this](QNetworkReply *reply) {
-		Core::app()->stopWaiting();
+		_waiter->stop();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("暂时无法查询历史记录：").append(resp.errorString()));
@@ -337,7 +340,7 @@ FilterGroup * SterileHistoryPage::createFilterGroup() {
 
 void SterileHistoryPage::doSearch(int page /*= 1*/) {
 	_historyModel->removeRows(0, _historyModel->rowCount());
-	Core::app()->startWaitingOn(this);
+	_waiter->start();
 
 	QVariantMap vmap;
 	if (_filter) {
@@ -356,7 +359,7 @@ void SterileHistoryPage::doSearch(int page /*= 1*/) {
 	vmap.insert("page_count", _visibleCount);
 
 	post(url(PATH_STERILE_SEARCH), vmap, [this](QNetworkReply *reply) {
-		Core::app()->stopWaiting();
+		_waiter->stop();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("暂时无法查询历史记录：").append(resp.errorString()));
@@ -424,9 +427,9 @@ void DispatchHistoryPage::doSearch(int page /*= 1*/) {
 	vmap.insert("page", page);
 	vmap.insert("page_count", _visibleCount);
 
-	Core::app()->startWaitingOn(this);
+	_waiter->start();
 	post(url(PATH_ISSUE_SEARCH), vmap, [this, page](QNetworkReply *reply) {
-		Core::app()->stopWaiting();
+		_waiter->stop();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("暂时无法查询历史记录：").append(resp.errorString()));

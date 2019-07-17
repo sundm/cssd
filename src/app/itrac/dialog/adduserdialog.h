@@ -10,7 +10,7 @@ namespace Ui {
 class QCheckBox;
 class GenderComboBox;
 class DeptEdit;
-
+class WaitingSpinner;
 class AddUserDialog : public QDialog, public JsonHttpClient
 {
 	Q_OBJECT
@@ -27,4 +27,5 @@ private:
 	DeptEdit *_deptEdit;
 	GenderComboBox *_genderCombo;
 	QCheckBox *_checkBox;
+	WaitingSpinner *_waiter;
 };

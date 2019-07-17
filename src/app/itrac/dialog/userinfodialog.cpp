@@ -5,6 +5,7 @@
 #include "ui/labels.h"
 #include "ui/inputfields.h"
 #include "ui/ui_commons.h"
+#include "ui/composite/waitingspinner.h"
 #include <QtWidgets/QtWidgets>
 
 UserInfoDialog::UserInfoDialog(QWidget *parent)
@@ -12,6 +13,7 @@ UserInfoDialog::UserInfoDialog(QWidget *parent)
 	, _oldPwdEdit(new Ui::FlatEdit)
 	, _newPwdEdit(new Ui::FlatEdit)
 	, _newPwdConfirmEdit(new Ui::FlatEdit)
+	, _waiter(new WaitingSpinner(this))
 {
 	Core::User &user = Core::currentUser();
 	
@@ -81,9 +83,9 @@ void UserInfoDialog::changePwd() {
 	vmap.insert("old_pwd", oldPwd);
 	vmap.insert("pwd", newPwd);
 
-	Core::app()->startWaitingOn(this);
+	_waiter->start();
 	post(url(PATH_USER_MODIFY_PWD), vmap, [this](QNetworkReply *reply) {
-		Core::app()->stopWaiting();
+		_waiter->stop();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			//return; // TODO

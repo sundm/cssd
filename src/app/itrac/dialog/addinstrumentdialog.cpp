@@ -4,6 +4,7 @@
 #include "ui/labels.h"
 #include "ui/inputfields.h"
 #include "ui/ui_commons.h"
+#include "ui/composite/waitingspinner.h"
 #include <QtWidgets/QtWidgets>
 
 AddInstrumentDialog::AddInstrumentDialog(QWidget *parent)
@@ -11,6 +12,7 @@ AddInstrumentDialog::AddInstrumentDialog(QWidget *parent)
 	, _nameEdit(new Ui::FlatEdit)
 	, _pinyinEdit(new Ui::FlatEdit)
 	, _checkBox(new QCheckBox("贵重器械"))
+	, _waiter(new WaitingSpinner(this))
 {
 	setWindowTitle("添加新器械");
 
@@ -53,9 +55,9 @@ void AddInstrumentDialog::accept() {
 	vmap.insert("is_vip_instrument", Qt::Checked == _checkBox->checkState() ? "1" : "0");
 	vmap.insert("pinyin_code", pinyin);
 
-	Core::app()->startWaitingOn(this);
+	_waiter->start();
 	post(url(PATH_INSTRUMENT_ADD), vmap, [this](QNetworkReply *reply) {
-		Core::app()->stopWaiting();
+		_waiter->stop();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			//return; // TODO

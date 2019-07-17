@@ -8,6 +8,7 @@
 #include "ui/views.h"
 #include "ui/buttons.h"
 #include "ui/composite/titles.h"
+#include "ui/composite/waitingspinner.h"
 #include "widget/overlays/tips.h"
 #include <xernel/xtimescope.h>
 #include <QtWidgets/QtWidgets>
@@ -17,6 +18,7 @@ namespace Internal{
 ExtView::ExtView(QWidget *parent /*= Q_NULLPTR*/)
 	:PaginationView(parent)
 	,_model(new QStandardItemModel(0, Barcode+1, this))
+	,_waiter(new WaitingSpinner(this))
 {
 	// setup package view info
 	_model->setHeaderData(Name, Qt::Horizontal, "器械名");
@@ -43,9 +45,9 @@ void ExtView::load(const int orderId, int page /*= 0*/) {
 	QVariantMap vmap;
 	vmap.insert("ext_order_id", orderId);
 
-	Core::app()->startWaitingOn(this);
+	_waiter->start();
 	_http.post(url(PATH_EXT_SEARCH), vmap, [this](QNetworkReply *reply) {
-		Core::app()->stopWaiting();
+		_waiter->stop();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("查询失败: ").append(resp.errorString()));
@@ -103,6 +105,7 @@ ExtOrderView::ExtOrderView(QWidget *parent /*= Q_NULLPTR*/)
 	:PaginationView(parent)
 	, _model(new QStandardItemModel(0, RepaierPhone + 1, this))
 	, _map(new QVariantMap())
+	, _waiter(new WaitingSpinner(this))
 {
 	// setup package view info
 	_model->setHeaderData(Vendor, Qt::Horizontal, "供应商");
@@ -156,9 +159,9 @@ void ExtOrderView::load(const QDate& fromDate, const QDate& endDate, int page /*
 	vmap.insert("start_time", fromDate);
 	vmap.insert("end_time", endDate);
 
-	Core::app()->startWaitingOn(this);
+	_waiter->start();
 	_http.post(url(PATH_EXTORDER_SEARCH), vmap, [this](QNetworkReply *reply) {
-		Core::app()->stopWaiting();
+		_waiter->stop();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("查询失败: ").append(resp.errorString()));

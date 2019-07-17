@@ -8,7 +8,7 @@ namespace Ui {
 }
 
 class QComboBox;
-
+class WaitingSpinner;
 class AddProgramDialog : public QDialog, public JsonHttpClient
 {
 	Q_OBJECT
@@ -23,4 +23,5 @@ private:
 	QComboBox *_typeCombo;
 	Ui::FlatEdit *_nameEdit;
 	Ui::FlatEdit *_descEdit;
+	WaitingSpinner *_waiter;
 };

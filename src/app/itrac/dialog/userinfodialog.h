@@ -7,6 +7,8 @@ namespace Ui {
 	class FlatEdit;
 }
 
+class WaitingSpinner;
+
 class UserInfoDialog : public QDialog, public JsonHttpClient
 {
 	Q_OBJECT
@@ -20,4 +22,5 @@ private:
 	Ui::FlatEdit *_oldPwdEdit;
 	Ui::FlatEdit *_newPwdEdit;
 	Ui::FlatEdit *_newPwdConfirmEdit;
+	WaitingSpinner *_waiter;
 };

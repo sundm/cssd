@@ -8,6 +8,7 @@ class QStandardItemModel;
 class QButtonGroup;
 class QRadioButton;
 class QDateEdit;
+class WaitingSpinner;
 
 namespace Composite {
 	class Title;
@@ -31,6 +32,7 @@ namespace Internal {
 	private:
 		QStandardItemModel * _model;
 		JsonHttpClient _http;
+		WaitingSpinner *_waiter;
 	};
 
 	class ExtOrderView : public PaginationView
@@ -60,6 +62,7 @@ namespace Internal {
 		QStandardItemModel *_model;
 		QVariantMap *_map;
 		JsonHttpClient _http;
+		WaitingSpinner *_waiter;
 	};
 }
 

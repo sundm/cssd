@@ -8,6 +8,7 @@
 #include "ui/inputfields.h"
 #include "ui/ui_commons.h"
 #include "ui/views.h"
+#include "ui/composite/waitingspinner.h"
 #include <QtWidgets/QtWidgets>
 
 AddDeviceDialog::AddDeviceDialog(QWidget *parent)
@@ -16,6 +17,7 @@ AddDeviceDialog::AddDeviceDialog(QWidget *parent)
 	, _typeCombo(new QComboBox)
 	, _view(new TableView)
 	, _model(new QStandardItemModel(0, 3, _view))
+	, _waiter(new WaitingSpinner(this))
 {
 	setWindowTitle("添加新设备");
 
@@ -69,9 +71,9 @@ void AddDeviceDialog::accept() {
 	vmap.insert("production_date", QDate::currentDate());
 	vmap.insert("support_program_ids", programs);
 
-	Core::app()->startWaitingOn(this);
+	_waiter->start();
 	post(url(PATH_DEVICE_ADD), vmap, [this](QNetworkReply *reply) {
-		Core::app()->stopWaiting();
+		_waiter->stop();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			//return; // TODO
@@ -184,9 +186,9 @@ void ModifyDeviceDialog::accept() {
 	vmap.insert("device_name", name);
 	vmap.insert("support_program_ids", programs);
 
-	Core::app()->startWaitingOn(this);
+	_waiter->start();
 	post(url(PATH_DEVICE_MODIFY), vmap, [this](QNetworkReply *reply) {
-		Core::app()->stopWaiting();
+		_waiter->stop();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			//return; // TODO

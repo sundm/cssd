@@ -16,7 +16,7 @@ class GenderComboBox;
 class QStandardItem;
 class QStandardItemModel;
 class TableView;
-
+class WaitingSpinner;
 class ExtRepayDialog : public QDialog, public JsonHttpClient
 {
 	Q_OBJECT
@@ -53,5 +53,6 @@ private:
 
 	TableView *_view;
 	QStandardItemModel *_model;
+	WaitingSpinner *_waiter;
 	int _orderId;
 };

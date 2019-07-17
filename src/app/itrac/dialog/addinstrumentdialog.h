@@ -8,7 +8,7 @@ namespace Ui {
 }
 
 class QCheckBox;
-
+class WaitingSpinner;
 class AddInstrumentDialog : public QDialog, public JsonHttpClient
 {
 	Q_OBJECT
@@ -23,4 +23,5 @@ private:
 	Ui::FlatEdit *_nameEdit;
 	Ui::FlatEdit *_pinyinEdit;
 	QCheckBox *_checkBox;
+	WaitingSpinner *_waiter;
 };

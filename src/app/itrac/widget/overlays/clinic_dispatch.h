@@ -14,6 +14,7 @@ namespace Ui {
 class TableView;
 class QStandardItemModel;
 class QStringList;
+class WaitingSpinner;
 
 class ClinicDispatchPanel : public CssdOverlayPanel, public JsonHttpClient
 {
@@ -53,4 +54,5 @@ private:
 	QMap<QString, int> *_scanMap;
 
 	Ui::PrimaryButton *_commitButton;
+	WaitingSpinner *_waiter;
 };

@@ -8,6 +8,7 @@
 #include "ui/views.h"
 #include "ui/buttons.h"
 #include "ui/composite/titles.h"
+#include "ui/composite/waitingspinner.h"
 #include "dialog/regexpinputdialog.h"
 #include "widget/overlays/tips.h"
 #include <xernel/xtimescope.h>
@@ -27,6 +28,7 @@ ClinicDispatchPanel::ClinicDispatchPanel(QWidget *parent)
 	, _codeList(new QStringList())
 	, _detailMap(new QMap<QString, int>())
 	, _scanMap(new QMap<QString, int>())
+	, _waiter(new WaitingSpinner(this))
 {
 	// setup package view info
 	_model->setHeaderData(0, Qt::Horizontal, "订单号");
@@ -267,7 +269,7 @@ void ClinicDispatchPanel::loadOrders() {
 
 	Core::app()->startWaitingOn(_view);
 	post(url(PATH_ORDER_SEARCH), vmap, [this](QNetworkReply *reply) {
-		Core::app()->stopWaiting();
+		_waiter->stop();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			XNotifier::warn(QString("暂时无法查询: ").append(resp.errorString()));
@@ -323,9 +325,9 @@ void ClinicDispatchPanel::showDetail(const QModelIndex &index) {
 
 	QByteArray data("{\"order_id\":");
 	data.append(QString::number(order)).append('}');
-	Core::app()->startWaitingOn(this);
+	_waiter->start();
 	post(url(PATH_ORDER_PKGINFO), data, [this](QNetworkReply *reply) {
-		Core::app()->stopWaiting();
+		_waiter->stop();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
 			return;

@@ -8,7 +8,7 @@ class QStandardItem;
 class QItemSelectionModel;
 class QStandardItemModel;
 class TableView;
-
+class WaitingSpinner;
 class Addcostingdialog : public QDialog, public JsonHttpClient
 {
 	Q_OBJECT
@@ -38,4 +38,5 @@ private:
 	QStandardItemModel *_model;
 	QVariantMap *_currentMonthPacktypeCountMap = Q_NULLPTR;
 	QVariantMap *_priceMap = Q_NULLPTR;;
+	WaitingSpinner *_waiter;
 };

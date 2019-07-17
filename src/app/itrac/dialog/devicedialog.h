@@ -10,7 +10,7 @@ namespace Ui {
 class QComboBox;
 class QStandardItemModel;
 class TableView;
-
+class WaitingSpinner;
 class AddDeviceDialog : public QDialog, public JsonHttpClient
 {
 	Q_OBJECT
@@ -32,6 +32,7 @@ private:
 	QComboBox *_typeCombo;
 	TableView *_view;
 	QStandardItemModel *_model;
+	WaitingSpinner *_waiter;
 };
 
 struct Device;
@@ -59,4 +60,5 @@ private:
 	Ui::FlatEdit *_typeEdit;
 	TableView *_view;
 	QStandardItemModel *_model;
+	WaitingSpinner *_waiter;
 };
