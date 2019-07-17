@@ -103,23 +103,51 @@ void DateFilterRow::onDateButtonToggled(int id, bool checked)
 UserFilterRow::UserFilterRow(const QString &head, QWidget *parent, USER type)
 	:FilterRow(head, parent)
 {
-	_userEdit = new QLineEdit(this);
-	_layout->addWidget(_userEdit);
+	_userBox = new QComboBox(this);
+	_userBox->setFixedWidth(150);
+	_layout->addWidget(_userBox);
 
 	_layout->addStretch(1);
 	setLayout(_layout);
 
 	_type = type;
+
+	reset();
 }
 
 void UserFilterRow::reset()
 {
-	_userEdit->clear();
+	_userBox->clear();
+
+	QString data = QString("{}");
+
+	_http.post(url(PATH_USER_SEARCH), QByteArray().append(data), [this](QNetworkReply *reply) {
+		JsonHttpResponse resp(reply);
+		if (!resp.success()) {
+			XNotifier::warn(QString("无法获取设备列表: ").append(resp.errorString()));
+			return;
+		}
+
+		_userBox->addItem(QString("不限"), 0);
+
+		QList<QVariant> devices = resp.getAsList("user_list");
+		for (auto &device : devices) {
+			QVariantMap map = device.toMap();
+			int role = map["role_id"].toInt();
+			if (5 == role || 1 == role ||  2 == role)
+			{
+				_userBox->addItem(map["name"].toString(), map["operator_id"].toInt());
+			}
+			
+		}
+
+		updateGeometry();
+	});
 }
 
 void UserFilterRow::setCondition2Filter(Filter *f)
 {
-	f->setCondition(_type == USER::Operator ? FilterFlag::Operator : FilterFlag::Auditor, _userEdit->text());
+	f->setCondition(_type == USER::Operator ? FilterFlag::Operator : FilterFlag::Auditor, _userBox->currentData().toInt());
 }
 
 DeptFilterRow::DeptFilterRow(const QString &head, QWidget *parent)

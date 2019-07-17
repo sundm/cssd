@@ -79,18 +79,30 @@ void SterilePanel::handleBarcode(const QString &code) {
 
 void SterilePanel::commit() {
 	DeviceItem *item = _deviceArea->currentItem();
-	if (!item) return;
+	if (!item) {
+		XNotifier::warn(QString("请选择灭菌器"));
+		return;
+	}
 
 	int programId = item->programId();
-	if (0 == programId) return;
+	if (0 == programId) {
+		XNotifier::warn(QString("请选择灭菌程序"));
+		return;
+	}
 
 	int deviceId = item->id();
 
 	QVariantList packages = _pkgView->packages();
-	if (packages.isEmpty()) return;
+	if (packages.isEmpty()) {
+		XNotifier::warn(QString("请添加包条码"));
+		return;
+	}
 
 	int opId = OperatorChooser::get(this, this);
-	if (0 == opId) return;
+	if (0 == opId) {
+		XNotifier::warn(QString("请选择操作员"));
+		return;
+	}
 
 	// check printer
 	LabelPrinter *printer = PrinterManager::currentPrinter();

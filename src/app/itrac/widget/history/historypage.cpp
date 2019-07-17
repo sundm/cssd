@@ -375,16 +375,16 @@ void SterileHistoryPage::doSearch(int page /*= 1*/) {
 			rowItems.append(new QStandardItem(map["total_cycle"].toString()));
 			rowItems.append(new QStandardItem(map["program_name"].toString()));
 			rowItems.append(new QStandardItem(map["sterilize_time"].toString()));
-			rowItems.append(new QStandardItem(map["operator_id"].toString())); // TODO
-			rowItems.append(new QStandardItem(map["package_number"].toString())); // TODO
-			rowItems.append(new QStandardItem(map["chemistry_test_operator"].toString()));
+			rowItems.append(new QStandardItem(map["operator_name"].toString()));
+			rowItems.append(new QStandardItem(map["package_number"].toString())); 
+			rowItems.append(new QStandardItem(map["physical_test_operator"].toString()));
 			rowItems.append(new QStandardItem(map["physical_test_time"].toString()));
 			rowItems.append(new QStandardItem(map["physical_test_result"].toInt() == 1 ? QString("合格") : QString("不合格")));
 			rowItems.append(new QStandardItem(map["chemistry_test_operator"].toString()));
 			rowItems.append(new QStandardItem(map["chemistry_test_time"].toString()));
 			rowItems.append(new QStandardItem(map["chemistry_test_result"].toInt() == 1 ? QString("合格") : QString("不合格")));
-			rowItems.append(new QStandardItem(map["biology_test_operator"].toString())); // TODO
-			rowItems.append(new QStandardItem(map["biology_test_time"].toString())); // TODO
+			rowItems.append(new QStandardItem(map["biology_test_operator"].toString())); 
+			rowItems.append(new QStandardItem(map["biology_test_time"].toString()));
 			rowItems.append(new QStandardItem(map["biology_test_result"].toInt() == 1 ? QString("合格") : QString("不合格")));
 			_historyModel->appendRow(rowItems);
 		}
@@ -408,8 +408,7 @@ FilterGroup * DispatchHistoryPage::createFilterGroup() {
 
 void DispatchHistoryPage::doSearch(int page /*= 1*/) {
 	_historyModel->removeRows(0, _historyModel->rowCount());
-	Core::app()->startWaitingOn(this);
-
+	
 	QVariantMap vmap;
 	if (_filter) {
 		vmap.insert("start_time", _filter->condition(FilterFlag::StartDate).toDate());
@@ -425,6 +424,7 @@ void DispatchHistoryPage::doSearch(int page /*= 1*/) {
 	vmap.insert("page", page);
 	vmap.insert("page_count", _visibleCount);
 
+	Core::app()->startWaitingOn(this);
 	post(url(PATH_ISSUE_SEARCH), vmap, [this, page](QNetworkReply *reply) {
 		Core::app()->stopWaiting();
 		JsonHttpResponse resp(reply);

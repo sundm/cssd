@@ -132,7 +132,7 @@ void OrRecyclePackageView::addPackage(const QString &id) {
 			return;
 		}
 
-		if (resp.getAsString("state") != "R") {
+		if (resp.getAsString("state") == "R") {
 			XNotifier::warn("该包已回收，请勿重复操作");
 			return;
 		}

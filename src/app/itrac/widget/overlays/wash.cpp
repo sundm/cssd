@@ -61,18 +61,31 @@ void WashPanel::handleBarcode(const QString &code) {
 
 void WashPanel::commit() {
 	DeviceItem *item = _deviceArea->currentItem();
-	if (!item) return;
+	if (!item)
+	{
+		XNotifier::warn(QString("请选择清洗机"));
+		return;
+	}
 
 	int programId = item->programId();
-	if (0 == programId) return;
+	if (0 == programId) {
+		XNotifier::warn(QString("请选择清洗机程序"));
+		return;
+	}
 
 	int deviceId = item->id();
 
 	QVariantList plates = _plateView->plates();
-	if (plates.isEmpty()) return;
+	if (plates.isEmpty()) {
+		XNotifier::warn(QString("网篮为空，无法完成清洗登记"));
+		return;
+	}
 
 	int opId = OperatorChooser::get(this, this);
-	if (0 == opId) return;
+	if (0 == opId) {
+		XNotifier::warn(QString("请选择操作员"));
+		return;
+	}
 
 	QVariantMap vmap;
 	vmap.insert("plate_ids", plates);

@@ -70,7 +70,8 @@ public:
 
 private:
 	USER _type;
-	QLineEdit * _userEdit;
+	QComboBox * _userBox;
+	JsonHttpClient _http;
 };
 
 class DeptFilterRow : public FilterRow
