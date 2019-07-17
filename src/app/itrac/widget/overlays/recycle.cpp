@@ -132,10 +132,17 @@ void NoBCRecyclePanel::removeEntry() {
 }
 
 void NoBCRecyclePanel::commit() {
-	if (0 == _pkgModel->rowCount()) return;
+	if (0 == _pkgModel->rowCount()) {
+		XNotifier::warn("请先添加需要回收的包");
+		return;
+	}
+
 
 	int plateId = _pkgModel->item(0, 3)->data().toInt();
-	if (0 == plateId) return;
+	if (0 == plateId) {
+		XNotifier::warn("请添加网篮");
+		return;
+	}
 
 	int opId = OperatorChooser::get(this, this);
 	if (0 == opId) return;
@@ -304,10 +311,16 @@ void OrRecyclePanel::removeEntry() {
 
 void OrRecyclePanel::commit() {
 	QVariantList packages = _pkgView->packages();
-	if (packages.isEmpty()) return;
+	if (packages.isEmpty()) {
+		XNotifier::warn("请先添加需要回收的包");
+		return;
+	}
 
 	int plateId = _pkgView->plate();
-	if (0 == plateId) return;
+	if (0 == plateId) {
+		XNotifier::warn("请添加网篮");
+		return;
+	}
 
 	int opId = OperatorChooser::get(this, this);
 	if (0 == opId) return;

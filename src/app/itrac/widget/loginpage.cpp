@@ -86,7 +86,7 @@ namespace Widget {
 
 		Ui::addSpacer(layout, Qt::Vertical);
 
-		userEdit->setInputValidator(Ui::InputValitor::LetterAndNumber);
+		userEdit->setInputValidator(Ui::InputValitor::NumberOnly);
 		pwdEdit->setEchoMode(QLineEdit::Password);
 		userEdit->setMinimumHeight(Constant::fixedLineEditHeight);
 		pwdEdit->setMinimumHeight(Constant::fixedLineEditHeight);

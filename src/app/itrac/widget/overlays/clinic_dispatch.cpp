@@ -113,8 +113,12 @@ void ClinicDispatchPanel::removeEntry() {
 	QItemSelectionModel *selModel = _scanView->selectionModel();
 	QModelIndexList indexes = selModel->selectedRows();
 	int countRow = indexes.count();
-	for (int i = countRow; i > 0; i--)
+	if (countRow) _commitButton->setEnabled(false);
+
+	for (int i = countRow; i > 0; i--) {
 		_scanView->model()->removeRow(indexes.at(i - 1).row());
+	}
+		
 }
 
 void ClinicDispatchPanel::handleBarcode(const QString &code) {

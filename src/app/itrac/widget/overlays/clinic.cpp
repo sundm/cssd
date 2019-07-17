@@ -128,7 +128,10 @@ void ClinicPanel::reset() {
 
 void ClinicPanel::commit() {
 	QModelIndexList indices = _view->selectedRows();
-	if (indices.isEmpty()) return;
+	if (indices.isEmpty()) {
+		XNotifier::warn("请选择需要回收的包");
+		return;
+	}
 
 	QVariantList orders;
 	for (auto &idx : indices) {
@@ -136,7 +139,10 @@ void ClinicPanel::commit() {
 	}
 
 	int plateId = _detailModel->item(0, 2)->data().toInt();
-	if (0 == plateId) return;
+	if (0 == plateId) {
+		XNotifier::warn("请添加网篮");
+		return;
+	}
 
 	int opId = OperatorChooser::get(this, this);
 	if (0 == opId) return;
