@@ -6,6 +6,7 @@
 #include <QPushButton>
 #include <QSpacerItem>
 #include <QRect>
+#include <QTimer>
 #include <xui/xdimmingeffect.h>
 
 void XNotifier::warn(const QString &text, int msecDisplayTime, QWidget *parent)
@@ -19,6 +20,8 @@ void XNotifier::warn(const QString &text, int msecDisplayTime, QWidget *parent)
 
 	parent->setGraphicsEffect(new XDimmingEffect);
 	//notifier.show();
+	notifier.setDisplayTime(3);
+	notifier.startTimer();
 	notifier.exec();
 	parent->setGraphicsEffect(nullptr);
 }
@@ -63,10 +66,10 @@ XNotifier::XNotifier(QWidget *parent)
 	QHBoxLayout *bottomHLayout = new QHBoxLayout();
 	bottomHLayout->addStretch();
 
-	QPushButton *closeButton = new QPushButton("我知道了");
-	closeButton->setMinimumSize(QSize(200, 38));
-	bottomHLayout->addWidget(closeButton);
-	connect(closeButton, &QAbstractButton::clicked, this, &QDialog::accept);
+	_closeButton = new QPushButton("我知道了");
+	_closeButton->setMinimumSize(QSize(200, 38));
+	bottomHLayout->addWidget(_closeButton);
+	connect(_closeButton, &QAbstractButton::clicked, this, &QDialog::accept);
 
 	bottomHLayout->addStretch();
 
@@ -77,19 +80,8 @@ XNotifier::XNotifier(QWidget *parent)
 
 	this->setLayout(verticalLayout);
 
-	// set geometry
-	// TODO: what if parent widget is very small
-	//int height = 200;
-	//if (parent)
-	//{
-	//	QPoint parentPos = parent->mapToGlobal(parent->pos()); // works on systems with a second monitor
-	//	setGeometry(parentPos.x(),
-	//		parentPos.y() + parent->height() / 4,
-	//		parent->width(), height);
-
-	//	//resize(parent->width(), height);
-	//	//move(0, (parent->height() - height) / 2);
-	//}
+	m_pTimer = new QTimer(this);
+	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(update()));
 }
 
 XNotifier::~XNotifier()
@@ -106,7 +98,26 @@ void XNotifier::setIcon(const QString &fileName)
 	_icon->setPixmap(QPixmap(fileName));
 }
 
-void XNotifier::setDisplayTime(int)
+void XNotifier::update()
 {
+	if (_displayTime > 0)
+	{
+		_closeButton->setText(QString("我知道了(%1s)").arg(QString::number(_displayTime)));
+		_displayTime--;
+	}
+	else
+	{
+		accept();
+	}
+	
+}
 
+void XNotifier::startTimer()
+{
+	m_pTimer->start(1000);
+}
+
+void XNotifier::setDisplayTime(int msec)
+{
+	_displayTime = msec;
 }

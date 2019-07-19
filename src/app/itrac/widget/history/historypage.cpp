@@ -34,6 +34,8 @@ HistoryPage::HistoryPage(QWidget *parent)
 
 	QPushButton *refreshButton = new QPushButton("刷新", toolBar);
 	refreshButton->setIcon(QIcon(":/res/refresh-24.png"));
+	connect(refreshButton, &QPushButton::clicked, this, &HistoryPage::refresh);
+
 	hlayout->addWidget(refreshButton);
 	hlayout->addStretch();
 	
@@ -55,6 +57,10 @@ HistoryPage::HistoryPage(QWidget *parent)
 
 HistoryPage::~HistoryPage() {
 	delete _filter;
+}
+
+void HistoryPage::refresh() {
+	doSearch(1);
 }
 
 void HistoryPage::onFilterChanged(Filter &f) {

@@ -87,6 +87,9 @@ void TracePage::tracePackage(const QString &id) {
 		item->addEntry("化学监测审核时间", ste["chemistry_test_time"].toString());
 		item->addEntry("化学监测审核人员", ste["chemistry_test_operator"].toString());
 		item->addEntry("化学监测审核结果", ste["chemistry_test_result"].toString());
+		item->addEntry("生物监测审核时间", ste["biology_test_time"].toString());
+		item->addEntry("生物监测审核人员", ste["biology_test_operator"].toString());
+		item->addEntry("生物监测审核结果", ste["biology_test_result"].toString());
 		_grid->addWidget(item, 1, 0);
 
 		QVariantMap &issue = resp.getAsDict("issue_trace");

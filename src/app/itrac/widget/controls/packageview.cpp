@@ -102,6 +102,11 @@ void DispatchPackageView::addPackage(const QString &id) {
 			return;
 		}
 
+		if (resp.getAsInt("department_id") != 12000035) {
+			XNotifier::warn(QString("此包非手术室包，不能对其发放"));
+			return;
+		}
+
 		QList<QStandardItem *> rowItems;
 		rowItems << new QStandardItem(id);
 		rowItems << new QStandardItem(resp.getAsString("package_type_name"));

@@ -31,6 +31,9 @@ protected:
 	virtual FilterGroup *createFilterGroup() = 0;
 	virtual void doSearch(int page = 1) = 0;
 
+private slots:
+	void refresh();
+
 protected slots:
 	void showFilterPopup(bool);
 
