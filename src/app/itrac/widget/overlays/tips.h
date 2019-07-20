@@ -15,6 +15,7 @@ public:
 	~Tip();
 
 	void addButton(QAbstractButton *);
+	void addQr();
 private:
 	void setupUi(const QString &text = QString());
 	QVBoxLayout * _layout;

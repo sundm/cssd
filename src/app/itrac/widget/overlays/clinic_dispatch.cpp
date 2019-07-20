@@ -87,6 +87,7 @@ ClinicDispatchPanel::ClinicDispatchPanel(QWidget *parent)
 	Tip *tip = new Tip(text);
 	_commitButton = new Ui::PrimaryButton("确定发放");
 	_commitButton->setEnabled(false);
+	tip->addQr();
 	tip->addButton(_commitButton);
 	connect(_commitButton, SIGNAL(clicked()), this, SLOT(commit()));
 
@@ -128,6 +129,9 @@ void ClinicDispatchPanel::handleBarcode(const QString &code) {
 		if (!hasPackage(code)) {
 			addPackage(code);
 		}
+	}
+	else if (bc.type() == Barcode::Action && code == "910108") {
+		commit();
 	}
 }
 

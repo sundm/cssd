@@ -25,6 +25,7 @@ SterileExamPanel::SterileExamPanel(QWidget *parent)
 		"\n3 提交审核";
 	Tip *tip = new Tip(text);
 	Ui::PrimaryButton *commitButton = new Ui::PrimaryButton("提交灭菌审核");
+	tip->addQr();
 	tip->addButton(commitButton);
 	connect(commitButton, SIGNAL(clicked()), this, SLOT(commit()));
 
@@ -41,6 +42,9 @@ void SterileExamPanel::handleBarcode(const QString &code) {
 	Barcode bc(code);
 	if (bc.type() == Barcode::Test) {
 		updateSterileInfo(code);
+	}
+	else if (bc.type() == Barcode::Action && code == "910108") {
+		commit();
 	}
 }
 

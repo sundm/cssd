@@ -29,6 +29,7 @@ OrDispatchPanel::OrDispatchPanel(QWidget *parent)
 
 	Tip *tip = new Tip(text);
 	Ui::PrimaryButton *commitButton = new Ui::PrimaryButton("确认发放");
+	tip->addQr();
 	tip->addButton(commitButton);
 	connect(commitButton, SIGNAL(clicked()), this, SLOT(commit()));
 
@@ -71,6 +72,9 @@ void OrDispatchPanel::handleBarcode(const QString &code) {
 	Barcode bc(code);
 	if (bc.type() == Barcode::Package && !_pkgView->hasPackage(code)) {
 		_pkgView->addPackage(code);
+	}
+	else if (bc.type() == Barcode::Action && code == "910108") {
+		commit();
 	}
 }
 

@@ -60,6 +60,7 @@ NoBCRecyclePanel::NoBCRecyclePanel(QWidget *parent)
 	const QString text = "手术室丢失条码的物品包及临床未提交申领的物品包请使用无码回收";
 	Tip *tip = new Tip(text);
 	Ui::PrimaryButton *commitButton = new Ui::PrimaryButton("确认回收");
+	tip->addQr();
 	tip->addButton(commitButton);
 	connect(commitButton, SIGNAL(clicked()), this, SLOT(commit()));
 
@@ -82,6 +83,9 @@ void NoBCRecyclePanel::handleBarcode(const QString &code) {
 	Barcode bc(code);
 	if (bc.type() == Barcode::Plate) {
 		updatePlate(code);
+	}
+	else if (bc.type() == Barcode::Action && code == "910108") {
+		commit();
 	}
 }
 
@@ -263,6 +267,7 @@ OrRecyclePanel::OrRecyclePanel(QWidget *parent /*= nullptr*/)
 	const QString text = "1 扫描或手工输入手术室物品包的条码\n2 扫描托盘进行装篮\n3 确认回收";
 	Tip *tip = new Tip(text);
 	Ui::PrimaryButton *commitButton = new Ui::PrimaryButton("确认回收");
+	tip->addQr();
 	tip->addButton(commitButton);
 	connect(commitButton, SIGNAL(clicked()), this, SLOT(commit()));
 
@@ -289,6 +294,9 @@ void OrRecyclePanel::handleBarcode(const QString &code) {
 	}
 	else if (bc.type() == Barcode::Plate) {
 		updatePlate(code);
+	}
+	else if (bc.type() == Barcode::Action && code == "910108") {
+		commit();
 	}
 }
 

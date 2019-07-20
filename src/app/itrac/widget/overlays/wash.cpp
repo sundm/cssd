@@ -22,8 +22,10 @@ WashPanel::WashPanel(QWidget *parent)
 		"\n\n注意：请确保托盘内的物品能全部进入清洗机";
 	Tip *tip = new Tip(text);
 	Ui::PrimaryButton *commitButton = new Ui::PrimaryButton("开始清洗");
+	tip->addQr();
 	tip->addButton(commitButton);
 	connect(commitButton, SIGNAL(clicked()), this, SLOT(commit()));
+	
 
 	Ui::IconButton *addPlateButton = new Ui::IconButton(":/res/fill-plate-24.png");
 	addPlateButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
@@ -56,6 +58,9 @@ void WashPanel::handleBarcode(const QString &code) {
 
 			_plateView->addPlate(id);
 		}
+	}
+	else if (bc.type() == Barcode::Action && code == "910108") {
+		commit();
 	}
 }
 

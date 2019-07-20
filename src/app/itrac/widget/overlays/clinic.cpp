@@ -59,6 +59,7 @@ ClinicPanel::ClinicPanel(QWidget *parent)
 		"\n\n注意：\n*实际回收的物品数量应与订单数量一致\n*超过1周未处理的订单系统自动作废";
 	Tip *tip = new Tip(text);
 	Ui::PrimaryButton *commitButton = new Ui::PrimaryButton("确定回收");
+	tip->addQr();
 	tip->addButton(commitButton);
 	connect(commitButton, SIGNAL(clicked()), this, SLOT(commit()));
 
@@ -85,6 +86,9 @@ void ClinicPanel::handleBarcode(const QString &code) {
 	Barcode bc(code);
 	if (bc.type() == Barcode::Plate) {
 		updatePlate(code);
+	}
+	else if (bc.type() == Barcode::Action && code == "910108") {
+		commit();
 	}
 }
 

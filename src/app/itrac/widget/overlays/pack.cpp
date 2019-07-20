@@ -19,6 +19,7 @@ PackPanel::PackPanel(QWidget *parent) : CssdOverlayPanel(parent) {
 		"\n\n注意：请根据当前标签打印机选择对应的物品托盘";
 	Tip *tip = new Tip(text);
 	Ui::PrimaryButton *commitButton = new Ui::PrimaryButton("开始配包");
+	tip->addQr();
 	tip->addButton(commitButton);
 	connect(commitButton, SIGNAL(clicked()), this, SLOT(commit()));
 
@@ -48,6 +49,9 @@ void PackPanel::handleBarcode(const QString &code) {
 		//if (!_plateView->hasPlate(id)) {
 		_plateView->addPlate(id);
 		//}
+	}
+	else if (bc.type() == Barcode::Action && code == "910108") {
+		commit();
 	}
 }
 

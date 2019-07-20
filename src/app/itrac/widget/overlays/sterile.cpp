@@ -27,6 +27,7 @@ SterilePanel::SterilePanel(QWidget *parent)
 		"\n\n注意：请确保扫描的物品能全部进入所选灭菌机";
 	Tip *tip = new Tip(text);
 	Ui::PrimaryButton *commitButton = new Ui::PrimaryButton("开始灭菌");
+	tip->addQr();
 	tip->addButton(commitButton);
 	connect(commitButton, SIGNAL(clicked()), this, SLOT(commit()));
 
@@ -74,6 +75,9 @@ void SterilePanel::handleBarcode(const QString &code) {
 	Barcode bc(code);
 	if (bc.type() == Barcode::Package && !_pkgView->hasPackage(code)) {
 		_pkgView->addPackage(code);
+	}
+	else if (bc.type() == Barcode::Action && code == "910108") {
+		commit();
 	}
 }
 
