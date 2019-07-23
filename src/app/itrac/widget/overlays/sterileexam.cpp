@@ -51,11 +51,21 @@ void SterileExamPanel::handleBarcode(const QString &code) {
 void SterileExamPanel::commit()
 {
 	QString testId = _infoGroup->testId();
-	if (testId.isEmpty()) return;
+	if (testId.isEmpty()) {
+		XNotifier::warn(QString("监测条码为空"));
+		return;
+	}
 
 	Sterile::Result verdicts = _checkGroup->verdicts();
-	if (verdicts.physics == itrac::NotChecked ||
-		verdicts.chemistry == itrac::NotChecked) return;
+	if (verdicts.physics == itrac::NotChecked ) {
+		XNotifier::warn(QString("物理检测结果为空"));
+		return;
+	}
+
+	if (verdicts.chemistry == itrac::NotChecked) {
+		XNotifier::warn(QString("化学检测结果为空"));
+		return;
+	}
 
 	int opId = OperatorChooser::get(this, this);
 	if (0 == opId) return;

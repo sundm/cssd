@@ -3,6 +3,7 @@
 #include "core/itracnamespace.h"
 #include "core/net/url.h"
 #include "xnotifier.h"
+#include "core/constants.h"
 #include <QStandardItemModel>
 
 AbstractPackageView::AbstractPackageView(QWidget *parent)
@@ -102,7 +103,7 @@ void DispatchPackageView::addPackage(const QString &id) {
 			return;
 		}
 
-		if (resp.getAsInt("department_id") != 12000035) {
+		if (resp.getAsInt("department_id") != Constant::OperatingRoomId) {
 			XNotifier::warn(QString("此包非手术室包，不能对其发放"));
 			return;
 		}

@@ -80,10 +80,16 @@ void OrDispatchPanel::handleBarcode(const QString &code) {
 
 void OrDispatchPanel::commit() {
 	int deptId = _deptEdit->currentId();
-	if (0 == deptId) return;
+	if (0 == deptId) {
+		XNotifier::warn(QString("请选择科室"));
+		return;
+	}
 
 	QVariantList packages = _pkgView->packages();
-	if (packages.isEmpty()) return;
+	if (packages.isEmpty()) {
+		XNotifier::warn(QString("发放内容为空"));
+		return;
+	}
 
 	int opId = OperatorChooser::get(this, this);
 	if (0 == opId) return;

@@ -47,10 +47,6 @@ void XHttpClient::post(const QString &url,
 	QNetworkReply *reply = _nam.post(request, data);
 	_replies.append(reply);
 
-	//endTime = clock();
-	//qDebug() << endTime - startTime;
-
-	// call finish handler
 	QObject::connect(reply, &QNetworkReply::finished, [=] {
 		_replies.removeAll(reply);
 		if (nullptr != finishCallback) {
@@ -58,12 +54,6 @@ void XHttpClient::post(const QString &url,
 		}
 		reply->deleteLater();
 	});
-
-	// call error handler if neccessary.
-	// to check if a std::function is callable, simply use `if(func)` since
-	// the template class defines `operator bool`, this is equivalant to
-	// `if(func != nullptr)`, std::function also defines `operator==` and
-	// `operator!=` overloads for comparing with a nullptr_t.
 	if (nullptr != errorCallback) {
 		QObject::connect(reply, QOverload<QNetworkReply::NetworkError>::of(&QNetworkReply::error), [=] {
 			errorCallback(reply->errorString());

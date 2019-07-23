@@ -87,6 +87,7 @@ void CheckItem::reset(int verdict) {
 
 
 void SterileInfoGroup::reset() {
+	_bcEdit->clear();
 	_deviceEdit->clear();
 	_cycleEdit->clear();
 	_startTimeEdit->clear();

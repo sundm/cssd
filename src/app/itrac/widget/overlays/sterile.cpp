@@ -76,6 +76,11 @@ void SterilePanel::handleBarcode(const QString &code) {
 	if (bc.type() == Barcode::Package && !_pkgView->hasPackage(code)) {
 		_pkgView->addPackage(code);
 	}
+	else if (bc.type() == Barcode::Device)
+	{
+		//todo
+		_deviceArea->scanDevice(bc.intValue());
+	}
 	else if (bc.type() == Barcode::Action && code == "910108") {
 		commit();
 	}
@@ -86,6 +91,17 @@ void SterilePanel::commit() {
 	if (!item) {
 		XNotifier::warn(QString("请选择灭菌器"));
 		return;
+	}
+	
+	bool isNeedPrintLabel = true;
+	if (item->isRunning())
+	{
+		QMessageBox msgBox;
+		msgBox.setText(QString("是否确认在已经开始的设备中添加？").arg(item->name()));
+		msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+		msgBox.setDefaultButton(QMessageBox::Ok);
+		if (msgBox.exec() != QMessageBox::Ok) return;
+		else isNeedPrintLabel = false;
 	}
 
 	int programId = item->programId();
@@ -142,18 +158,22 @@ void SterilePanel::commit() {
 			return;
 		}
 
-		SterilizeLabel label;
-		label.sterilizeId = resp.getAsString("test_id");
-		label.sterilizeName = item->name();
-		label.sterilizeDate = datetimes[0];
-		label.sterilizeTime = datetimes[1];
-		label.panNum = item->cycle() + 1;
-		label.packageNum = packages.count();
+		if (isNeedPrintLabel)
+		{
+			SterilizeLabel label;
+			label.sterilizeId = resp.getAsString("test_id");
+			label.sterilizeName = item->name();
+			label.sterilizeDate = datetimes[0];
+			label.sterilizeTime = datetimes[1];
+			label.panNum = item->cycle() + 1;
+			label.packageNum = packages.count();
 
-		printer->printSterilizedLabel(label);
-		printer->close();
-
+			printer->printSterilizedLabel(label);
+			printer->close();
+		}
+		
 		XNotifier::warn("已完成灭菌登记");
+		_deviceArea->currentItem()->setRunning();
 		reset();
 	});
 }

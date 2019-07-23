@@ -59,6 +59,11 @@ void WashPanel::handleBarcode(const QString &code) {
 			_plateView->addPlate(id);
 		}
 	}
+	else if (bc.type() == Barcode::Device)
+	{
+		//todo
+		_deviceArea->scanDevice(bc.intValue());
+	}
 	else if (bc.type() == Barcode::Action && code == "910108") {
 		commit();
 	}
@@ -66,11 +71,20 @@ void WashPanel::handleBarcode(const QString &code) {
 
 void WashPanel::commit() {
 	DeviceItem *item = _deviceArea->currentItem();
-	if (!item)
+	if (!item || item->isRunning())
 	{
 		XNotifier::warn(QString("请选择清洗机"));
 		return;
 	}
+	
+	//if (item->isRunning())
+	//{
+	//	QMessageBox msgBox;
+	//	msgBox.setText(QString("是否确认在已经开始的设备中添加？").arg(item->name()));
+	//	msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+	//	msgBox.setDefaultButton(QMessageBox::Ok);
+	//	if (msgBox.exec() != QMessageBox::Ok) return;
+	//}
 
 	int programId = item->programId();
 	if (0 == programId) {
@@ -104,6 +118,7 @@ void WashPanel::commit() {
 			XNotifier::warn(QString("无法完成清洗登记: ").append(resp.errorString()));
 		else {
 			XNotifier::warn("已完成清洗登记");
+			_deviceArea->currentItem()->setRunning();
 			reset();
 		}
 	});

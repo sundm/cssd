@@ -84,6 +84,10 @@ int WasherItem::programId() const {
 	return _comboBox->currentProgramId();
 }
 
+bool WasherItem::isRunning() const {
+	return _device->state == Device::Running;
+}
+
 void WasherItem::setSelected(bool b) {
 	_icon->setChecked(b);
 	_comboBox->setEnabled(b);
@@ -97,6 +101,10 @@ void WasherItem::setIdle() {
 	_comboBox->show();
 	_button->hide();
 	_device->state = Device::Idle;
+}
+
+void WasherItem::setRunning() {
+	_device->state = Device::Running;
 }
 
 void WasherItem::stop() {
@@ -118,7 +126,7 @@ DeviceArea::DeviceArea(QWidget *parent)
 	:QScrollArea(parent), _content(new QWidget), _curItem(nullptr)
 {
 	setWidgetResizable(true);
-
+	
 	QHBoxLayout *layout = new QHBoxLayout(_content);
 	layout->setSizeConstraint(QLayout::SetMinimumSize);
 	//layout->setSizeConstraint(QLayout::SetMinAndMaxSize);
@@ -129,11 +137,13 @@ void DeviceArea::addDeviceItem(DeviceItem *item) {
 	QHBoxLayout *layout = static_cast<QHBoxLayout*>(_content->layout());
 	layout->addWidget(item, Qt::AlignTop);
 	connect(item, &DeviceItem::selected, this, &DeviceArea::onItemSelected);
+	_items.append(item);
 }
 
 void DeviceArea::load(itrac::DeviceType type)
 {
 	clear();
+	_items.clear();
 
 	QString data = QString("{\"device_type\":\"000%1\"}").arg((itrac::DeviceType::Washer == type) ? 1: 2);
 
@@ -172,12 +182,31 @@ QSize DeviceArea::minimumSizeHint() const {
 	//return QScrollArea::minimumSizeHint();
 }
 
+void DeviceArea::scanDevice(const int &code)
+{
+	for each (DeviceItem* it in _items)
+	{
+		if (it->id() == code) {
+			if (_curItem) {
+				_curItem->setSelected(false);
+			}
+			it->setSelected(true);
+			_curItem = it;
+		}
+	}
+}
+
 void DeviceArea::clear() {
 	QLayout *layout = _content->layout();
 	QLayoutItem *child;
 	while ((child = layout->takeAt(0)) != 0) {
 		delete child;
 	}
+
+	//todo
+	//if (_curItem) {
+	//	_curItem = nullptr;
+	//}
 }
 
 void DeviceArea::onItemSelected(DeviceItem *item) {
