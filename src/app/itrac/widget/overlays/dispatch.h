@@ -21,7 +21,7 @@ private slots:
 	void removeEntry();
 private:
 	void reset();
-
+	void updateDept(const QString &);
 	DeptEdit * _deptEdit;
 	DispatchPackageView * _pkgView;
 };

@@ -22,6 +22,7 @@ extern const char PATH_PKG_INFO[];
 extern const char PATH_RECYCLE_ADD[];
 extern const char PATH_RECYCLE_SEARCH[];
 extern const char PATH_PKGTPYE_SEARCH[];
+extern const char PATH_PKGDETAIL_SEARCH[];
 extern const char PATH_INSTRUMENT_SEARCH[];
 extern const char PATH_INSTRUMENT_ADD[];
 extern const char PATH_PKG_IN_PLATE[];

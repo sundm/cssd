@@ -4,6 +4,7 @@
 #include "barcode.h"
 
 #include "core/net/url.h"
+#include "core/constants.h"
 #include "ui/buttons.h"
 #include "ui/inputfields.h"
 #include "widget/controls/idedit.h"
@@ -73,9 +74,44 @@ void OrDispatchPanel::handleBarcode(const QString &code) {
 	if (bc.type() == Barcode::Package && !_pkgView->hasPackage(code)) {
 		_pkgView->addPackage(code);
 	}
+	else if (bc.type() == Barcode::Department)
+	{
+		updateDept(code);
+	}
 	else if (bc.type() == Barcode::Action && code == "910108") {
 		commit();
 	}
+}
+
+void OrDispatchPanel::updateDept(const QString &deptId) {
+	if (Constant::OperatingRoomId != deptId.toInt())
+	{
+		XNotifier::warn(QString("请确认扫描手术室条码"));
+		return;
+	}
+	_deptEdit->setCurrentIdPicked(deptId.toInt(), QString("手术室"));
+
+	/*QByteArray data("{\"department_id\":");
+	data.append(deptId).append('}');
+	post(url(PATH_DEPT_SEARCH), data, [deptId, this](QNetworkReply *reply) {
+		JsonHttpResponse resp(reply);
+		if (!resp.success()) {
+			XNotifier::warn(QString("无法获取科室信息"));
+			return;
+		}
+
+		QVariantList deptList = resp.getAsList("department_list");
+
+		if (deptList.count() != 1) {
+			XNotifier::warn("系统内部错误，无法生成对应数量的科室");
+			return;
+		}
+
+		const QVariantMap &pkg = deptList.at(0).toMap();
+
+		QString deptName = pkg["department_name"].toString();
+		_deptEdit->setCurrentIdPicked(deptId.toInt(), deptName);
+	});*/
 }
 
 void OrDispatchPanel::commit() {

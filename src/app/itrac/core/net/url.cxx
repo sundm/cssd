@@ -2,8 +2,8 @@
 
 #include <QVariantMap>
 
-const char PATH_BASE[] = "http://120.76.128.123:8082/CSSD/";
-//const char PATH_BASE[] = "http://localhost:8080/CSSD/";
+//const char PATH_BASE[] = "http://120.76.128.123:8082/CSSD/";
+const char PATH_BASE[] = "http://localhost:8080/CSSD/";
 const char PATH_PLATE_SEARCH[] = "plate/search";
 const char PATH_DEPT_SEARCH[] = "department/search";
 const char PATH_DEVICE_ADD[] = "device/add";
@@ -22,6 +22,7 @@ const char PATH_PKG_INFO[] = "package/info";
 const char PATH_RECYCLE_ADD[] = "recycle/add";
 const char PATH_RECYCLE_SEARCH[] = "recycle/search";
 const char PATH_PKGTPYE_SEARCH[] = "packageType/search";
+const char PATH_PKGDETAIL_SEARCH[] = "packageType/searchInstruments";
 const char PATH_INSTRUMENT_SEARCH[] = "instrument/search";
 const char PATH_INSTRUMENT_ADD[] = "instrument/add";
 const char PATH_PKG_IN_PLATE[] = "pack/packageType";

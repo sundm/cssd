@@ -194,7 +194,7 @@ void PackPlateView::doPack(int opId, int checkId) {
 			label.packageName = map["package_name"].toString();
 			label.packageFrom = map["department_name"].toString();
 			label.packageType = map["pack_type_name"].toString();
-			label.disinDate = map["sterilize_date"].toString();
+			label.disinDate = map["sterilize_date"].toString().left(10);
 			label.expiryDate = map["expire_date"].toString();
 			label.count = map["instrument_num"].toInt();
 			printer->printPackageLabel(label);

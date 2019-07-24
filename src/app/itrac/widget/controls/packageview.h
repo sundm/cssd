@@ -4,6 +4,8 @@
 #include "core/net/jsonhttpclient.h"
 
 class QStandardItemModel;
+class ClickedLabel;
+
 class AbstractPackageView : public TableView
 {
 	Q_OBJECT
@@ -70,5 +72,28 @@ private:
 	enum { Barcode, Name, PackType, Department, ExpireDate };
 };
 
+class PackageDetailView : public QWidget
+{
+	Q_OBJECT
+
+public:
+	PackageDetailView(QWidget *parent = nullptr);
+	void loadDetail(const QString& pkgTypeId);
+
+private slots:
+	void imgClicked();
+
+private:
+	void imgLoad(const QString& pkgTypeId);
+
+	enum {Name, Number};
+	QTableView* _view;
+	QStandardItemModel* _model;
+	ClickedLabel* _imgLabel;
+
+	JsonHttpClient _http;
+
+	QString _imgFileName;
+};
 
 

@@ -345,6 +345,12 @@
     <ClCompile Include="dialog\warningdialog.cpp">
       <Filter>Source Files\dialog</Filter>
     </ClCompile>
+    <ClCompile Include="dialog\imgdialog.cpp">
+      <Filter>Source Files\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\controls\clickedlabel.cpp">
+      <Filter>Source Files\widget\controls</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="devicepage.h">
@@ -568,6 +574,12 @@
     </QtMoc>
     <QtMoc Include="dialog\warningdialog.h">
       <Filter>Source Files\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="dialog\imgdialog.h">
+      <Filter>Source Files\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\controls\clickedlabel.h">
+      <Filter>Source Files\widget\controls</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

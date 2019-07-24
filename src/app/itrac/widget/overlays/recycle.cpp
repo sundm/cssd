@@ -84,9 +84,37 @@ void NoBCRecyclePanel::handleBarcode(const QString &code) {
 	if (bc.type() == Barcode::Plate) {
 		updatePlate(code);
 	}
+	else if (bc.type() == Barcode::Department)
+	{
+		updateDept(code);
+	}
 	else if (bc.type() == Barcode::Action && code == "910108") {
 		commit();
 	}
+}
+
+void NoBCRecyclePanel::updateDept(const QString &deptId) {
+	QByteArray data("{\"department_id\":");
+	data.append(deptId).append('}');
+	post(url(PATH_DEPT_SEARCH), data, [deptId, this](QNetworkReply *reply) {
+		JsonHttpResponse resp(reply);
+		if (!resp.success()) {
+			XNotifier::warn(QString("无法获取科室信息"));
+			return;
+		}
+
+		QVariantList deptList = resp.getAsList("department_list");
+
+		if (deptList.count() != 1) {
+			XNotifier::warn("系统内部错误，无法生成对应数量的科室");
+			return;
+		}
+
+		const QVariantMap &pkg = deptList.at(0).toMap();
+
+		QString deptName = pkg["department_name"].toString();
+		_deptEdit->setCurrentIdPicked(deptId.toInt(), deptName);
+	});
 }
 
 void NoBCRecyclePanel::addPlate() {
@@ -244,6 +272,7 @@ void NoBCRecyclePanel::reset() {
 OrRecyclePanel::OrRecyclePanel(QWidget *parent /*= nullptr*/)
 	: CssdOverlayPanel(parent)
 	, _pkgView(new OrRecyclePackageView)
+	, _detailView(new PackageDetailView)
 {
 	QHBoxLayout *hLayout = new QHBoxLayout;
 	hLayout->setContentsMargins(0, 0, 0, 0);
@@ -271,10 +300,26 @@ OrRecyclePanel::OrRecyclePanel(QWidget *parent /*= nullptr*/)
 	tip->addButton(commitButton);
 	connect(commitButton, SIGNAL(clicked()), this, SLOT(commit()));
 
+	QHBoxLayout *bLayout = new QHBoxLayout;
+	bLayout->addWidget(_pkgView);
+	bLayout->addWidget(_detailView);
+	bLayout->setStretch(0, 2);
+	bLayout->setStretch(1, 1);
+
 	QGridLayout *layout = new QGridLayout(this);
 	layout->addLayout(hLayout, 0, 0);
-	layout->addWidget(_pkgView, 1, 0);
+	layout->addLayout(bLayout, 1, 0);
 	layout->addWidget(tip, 1, 1);
+
+	connect(_pkgView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(showDetail(const QModelIndex &)));
+}
+
+void OrRecyclePanel::showDetail(const QModelIndex &index)
+{
+	int row = index.row();
+	QString package_type_id = _pkgView->model()->data(_pkgView->model()->index(row, 1), 260).toString();
+
+	_detailView->loadDetail(package_type_id);
 }
 
 void OrRecyclePanel::chooseExt() {

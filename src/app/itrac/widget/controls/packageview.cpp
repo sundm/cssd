@@ -4,7 +4,10 @@
 #include "core/net/url.h"
 #include "xnotifier.h"
 #include "core/constants.h"
+#include "dialog/imgdialog.h"
+#include "widget/controls/clickedlabel.h"
 #include <QStandardItemModel>
+#include <QVBoxLayout>
 
 AbstractPackageView::AbstractPackageView(QWidget *parent)
 	: TableView(parent), _model(new QStandardItemModel(this))
@@ -144,12 +147,38 @@ void OrRecyclePackageView::addPackage(const QString &id) {
 		}
 
 		QList<QStandardItem *> rowItems;
-		rowItems.append(new QStandardItem(id));
-		rowItems << new QStandardItem(resp.getAsString("package_type_name"));
-		rowItems << new QStandardItem(resp.getAsString("pack_type_name"));
-		rowItems << new QStandardItem(resp.getAsString("from_department_name"));
-		rowItems << new QStandardItem(resp.getAsString("valid_date"));
-		rowItems.append(new QStandardItem("请扫描篮筐条码"));
+		
+		QStandardItem *package_id = new QStandardItem();
+		package_id->setTextAlignment(Qt::AlignCenter);
+		package_id->setText(id);
+		rowItems.append(package_id);
+
+		QStandardItem *package_type_name = new QStandardItem();
+		package_type_name->setTextAlignment(Qt::AlignCenter);
+		package_type_name->setText(resp.getAsString("package_type_name"));
+		package_type_name->setData(resp.getAsString("package_type_id"), 260);
+		rowItems.append(package_type_name);
+
+		QStandardItem *pack_type_name = new QStandardItem();
+		pack_type_name->setTextAlignment(Qt::AlignCenter);
+		pack_type_name->setText(resp.getAsString("pack_type_name"));
+		rowItems.append(pack_type_name);
+
+		QStandardItem *from_department_name = new QStandardItem();
+		from_department_name->setTextAlignment(Qt::AlignCenter);
+		from_department_name->setText(resp.getAsString("from_department_name"));
+		rowItems.append(from_department_name);
+
+		QStandardItem *valid_date = new QStandardItem();
+		valid_date->setTextAlignment(Qt::AlignCenter);
+		valid_date->setText(resp.getAsString("valid_date"));
+		rowItems.append(valid_date);
+
+		QStandardItem *info = new QStandardItem();
+		info->setTextAlignment(Qt::AlignCenter);
+		info->setText("请扫描篮筐条码");
+		rowItems.append(info);
+
 		_model->appendRow(rowItems);
 	});
 }
@@ -201,4 +230,88 @@ void OrRecyclePackageView::updatePlate(const QString &plateId)
 int OrRecyclePackageView::plate() const
 {
 	return _model->item(0, OrRecyclePackageView::VPlate)->data().toInt();
+}
+
+PackageDetailView::PackageDetailView(QWidget *parent /*= nullptr*/)
+	: QWidget(parent)
+	, _view(new TableView)
+	, _model(new QStandardItemModel(0, 2, _view))
+	, _imgLabel(new ClickedLabel(this))
+{
+	_model->setHeaderData(Name, Qt::Horizontal, "器械名");
+	_model->setHeaderData(Number, Qt::Horizontal, "数量");
+	_view->setModel(_model);
+	_view->setSelectionMode(QAbstractItemView::SingleSelection);
+	_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+	QVBoxLayout *vlayout = new QVBoxLayout(this);
+	vlayout->setContentsMargins(0, 0, 0, 0);
+	vlayout->setSpacing(0);
+	vlayout->addWidget(_imgLabel);
+	vlayout->addWidget(_view);
+
+	vlayout->setStretch(1, 1);
+
+	_imgLabel->setHidden(true);
+
+	connect(_imgLabel, SIGNAL(Clicked()), this, SLOT(imgClicked()));
+}
+
+void PackageDetailView::loadDetail(const QString& pkgTypeId) {
+	QByteArray data("{\"package_type_id\":");
+	data.append(pkgTypeId).append('}');
+	_http.post(url(PATH_PKGDETAIL_SEARCH), QByteArray().append(data), [=](QNetworkReply *reply) {
+		JsonHttpResponse resp(reply);
+		if (!resp.success()) {
+			XNotifier::warn(QString("无法获取包信息: ").append(resp.errorString()));
+			return;
+		}
+
+		_model->removeRows(0, _model->rowCount());
+
+		QList<QVariant> orders = resp.getAsList("instruments");
+		_model->insertRows(0, orders.count());
+		for (int i = 0; i != orders.count(); ++i) {
+			QVariantMap map = orders[i].toMap();
+			_model->setData(_model->index(i, 0), map["instrument_name"]);
+			_model->setData(_model->index(i, 1), map["instrument_number"]);
+		}
+
+		imgLoad(pkgTypeId);
+	});
+}
+
+void PackageDetailView::imgLoad(const QString& pkgTypeId)
+{
+	QString StrWidth, StrHeigth;
+	_imgFileName = QString("./photo/package/%1.png").arg(pkgTypeId);
+	QImage* img = new QImage, *scaledimg = new QImage;
+	if (!(img->load(_imgFileName)))
+	{
+		_imgLabel->setHidden(true);
+		delete img;
+		return;
+	}
+	int Owidth = img->width(), Oheight = img->height();
+	float Fwidth, Fheight;       
+	int w = 400, h = 250;
+	_imgLabel->setGeometry(0, 0, w, h);
+
+	float Mul;            
+	if (Owidth / w >= Oheight / h)
+		Mul = float(Owidth * 1.0f / w);
+	else
+		Mul = float(Oheight * 1.0f / h);
+
+	Fwidth = Owidth / Mul;
+	Fheight = Oheight / Mul;
+	*scaledimg = img->scaled(ceil(Fwidth), ceil(Fheight), Qt::KeepAspectRatio);
+	_imgLabel->setPixmap(QPixmap::fromImage(*scaledimg));
+	_imgLabel->setHidden(false);
+}
+
+void PackageDetailView::imgClicked()
+{
+	ImgDialog *d = new ImgDialog(this, _imgFileName);
+	d->exec();
 }

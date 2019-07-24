@@ -4,6 +4,7 @@
 #include "tips.h"
 #include "ui/buttons.h"
 #include "widget/controls/plateview.h"
+#include "controls/packageview.h"
 #include "dialog/regexpinputdialog.h"
 #include "dialog/operatorchooser.h"
 #include "core/net/url.h"
@@ -13,6 +14,7 @@
 
 PackPanel::PackPanel(QWidget *parent) : CssdOverlayPanel(parent) {
 	_plateView = new PackPlateView;
+	_detailView = new PackageDetailView;
 	//connect(_plateView, &PackPlateView::packed, this, &PackPanel::print);
 
 	const QString text = "1 扫描或输入托盘条码\n2 开始配包"
@@ -27,10 +29,18 @@ PackPanel::PackPanel(QWidget *parent) : CssdOverlayPanel(parent) {
 	addPlateButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
 	connect(addPlateButton, SIGNAL(clicked()), this, SLOT(addPlate()));
 
+	QHBoxLayout *bLayout = new QHBoxLayout;
+	bLayout->addWidget(_plateView);
+	bLayout->addWidget(_detailView);
+	bLayout->setStretch(0, 2);
+	bLayout->setStretch(1, 1);
+
 	QGridLayout *layout = new QGridLayout(this);
 	layout->addWidget(addPlateButton, 0, 0);
-	layout->addWidget(_plateView, 1, 0);
+	layout->addLayout(bLayout, 1, 0);
 	layout->addWidget(tip, 0, 1, 2, 1);
+
+	connect(_plateView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(showDetail(const QModelIndex &)));
 }
 
 void PackPanel::addPlate() {
@@ -57,7 +67,10 @@ void PackPanel::handleBarcode(const QString &code) {
 
 void PackPanel::commit() {
 	QVariantList plates = _plateView->plates();
-	if (plates.isEmpty()) return;
+	if (plates.isEmpty()) {
+		XNotifier::warn("请先添加需要打包的网篮");
+		return;
+	}
 
 	int opId = OperatorChooser::get(this, this);
 	if (0 == opId) return;
@@ -68,13 +81,17 @@ void PackPanel::commit() {
 	_plateView->doPack(opId, checkerId);
 }
 
-//void PackPanel::print(const std::list<std::list<std::string>> & labels) {
-//	Printer *printer = PrinterFactory().Create(PrinterFactory::ZEBRA_GT8);
-//	if (0 != printer->open()) {
-//		XNotifier::warn(this, "启动标签打印机失败，稍后可到历史查询页中重打标签", -1);
-//		return;
-//	}
-//	printer->printLabels("label/packageLabel", labels);
-//	printer->close();
-//	delete printer;
-//}
+void PackPanel::showDetail(const QModelIndex &index)
+{
+	int row = index.row();
+	int column = index.column();
+	if (index.parent().isValid())
+	{
+		QStandardItemModel *model = static_cast<QStandardItemModel*>(_plateView->model());
+		QStandardItem *parentItem = model->itemFromIndex(model->index(0, 0));
+		QString package_type_id = parentItem->child(row, 0)->data().toString();
+
+		_detailView->loadDetail(package_type_id);
+	}
+
+}

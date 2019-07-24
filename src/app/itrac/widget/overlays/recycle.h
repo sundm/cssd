@@ -8,6 +8,7 @@ class PackageEdit;
 class QSpinBox;
 class TableView;
 class OrRecyclePackageView;
+class PackageDetailView;
 class QStandardItemModel;
 
 class NoBCRecyclePanel : public CssdOverlayPanel, public JsonHttpClient
@@ -32,6 +33,7 @@ private:
 	void initPackageView();
 	int findRow(int deptId, int pkgId);
 	void updatePlate(const QString &);
+	void updateDept(const QString &);
 	void reset();
 
 	DeptEdit * _deptEdit;
@@ -56,10 +58,12 @@ private slots:
 	void chooseExt();
 	void commit();
 	void setExtPkg(const QString&, const QString&);
+	void showDetail(const QModelIndex &index);
 
 private:
 	void updatePlate(const QString &);
 	void reset();
 
 	OrRecyclePackageView * _pkgView;
+	PackageDetailView * _detailView;
 };
