@@ -184,21 +184,39 @@ void PackPlateView::doPack(int opId, int checkId) {
 			plateItem->setChild(i, ExpireDate, new QStandardItem(pkg["expire_date"].toString()));
 		}
 
-		// generate labels for print
-		PackageLabel label;
-		label.operatorName = resp.getAsString("pack_operator_name");
-		label.assessorName = resp.getAsString("check_operator_name");
-		for(auto &pkg: pkgList) {
+		ClinicLabel cLabel;
+		PackageLabel pLabel;
+			
+			
+		for (auto &pkg : pkgList) {
 			QVariantMap map = pkg.toMap();
-			label.packageId = map["package_id"].toString();
-			label.packageName = map["package_name"].toString();
-			label.packageFrom = map["department_name"].toString();
-			label.packageType = map["pack_type_name"].toString();
-			label.disinDate = map["sterilize_date"].toString().left(10);
-			label.expiryDate = map["expire_date"].toString();
-			label.count = map["instrument_num"].toInt();
-			printer->printPackageLabel(label);
+			if (map["package_category"].toInt() == 1)
+			{
+				cLabel.operatorName = resp.getAsString("pack_operator_name");
+				cLabel.assessorName = resp.getAsString("check_operator_name");
+				cLabel.packageId = map["package_id"].toString();
+				cLabel.packageName = map["package_name"].toString();
+				cLabel.packageFrom = map["department_name"].toString();
+				cLabel.disinDate = map["sterilize_date"].toString().left(10);
+				cLabel.expiryDate = map["expire_date"].toString();
+				printer->printClinicLabel(cLabel);
+			}
+			else
+			{
+				pLabel.operatorName = resp.getAsString("pack_operator_name");
+				pLabel.assessorName = resp.getAsString("check_operator_name");
+				pLabel.packageId = map["package_id"].toString();
+				pLabel.packageName = map["package_name"].toString();
+				pLabel.packageFrom = map["department_name"].toString();
+				pLabel.packageType = map["pack_type_name"].toString();
+				pLabel.disinDate = map["sterilize_date"].toString().left(10);
+				pLabel.expiryDate = map["expire_date"].toString();
+				pLabel.count = map["instrument_num"].toInt();
+				printer->printPackageLabel(pLabel);
+			}
+				
 		}
+		
 
 	});
 }

@@ -70,7 +70,7 @@ NoBCRecyclePanel::NoBCRecyclePanel(QWidget *parent)
 	layout->addWidget(_pkgView, 1, 0);
 	layout->addWidget(tip, 1, 1);
 
-	QTimer::singleShot(500, [this] { _deptEdit->load(DeptEdit::ALL); });
+	QTimer::singleShot(500, [this] { _deptEdit->load(DeptEdit::OPERATING_ROOM); });
 }
 
 bool NoBCRecyclePanel::accept() {
@@ -94,7 +94,13 @@ void NoBCRecyclePanel::handleBarcode(const QString &code) {
 }
 
 void NoBCRecyclePanel::updateDept(const QString &deptId) {
-	QByteArray data("{\"department_id\":");
+	if (Constant::OperatingRoomId != deptId.toInt())
+	{
+		XNotifier::warn(QString("请确认扫描手术室条码"));
+		return;
+	}
+	_deptEdit->setCurrentIdPicked(deptId.toInt(), QString("手术室"));
+	/*QByteArray data("{\"department_id\":");
 	data.append(deptId).append('}');
 	post(url(PATH_DEPT_SEARCH), data, [deptId, this](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
@@ -114,7 +120,7 @@ void NoBCRecyclePanel::updateDept(const QString &deptId) {
 
 		QString deptName = pkg["department_name"].toString();
 		_deptEdit->setCurrentIdPicked(deptId.toInt(), deptName);
-	});
+	});*/
 }
 
 void NoBCRecyclePanel::addPlate() {
