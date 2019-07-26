@@ -1,4 +1,5 @@
 #include "leftbar.h"
+#include "core/user.h"
 #include <QButtonGroup>
 
 LeftBar::LeftBar(QWidget *parent)
@@ -6,9 +7,12 @@ LeftBar::LeftBar(QWidget *parent)
 {
 	setupUi(this);
 
+	nameLabel->setText(Core::currentUser().name);
+
 	_btns->addButton(useButton, UseState);
 	_btns->addButton(historyButton, HistoryState);
 	//_btns->addButton(traceButton, TraceState);
+	
 
 	connect(_btns, SIGNAL(buttonClicked(int)),
 		this, SLOT(updateButtonGroupState(int)));
