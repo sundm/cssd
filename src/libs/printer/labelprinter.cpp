@@ -45,7 +45,7 @@ int LabelPrinter::open(const QString & strPrinterName)
 	}
 
 	return OK;
-#endif // SELL_DEBUG
+#endif //SELL_DEMO
 
 	
 	
