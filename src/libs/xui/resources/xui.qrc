@@ -2,5 +2,8 @@
     <qresource prefix="/xui">
         <file>clear.png</file>
         <file>search.png</file>
+        <file>zoom0.png</file>
+        <file>zoomin.png</file>
+        <file>zoomout.png</file>
     </qresource>
 </RCC>
