@@ -4,8 +4,8 @@
 #include "core/net/url.h"
 #include "xnotifier.h"
 #include "core/constants.h"
-#include "dialog/imgdialog.h"
 #include "widget/controls/clickedlabel.h"
+#include <xui/imageviewer.h>
 #include <QStandardItemModel>
 #include <QVBoxLayout>
 
@@ -312,6 +312,6 @@ void PackageDetailView::imgLoad(const QString& pkgTypeId)
 
 void PackageDetailView::imgClicked()
 {
-	ImgDialog *d = new ImgDialog(this, _imgFileName);
-	d->exec();
+	ImageViewer *viewer = new ImageViewer(_imgFileName);
+	viewer->showMaximized();
 }

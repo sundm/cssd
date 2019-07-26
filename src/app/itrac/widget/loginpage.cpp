@@ -71,9 +71,9 @@ namespace Widget {
 
 	LoginPanel::LoginPanel(Ui::Container *container /*= nullptr*/)
 		: Inner(container)
-		, userEdit(new Ui::FlatEdit("工号"))
-		, pwdEdit(new Ui::FlatEdit("密码"))
-		, error(new Ui::ErrorLabel("用户名或密码不正确"))
+		, userEdit(new Ui::FlatEdit("工号", this))
+		, pwdEdit(new Ui::FlatEdit("密码", this))
+		, error(new Ui::ErrorLabel("用户名或密码不正确", this))
 		, _waiter(new WaitingSpinner(this))
 	{
 		QVBoxLayout *layout = new QVBoxLayout(this);

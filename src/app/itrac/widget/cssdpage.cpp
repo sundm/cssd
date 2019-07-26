@@ -25,7 +25,7 @@ DoorPlate::DoorPlate() : QGraphicsObject(), _clickable(true) {
 
 	//setCacheMode(ItemCoordinateCache);
 	setCursor(Qt::PointingHandCursor);
-	setToolTip("click to flip");
+	setToolTip("点击切换工作区域");
 }
 
 void DoorPlate::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *) {
