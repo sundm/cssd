@@ -84,8 +84,8 @@ bool UsbHidKbwScanner::eventFilter(QObject *obj, QEvent *event)
 		if (!w) {
 			return false;
 		}
-		qDebug() << w;
-		qDebug("Ate key press %x", keyEvent->key());
+		//qDebug() << w;
+		//qDebug("Ate key press %x", keyEvent->key());
 
 		if (keyEvent->isAutoRepeat()) return false;
 
@@ -104,7 +104,7 @@ bool UsbHidKbwScanner::eventFilter(QObject *obj, QEvent *event)
 			else {
 				//qDebug("Ate key press %d", keyEvent->key());
 				_curText += keyEvent->text();
-				qDebug() << _curText;
+				//qDebug() << _curText;
 			}
 		}
 		else {

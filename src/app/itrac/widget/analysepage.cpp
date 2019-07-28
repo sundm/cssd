@@ -1,5 +1,7 @@
 #include "analysepage.h"
 #include "core/itracnamespace.h"
+#include "analyse/kpipage.h"
+#include "analyse/deptstatisticpage.h"
 #include "analyse/themewidget.h"
 
 #include <QtWidgets/QtWidgets>
@@ -76,6 +78,14 @@ void AnalysePage::showPage(int id)
 		//	page = new Costpage;
 		//	_tabWidget->addTab(page, "成本核算");
 		//	break;
+		case KPI:
+			page = new KpiPage(this);
+			_tabWidget->addTab(page, "人员绩效");
+			break;
+		case Dept:
+			page = new DeptStatisticsPage(this);
+			_tabWidget->addTab(page, "科室用包统计");
+			break;
 		case RealTime:
 			page = new ThemeWidget(this);
 			_tabWidget->addTab(page, "实时工作量");

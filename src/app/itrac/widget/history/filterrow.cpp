@@ -124,7 +124,7 @@ void UserFilterRow::reset()
 	_http.post(url(PATH_USER_SEARCH), QByteArray().append(data), [this](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
-			XNotifier::warn(QString("无法获取设备列表: ").append(resp.errorString()));
+			XNotifier::warn(QString("无法获取用户列表: ").append(resp.errorString()));
 			return;
 		}
 

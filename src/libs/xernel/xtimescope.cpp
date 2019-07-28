@@ -1,6 +1,13 @@
 #include "xtimescope.h"
 
-XDateScope::XDateScope(QDate f, QDate t) {
+XDateScope::XDateScope()
+{
+}
+
+XDateScope::XDateScope(QDate f, QDate t)
+	//: from(f)
+	//, to(t)
+{
 	from = f;
 	to = t;
 }
@@ -34,3 +41,14 @@ XDateScope::XDateScope(XPeriod p)
 	}
 }
 
+XDateScope getMonthDateScope(int year, int month)
+{
+	XDateScope ds;
+	ds.from.setDate(year, month, 1);
+	if (month > 11)
+		ds.to.setDate(year + 1, 1, 1);
+	else
+		ds.to.setDate(year, month + 1, 1);
+	ds.to = ds.to.addDays(-1);
+	return ds;
+}

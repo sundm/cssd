@@ -20,4 +20,8 @@ private slots:
 	void remove();
 	void submit();
 	void reset();
+	void showImageViewer();
+
+private:
+	void showImage(const QString &);
 };
