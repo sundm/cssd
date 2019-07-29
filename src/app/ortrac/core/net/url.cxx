@@ -2,7 +2,7 @@
 
 #include <QVariantMap>
 
-const QString Version("V1.0.3");
+const QString Version("V1.0.4");
 
 #ifdef SELL_DEMO
 const char PATH_BASE[] = "http://120.76.128.123:8082/CSSD/";

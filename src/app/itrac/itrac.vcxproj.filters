@@ -312,9 +312,6 @@
     <ClCompile Include="dialog\programdialog.cpp">
       <Filter>Source Files\dialog</Filter>
     </ClCompile>
-    <ClCompile Include="costpage.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="dialog\addcostingdialog.cpp">
       <Filter>Source Files\dialog</Filter>
     </ClCompile>
@@ -352,6 +349,9 @@
       <Filter>Source Files\dialog</Filter>
     </ClCompile>
     <ClCompile Include="widget\analyse\deptstatisticpage.cpp">
+      <Filter>Source Files\widget\analyse</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\analyse\costpage.cpp">
       <Filter>Source Files\widget\analyse</Filter>
     </ClCompile>
   </ItemGroup>
@@ -545,9 +545,6 @@
     <QtMoc Include="dialog\programdialog.h">
       <Filter>Source Files\dialog</Filter>
     </QtMoc>
-    <QtMoc Include="costpage.h">
-      <Filter>Source Files</Filter>
-    </QtMoc>
     <QtMoc Include="dialog\addcostingdialog.h">
       <Filter>Source Files\dialog</Filter>
     </QtMoc>
@@ -587,13 +584,13 @@
     <QtMoc Include="widget\analyse\deptstatisticpage.h">
       <Filter>Source Files\widget\analyse</Filter>
     </QtMoc>
+    <QtMoc Include="widget\analyse\costpage.h">
+      <Filter>Source Files\widget\analyse</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="historywidget.ui">
       <Filter>Form Files</Filter>
-    </QtUic>
-    <QtUic Include="widget\analyse\themewidget.ui">
-      <Filter>Source Files\widget\analyse</Filter>
     </QtUic>
   </ItemGroup>
   <ItemGroup>

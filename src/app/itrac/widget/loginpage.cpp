@@ -157,9 +157,9 @@ namespace Widget {
 						QProcess *pro = new QProcess(this);
 						QStringList args(PATH_BASE);
 #ifdef _DEBUG
-						pro->startDetached("updateCSSDd.exe", args);
+						pro->startDetached("updated.exe", args);
 #else
-						pro->startDetached("updateCSSD.exe", args);
+						pro->startDetached("update.exe", args);
 #endif // DEBUG
 						qApp->quit();
 						
