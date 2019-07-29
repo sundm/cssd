@@ -17,6 +17,8 @@ public:
 	QVariantList packages() const;
 	void addPackage(const QString &);
 	void rmPackage();
+	QString packageId(const QModelIndex &) const;
+
 private:
 	QStandardItemModel * _model;
 	JsonHttpClient _http;

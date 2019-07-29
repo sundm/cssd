@@ -15,11 +15,13 @@ UsePanel::UsePanel(QWidget *parent)
 	setupUi(this);
 	image->setBgColor(QColor(245, 246, 247));
 	image->setFixedHeight(256);
+
 	connect(submitButton, SIGNAL(clicked()), this, SLOT(submit()));
 	connect(resetButton, SIGNAL(clicked()), this, SLOT(reset()));
 	connect(bcInputBtn, SIGNAL(clicked()), this, SLOT(addEntry()));
 	connect(removeBtn, SIGNAL(clicked()), this, SLOT(remove()));
 	connect(image, SIGNAL(clicked()), this, SLOT(showImageViewer()));
+	connect(pkgView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(showDetail(const QModelIndex &)));
 }
 
 UsePanel::~UsePanel()
@@ -128,6 +130,10 @@ void UsePanel::showImageViewer()
 		ImageViewer *viewer = new ImageViewer(fileName);
 		viewer->showMaximized();
 	}
+}
+
+void UsePanel::showDetail(const QModelIndex &index) {
+	showImage(pkgView->packageId(index));
 }
 
 void UsePanel::showImage(const QString &pkgId)

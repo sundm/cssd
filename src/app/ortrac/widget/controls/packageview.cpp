@@ -62,3 +62,7 @@ void PackageView::addPackage(const QString &id) {
 		_model->appendRow(rowItems);
 	});
 }
+
+QString PackageView::packageId(const QModelIndex &index) const {
+	return _model->data(_model->index(index.row(), Barcode)).toString();
+}

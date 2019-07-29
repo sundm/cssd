@@ -59,6 +59,9 @@ QToolButton::checked {
        <property name="pixmap">
         <pixmap resource="../ortrac.qrc">:/res/user_female_96.png</pixmap>
        </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
       </widget>
      </item>
      <item row="1" column="1">
@@ -94,7 +97,7 @@ QToolButton::checked {
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>40</height>
+       <height>58</height>
       </size>
      </property>
     </spacer>
@@ -117,7 +120,7 @@ QToolButton::checked {
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>40</height>
+       <height>50</height>
       </size>
      </property>
     </spacer>

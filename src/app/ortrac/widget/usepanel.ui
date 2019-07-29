@@ -36,6 +36,9 @@ background: #f1f8ff;
    <item row="0" column="0">
     <widget class="QFrame" name="groupFrame2">
      <layout class="QGridLayout" name="gridLayout">
+      <property name="horizontalSpacing">
+       <number>15</number>
+      </property>
       <item row="0" column="2" rowspan="6">
        <widget class="QLabel" name="patientIcon">
         <property name="pixmap">

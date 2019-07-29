@@ -23,7 +23,8 @@ RecallPage::RecallPage(QWidget *parent)
 	_view->setModel(_model);
 	_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-	Ui::PrimaryButton *recallButton = new Ui::PrimaryButton("召回");
+	//Ui::PrimaryButton *recallButton = new Ui::PrimaryButton("召回", Ui::BtnSize::Small);
+	QPushButton *recallButton = new QPushButton("召回", this);
 	connect(recallButton, SIGNAL(clicked()), this, SLOT(recall()));
 	QHBoxLayout *hlayout = new QHBoxLayout;
 	hlayout->addWidget(_comboBox);

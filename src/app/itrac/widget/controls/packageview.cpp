@@ -4,7 +4,7 @@
 #include "core/net/url.h"
 #include "xnotifier.h"
 #include "core/constants.h"
-#include "widget/controls/clickedlabel.h"
+#include <xui/images.h>
 #include <xui/imageviewer.h>
 #include <QStandardItemModel>
 #include <QVBoxLayout>
@@ -236,7 +236,7 @@ PackageDetailView::PackageDetailView(QWidget *parent /*= nullptr*/)
 	: QWidget(parent)
 	, _view(new TableView)
 	, _model(new QStandardItemModel(0, 2, _view))
-	, _imgLabel(new ClickedLabel(this))
+	, _imgLabel(new XPicture(this))
 {
 	_model->setHeaderData(Name, Qt::Horizontal, "器械名");
 	_model->setHeaderData(Number, Qt::Horizontal, "数量");
@@ -252,9 +252,11 @@ PackageDetailView::PackageDetailView(QWidget *parent /*= nullptr*/)
 
 	vlayout->setStretch(1, 1);
 
+	_imgLabel->setFixedHeight(256);
+	_imgLabel->setBgColor(QColor(245, 246, 247));
 	_imgLabel->setHidden(true);
 
-	connect(_imgLabel, SIGNAL(Clicked()), this, SLOT(imgClicked()));
+	connect(_imgLabel, SIGNAL(clicked()), this, SLOT(imgClicked()));
 }
 
 void PackageDetailView::loadDetail(const QString& pkgTypeId) {
@@ -283,35 +285,13 @@ void PackageDetailView::loadDetail(const QString& pkgTypeId) {
 
 void PackageDetailView::imgLoad(const QString& pkgTypeId)
 {
-	QString StrWidth, StrHeigth;
-	_imgFileName = QString("./photo/package/%1.png").arg(pkgTypeId);
-	QImage* img = new QImage, *scaledimg = new QImage;
-	if (!(img->load(_imgFileName)))
-	{
-		_imgLabel->setHidden(true);
-		delete img;
-		return;
-	}
-	int Owidth = img->width(), Oheight = img->height();
-	float Fwidth, Fheight;       
-	int w = 400, h = 250;
-	_imgLabel->setGeometry(0, 0, w, h);
-
-	float Mul;            
-	if (Owidth / w >= Oheight / h)
-		Mul = float(Owidth * 1.0f / w);
-	else
-		Mul = float(Oheight * 1.0f / h);
-
-	Fwidth = Owidth / Mul;
-	Fheight = Oheight / Mul;
-	*scaledimg = img->scaled(ceil(Fwidth), ceil(Fheight), Qt::KeepAspectRatio);
-	_imgLabel->setPixmap(QPixmap::fromImage(*scaledimg));
+	QString fileName = QString("./photo/package/%1.png").arg(pkgTypeId);
+	_imgLabel->setImage(fileName);
 	_imgLabel->setHidden(false);
 }
 
 void PackageDetailView::imgClicked()
 {
-	ImageViewer *viewer = new ImageViewer(_imgFileName);
+	ImageViewer *viewer = new ImageViewer(_imgLabel->fileName());
 	viewer->showMaximized();
 }

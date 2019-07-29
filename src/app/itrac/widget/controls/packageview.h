@@ -4,7 +4,7 @@
 #include "core/net/jsonhttpclient.h"
 
 class QStandardItemModel;
-class ClickedLabel;
+class XPicture;
 
 class AbstractPackageView : public TableView
 {
@@ -89,11 +89,8 @@ private:
 	enum {Name, Number};
 	QTableView* _view;
 	QStandardItemModel* _model;
-	ClickedLabel* _imgLabel;
-
+	XPicture* _imgLabel;
 	JsonHttpClient _http;
-
-	QString _imgFileName;
 };
 
 

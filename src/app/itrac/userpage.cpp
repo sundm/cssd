@@ -28,12 +28,16 @@ UserPage::UserPage(QWidget *parent)
 void UserPage::initListView()
 {
 	_view->setModel(_userModel);
-	_view->setIconSize(QSize(64, 64));
-	_view->setSpacing(15);
-	//_view->setUniformItemSizes(true);
 	_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	_view->setMovement(QListView::Static);
 	_view->setViewMode(QListView::IconMode);
+	_view->setResizeMode(QListView::Adjust);
+	_view->setFlow(QListView::LeftToRight);
+	_view->setWrapping(true);
+	_view->setIconSize(QSize(64, 64));
+	_view->setSpacing(15);
+	//_view->setUniformItemSizes(true);
+	_view->setGridSize(QSize(168, 128));
 	_view->setContextMenuPolicy(Qt::CustomContextMenu);
 
 	connect(_view, &QListView::clicked, this, &UserPage::onViewItemClicked);

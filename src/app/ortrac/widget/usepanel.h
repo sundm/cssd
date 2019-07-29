@@ -21,6 +21,7 @@ private slots:
 	void submit();
 	void reset();
 	void showImageViewer();
+	void showDetail(const QModelIndex &);
 
 private:
 	void showImage(const QString &);
