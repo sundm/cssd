@@ -311,56 +311,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="res\910108.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="res\qr.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="res\package.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="res\minus-24.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="res\patient.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="res\history-36.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="res\trace-36.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="res\write-36.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="res\user_female_96.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="res\patient-128.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="res\edit-border-focus.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="res\login-bg.jpg">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="res\backward.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="res\end.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="res\forward.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="res\home.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-  </ItemGroup>
-  <ItemGroup>
     <QtRcc Include="ortrac.qrc">
       <Filter>Resource Files</Filter>
     </QtRcc>

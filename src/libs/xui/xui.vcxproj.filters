@@ -41,6 +41,9 @@
     <ClCompile Include="imageviewer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="images.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="qxtglobal.h">
@@ -72,6 +75,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="imageviewer.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="images.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

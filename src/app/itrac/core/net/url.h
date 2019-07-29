@@ -65,6 +65,9 @@ extern const char PATH_WARN_PKGS[];
 extern const char PATH_RECALL[];
 extern const char PATH_RECALL_SEARCH[];
 
+extern const char PATH_OP_STATISTICS[];
+extern const char PATH_DEPT_STATISTICS[];
+
 extern const char PATH_VERSION[];
 extern const char PATH_UPDATE[];
 

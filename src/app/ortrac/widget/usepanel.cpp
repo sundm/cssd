@@ -6,15 +6,20 @@
 #include "dialog/operatorchooser.h"
 #include "dialog/regexpinputdialog.h"
 #include "xnotifier.h"
+#include <xernel/xernel.h>
+#include <xui/imageviewer.h>
 
 UsePanel::UsePanel(QWidget *parent)
 	: Ui::Source(parent), Scanable()
 {
 	setupUi(this);
+	image->setBgColor(QColor(245, 246, 247));
+	image->setFixedHeight(256);
 	connect(submitButton, SIGNAL(clicked()), this, SLOT(submit()));
 	connect(resetButton, SIGNAL(clicked()), this, SLOT(reset()));
 	connect(bcInputBtn, SIGNAL(clicked()), this, SLOT(addEntry()));
 	connect(removeBtn, SIGNAL(clicked()), this, SLOT(remove()));
+	connect(image, SIGNAL(clicked()), this, SLOT(showImageViewer()));
 }
 
 UsePanel::~UsePanel()
@@ -28,8 +33,12 @@ void UsePanel::addEntry()
 	QString code = RegExpInputDialog::getText(this, "手工输入条码", "请输入包上的条码", "", regExp, &ok);
 	if (ok) {
 		Barcode bc(code);
-		if (bc.type() == Barcode::Package)
-			handleBarcode(code);
+		if (bc.type() == Barcode::Package) {
+			if (!pkgView->hasPackage(code)) {
+				pkgView->addPackage(code);
+				showImage(code);
+			}
+		}
 		else
 			XNotifier::warn(QString("请输入包条码"));
 	}
@@ -47,8 +56,10 @@ void UsePanel::remove()
 void UsePanel::handleBarcode(const QString &code) {
 	Barcode bc(code);
 	if (bc.type() == Barcode::Package) {
-		if (!pkgView->hasPackage(code))
+		if (!pkgView->hasPackage(code)) {
 			pkgView->addPackage(code);
+			showImage(code);
+		}
 	}
 	else if (bc.type() == Barcode::Action && code == "910108") {
 		submit();
@@ -108,4 +119,21 @@ void UsePanel::reset() {
 	roomEdit->clear();
 	deskEdit->clear();
 	pkgView->clear();
+}
+
+void UsePanel::showImageViewer()
+{
+	QString fileName = image->fileName();
+	if (!fileName.isEmpty()) {
+		ImageViewer *viewer = new ImageViewer(fileName);
+		viewer->showMaximized();
+	}
+}
+
+void UsePanel::showImage(const QString &pkgId)
+{
+	QString typeId = pkgId.mid(4, 4);
+	trimLeadingChar(typeId, '0');
+	QString fileName = QString("./photo/package/%1.png").arg(typeId);
+	image->setImage(fileName);
 }

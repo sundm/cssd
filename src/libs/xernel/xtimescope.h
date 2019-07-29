@@ -19,9 +19,12 @@ struct XERNEL_EXPORT XDateScope
 	QDate from;
 	QDate to;
 
+	XDateScope();
 	XDateScope(QDate f, QDate t);
 	XDateScope(XPeriod);
 
 };
+
+XDateScope XERNEL_EXPORT getMonthDateScope(int year, int month);
 
 #endif // !XTIMESCOPE_H
