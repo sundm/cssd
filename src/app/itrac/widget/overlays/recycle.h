@@ -28,6 +28,7 @@ private slots:
 	void removeEntry();
 	void addPlate();
 	void commit();
+	void loadPkg(int);
 
 private:
 	void initPackageView();

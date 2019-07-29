@@ -30,7 +30,7 @@ public:
 	void addPlate(int);
 	QVariantList plates() const;
 	void doPack(int, int);
-
+	void clear();
 //signals:
 //	void packed(const std::list<std::list<std::string>> &);
 

@@ -35,10 +35,10 @@
     <ClCompile Include="xdimmingeffect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="imageviewer.cpp">
+    <ClCompile Include="imagegraphicsview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="imagegraphicsview.cpp">
+    <ClCompile Include="imageviewer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="images.cpp">

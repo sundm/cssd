@@ -351,6 +351,9 @@
     <ClCompile Include="widget\controls\clickedlabel.cpp">
       <Filter>Source Files\widget\controls</Filter>
     </ClCompile>
+    <ClCompile Include="dialog\reprintdialog.cpp">
+      <Filter>Source Files\dialog</Filter>
+    </ClCompile>
     <ClCompile Include="widget\analyse\deptstatisticpage.cpp">
       <Filter>Source Files\widget\analyse</Filter>
     </ClCompile>
@@ -583,6 +586,9 @@
     </QtMoc>
     <QtMoc Include="widget\controls\clickedlabel.h">
       <Filter>Source Files\widget\controls</Filter>
+    </QtMoc>
+    <QtMoc Include="dialog\reprintdialog.h">
+      <Filter>Source Files\dialog</Filter>
     </QtMoc>
     <QtMoc Include="widget\analyse\deptstatisticpage.h">
       <Filter>Source Files\widget\analyse</Filter>

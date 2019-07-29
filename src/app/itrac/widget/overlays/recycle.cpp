@@ -33,7 +33,7 @@ NoBCRecyclePanel::NoBCRecyclePanel(QWidget *parent)
 	hLayout->addWidget(_deptEdit);
 	hLayout->addWidget(new QLabel("包类型"));
 	hLayout->addWidget(_pkgEdit);
-	connect(_deptEdit, SIGNAL(changed(int)), _pkgEdit, SLOT(loadForDepartment(int)));
+	connect(_deptEdit, SIGNAL(changed(int)), this, SLOT(loadPkg(int)));
 
 	QToolButton *addButton = new QToolButton;
 	addButton->setIcon(QIcon(":/res/add.png"));
@@ -71,6 +71,14 @@ NoBCRecyclePanel::NoBCRecyclePanel(QWidget *parent)
 	layout->addWidget(tip, 1, 1);
 
 	QTimer::singleShot(500, [this] { _deptEdit->load(DeptEdit::OPERATING_ROOM); });
+}
+
+void NoBCRecyclePanel::loadPkg(int depId)
+{
+	if (Constant::OperatingRoomId == depId)
+		_pkgEdit->loadForCategary("0");
+	else
+		_pkgEdit->loadForDepartment(depId);
 }
 
 bool NoBCRecyclePanel::accept() {
@@ -415,4 +423,5 @@ void OrRecyclePanel::updatePlate(const QString &plateId) {
 
 void OrRecyclePanel::reset() {
 	_pkgView->clear();
+	_detailView->clear();
 }

@@ -7,6 +7,7 @@
 #include "controls/packageview.h"
 #include "dialog/regexpinputdialog.h"
 #include "dialog/operatorchooser.h"
+#include "dialog/reprintdialog.h"
 #include "core/net/url.h"
 #include "xnotifier.h"
 #include <printer/labelprinter.h>
@@ -21,9 +22,12 @@ PackPanel::PackPanel(QWidget *parent) : CssdOverlayPanel(parent) {
 		"\n\n注意：请根据当前标签打印机选择对应的物品托盘";
 	Tip *tip = new Tip(text);
 	Ui::PrimaryButton *commitButton = new Ui::PrimaryButton("开始配包");
+	Ui::PrimaryButton *rePrintButton = new Ui::PrimaryButton("重新打印");
 	tip->addQr();
 	tip->addButton(commitButton);
+	tip->addButton(rePrintButton);
 	connect(commitButton, SIGNAL(clicked()), this, SLOT(commit()));
+	connect(rePrintButton, SIGNAL(clicked()), this, SLOT(reprint()));
 
 	Ui::IconButton *addPlateButton = new Ui::IconButton(":/res/fill-plate-24.png");
 	addPlateButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
@@ -65,6 +69,11 @@ void PackPanel::handleBarcode(const QString &code) {
 	}
 }
 
+void PackPanel::reprint() {
+	RePrintDialog *d = new RePrintDialog(this);
+	d->exec();
+}
+
 void PackPanel::commit() {
 	QVariantList plates = _plateView->plates();
 	if (plates.isEmpty()) {
@@ -79,6 +88,8 @@ void PackPanel::commit() {
 	if (0 == opId) return;
 
 	_plateView->doPack(opId, checkerId);
+
+	_detailView->clear();
 }
 
 void PackPanel::showDetail(const QModelIndex &index)
