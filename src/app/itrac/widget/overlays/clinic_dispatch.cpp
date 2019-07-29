@@ -86,7 +86,7 @@ ClinicDispatchPanel::ClinicDispatchPanel(QWidget *parent)
 		"\n\n注意：\n*实际发放的物品数量应与订单数量一致";
 	Tip *tip = new Tip(text);
 	_commitButton = new Ui::PrimaryButton("确定发放");
-	_commitButton->setEnabled(false);
+	//_commitButton->setEnabled(false);
 	tip->addQr();
 	tip->addButton(_commitButton);
 	connect(_commitButton, SIGNAL(clicked()), this, SLOT(commit()));
@@ -211,7 +211,7 @@ void ClinicDispatchPanel::addPackage(const QString& id) {
 
 		_scanModel->appendRow(rowItems);
 
-		_commitButton->setEnabled(checkNumber());
+		//_commitButton->setEnabled(checkNumber());
 	});
 }
 
@@ -235,8 +235,16 @@ void ClinicDispatchPanel::reset() {
 
 void ClinicDispatchPanel::commit() {
 	QModelIndexList indices = _view->selectedRows();
-	if (indices.isEmpty()) return;
+	if (indices.isEmpty()) {
+		XNotifier::warn(QString("请选择发放订单"));
+		return;
+	}
 	if (indices.size() > 1) return;
+
+	if (!checkNumber()) {
+		XNotifier::warn(QString("发放数量与订单不匹配，无法发放。"));
+		return;
+	}
 	
 	QModelIndex index = indices.first();
 

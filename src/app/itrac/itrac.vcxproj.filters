@@ -354,6 +354,9 @@
     <ClCompile Include="dialog\reprintdialog.cpp">
       <Filter>Source Files\dialog</Filter>
     </ClCompile>
+    <ClCompile Include="widget\analyse\deptstatisticpage.cpp">
+      <Filter>Source Files\widget\analyse</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="devicepage.h">
@@ -586,6 +589,9 @@
     </QtMoc>
     <QtMoc Include="dialog\reprintdialog.h">
       <Filter>Source Files\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\analyse\deptstatisticpage.h">
+      <Filter>Source Files\widget\analyse</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

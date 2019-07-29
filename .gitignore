@@ -29,7 +29,9 @@ dump/
 # temp backups
 *����*
 
-# VC++ user profile
+# VC++ profile
+*.sln
+*.vcxproj
 *.vcxproj.user
 
 log.txt
