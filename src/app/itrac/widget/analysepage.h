@@ -8,7 +8,7 @@ class AnalysePage : public QWidget
 	Q_OBJECT
 
 public:
-	enum {KPI, Device, Dept, RealTime};
+	enum {KPI, Device, Dept, Cost, RealTime};
 	AnalysePage(QWidget *parent = Q_NULLPTR);
 
 private slots:
