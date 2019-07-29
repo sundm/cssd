@@ -3,6 +3,7 @@
 #include "analyse/kpipage.h"
 #include "analyse/deptstatisticpage.h"
 #include "analyse/themewidget.h"
+#include "analyse/costpage.h"
 
 #include <QtWidgets/QtWidgets>
 
@@ -23,9 +24,11 @@ AnalysePage::AnalysePage(QWidget *parent)
 	vLayout->addWidget(kpiButton);
 	QPushButton *deptButton = new QPushButton("科室用包统计");
 	vLayout->addWidget(deptButton);
-	QPushButton *deviceButton = new QPushButton("设备运转分析");
-	vLayout->addWidget(deviceButton);
-	QPushButton *realtimeButton = new QPushButton("实时工作量");
+	//QPushButton *deviceButton = new QPushButton("设备运转分析");
+	//vLayout->addWidget(deviceButton);
+	QPushButton *costButton = new QPushButton("成本核算");
+	vLayout->addWidget(costButton);
+	QPushButton *realtimeButton = new QPushButton("更多统计");
 	vLayout->addWidget(realtimeButton);
 	vLayout->addStretch(0);
 
@@ -38,7 +41,7 @@ AnalysePage::AnalysePage(QWidget *parent)
 	QButtonGroup *btnGroup = new QButtonGroup(this);
 	btnGroup->addButton(kpiButton, KPI);
 	btnGroup->addButton(deptButton, Dept);
-	btnGroup->addButton(deviceButton, Device);
+	btnGroup->addButton(costButton, Cost);
 	btnGroup->addButton(realtimeButton, RealTime);
 	connect(btnGroup, QOverload<int>::of(&QButtonGroup::buttonClicked), this, &AnalysePage::showPage);
 }
@@ -50,34 +53,6 @@ void AnalysePage::showPage(int id)
 		// create it
 		switch (id)
 		{
-		//case itrac::DEVICE:
-		//	page = new DevicePage;
-		//	_tabWidget->addTab(page, "设备管理");
-		//	break;
-		//case itrac::PROGRAM:
-		//	page = new DeviceProgramPage;
-		//	_tabWidget->addTab(page, "设备预设程序管理");
-		//	break;
-		//case itrac::PACKAGE:
-		//	page = new PackagePage;
-		//	_tabWidget->addTab(page, "包管理");
-		//	break;
-		//case itrac::INSTRUMENT:
-		//	page = new InstrumentPage;
-		//	_tabWidget->addTab(page, "器械管理");
-		//	break;
-		//case itrac::DEPT:
-		//	page = new DepartmentPage;
-		//	_tabWidget->addTab(page, "科室");
-		//	break;
-		//case itrac::USER:
-		//	page = new UserPage;
-		//	_tabWidget->addTab(page, "用户管理");
-		//	break;
-		//case itrac::COST:
-		//	page = new Costpage;
-		//	_tabWidget->addTab(page, "成本核算");
-		//	break;
 		case KPI:
 			page = new KpiPage(this);
 			_tabWidget->addTab(page, "人员绩效");
@@ -86,9 +61,13 @@ void AnalysePage::showPage(int id)
 			page = new DeptStatisticsPage(this);
 			_tabWidget->addTab(page, "科室用包统计");
 			break;
+		case Cost:
+			page = new Costpage(this);
+			_tabWidget->addTab(page, "成本核算");
+			break;
 		case RealTime:
 			page = new ThemeWidget(this);
-			_tabWidget->addTab(page, "实时工作量");
+			_tabWidget->addTab(page, "更多统计");
 			break;
 		default: // this should never happen
 			break;

@@ -39,7 +39,6 @@ namespace itrac {
 		INSTRUMENT,
 		DEPT,
 		USER,
-		COST,
 		RECALL
 	};
 

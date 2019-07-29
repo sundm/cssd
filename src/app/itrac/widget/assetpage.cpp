@@ -2,7 +2,6 @@
 #include "devicepage.h"
 #include "deviceprogrampage.h"
 #include "userpage.h"
-#include "costpage.h"
 #include "assets/packagepage.h"
 #include "assets/instrumentpage.h"
 #include "assets/departmentpage.h"
@@ -36,8 +35,6 @@ AssetPage::AssetPage(QWidget *parent)
 	vLayout->addWidget(deptButton);
 	QPushButton *userButton = new QPushButton("用户");
 	vLayout->addWidget(userButton);
-	QPushButton *costButton = new QPushButton("成本核算");
-	vLayout->addWidget(costButton);
 	QPushButton *recallButton = new QPushButton("物品召回");
 	vLayout->addWidget(recallButton);
 	vLayout->addStretch(0);
@@ -55,7 +52,6 @@ AssetPage::AssetPage(QWidget *parent)
 	btnGroup->addButton(instrumentButton, itrac::INSTRUMENT);
 	btnGroup->addButton(deptButton, itrac::DEPT);
 	btnGroup->addButton(userButton, itrac::USER);
-	btnGroup->addButton(costButton, itrac::COST);
 	btnGroup->addButton(recallButton, itrac::RECALL);
 	connect(btnGroup, QOverload<int>::of(&QButtonGroup::buttonClicked), this, &AssetPage::showPage);
 }
@@ -90,10 +86,6 @@ void AssetPage::showPage(int id)
 		case itrac::USER:
 			page = new UserPage;
 			_tabWidget->addTab(page, "用户管理");
-			break;
-		case itrac::COST:
-			page = new Costpage;
-			_tabWidget->addTab(page, "成本核算");
 			break;
 		case itrac::RECALL:
 			page = new RecallPage;
