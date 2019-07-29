@@ -202,7 +202,7 @@ void PackPlateView::doPack(int opId, int checkId) {
 				cLabel.packageId = map["package_id"].toString();
 				cLabel.packageName = map["package_name"].toString();
 				cLabel.packageFrom = map["department_name"].toString();
-				cLabel.disinDate = map["sterilize_date"].toString().left(10);
+				cLabel.disinDate = map["sterilize_date"].toString();
 				cLabel.expiryDate = map["expire_date"].toString();
 				printer->printClinicLabel(cLabel);
 			}

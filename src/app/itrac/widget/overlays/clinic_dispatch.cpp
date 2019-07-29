@@ -114,10 +114,16 @@ void ClinicDispatchPanel::removeEntry() {
 	QItemSelectionModel *selModel = _scanView->selectionModel();
 	QModelIndexList indexes = selModel->selectedRows();
 	int countRow = indexes.count();
-	if (countRow) _commitButton->setEnabled(false);
+	//if (countRow) _commitButton->setEnabled(false);
 
 	for (int i = countRow; i > 0; i--) {
+		QString id = _scanModel->data(indexes.at(i - 1)).toString();
+		QString key = _scanModel->data(_scanModel->index(indexes.at(i - 1).row(), 1), Qt::UserRole + 1).toString();
 		_scanView->model()->removeRow(indexes.at(i - 1).row());
+		int num = _scanMap->value(key);
+		num--;
+		_scanMap->insert(key, num);
+		_codeList->removeAll(id);
 	}
 		
 }
