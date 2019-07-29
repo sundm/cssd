@@ -292,7 +292,7 @@ void PackageDetailView::imgLoad(const QString& pkgTypeId)
 
 void PackageDetailView::clear()
 {
-	_imgLabel->clear();
+	//_imgLabel->setImage();
 	_imgLabel->setHidden(true);
 	_model->removeRows(0, _model->rowCount());
 }
