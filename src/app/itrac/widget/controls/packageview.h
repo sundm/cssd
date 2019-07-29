@@ -79,6 +79,7 @@ class PackageDetailView : public QWidget
 public:
 	PackageDetailView(QWidget *parent = nullptr);
 	void loadDetail(const QString& pkgTypeId);
+	void clear();
 
 private slots:
 	void imgClicked();

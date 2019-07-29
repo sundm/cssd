@@ -168,6 +168,11 @@ void ClinicDispatchPanel::addPackage(const QString& id) {
 			return;
 		}
 
+		if (resp.getAsString("state") != "ST") {
+			XNotifier::warn(QString("包 [%1] 尚未完成灭菌审核，或者已发放").arg(id));
+			return;
+		}
+
 		if (!resp.getAsBool("sterilize_qualified")) {
 			XNotifier::warn(QString("该条码包灭菌未合格"), -1);
 			return;

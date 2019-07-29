@@ -277,7 +277,7 @@ background: #f1f8ff;
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
-          <widget class="QLabel" name="label">
+          <widget class="QLabel" name="imglabel">
            <property name="maximumSize">
             <size>
              <width>512</width>

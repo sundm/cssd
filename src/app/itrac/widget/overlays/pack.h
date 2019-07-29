@@ -19,7 +19,7 @@ private slots:
 	void commit();
 	void addPlate();
 	void showDetail(const QModelIndex &index);
-	//void print(const std::list<std::list<std::string>> & labels);
+	void reprint();
 
 private:
 	PackPlateView * _plateView;

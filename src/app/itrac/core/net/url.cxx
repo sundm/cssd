@@ -39,6 +39,8 @@ const char PATH_WASH_CHECK[] = "wash/check";
 const char PATH_WASH_SEARCH[] = "wash/search";
 const char PATH_PACK_ADD[] = "pack/add";
 const char PATH_PACK_SEARCH[] = "pack/search";
+const char PATH_PACK_REPRINT[] = "pack/rePack";
+
 const char PATH_PACKTYPE_SEARCH[] = "packType/search";
 const char PATH_STERILE_ADD[] = "sterilize/add";
 const char PATH_STERILE_INFO[] = "sterilize/info";

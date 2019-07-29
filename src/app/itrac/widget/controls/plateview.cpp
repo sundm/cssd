@@ -90,6 +90,11 @@ PackPlateView::PackPlateView(QWidget *parent)
 
 }
 
+void PackPlateView::clear()
+{
+	_model->removeRows(0, _model->rowCount());
+}
+
 void PackPlateView::addPlate(int id)
 {
 	QByteArray data("{\"plate_id\":");
@@ -217,7 +222,7 @@ void PackPlateView::doPack(int opId, int checkId) {
 				
 		}
 		
-
+		clear();
 	});
 }
 

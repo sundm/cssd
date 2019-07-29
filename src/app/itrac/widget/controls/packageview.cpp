@@ -310,6 +310,13 @@ void PackageDetailView::imgLoad(const QString& pkgTypeId)
 	_imgLabel->setHidden(false);
 }
 
+void PackageDetailView::clear()
+{
+	_imgLabel->clear();
+	_imgLabel->setHidden(true);
+	_model->removeRows(0, _model->rowCount());
+}
+
 void PackageDetailView::imgClicked()
 {
 	ImageViewer *viewer = new ImageViewer(_imgFileName);
