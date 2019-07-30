@@ -51,8 +51,9 @@ HistoryPage::HistoryPage(QWidget *parent)
 	mainLayout->addWidget(_view);
 
 	QHeaderView *header = _view->horizontalHeader();
+	header->setSectionResizeMode(QHeaderView::ResizeToContents);
 	header->setStretchLastSection(true);
-	header->setSectionResizeMode(QHeaderView::Stretch);
+	//header->setSectionResizeMode(QHeaderView::Stretch);
 }
 
 HistoryPage::~HistoryPage() {

@@ -23,6 +23,7 @@ private slots:
 	void on_click_btn();
 private:
 	Ui::WinsupdateClass ui;
+	bool isSuccess;
 	QString zipFileName;
 	QString zipFileMD5;
 	QFile *zipFile;

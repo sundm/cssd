@@ -22,6 +22,7 @@ const QString sz_update_url("file/updateOrtrac");
 Winsupdate::Winsupdate(QString &path_url, QWidget *parent)
 	: QMainWindow(parent)
 {
+	isSuccess = false;
 	ui.setupUi(this);
 	setWindowFlags(Qt::FramelessWindowHint);
 	netManager = new QNetworkAccessManager(this);
@@ -43,24 +44,25 @@ Winsupdate::Winsupdate(QString &path_url, QWidget *parent)
 
 void Winsupdate::on_click_btn()
 {
-	QProcess *pro = new QProcess(this);
+	if (isSuccess)
+	{
+		QProcess *pro = new QProcess(this);
 
 #ifdef ITRAC
 #ifdef _DEBUG
-	pro->startDetached("itracd.exe");
+		pro->startDetached("itracd.exe");
 #else
-	pro->startDetached("itrac.exe");
+		pro->startDetached("itrac.exe");
 #endif // _DEBUG
 #else
 #ifdef _DEBUG
-	pro->startDetached("ortracd.exe");
+		pro->startDetached("ortracd.exe");
 #else
-	pro->startDetached("ortrac.exe");
+		pro->startDetached("ortrac.exe");
 #endif // _DEBUG
 #endif // ITRAC
+	}
 
-
-		
 	qApp->quit();
 }
 
@@ -85,6 +87,7 @@ void Winsupdate::httpDownloadFinished(QNetworkReply *reply)
 		{
 			JlCompress::extractDir(zipFile->fileName(), QDir::currentPath()); 
 			ui.infoLabel->setText(QString::fromLocal8Bit("下载完成"));
+			isSuccess = true;
 		}
 		else
 			ui.infoLabel->setText(QString::fromLocal8Bit("文件md5校验失败"));
