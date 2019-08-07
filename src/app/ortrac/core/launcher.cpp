@@ -2,6 +2,8 @@
 #include "platform/platfom_specific.h"
 
 #include "application.h"
+#include "core/net/url.h"
+#include <QSettings>
 
 namespace Core {
 
@@ -27,6 +29,11 @@ namespace Core {
 	}
 
 	void Launcher::prepareSettings() {
+		QSettings *configIni = new QSettings("prepareSettings.ini", QSettings::IniFormat);
+
+		PATH_BASE = configIni->value("address/t").toString();
+
+		delete configIni;
 	}
 
 	void Launcher::initialize() {

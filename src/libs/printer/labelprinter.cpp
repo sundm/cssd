@@ -13,6 +13,7 @@ HANDLE m_hPrinter;
 BOOL RawDataToPrinter(const QString &labelContent);
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg);
 int g_type;
+bool isImgPrinter = false;
 
 LabelPrinter* PrinterFactory::Create(PRINTER_TYPE type)
 {
@@ -35,20 +36,20 @@ int LabelPrinter::open(const QString & strPrinterName)
 
 	m_szPrinterName = strPrinterName;
 	m_hPrinter = NULL;
-#ifdef SELL_DEMO
-	return OK;	//if (g_type == PrinterFactory::IMG_PRINTER) return OK;
-#else
-	if (!OpenPrinter((LPTSTR)m_szPrinterName.utf16(), &m_hPrinter, NULL))
-	{
-		qDebug() << "open " << m_szPrinterName << " Error!";
-		return PRINTER_OPEN_ERR;
+	if (strPrinterName.isEmpty() ||
+		strPrinterName.compare("IMG_PRINTER") == 0){
+		isImgPrinter = true;
+		return OK;
 	}
+	else {
+		if (!OpenPrinter((LPTSTR)m_szPrinterName.utf16(), &m_hPrinter, NULL))
+		{
+			qDebug() << "open " << m_szPrinterName << " Error!";
+			return PRINTER_OPEN_ERR;
+		}
 
-	return OK;
-#endif //SELL_DEMO
-
-	
-	
+		return OK;
+	}
 	
 }
 
@@ -69,58 +70,49 @@ int LabelPrinter::printPackageLabel(const PackageLabel & label)
 	QString szLabelContentBuilder;
 
 	//if (g_type == PrinterFactory::IMG_PRINTER) return buildPackageLabels(label, szLabelContentBuilder);
-#ifdef SELL_DEMO
-	return printPackageLabelsToImg(label);
-#else
-	buildPackageLabels(label, szLabelContentBuilder);
-	if (szLabelContentBuilder.isEmpty()) {
-		qDebug() << "package label string builder is empty!";
-		return INVALID_ERR;
+	if (isImgPrinter)
+		return printPackageLabelsToImg(label);
+	else {
+		buildPackageLabels(label, szLabelContentBuilder);
+		if (szLabelContentBuilder.isEmpty()) {
+			qDebug() << "package label string builder is empty!";
+			return INVALID_ERR;
+		}
+
+		return RawDataToPrinter(szLabelContentBuilder);
 	}
-
-	return RawDataToPrinter(szLabelContentBuilder);
-#endif // SELL_DEBUG
-
-
 }
 
 int LabelPrinter::printClinicLabel(const ClinicLabel & label)
 {
 	QString szLabelContentBuilder;
 
-	//if (g_type == PrinterFactory::IMG_PRINTER) return buildClinicLabels(label, szLabelContentBuilder);
-
-#ifdef SELL_DEMO
-	return printClinicLabelsToImg(label);
-#else
-	buildClinicLabels(label, szLabelContentBuilder);
-	if (szLabelContentBuilder.isEmpty()) {
-		qDebug() << "package label string builder is empty!";
-		return INVALID_ERR;
+	if (isImgPrinter)
+		return printClinicLabelsToImg(label);
+	else {
+		buildClinicLabels(label, szLabelContentBuilder);
+		if (szLabelContentBuilder.isEmpty()) {
+			qDebug() << "package label string builder is empty!";
+			return INVALID_ERR;
+		}
+		return RawDataToPrinter(szLabelContentBuilder);
 	}
-	return RawDataToPrinter(szLabelContentBuilder);
-#endif // SELL_DEBUG
-
-	
 }
 
 int LabelPrinter::printSterilizedLabel(const SterilizeLabel & label)
 {
 	QString szLabelContentBuilder;
 
-	//if (g_type == PrinterFactory::IMG_PRINTER) return buildSterilizedLabels(label, szLabelContentBuilder);
-
-#ifdef SELL_DEMO
-	return printSterilizedLabelsToImg(label);
-#else
-	buildSterilizedLabels(label, szLabelContentBuilder);
-	if (szLabelContentBuilder.isEmpty()) {
-		qDebug() << "package label string builder is empty!";
-		return INVALID_ERR;
+	if (isImgPrinter)
+		return printSterilizedLabelsToImg(label);
+	else {
+		buildSterilizedLabels(label, szLabelContentBuilder);
+		if (szLabelContentBuilder.isEmpty()) {
+			qDebug() << "package label string builder is empty!";
+			return INVALID_ERR;
 	}
-	return RawDataToPrinter(szLabelContentBuilder);
-#endif // SELL_DEBUG
-
+		return RawDataToPrinter(szLabelContentBuilder);
+	}
 }
 
 int LabelPrinter::printPackageLabelsToImg(const PackageLabel &label) {

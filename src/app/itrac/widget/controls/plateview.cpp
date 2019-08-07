@@ -152,7 +152,7 @@ QVariantList PackPlateView::plates() const {
 void PackPlateView::doPack(int opId, int checkId) {
 	// check printer
 	LabelPrinter *printer = PrinterManager::currentPrinter();
-	if (0 != printer->open("ZDesigner GT800 (ZPL)")) {
+	if (0 != printer->open(LABEL_PRINTER)) {
 		XNotifier::warn("打印机未就绪");
 		return;
 	}

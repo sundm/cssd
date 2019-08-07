@@ -1,9 +1,11 @@
 #pragma once
 
 //#include "jsonhttpclient.h"
+#include <QString>
 #include "jsonhttpresponse.h"
 
-extern const char PATH_BASE[];
+extern QString PATH_BASE;
+extern QString LABEL_PRINTER;
 extern const char PATH_PLATE_SEARCH[];
 extern const char PATH_DEPT_SEARCH[];
 extern const char PATH_DEVICE_ADD[];
@@ -33,6 +35,8 @@ extern const char PATH_PACK_ADD[];
 extern const char PATH_PACK_SEARCH[];
 extern const char PATH_PACK_REPRINT[];
 extern const char PATH_PACKTYPE_SEARCH[];
+extern const char PATH_PACKTYPE_ADD[];
+extern const char PATH_PACKTYPE_MODIFY[];
 extern const char PATH_STERILE_ADD[];
 extern const char PATH_STERILE_INFO[];
 extern const char PATH_STERILE_CHECK[];

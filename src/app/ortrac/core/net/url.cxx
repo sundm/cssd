@@ -4,14 +4,7 @@
 
 const QString Version("V1.1.0");
 
-#ifdef SELL_DEMO
-const char PATH_BASE[] = "http://120.76.128.123:8082/CSSD/";
-#endif //SELL_DEMO
-
-
-#ifdef LOCAL_DEMO
-const char PATH_BASE[] = "http://localhost:8080/CSSD/";
-#endif //LOCAL_DEMO
+QString PATH_BASE;
 
 const char PATH_PLATE_SEARCH[] = "plate/search";
 const char PATH_DEPT_SEARCH[] = "department/search";

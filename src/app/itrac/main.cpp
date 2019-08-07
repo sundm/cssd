@@ -9,7 +9,7 @@
 void testPrinter()
 {
 	LabelPrinter *printer = PrinterManager::currentPrinter();
-	if (0 != printer->open("ZDesigner GT800 (EPL)")) {
+	if (0 != printer->open(LABEL_PRINTER)) {
 		return;
 	}
 	printer->setInversion(true);

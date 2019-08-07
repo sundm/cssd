@@ -11,7 +11,7 @@ TracePage::TracePage(QWidget *parent)
 	: QWidget(parent), _searchBox(new SearchEdit), _grid(new QGridLayout)
 {
 	_grid->setSpacing(100);
-	_searchBox->setPlaceholderText("物品包ID/病人ID");
+	_searchBox->setPlaceholderText("物品包ID");
 	_searchBox->setMinimumHeight(36);
 	connect(_searchBox, &QLineEdit::returnPressed, this, &TracePage::startTrace);
 

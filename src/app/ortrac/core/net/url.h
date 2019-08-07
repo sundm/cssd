@@ -8,7 +8,7 @@
 class QNetworkReply;
 
 extern const QString Version;
-extern const char PATH_BASE[];
+extern QString PATH_BASE;
 extern const char PATH_PLATE_SEARCH[];
 extern const char PATH_DEPT_SEARCH[];
 extern const char PATH_USER_LOGIN[];

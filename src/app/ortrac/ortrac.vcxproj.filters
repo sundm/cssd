@@ -315,4 +315,22 @@
       <Filter>Resource Files</Filter>
     </QtRcc>
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\910108.png" />
+    <Image Include="res\backward.png" />
+    <Image Include="res\edit-border-focus.png" />
+    <Image Include="res\end.png" />
+    <Image Include="res\forward.png" />
+    <Image Include="res\history-36.png" />
+    <Image Include="res\home.png" />
+    <Image Include="res\login-bg.jpg" />
+    <Image Include="res\minus-24.png" />
+    <Image Include="res\package.png" />
+    <Image Include="res\patient-128.png" />
+    <Image Include="res\patient.png" />
+    <Image Include="res\qr.png" />
+    <Image Include="res\trace-36.png" />
+    <Image Include="res\user_female_96.png" />
+    <Image Include="res\write-36.png" />
+  </ItemGroup>
 </Project>

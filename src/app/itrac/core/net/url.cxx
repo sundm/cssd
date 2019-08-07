@@ -2,14 +2,16 @@
 
 #include <QVariantMap>
 
-#ifdef SELL_DEMO
-const char PATH_BASE[] = "http://120.76.128.123:8082/CSSD/";
-#endif //SELL_DEMO
+//#ifdef SELL_DEMO
+//char PATH_BASE[] = "http://120.76.128.123:8082/CSSD/";
+//#endif //SELL_DEMO
+//
+//#ifdef LOCAL_DEMO
+//char PATH_BASE[] = "http://localhost:8080/CSSD/";
+//#endif //LOCAL_DEMO
 
-#ifdef LOCAL_DEMO
-const char PATH_BASE[] = "http://localhost:8080/CSSD/";
-#endif //LOCAL_DEMO
-
+QString PATH_BASE;
+QString LABEL_PRINTER;
 const char PATH_PLATE_SEARCH[] = "plate/search";
 const char PATH_DEPT_SEARCH[] = "department/search";
 const char PATH_DEVICE_ADD[] = "device/add";
@@ -40,6 +42,8 @@ const char PATH_PACK_SEARCH[] = "pack/search";
 const char PATH_PACK_REPRINT[] = "pack/rePack";
 
 const char PATH_PACKTYPE_SEARCH[] = "packType/search";
+const char PATH_PACKTYPE_ADD[] = "packType/add";
+const char PATH_PACKTYPE_MODIFY[] = "packType/modify";
 const char PATH_STERILE_ADD[] = "sterilize/add";
 const char PATH_STERILE_INFO[] = "sterilize/info";
 const char PATH_STERILE_CHECK[] = "sterilize/addPlateTest";

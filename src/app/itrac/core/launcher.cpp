@@ -2,6 +2,8 @@
 #include "platform/platfom_specific.h"
 
 #include "application.h"
+#include "core/net/url.h"
+#include <QSettings>
 
 namespace Core {
 
@@ -19,6 +21,9 @@ namespace Core {
 		initialize();
 
 		Application app(this, _argc, _argv);
+		//QFont font = app.font();
+		//font.setPointSize(12);
+		//app.setFont(font);
 		return app.exec();
 	}
 
@@ -27,6 +32,13 @@ namespace Core {
 	}
 
 	void Launcher::prepareSettings() {
+		QSettings *configIni = new QSettings("prepareSettings.ini", QSettings::IniFormat);
+
+		PATH_BASE = configIni->value("address/t").toString();
+
+		LABEL_PRINTER = configIni->value("printer/label").toString();
+
+		delete configIni;
 	}
 
 	void Launcher::initialize() {

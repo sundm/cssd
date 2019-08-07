@@ -354,6 +354,12 @@
     <ClCompile Include="widget\analyse\costpage.cpp">
       <Filter>Source Files\widget\analyse</Filter>
     </ClCompile>
+    <ClCompile Include="widget\assets\packtypepage.cpp">
+      <Filter>Source Files\widget\assets</Filter>
+    </ClCompile>
+    <ClCompile Include="dialog\packtypedialog.cpp">
+      <Filter>Source Files\dialog</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="devicepage.h">
@@ -586,6 +592,12 @@
     </QtMoc>
     <QtMoc Include="widget\analyse\costpage.h">
       <Filter>Source Files\widget\analyse</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\assets\packtypepage.h">
+      <Filter>Source Files\widget\assets</Filter>
+    </QtMoc>
+    <QtMoc Include="dialog\packtypedialog.h">
+      <Filter>Source Files\dialog</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

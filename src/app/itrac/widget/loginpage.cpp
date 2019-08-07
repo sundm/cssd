@@ -26,7 +26,7 @@
 void testPrinter()
 {
 	LabelPrinter *printer = PrinterManager::currentPrinter();
-	if (0 != printer->open("ZDesigner GT800 (EPL)")) {
+	if (0 != printer->open(LABEL_PRINTER)) {
 		return;
 	}
 	printer->setInversion(true);
@@ -81,6 +81,7 @@ namespace Widget {
 		Ui::Title *titleLabel = new Ui::Title("欢迎使用 Winstrac 桌面");
 		//Ui::Description *descLabel = new Ui::Description("请输入工号和密码登录系统，或者直接扫描您的工牌");
 		Ui::Description *descLabel = new Ui::Description("我们致力于更便捷的数字化消毒供应室信息追溯管理");
+		descLabel->setMinimumWidth(300);
 		layout->addWidget(titleLabel);
 		layout->addWidget(descLabel);
 

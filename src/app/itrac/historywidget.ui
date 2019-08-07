@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1054</width>
-    <height>538</height>
+    <height>784</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -62,6 +62,12 @@ border-color: #808080;
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>100</height>
+         </size>
+        </property>
         <property name="text">
          <string>回收</string>
         </property>
@@ -74,6 +80,12 @@ border-color: #808080;
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>100</height>
+         </size>
         </property>
         <property name="text">
          <string>清洗</string>
@@ -88,6 +100,12 @@ border-color: #808080;
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>100</height>
+         </size>
+        </property>
         <property name="text">
          <string>配包</string>
         </property>
@@ -101,6 +119,12 @@ border-color: #808080;
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>100</height>
+         </size>
+        </property>
         <property name="text">
          <string>灭菌</string>
         </property>
@@ -113,6 +137,12 @@ border-color: #808080;
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>100</height>
+         </size>
         </property>
         <property name="text">
          <string>发放</string>
@@ -128,6 +158,12 @@ border-color: #808080;
       </item>
       <item>
        <widget class="QPushButton" name="traceButton">
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>100</height>
+         </size>
+        </property>
         <property name="text">
          <string>追溯</string>
         </property>

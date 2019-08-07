@@ -85,7 +85,13 @@ void PackPanel::commit() {
 	if (0 == opId) return;
 
 	int checkerId = OperatorChooser::get(this, this);
-	if (0 == opId) return;
+	if (0 == checkerId) return;
+
+	if (checkerId == opId)
+	{
+		XNotifier::warn("不允许使用同一个操作员进行审核");
+		return;
+	}
 
 	_plateView->doPack(opId, checkerId);
 

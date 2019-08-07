@@ -3,6 +3,7 @@
 #include "deviceprogrampage.h"
 #include "userpage.h"
 #include "assets/packagepage.h"
+#include "assets/packtypepage.h"
 #include "assets/instrumentpage.h"
 #include "assets/departmentpage.h"
 #include "assets/recallpage.h"
@@ -29,6 +30,8 @@ AssetPage::AssetPage(QWidget *parent)
 	vLayout->addWidget(programButton);
 	QPushButton *pkgButton = new QPushButton("包");
 	vLayout->addWidget(pkgButton);
+	QPushButton *pkgTypeButton = new QPushButton("打包类型");
+	vLayout->addWidget(pkgTypeButton);
 	QPushButton *instrumentButton = new QPushButton("器械");
 	vLayout->addWidget(instrumentButton);
 	QPushButton *deptButton = new QPushButton("科室");
@@ -49,6 +52,7 @@ AssetPage::AssetPage(QWidget *parent)
 	btnGroup->addButton(deviceButton, itrac::DEVICE);
 	btnGroup->addButton(programButton, itrac::PROGRAM);
 	btnGroup->addButton(pkgButton, itrac::PACKAGE);
+	btnGroup->addButton(pkgTypeButton, itrac::PACKTYPE);
 	btnGroup->addButton(instrumentButton, itrac::INSTRUMENT);
 	btnGroup->addButton(deptButton, itrac::DEPT);
 	btnGroup->addButton(userButton, itrac::USER);
@@ -74,6 +78,10 @@ void AssetPage::showPage(int id)
 		case itrac::PACKAGE:
 			page = new PackagePage;
 			_tabWidget->addTab(page, "包管理");
+			break;
+		case itrac::PACKTYPE:
+			page = new PacktypePage;
+			_tabWidget->addTab(page, "打包类型管理");
 			break;
 		case itrac::INSTRUMENT:
 			page = new InstrumentPage;

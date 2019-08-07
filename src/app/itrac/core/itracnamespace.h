@@ -36,6 +36,7 @@ namespace itrac {
 		DEVICE,
 		PROGRAM,
 		PACKAGE,
+		PACKTYPE,
 		INSTRUMENT,
 		DEPT,
 		USER,
