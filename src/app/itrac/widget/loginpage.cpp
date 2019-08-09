@@ -114,7 +114,40 @@ namespace Widget {
 	}
 
 	void LoginPanel::submit() {
-		//testPrinter();
+		//LabelPrinter *printer = PrinterManager::currentPrinter();
+		//printer->open(COMMON_PRINTER);
+		//Issues issues;
+		//issues.deptName = "手术室";
+		//issues.date = "2019/08/08";
+
+		//package p;
+		//p.name = "成人体循器械（每份112把）";
+		//p.count = 10;
+		//QList<package> list;
+		//list.append(p);
+		//list.append(p);
+		//list.append(p);
+		//list.append(p);
+		//list.append(p);
+		//list.append(p);
+		//list.append(p);
+		//list.append(p);
+		//list.append(p);
+		//list.append(p);
+		//list.append(p);
+		//list.append(p);
+		//list.append(p);
+		//list.append(p);
+		//list.append(p);
+		//list.append(p);
+		//list.append(p);
+		//list.append(p);
+		//issues.packages = list;
+
+		//issues.operName = "周玲玲";
+		//issues.orderId = "17000001";
+
+		//printer->printIssue(issues, PaperType::recycle);
 		//return;
 		
 		QString user(userEdit->text());

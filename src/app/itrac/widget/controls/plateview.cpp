@@ -222,6 +222,7 @@ void PackPlateView::doPack(int opId, int checkId) {
 				
 		}
 		
+		printer->close();
 		clear();
 	});
 }

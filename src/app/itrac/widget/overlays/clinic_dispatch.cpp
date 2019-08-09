@@ -12,6 +12,8 @@
 #include "dialog/regexpinputdialog.h"
 #include "widget/overlays/tips.h"
 #include <xernel/xtimescope.h>
+#include <printer/labelprinter.h>
+#include "util/printermanager.h"
 #include <QtWidgets/QtWidgets>
 
 ClinicDispatchPanel::ClinicDispatchPanel(QWidget *parent)
@@ -240,6 +242,7 @@ void ClinicDispatchPanel::reset() {
 }
 
 void ClinicDispatchPanel::commit() {
+	Issues is;
 	QModelIndexList indices = _view->selectedRows();
 	if (indices.isEmpty()) {
 		XNotifier::warn(QString("请选择发放订单"));
@@ -257,11 +260,33 @@ void ClinicDispatchPanel::commit() {
 	int order = _model->data(_model->index(index.row(), 0)).toInt();
 	int deptId = _model->data(_model->index(index.row(), 1), Qt::UserRole + 1).toInt();
 
-	int recvId = ClinicerChooser::get(this, this);
-	if (0 == recvId) return;
+	is.orderId = QString::number(order);
+	is.deptName = _model->data(_model->index(index.row(), 1)).toString();
 
-	int opId = OperatorChooser::get(this, this);
+	ClinicerChooser chooser(this, this, deptId);
+	int recvId = (QDialog::Accepted == chooser.exec()) ? chooser.getId() : 0;
+	if (0 == recvId) return;
+	is.applyName = chooser.getName();
+
+	OperatorChooser opChooser(this, this);
+	int opId = (QDialog::Accepted == opChooser.exec()) ? opChooser.getId() : 0;
 	if (0 == opId) return;
+	is.operName = opChooser.getName();
+
+	is.date = _model->data(_model->index(index.row(), 3)).toString().left(10);
+
+	QList<package> packages;
+	for (int i = 0; i < _detailModel->rowCount(); i++)
+	{
+		package p;
+		QString pkgName = _detailModel->item(i, 0)->text();
+		int pkgNum = _detailModel->item(i, 1)->text().toInt();
+		p.name = pkgName;
+		p.count = pkgNum;
+
+		packages.append(p);
+	}
+	is.packages = packages;
 
 	QVariantList pkgList;
 	for (int i = 0; i < _scanModel->rowCount(); i++) {
@@ -281,6 +306,14 @@ void ClinicDispatchPanel::commit() {
 		if (!resp.success())
 			XNotifier::warn(QString("发放登记错误: ").append(resp.errorString()));
 		else {
+			//todo print
+			LabelPrinter *printer = PrinterManager::currentPrinter();
+			printer->open(COMMON_PRINTER);
+
+			printer->printIssue(is, PaperType::dispatch);
+
+			printer->close();
+
 			XNotifier::warn("已完成发放登记");
 			reset();
 		}

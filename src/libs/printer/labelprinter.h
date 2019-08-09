@@ -38,6 +38,27 @@ struct SterilizeLabel				//消毒标签
 	int packageNum = 0;				//灭菌包数
 };
 
+struct package
+{
+	QString name;
+	int count = 0;
+};
+
+enum PaperType
+{
+	recycle,dispatch
+};
+
+struct Issues
+{
+	QString orderId;
+	QString deptName;
+	QString date;
+	QString operName;
+	QString applyName;
+	QList<package> packages;
+};
+
 class LABELPRINTER_EXPORT LabelPrinter
 {
 public:
@@ -58,6 +79,7 @@ public:
 	//设置打印字体是否为粗体，默认为否
 	virtual void setBold(const bool isBold) = 0;
 
+	int printIssue(const Issues &issues, PaperType type);
 private:
 	QString m_szPrinterName;
 	
@@ -69,7 +91,11 @@ private:
 	int printPackageLabelsToImg(const PackageLabel &label);
 	int printClinicLabelsToImg(const ClinicLabel &label);
 	int printSterilizedLabelsToImg(const SterilizeLabel &label);
+
+	int printPage(const Issues &issues, PaperType type, int page, int total);
+	
 	mutable Zint::QZint bc;
+	int _count;
 };
 
 class LABELPRINTER_EXPORT PrinterFactory {

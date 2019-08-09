@@ -1,5 +1,6 @@
 #include "clinic.h"
 #include "xnotifier.h"
+#include "core/user.h"
 #include "core/barcode.h"
 #include "core/application.h"
 #include "core/net/url.h"
@@ -12,21 +13,27 @@
 #include "dialog/regexpinputdialog.h"
 #include "widget/overlays/tips.h"
 #include <xernel/xtimescope.h>
+#include <printer/labelprinter.h>
+#include "util/printermanager.h"
 #include <QtWidgets/QtWidgets>
+
+Issues _issues;
+bool _hasIssues = false;
 
 ClinicPanel::ClinicPanel(QWidget *parent)
 	: CssdOverlayPanel(parent)
 	, _view(new TableView)
 	, _detailView(new TableView)
-	, _model(new QStandardItemModel(0, 3, _view))
+	, _model(new QStandardItemModel(0, 4, _view))
 	, _detailModel(new QStandardItemModel(0, 3, _view))
 	, _title(new Composite::Title("订单详情", false))
 	, _waiter(new WaitingSpinner(this))
 {
 	// setup package view info
 	_model->setHeaderData(0, Qt::Horizontal, "订单号");
-	_model->setHeaderData(1, Qt::Horizontal, "科室");
-	_model->setHeaderData(2, Qt::Horizontal, "订单生成时间");
+	_model->setHeaderData(1, Qt::Horizontal, "申请科室");
+	_model->setHeaderData(2, Qt::Horizontal, "申请人");
+	_model->setHeaderData(3, Qt::Horizontal, "订单生成时间");
 	//_model->setHeaderData(3, Qt::Horizontal, "操作");
 	_view->setModel(_model);
 	_view->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -59,9 +66,12 @@ ClinicPanel::ClinicPanel(QWidget *parent)
 		"\n\n注意：\n*实际回收的物品数量应与订单数量一致\n*超过1周未处理的订单系统自动作废";
 	Tip *tip = new Tip(text);
 	Ui::PrimaryButton *commitButton = new Ui::PrimaryButton("确定回收");
+	Ui::PrimaryButton *printButton = new Ui::PrimaryButton("打印订单");
 	tip->addQr();
 	tip->addButton(commitButton);
+	tip->addButton(printButton);
 	connect(commitButton, SIGNAL(clicked()), this, SLOT(commit()));
+	connect(printButton, SIGNAL(clicked()), this, SLOT(print()));
 
 	QHBoxLayout *layout = new QHBoxLayout(this);
 	layout->addWidget(_view);
@@ -130,6 +140,23 @@ void ClinicPanel::reset() {
 	loadOrders();
 }
 
+void ClinicPanel::print() {
+	if (_hasIssues)
+	{
+		LabelPrinter *printer = PrinterManager::currentPrinter();
+		printer->open(COMMON_PRINTER);
+
+		printer->printIssue(_issues, PaperType::recycle);
+
+		printer->close();
+	}
+	else
+	{
+		XNotifier::warn(QString("请先选择申请订单."));
+		return;
+	}
+}
+
 void ClinicPanel::commit() {
 	QModelIndexList indices = _view->selectedRows();
 	if (indices.isEmpty()) {
@@ -191,29 +218,42 @@ void ClinicPanel::loadOrders() {
 			QVariantMap map = orders[i].toMap();
 			_model->setData(_model->index(i, 0), map["order_id"]);
 			_model->setData(_model->index(i, 1), map["dept_name"]);
-			_model->setData(_model->index(i, 2), map["s_date"]);
+			_model->setData(_model->index(i, 2), map["s_name"]);
+			_model->setData(_model->index(i, 3), map["s_date"]);
 			//_view->setIndexWidget(_model->index(i, 3), new QPushButton("查看详情"));
 		}
 	});
 }
 
 void ClinicPanel::showDetail(const QModelIndex &index) {
+	_hasIssues = false;
 	int row = index.row();
 	int order = _model->data(_model->index(row, 0)).toInt();
+	
 	QString deptName = _model->data(_model->index(row, 1)).toString();
 	_title->setTitle(QString("%1(%2)").arg(deptName).arg(order));
 	_detailView->clear();
 
+	_issues.orderId = QString::number(order);
+	_issues.deptName = deptName;
+	_issues.operName = Core::currentUser().name;
+	_issues.applyName = _model->data(_model->index(row, 2)).toString();
+	_issues.date = _model->data(_model->index(row, 3)).toString().left(10);
+
+
 	QByteArray data("{\"order_id\":");
 	data.append(QString::number(order)).append('}');
 	_waiter->start();
+	
 	post(url(PATH_ORDER_PKGINFO), data, [this](QNetworkReply *reply) {
 		_waiter->stop();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
+			_hasIssues = false;
 			return;
 		}
 
+		QList<package> packages;
 		QList<QVariant> orders = resp.getAsList("orders_pkg");
 		_detailModel->insertRows(0, orders.count());
 		for (int i = 0; i != orders.count(); ++i) {
@@ -221,6 +261,16 @@ void ClinicPanel::showDetail(const QModelIndex &index) {
 			_detailModel->setData(_detailModel->index(i, 0), map["package_type_name"]);
 			_detailModel->setData(_detailModel->index(i, 1), map["num"]);
 			_detailModel->setData(_detailModel->index(i, 2), QString("请扫描篮筐条码"));
+
+			package p;
+			p.name = map["package_type_name"].toString();
+			p.count = map["num"].toInt();
+
+			packages.append(p);
 		}
+
+		_issues.packages = packages;
+
+		_hasIssues = true;
 	});
 }

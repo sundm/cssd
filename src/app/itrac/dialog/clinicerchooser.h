@@ -17,6 +17,7 @@ public:
     explicit ClinicerChooser(Scanable* candidate = nullptr, QWidget *parent = nullptr, int deptId = 0);
 
 	int getId() const { return _opId; }
+	QString getName() const { return _opName; }
 	static int get(Scanable* candidate = nullptr, QWidget *parent = nullptr, int deptId = 0);
 
 protected:
@@ -28,6 +29,7 @@ private:
 
 	int _deptId;
 	int _opId;
+	QString _opName;
 };
 
 #endif // !CLINICHOOSE_H

@@ -12,6 +12,7 @@
 
 QString PATH_BASE;
 QString LABEL_PRINTER;
+QString COMMON_PRINTER;
 const char PATH_PLATE_SEARCH[] = "plate/search";
 const char PATH_DEPT_SEARCH[] = "department/search";
 const char PATH_DEVICE_ADD[] = "device/add";

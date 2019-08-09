@@ -92,6 +92,7 @@ void RePrintDialog::accept() {
 		
 	}
 	
+	printer->close();
 	QDialog::accept();
 }
 

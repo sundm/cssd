@@ -38,6 +38,8 @@ namespace Core {
 
 		LABEL_PRINTER = configIni->value("printer/label").toString();
 
+		COMMON_PRINTER = configIni->value("printer/common").toString();
+
 		delete configIni;
 	}
 

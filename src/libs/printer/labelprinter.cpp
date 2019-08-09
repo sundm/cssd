@@ -8,6 +8,9 @@
 #include <qtextstream.h>
 #include "ZebraGT8.h"
 #include "qdebug.h"
+#include <qprinter.h>
+#include <QPageSetupDialog>
+#include "qmath.h"
 
 HANDLE m_hPrinter;
 BOOL RawDataToPrinter(const QString &labelContent);
@@ -47,7 +50,7 @@ int LabelPrinter::open(const QString & strPrinterName)
 			qDebug() << "open " << m_szPrinterName << " Error!";
 			return PRINTER_OPEN_ERR;
 		}
-
+		isImgPrinter = false;
 		return OK;
 	}
 	
@@ -115,9 +118,134 @@ int LabelPrinter::printSterilizedLabel(const SterilizeLabel & label)
 	}
 }
 
+int LabelPrinter::printIssue(const Issues &issues, PaperType type)
+{
+	Issues is = issues;
+	_count = 0;
+	QList<package> out;
+	QList<package> p = issues.packages;
+	int count = p.count();
+	int total = qCeil(count / 15.0);
+	int page = 1;
+	for (int i = 0; i < count; i++)
+	{
+		out.append(p.at(i));
+		if (out.count() == 15)
+		{
+			is.packages = out;
+			printPage(is, type, page, total);
+			out.clear();
+			page++;
+		}
+	}
+	is.packages = out;
+	printPage(is, type, page, total);
+
+	return OK;
+}
+
+int LabelPrinter::printPage(const Issues &issues, PaperType type, int page, int total)
+{
+	QPainter *painter;
+	QPixmap *pix;
+	QPrinter printer;
+	if (isImgPrinter){
+		pix = new QPixmap(740, 1050);
+		painter = new QPainter(pix);
+		painter->begin(pix);
+	}
+	else {
+		printer.setPrinterName(m_szPrinterName);
+		printer.setPageSize(QPrinter::A5);
+		printer.setPaperSource(QPrinter::Auto);
+		painter = new QPainter(&printer);
+		painter->begin(&printer);
+	}
+
+	QFont titleFont("黑体", 18, QFont::Bold);
+	painter->setFont(titleFont);
+	painter->drawText(300, 40, type == PaperType::dispatch ? QString::fromLocal8Bit("发放单") : QString::fromLocal8Bit("回收单"));
+
+	QFont font("黑体", 14, QFont::Normal);
+	painter->setFont(font);
+	painter->drawText(80, 90, QString::fromLocal8Bit("科室：%1").arg(issues.deptName));
+	painter->drawText(400, 90, QString::fromLocal8Bit("日期：%1").arg(issues.date));
+
+	if (type == PaperType::dispatch)
+	{
+		painter->drawText(80, 130, QString::fromLocal8Bit("发放人：%1").arg(issues.operName));
+		painter->drawText(400, 130, QString::fromLocal8Bit("接收人：%1").arg(issues.applyName));
+	}
+	else
+	{
+		painter->drawText(80, 130, QString::fromLocal8Bit("申请人：%1").arg(issues.applyName));
+		painter->drawText(400, 130, QString::fromLocal8Bit("回收人：%1").arg(issues.operName));
+	}
+
+	painter->drawText(80, 170, QString::fromLocal8Bit("订单号：%1").arg(issues.orderId));
+
+	painter->drawText(80, 220, QString::fromLocal8Bit("名称"));
+	painter->drawText(540, 220, QString::fromLocal8Bit("数量"));
+
+	int h = 260;
+	int w1 = 80;
+	int w2 = 550;
+	int n = 0;
+	int count = 0;
+	
+	QList<package> list = issues.packages;
+	for each (package var in list)
+	{
+		painter->drawLine(QPointF(w1 - 10, h + 5 + (n-1) * 40), QPointF(w2 + 50, h + 5 + (n-1) * 40));
+		painter->drawText(w1, h + (n * 40), var.name);
+		painter->drawText(w2, h + (n * 40), QString::number(var.count));
+		count += var.count;
+		n++;
+	}
+
+	_count += count;
+
+		painter->drawLine(QPointF(w1 - 10, h + 5 + (n - 1) * 40), QPointF(w2 + 50, h + 5 + (n - 1) * 40));
+		if (page < total)
+		{
+			painter->drawText(w1, h + (n * 40), QString::fromLocal8Bit("小计"));
+			painter->drawText(w2, h + (n * 40), QString::number(count));
+			
+		}
+		else
+		{
+			painter->drawText(w1, h + (n * 40), QString::fromLocal8Bit("总计"));
+			painter->drawText(w2, h + (n * 40), QString::number(_count));
+		}
+
+		painter->drawRect(70, 190, 530, (n + 2) * 40);
+		painter->drawLine(QPointF(530, 190), QPointF(530, h + 10 + n * 40));
+	
+
+	QString sPage = QString("%1/%2").arg(page).arg(total);
+	painter->drawText(550, 900, sPage);
+
+	painter->end();
+
+	//save file
+	if (isImgPrinter)
+	{
+		QString fileName = (type == PaperType::dispatch ?
+			QString("C:/cssd/dispatch-%1-%2.jpg").arg(issues.orderId).arg(page)
+			: QString("C:/cssd/recycle-%1-%2.jpg").arg(issues.orderId).arg(page));
+
+		QFile file(fileName);
+		file.open(QIODevice::WriteOnly);
+		pix->save(&file, "JPG");
+	}
+
+	return OK;
+}
+
 int LabelPrinter::printPackageLabelsToImg(const PackageLabel &label) {
 	QPixmap *pix = new QPixmap(780, 600);
 	QPainter *painter = new QPainter(pix);
+	
 	pix->fill(Qt::transparent);
 
 	painter->begin(pix);

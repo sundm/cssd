@@ -84,7 +84,11 @@ void ClinicerChooser::apply() {
 			for (int i = 0; i != users.count(); ++i) {
 				QVariantMap map = users[i].toMap();
 				if (_deptId == map["dept_id"].toInt())
+				{
 					isMatch = true;
+					_opName = map["name"].toString();
+				}
+					
 			}
 
 			if (isMatch) QDialog::accept();

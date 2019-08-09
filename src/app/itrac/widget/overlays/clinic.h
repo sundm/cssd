@@ -24,6 +24,7 @@ protected:
 
 private slots:
 	void commit();
+	void print();
 	void addPlate();
 	void loadOrders();
 	void showDetail(const QModelIndex &);
@@ -35,6 +36,6 @@ private:
 	QStandardItemModel *_detailModel;
 	Composite::Title *_title;
 	WaitingSpinner *_waiter;
-
+	
 	void updatePlate(const QString &);
 };
