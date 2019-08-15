@@ -8,27 +8,32 @@ class SearchEdit;
 class QTextEdit;
 class QFormLayout;
 class QGridLayout;
+class QStandardItemModel;
+class QTableView;
 
-class TraceItem : public QGroupBox
+class TracePaientItem : public QGroupBox
 {
 	Q_OBJECT
 
 public:
-	TraceItem(const QString &title = QString(), QWidget *parent = Q_NULLPTR);
+	TracePaientItem(const QString &title = QString(), QWidget *parent = Q_NULLPTR);
 	void addEntry(const QString &label, const QString &field);
 private:
 	QFormLayout * _formLayout;
 };
 
-class TracePage : public QWidget, public Scanable, public JsonHttpClient
+class TracePatientPage : public QWidget, public Scanable, public JsonHttpClient
 {
 	Q_OBJECT
 
 public:
-	TracePage(QWidget *parent = Q_NULLPTR);
+	TracePatientPage(QWidget *parent = Q_NULLPTR);
 
 protected:
 	void handleBarcode(const QString &) override;
+
+private slots:
+	void showDetail(const QModelIndex &);
 
 private:
 	void clear();
@@ -38,4 +43,7 @@ private:
 	
 	SearchEdit *_searchBox;
 	QGridLayout *_grid;
+
+	QTableView *_view;
+	QStandardItemModel * _model;
 };

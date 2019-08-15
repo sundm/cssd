@@ -2,7 +2,8 @@
 #include "historywidget.h"
 #include "historypage.h"
 #include "core/itracnamespace.h"
-#include "widget/history/tracepage.h"
+#include "widget/history/tracepackagepage.h"
+#include "widget/history/tracepatientpage.h"
 
 HistoryWidget::HistoryWidget(QWidget *parent)
 	: QWidget(parent)
@@ -16,7 +17,8 @@ HistoryWidget::HistoryWidget(QWidget *parent)
 	btnGroup->addButton(sterileButton, itrac::Sterile);
 	btnGroup->addButton(dispatchButton, itrac::Dispatch);
 	//btnGroup->addButton(useButton, itrac::Use);
-	btnGroup->addButton(traceButton, itrac::Trace);
+	btnGroup->addButton(tracePackageButton, itrac::PackageTrace);
+	btnGroup->addButton(tracePatientButton, itrac::PatientTrace);
 	//traceButton->hide();
 	connect(btnGroup, QOverload<int>::of(&QButtonGroup::buttonClicked), this, &HistoryWidget::showPage);
 
@@ -56,9 +58,13 @@ void HistoryWidget::showPage(int id)
 			page = new DispatchHistoryPage;
 			tabWidget->addTab(page, "发放查询");
 			break;
-		case itrac::Trace:
-			page = new TracePage;
-			tabWidget->addTab(page, "信息追溯");
+		case itrac::PackageTrace:
+			page = new TracePackagePage;
+			tabWidget->addTab(page, "包ID追溯");
+			break;
+		case itrac::PatientTrace:
+			page = new TracePatientPage;
+			tabWidget->addTab(page, "患者ID追溯");
 			break;
 		default: // this should never happen
 			break;

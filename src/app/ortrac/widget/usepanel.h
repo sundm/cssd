@@ -20,6 +20,7 @@ private slots:
 	void remove();
 	void submit();
 	void reset();
+	void abnormal();
 	void showImageViewer();
 	void showDetail(const QModelIndex &);
 

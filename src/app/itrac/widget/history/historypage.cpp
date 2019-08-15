@@ -198,7 +198,6 @@ WashHistoryPage::WashHistoryPage(QWidget *parent) :HistoryPage(parent) {
 	_historyModel->setHeaderData(5, Qt::Horizontal, "清洗人");
 	_historyModel->setHeaderData(6, Qt::Horizontal, "清洗审核人");
 	_historyModel->setHeaderData(7, Qt::Horizontal, "审核结果");
-	//_historyModel->setHeaderData(, Qt::Horizontal, "清洗盘");
 	_view->setModel(_historyModel);
 	doSearch();
 }
@@ -250,7 +249,7 @@ void WashHistoryPage::doSearch(int page) {
 			rowItems.append(new QStandardItem(map["wash_time"].toString()));
 			rowItems.append(new QStandardItem(map["operator_name"].toString()));
 			rowItems.append(new QStandardItem(map["operator_name"].toString()));
-			rowItems.append(map["check_result"].toBool()? new QStandardItem(QString("合格")): new QStandardItem(QString("不合格")));
+			rowItems.append(map["check_result"].toBool()? new QStandardItem(QString("合格")): new QStandardItem(QString("存在异常")));
 			_historyModel->appendRow(rowItems);
 		}
 	});

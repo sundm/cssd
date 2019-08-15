@@ -9,7 +9,7 @@ class LeftBar : public QFrame, public Ui::LeftBar
 	Q_OBJECT
 
 public:
-	enum {UseState, HistoryState, TraceState};
+	enum {UseState, HistoryState, UnusualState};
 
 	LeftBar(QWidget *parent = Q_NULLPTR);
 	~LeftBar();

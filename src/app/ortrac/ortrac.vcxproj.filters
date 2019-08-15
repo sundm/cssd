@@ -174,6 +174,9 @@
     <ClCompile Include="dialog\regexpinputdialog.cpp">
       <Filter>Source Files\dialog</Filter>
     </ClCompile>
+    <ClCompile Include="dialog\abnormaldialog.cpp">
+      <Filter>Source Files\dialog</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="ortrac.h">
@@ -258,6 +261,9 @@
       <Filter>Source Files\ui\composite</Filter>
     </QtMoc>
     <QtMoc Include="dialog\regexpinputdialog.h">
+      <Filter>Source Files\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="dialog\abnormaldialog.h">
       <Filter>Source Files\dialog</Filter>
     </QtMoc>
   </ItemGroup>

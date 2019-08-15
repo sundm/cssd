@@ -55,6 +55,19 @@ private:
 	FilterRow * cycleRow;
 };
 
+class WashAbnormalFilterGroup : public FilterGroup
+{
+	Q_OBJECT
+
+public:
+	WashAbnormalFilterGroup(QWidget *parent);
+
+private:
+	FilterRow * dateRow;
+	FilterRow * userRow;
+	FilterRow * deviceRow;
+};
+
 class SterileFilterGroup : public FilterGroup
 {
 	Q_OBJECT
@@ -68,6 +81,20 @@ private:
 	FilterRow * deviceRow;
 	FilterRow * cycleRow;
 	FilterRow * checkRow;
+};
+
+class SterileAbnormalFilterGroup : public FilterGroup
+{
+	Q_OBJECT
+
+public:
+	SterileAbnormalFilterGroup(QWidget *parent);
+
+private:
+	FilterRow * dateRow;
+	FilterRow * deviceRow;
+	FilterRow * userRow;
+	FilterRow * checkerRow;
 };
 
 class PackFilterGroup : public FilterGroup

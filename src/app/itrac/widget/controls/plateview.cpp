@@ -124,16 +124,14 @@ void PackPlateView::addPlate(int id)
 			QString packName = map["pack_type_name"].toString();
 			QVariant pkgId = map["package_type_id"];
 			QVariant packId = map["pack_type_id"];
-			int num = map["package_type_num"].toInt();
-			while (num--) {
-				QStandardItem *nameItem = new QStandardItem(pkgName);
-				nameItem->setData(pkgId);
-				QStandardItem *packItem = new QStandardItem(packName);
-				packItem->setData(packId);
-				QList<QStandardItem *> row;
-				row << nameItem << packItem << new QStandardItem;
-				plateItem->appendRow(row);
-			}
+
+			QStandardItem *nameItem = new QStandardItem(pkgName);
+			nameItem->setData(pkgId);
+			QStandardItem *packItem = new QStandardItem(packName);
+			packItem->setData(packId);
+			QList<QStandardItem *> row;
+			row << nameItem << packItem << new QStandardItem;
+			plateItem->appendRow(row);
 		}
 		_model->appendRow(plateItem);
 		setExpanded(plateItem->index(), true);

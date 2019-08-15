@@ -73,6 +73,9 @@ void MainWindow::swithToPage(int index)
 	case 1:
 		_loader->setSource(new IssuePanel);
 		break;
+	case 2:
+		_loader->setSource(new IssuePanel);
+		break;
 	default:
 		break;
 	}

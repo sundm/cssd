@@ -5,6 +5,7 @@
 #include "core/net/url.h"
 #include "dialog/operatorchooser.h"
 #include "dialog/regexpinputdialog.h"
+#include "dialog/abnormaldialog.h"
 #include "xnotifier.h"
 #include <xernel/xernel.h>
 #include <xui/imageviewer.h>
@@ -19,6 +20,7 @@ UsePanel::UsePanel(QWidget *parent)
 	connect(submitButton, SIGNAL(clicked()), this, SLOT(submit()));
 	connect(resetButton, SIGNAL(clicked()), this, SLOT(reset()));
 	connect(bcInputBtn, SIGNAL(clicked()), this, SLOT(addEntry()));
+	connect(abnormalButton, SIGNAL(clicked()), this, SLOT(abnormal()));
 	connect(removeBtn, SIGNAL(clicked()), this, SLOT(remove()));
 	connect(image, SIGNAL(clicked()), this, SLOT(showImageViewer()));
 	connect(pkgView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(showDetail(const QModelIndex &)));
@@ -44,6 +46,12 @@ void UsePanel::addEntry()
 		else
 			XNotifier::warn(QString("请输入包条码"));
 	}
+}
+
+void UsePanel::abnormal()
+{
+	AbnormalDialog *d = new AbnormalDialog(this);
+	d->exec();
 }
 
 void UsePanel::remove()

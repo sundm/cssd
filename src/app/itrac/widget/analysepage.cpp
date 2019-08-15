@@ -4,7 +4,8 @@
 #include "analyse/deptstatisticpage.h"
 #include "analyse/themewidget.h"
 #include "analyse/costpage.h"
-
+#include "analyse/washpage.h"
+#include "analyse/sterilepage.h"
 #include <QtWidgets/QtWidgets>
 
 AnalysePage::AnalysePage(QWidget *parent)
@@ -28,6 +29,10 @@ AnalysePage::AnalysePage(QWidget *parent)
 	//vLayout->addWidget(deviceButton);
 	QPushButton *costButton = new QPushButton("成本核算");
 	vLayout->addWidget(costButton);
+	QPushButton *washButton = new QPushButton("清洗异常统计");
+	vLayout->addWidget(washButton);
+	QPushButton *sterileButton = new QPushButton("灭菌异常统计");
+	vLayout->addWidget(sterileButton);
 	QPushButton *realtimeButton = new QPushButton("更多统计");
 	vLayout->addWidget(realtimeButton);
 	vLayout->addStretch(0);
@@ -42,6 +47,8 @@ AnalysePage::AnalysePage(QWidget *parent)
 	btnGroup->addButton(kpiButton, KPI);
 	btnGroup->addButton(deptButton, Dept);
 	btnGroup->addButton(costButton, Cost);
+	btnGroup->addButton(washButton, Wash);
+	btnGroup->addButton(sterileButton, Sterile);
 	btnGroup->addButton(realtimeButton, RealTime);
 	connect(btnGroup, QOverload<int>::of(&QButtonGroup::buttonClicked), this, &AnalysePage::showPage);
 }
@@ -64,6 +71,14 @@ void AnalysePage::showPage(int id)
 		case Cost:
 			page = new Costpage(this);
 			_tabWidget->addTab(page, "成本核算");
+			break;
+		case Wash:
+			page = new WashPage(this);
+			_tabWidget->addTab(page, "清洗异常统计");
+			break;
+		case Sterile:
+			page = new SterilePage(this);
+			_tabWidget->addTab(page, "灭菌异常统计");
 			break;
 		case RealTime:
 			page = new ThemeWidget(this);

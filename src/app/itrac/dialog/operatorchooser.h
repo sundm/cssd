@@ -1,5 +1,4 @@
-#ifndef CONFIRMDIALOG_H
-#define CONFIRMDIALOG_H
+#pragma once
 
 #include <QDialog>
 #include <qscanner/qscanner.h>
@@ -26,5 +25,3 @@ private:
 	int _opId;
 	QString _opName;
 };
-
-#endif // !CONFIRMDIALOG_H

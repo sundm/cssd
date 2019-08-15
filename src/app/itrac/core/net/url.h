@@ -32,6 +32,8 @@ extern const char PATH_PKG_IN_PLATE[];
 extern const char PATH_WASH_ADD[];
 extern const char PATH_WASH_CHECK[];
 extern const char PATH_WASH_SEARCH[];
+extern const char PATH_WASH_INFO[];
+
 extern const char PATH_PACK_ADD[];
 extern const char PATH_PACK_SEARCH[];
 extern const char PATH_PACK_REPRINT[];
@@ -72,6 +74,8 @@ extern const char PATH_RECALL_SEARCH[];
 
 extern const char PATH_OP_STATISTICS[];
 extern const char PATH_DEPT_STATISTICS[];
+extern const char PATH_WASH_STATISTICS[]; 
+extern const char PATH_STERILE_STATISTICS[];
 
 extern const char PATH_VERSION[];
 extern const char PATH_UPDATE[];

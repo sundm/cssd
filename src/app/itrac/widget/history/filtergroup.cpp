@@ -76,12 +76,26 @@ WashFilterGroup::WashFilterGroup(QWidget *parent)
 	//addSeperator();
 }
 
+WashAbnormalFilterGroup::WashAbnormalFilterGroup(QWidget *parent)
+	:FilterGroup(parent)
+{
+	dateRow = new DateFilterRow("日期", this);
+	userRow = new UserFilterRow("清洗人", this, UserFilterRow::USER::Operator);
+	deviceRow = new DeviceFilterRow("清洗机", this, itrac::DeviceType::Washer);
+	addRow(dateRow);
+	addSeperator();
+	addRow(deviceRow);
+	addSeperator();
+	addRow(userRow);
+	
+}
+
 SterileFilterGroup::SterileFilterGroup(QWidget *parent)
 	:FilterGroup(parent)
 {
 	dateRow = new DateFilterRow("日期", this);
 	userRow = new UserFilterRow("灭菌员", this, UserFilterRow::USER::Operator);
-	deviceRow = new DeviceFilterRow("消毒机", this, itrac::DeviceType::Sterilizer);
+	deviceRow = new DeviceFilterRow("灭菌机", this, itrac::DeviceType::Sterilizer);
 	cycleRow = new CycleFilterRow("当日锅次", this);
 	checkRow = new CheckFilterRow("是否合格", this);
 
@@ -94,6 +108,23 @@ SterileFilterGroup::SterileFilterGroup(QWidget *parent)
 	addRow(cycleRow);
 	addSeperator();
 	addRow(checkRow);
+}
+
+SterileAbnormalFilterGroup::SterileAbnormalFilterGroup(QWidget *parent)
+	:FilterGroup(parent)
+{
+	dateRow = new DateFilterRow("日期", this);
+	userRow = new UserFilterRow("灭菌员", this, UserFilterRow::USER::Operator);
+	checkerRow = new UserFilterRow("审核员", this, UserFilterRow::USER::Operator);
+	deviceRow = new DeviceFilterRow("灭菌机", this, itrac::DeviceType::Sterilizer);
+
+	addRow(dateRow);
+	addSeperator();
+	addRow(deviceRow);
+	addSeperator();
+	addRow(userRow);
+	addSeperator();
+	addRow(checkerRow);
 }
 
 PackFilterGroup::PackFilterGroup(QWidget *parent)

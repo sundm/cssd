@@ -11,7 +11,6 @@ LeftBar::LeftBar(QWidget *parent)
 
 	_btns->addButton(useButton, UseState);
 	_btns->addButton(historyButton, HistoryState);
-	//_btns->addButton(traceButton, TraceState);
 	
 
 	connect(_btns, SIGNAL(buttonClicked(int)),

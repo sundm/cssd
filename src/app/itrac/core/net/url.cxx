@@ -38,6 +38,8 @@ const char PATH_PKG_IN_PLATE[] = "pack/packageType";
 const char PATH_WASH_ADD[] = "wash/add";
 const char PATH_WASH_CHECK[] = "wash/check";
 const char PATH_WASH_SEARCH[] = "wash/search";
+const char PATH_WASH_INFO[] = "wash/washInfo";
+
 const char PATH_PACK_ADD[] = "pack/add";
 const char PATH_PACK_SEARCH[] = "pack/search";
 const char PATH_PACK_REPRINT[] = "pack/rePack";
@@ -80,5 +82,7 @@ const char PATH_RECALL_SEARCH[] = "warning/recallSearch";
 
 const char PATH_OP_STATISTICS[] = "statistics/operators";
 const char PATH_DEPT_STATISTICS[] = "statistics/department";
+const char PATH_WASH_STATISTICS[] = "statistics/countWash";
+const char PATH_STERILE_STATISTICS[] = "statistics/countSterilize";
 
 const char PATH_VERSION[] = "file/version/itrac";

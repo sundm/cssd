@@ -29,7 +29,8 @@ namespace itrac {
 		SterileCheck,
 		Dispatch,
 		Use,
-		Trace
+		PackageTrace,
+		PatientTrace
 	};
 
 	enum Asset {

@@ -219,9 +219,6 @@
     <ClCompile Include="widget\assets\departmentpage.cpp">
       <Filter>Source Files\widget\assets</Filter>
     </ClCompile>
-    <ClCompile Include="widget\history\tracepage.cpp">
-      <Filter>Source Files\widget\history</Filter>
-    </ClCompile>
     <ClCompile Include="core\user.cpp">
       <Filter>Source Files\core</Filter>
     </ClCompile>
@@ -360,6 +357,21 @@
     <ClCompile Include="dialog\packtypedialog.cpp">
       <Filter>Source Files\dialog</Filter>
     </ClCompile>
+    <ClCompile Include="widget\history\tracepackagepage.cpp">
+      <Filter>Source Files\widget\history</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\history\tracepatientpage.cpp">
+      <Filter>Source Files\widget\history</Filter>
+    </ClCompile>
+    <ClCompile Include="dialog\washabnormal.cpp">
+      <Filter>Source Files\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\analyse\washpage.cpp">
+      <Filter>Source Files\widget\analyse</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\analyse\sterilepage.cpp">
+      <Filter>Source Files\widget\analyse</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="devicepage.h">
@@ -472,9 +484,6 @@
     </QtMoc>
     <QtMoc Include="widget\assets\departmentpage.h">
       <Filter>Source Files\widget\assets</Filter>
-    </QtMoc>
-    <QtMoc Include="widget\history\tracepage.h">
-      <Filter>Source Files\widget\history</Filter>
     </QtMoc>
     <QtMoc Include="ui\composite\waitingspinner.h">
       <Filter>Source Files\ui\composite</Filter>
@@ -598,6 +607,21 @@
     </QtMoc>
     <QtMoc Include="dialog\packtypedialog.h">
       <Filter>Source Files\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\history\tracepackagepage.h">
+      <Filter>Source Files\widget\history</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\history\tracepatientpage.h">
+      <Filter>Source Files\widget\history</Filter>
+    </QtMoc>
+    <QtMoc Include="dialog\washabnormal.h">
+      <Filter>Source Files\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\analyse\washpage.h">
+      <Filter>Source Files\widget\analyse</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\analyse\sterilepage.h">
+      <Filter>Source Files\widget\analyse</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

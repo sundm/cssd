@@ -16,5 +16,7 @@
         <file>res/end.png</file>
         <file>res/forward.png</file>
         <file>res/home.png</file>
+        <file>res/delete-24.png</file>
+        <file>res/plus-24.png</file>
     </qresource>
 </RCC>

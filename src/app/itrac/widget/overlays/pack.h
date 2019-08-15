@@ -20,6 +20,7 @@ private slots:
 	void addPlate();
 	void showDetail(const QModelIndex &index);
 	void reprint();
+	void abnormal();
 
 private:
 	PackPlateView * _plateView;

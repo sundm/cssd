@@ -49,4 +49,7 @@ private:
 	CheckItem * _phyItem;
 	CheckItem * _chemItem;
 	CheckItem * _bioItem;
+
+	CheckItem * _wetItem;
+	CheckItem * _lostLabelItem;
 };

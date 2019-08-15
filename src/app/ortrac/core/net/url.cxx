@@ -15,6 +15,7 @@ const char PATH_PKGTPYE_SEARCH[] = "packageType/search";
 const char PATH_PKG_IN_PLATE[] = "pack/packageType";
 const char PATH_TRACE_PACKAGE[] = "trace/package";
 const char PATH_TRACE_PATIENT[] = "trace/patient";
+const char PATH_PKG_PUSH[] = "package/push";
 
 const char PATH_ISSUE_SEARCH[] = "use/search";
 

@@ -78,6 +78,12 @@ void SterileExamPanel::commit()
 	QString bioResult = verdicts.toString(verdicts.bio);
 	if (!bioResult.isEmpty()) vmap.insert("bio_test_result", bioResult);
 
+	QString wetResult = verdicts.toString(verdicts.wet);
+	if (!wetResult.isEmpty()) vmap.insert("outside_result", wetResult);
+
+	QString lostResult = verdicts.toString(verdicts.lost);
+	if (!lostResult.isEmpty()) vmap.insert("label_off", lostResult);
+
 	post(url(PATH_STERILE_CHECK), vmap, [=](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success())

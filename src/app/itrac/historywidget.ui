@@ -62,12 +62,6 @@ border-color: #808080;
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="minimumSize">
-         <size>
-          <width>100</width>
-          <height>100</height>
-         </size>
-        </property>
         <property name="text">
          <string>回收</string>
         </property>
@@ -80,12 +74,6 @@ border-color: #808080;
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>100</width>
-          <height>100</height>
-         </size>
         </property>
         <property name="text">
          <string>清洗</string>
@@ -100,12 +88,6 @@ border-color: #808080;
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="minimumSize">
-         <size>
-          <width>100</width>
-          <height>100</height>
-         </size>
-        </property>
         <property name="text">
          <string>配包</string>
         </property>
@@ -118,12 +100,6 @@ border-color: #808080;
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>100</width>
-          <height>100</height>
-         </size>
         </property>
         <property name="text">
          <string>灭菌</string>
@@ -138,12 +114,6 @@ border-color: #808080;
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="minimumSize">
-         <size>
-          <width>100</width>
-          <height>100</height>
-         </size>
-        </property>
         <property name="text">
          <string>发放</string>
         </property>
@@ -157,15 +127,16 @@ border-color: #808080;
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="traceButton">
-        <property name="minimumSize">
-         <size>
-          <width>100</width>
-          <height>100</height>
-         </size>
-        </property>
+       <widget class="QPushButton" name="tracePackageButton">
         <property name="text">
-         <string>追溯</string>
+         <string>包ID追溯</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="tracePatientButton">
+        <property name="text">
+         <string>患者ID追溯</string>
         </property>
        </widget>
       </item>

@@ -80,11 +80,10 @@ void CheckItem::reset(int verdict) {
 		connect(unQualifiedButton, &QRadioButton::clicked, this, [this] {_verdict = itrac::Failed; });
 		layout->addWidget(qualifiedButton);
 		layout->addWidget(unQualifiedButton);
-		//return;
+		break;
 	}
 	setStyleSheet("background-color:#eeeeee;");
 }
-
 
 void SterileInfoGroup::reset() {
 	_bcEdit->clear();
@@ -110,6 +109,12 @@ SterileCheckGroup::SterileCheckGroup(QWidget *parent /*= nullptr*/)
 	_bioItem = new CheckItem("生物监测审核", itrac::NotChecked);
 	layout->addWidget(_bioItem, 0, 2);
 
+	_wetItem = new CheckItem("湿包监测审核", itrac::NotChecked);
+	layout->addWidget(_wetItem, 1, 0);
+
+	_lostLabelItem = new CheckItem("飞标监测审核", itrac::NotChecked);
+	layout->addWidget(_lostLabelItem, 1, 1);
+
 	QPushButton *reasonButton = new QPushButton("具体描述");
 	layout->addWidget(reasonButton, 2, 0);
 
@@ -123,6 +128,8 @@ Sterile::Result SterileCheckGroup::verdicts() const
 	result.physics = _phyItem->verdict();
 	result.chemistry = _chemItem->verdict();
 	result.bio= _bioItem->verdict();
+	result.wet = _wetItem->verdict();
+	result.lost = _lostLabelItem->verdict();
 	return result;
 }
 
@@ -130,4 +137,6 @@ void SterileCheckGroup::reset() {
 	_phyItem->reset(itrac::NotChecked);
 	_chemItem->reset(itrac::NotChecked);
 	_bioItem->reset(itrac::NotChecked);
+	_wetItem->reset(itrac::NotChecked);
+	_lostLabelItem->reset(itrac::NotChecked);
 }

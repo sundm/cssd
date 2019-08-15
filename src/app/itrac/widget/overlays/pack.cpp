@@ -8,6 +8,7 @@
 #include "dialog/regexpinputdialog.h"
 #include "dialog/operatorchooser.h"
 #include "dialog/reprintdialog.h"
+#include "dialog/washabnormal.h"
 #include "core/net/url.h"
 #include "xnotifier.h"
 #include <printer/labelprinter.h>
@@ -23,11 +24,14 @@ PackPanel::PackPanel(QWidget *parent) : CssdOverlayPanel(parent) {
 	Tip *tip = new Tip(text);
 	Ui::PrimaryButton *commitButton = new Ui::PrimaryButton("开始配包");
 	Ui::PrimaryButton *rePrintButton = new Ui::PrimaryButton("重新打印");
+	Ui::PrimaryButton *abnormalButton = new Ui::PrimaryButton("异常登记");
 	tip->addQr();
 	tip->addButton(commitButton);
 	tip->addButton(rePrintButton);
+	tip->addButton(abnormalButton);
 	connect(commitButton, SIGNAL(clicked()), this, SLOT(commit()));
 	connect(rePrintButton, SIGNAL(clicked()), this, SLOT(reprint()));
+	connect(abnormalButton, SIGNAL(clicked()), this, SLOT(abnormal()));
 
 	Ui::IconButton *addPlateButton = new Ui::IconButton(":/res/fill-plate-24.png");
 	addPlateButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
@@ -74,6 +78,11 @@ void PackPanel::reprint() {
 	d->exec();
 }
 
+void PackPanel::abnormal() {
+	WashAbnormal *d = new WashAbnormal(this);
+	d->exec();
+}
+
 void PackPanel::commit() {
 	QVariantList plates = _plateView->plates();
 	if (plates.isEmpty()) {
@@ -87,11 +96,11 @@ void PackPanel::commit() {
 	int checkerId = OperatorChooser::get(this, this);
 	if (0 == checkerId) return;
 
-	if (checkerId == opId)
+	/*if (checkerId == opId)
 	{
 		XNotifier::warn("不允许使用同一个操作员进行审核");
 		return;
-	}
+	}*/
 
 	_plateView->doPack(opId, checkerId);
 
