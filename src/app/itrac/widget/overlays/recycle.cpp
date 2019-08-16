@@ -75,10 +75,10 @@ NoBCRecyclePanel::NoBCRecyclePanel(QWidget *parent)
 
 void NoBCRecyclePanel::loadPkg(int depId)
 {
-	if (Constant::OperatingRoomId == depId)
-		_pkgEdit->loadForCategary("0");
-	else
-		_pkgEdit->loadForDepartment(depId);
+	//if (Constant::OperatingRoomId == depId)
+	//	_pkgEdit->loadForCategary("0");
+	//else
+	_pkgEdit->loadForDepartment(depId);
 }
 
 bool NoBCRecyclePanel::accept() {
@@ -338,12 +338,12 @@ void OrRecyclePanel::showDetail(const QModelIndex &index)
 
 void OrRecyclePanel::chooseExt() {
 	ImportExtDialog d(this);
-	connect(&d, SIGNAL(extPkgImport(const QString&, const QString&)), this, SLOT(setExtPkg(const QString&, const QString&)));
+	connect(&d, SIGNAL(extPkgImport(const QString&, const QString&, const QString&)), this, SLOT(setExtPkg(const QString&, const QString&, const QString&)));
 	d.exec();
 }
 
-void OrRecyclePanel::setExtPkg(const QString& pkgId, const QString& pkgName) {
-	_pkgView->addExtPackage(pkgId, pkgName);
+void OrRecyclePanel::setExtPkg(const QString& pkgId, const QString& pkgTypeId, const QString& pkgName) {
+	_pkgView->addExtPackage(pkgId, pkgTypeId, pkgName);
 }
 
 void OrRecyclePanel::handleBarcode(const QString &code) {

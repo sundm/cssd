@@ -84,6 +84,7 @@ void ImportExtDialog::onRowClicked(const QModelIndex &index) {
 			item_type_name->setTextAlignment(Qt::AlignCenter);
 			item_type_name->setText(map["pkg_type_name"].toString());
 			item_type_name->setData(map["id"]);
+			item_type_name->setData(map["pkg_type_id"], 260);
 			rowItems.append(item_type_name);
 
 			QStandardItem *item_doctor = new QStandardItem();
@@ -124,8 +125,9 @@ void ImportExtDialog::accept() {
 		if (0 == state)
 		{
 			QString pkgId = _detailModel->item(index.row(), 0)->data().toString();
+			QString pkgtypeId = _detailModel->item(index.row(), 0)->data(260).toString();
 			QString pkgName = _detailModel->item(index.row(), 0)->text();
-			emit extPkgImport(pkgId, pkgName);
+			emit extPkgImport(pkgId, pkgtypeId, pkgName);
 			QDialog::accept();
 		}
 		else

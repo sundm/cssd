@@ -183,10 +183,16 @@ void OrRecyclePackageView::addPackage(const QString &id) {
 	});
 }
 
-void OrRecyclePackageView::addExtPackage(const QString& pkgId, const QString& pkgName) {
+void OrRecyclePackageView::addExtPackage(const QString& pkgId, const QString& pkgTypeId, const QString& pkgName) {
 	QList<QStandardItem *> rowItems;
 	rowItems.append(new QStandardItem(pkgId));
-	rowItems.append(new QStandardItem(pkgName));
+
+	QStandardItem *package_type_name = new QStandardItem();
+	package_type_name->setTextAlignment(Qt::AlignCenter);
+	package_type_name->setText(pkgName);
+	package_type_name->setData(pkgTypeId, 260);
+	rowItems.append(package_type_name);
+
 	rowItems.append(new QStandardItem(""));
 	rowItems.append(new QStandardItem("外来器械"));
 	rowItems.append(new QStandardItem(""));

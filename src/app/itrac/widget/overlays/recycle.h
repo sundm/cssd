@@ -58,7 +58,7 @@ private slots:
 	void removeEntry();
 	void chooseExt();
 	void commit();
-	void setExtPkg(const QString&, const QString&);
+	void setExtPkg(const QString&, const QString&, const QString&);
 	void showDetail(const QModelIndex &index);
 
 private:

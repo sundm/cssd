@@ -18,7 +18,7 @@ protected:
 	void accept() override;
 
 signals:
-	void extPkgImport(const QString&, const QString&);
+	void extPkgImport(const QString&, const QString&, const QString&);
 private slots:
 	void onRowClicked(const QModelIndex &);
 
