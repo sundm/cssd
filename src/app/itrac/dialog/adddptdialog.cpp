@@ -1,4 +1,4 @@
-#include "addinstrumentdialog.h"
+#include "adddptdialog.h"
 #include "core/application.h"
 #include "core/net/url.h"
 #include "ui/labels.h"
@@ -8,15 +8,14 @@
 #include "ui/composite/waitingspinner.h"
 #include <QtWidgets/QtWidgets>
 
-AddInstrumentDialog::AddInstrumentDialog(QWidget *parent)
+AddDptDialog::AddDptDialog(QWidget *parent)
 	: QDialog(parent)
 	, _nameEdit(new Ui::FlatEdit)
 	, _pinyinEdit(new Ui::FlatEdit)
-	, _checkBox(new QCheckBox("贵重器械"))
+	, _phoneEdit(new Ui::FlatEdit)
 	, _waiter(new WaitingSpinner(this))
 {
-	setWindowTitle("添加新器械");
-
+	setWindowTitle("添加新科室");
 	_isModify = false;
 
 	_pinyinEdit->setInputValidator(Ui::InputValitor::LetterOnly);
@@ -24,15 +23,16 @@ AddInstrumentDialog::AddInstrumentDialog(QWidget *parent)
 	QPushButton *submitButton = new QPushButton("提交");
 	submitButton->setIcon(QIcon(":/res/check-24.png"));
 	submitButton->setDefault(true);
-	connect(submitButton, &QPushButton::clicked, this, &AddInstrumentDialog::accept);
+	connect(submitButton, &QPushButton::clicked, this, &AddDptDialog::accept);
 
 	QGridLayout *mainLayout = new QGridLayout(this);
 	mainLayout->setVerticalSpacing(15);
-	mainLayout->addWidget(new QLabel("新器械名称"), 0, 0);
+	mainLayout->addWidget(new QLabel("新科室名"), 0, 0);
 	mainLayout->addWidget(new QLabel("拼音码"), 1, 0);
+	mainLayout->addWidget(new QLabel("联系方式"), 2, 0);
 	mainLayout->addWidget(_nameEdit, 0, 1);
 	mainLayout->addWidget(_pinyinEdit, 1, 1);
-	mainLayout->addWidget(_checkBox, 2, 0, 1, 2);
+	mainLayout->addWidget(_phoneEdit, 2, 1);
 	mainLayout->addWidget(Ui::createSeperator(Qt::Horizontal), 3, 0, 1, 2);
 	mainLayout->addWidget(submitButton, 4, 0, 1, 2, Qt::AlignHCenter);
 
@@ -40,23 +40,22 @@ AddInstrumentDialog::AddInstrumentDialog(QWidget *parent)
 	resize(parent ? parent->width() / 3 : 360, height());
 }
 
-void AddInstrumentDialog::setInfo(const QString &id, const QString &name, const QString &pinyin, const bool isVIP)
-{
-	setWindowTitle("修改新器械");
+void AddDptDialog::setDtpInfo(const QString& id, const QString& name, const QString& pinyin, const QString& phone) {
+	setWindowTitle("修改新科室");
 	_isModify = true;
-	_instrumentId = id;
+	_dptId = id.toInt();
 
 	_nameEdit->setText(name);
-	_pinyinEdit->setText(pinyin);
 	_nameEdit->setReadOnly(_isModify);
-	//_pinyinEdit->setReadOnly(_isModify);
 
-	_checkBox->setChecked(isVIP);
+	_pinyinEdit->setText(pinyin);
+	_phoneEdit->setText(phone);
 }
 
-void AddInstrumentDialog::accept() {
+void AddDptDialog::accept() {
 	QString name = _nameEdit->text();
 	QString pinyin = _pinyinEdit->text().toUpper();
+	QString phone = _phoneEdit->text();
 	if (name.isEmpty()) {
 		_nameEdit->setFocus();
 		return;
@@ -67,20 +66,20 @@ void AddInstrumentDialog::accept() {
 	}
 
 	QVariantMap vmap;
-	vmap.insert("instrument_name", name);
-	vmap.insert("instrument_type", "1");
-	vmap.insert("is_vip_instrument", Qt::Checked == _checkBox->checkState() ? "1" : "0");
+	vmap.insert("department_name", name);
 	vmap.insert("pinyin_code", pinyin);
-
-	_waiter->start();
-	if (_isModify)
+	if (!phone.isEmpty())
 	{
-		vmap.insert("instrument_id", _instrumentId);
-		post(url(PATH_INSTRUMENT_MODIFY), vmap, [this](QNetworkReply *reply) {
+		vmap.insert("phone", phone);
+	}
+	
+	if (!_isModify) {
+		_waiter->start();
+		post(url(PATH_DEPT_ADD), vmap, [this](QNetworkReply *reply) {
 			_waiter->stop();
 			JsonHttpResponse resp(reply);
 			if (!resp.success()) {
-				XNotifier::warn(QString("修改器械失败: ").append(resp.errorString()));
+				XNotifier::warn(QString("添加科室失败: ").append(resp.errorString()));
 			}
 			else {
 				QDialog::accept();
@@ -89,11 +88,13 @@ void AddInstrumentDialog::accept() {
 	}
 	else
 	{
-		post(url(PATH_INSTRUMENT_ADD), vmap, [this](QNetworkReply *reply) {
+		vmap.insert("department_id", _dptId);
+		_waiter->start();
+		post(url(PATH_DEPT_MODIFY), vmap, [this](QNetworkReply *reply) {
 			_waiter->stop();
 			JsonHttpResponse resp(reply);
 			if (!resp.success()) {
-				XNotifier::warn(QString("添加器械失败: ").append(resp.errorString()));
+				XNotifier::warn(QString("修改科室失败: ").append(resp.errorString()));
 			}
 			else {
 				QDialog::accept();

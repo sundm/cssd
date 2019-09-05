@@ -145,7 +145,9 @@ ModifyDeviceDialog::ModifyDeviceDialog(Device *device, QWidget *parent /*= Q_NUL
 	setWindowTitle("修改设备属性");
 
 	_typeEdit->setText(Device::Washer == device->type ? "清洗设备" : "灭菌设备");
+	_typeEdit->setReadOnly(true);
 	_nameEdit->setText(device->name);
+	_nameEdit->setReadOnly(true);
 
 	initProgramView();
 	loadPrograms();

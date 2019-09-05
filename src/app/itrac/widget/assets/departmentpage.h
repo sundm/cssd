@@ -1,18 +1,18 @@
 #pragma once
 
-#include <QTableView>
+#include "ui/views.h"
 #include "core/net/jsonhttpclient.h"
 
 class QStandardItemModel;
 
 namespace Internal {
 
-class DeptAssetView : public QTableView
+class DeptAssetView : public TableView
 {
 	Q_OBJECT
 
 public:
-	enum Column {Name, Id, Pinyin};
+	enum Column {Name, Id, Pinyin, Phone};
 	DeptAssetView(QWidget *parent = nullptr);
 	void load(int page = 0, int count = 10);
 
@@ -30,6 +30,11 @@ class DepartmentPage : public QWidget, public JsonHttpClient
 
 public:
 	DepartmentPage(QWidget *parent = Q_NULLPTR);
+
+private slots:
+	void addEntry();
+	void modify();
+
 private:
 	Internal::DeptAssetView *_view;
 };

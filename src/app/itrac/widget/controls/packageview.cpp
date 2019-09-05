@@ -106,7 +106,8 @@ void DispatchPackageView::addPackage(const QString &id) {
 			return;
 		}
 
-		if (resp.getAsInt("department_id") != Constant::OperatingRoomId) {
+		if (!(resp.getAsInt("department_id") == Constant::OperatingRoomId || 
+			resp.getAsInt("department_id") == Constant::CSSDDeptId)) {
 			XNotifier::warn(QString("此包非手术室包，不能对其发放"));
 			return;
 		}

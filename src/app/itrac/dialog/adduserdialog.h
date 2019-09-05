@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QDialog>
+#include "core/user.h"
 #include "core/net/jsonhttpclient.h"
 
 namespace Ui {
@@ -17,7 +18,7 @@ class AddUserDialog : public QDialog, public JsonHttpClient
 
 public:
 	AddUserDialog(QWidget *parent = Q_NULLPTR);
-
+	void setUserInfo(const Core::User &user);
 protected:
 	void accept() override;
 
@@ -26,6 +27,9 @@ private:
 	Ui::FlatEdit *_phoneEdit;
 	DeptEdit *_deptEdit;
 	GenderComboBox *_genderCombo;
-	QCheckBox *_checkBox;
+	//QCheckBox *_checkBox;
 	WaitingSpinner *_waiter;
+
+	int _userId;
+	bool _isModify;
 };

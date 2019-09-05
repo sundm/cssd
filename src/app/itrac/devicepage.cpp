@@ -32,7 +32,7 @@ DevicePage::DevicePage(QWidget *parent)
 	Ui::IconButton *modifyButton = new Ui::IconButton(":/res/write-24.png", "修改");
 	connect(modifyButton, &QToolButton::clicked, this, &DevicePage::modify);
 
-	Ui::IconButton *forbiddenButton = new Ui::IconButton(":/res/forbidden-24.png", "");
+	Ui::IconButton *forbiddenButton = new Ui::IconButton(":/res/forbidden-24.png", "删除");
 	connect(forbiddenButton, SIGNAL(clicked()), this, SLOT(removeEntry()));
 
 	QWidget *toolBar = new QWidget;
@@ -42,7 +42,7 @@ DevicePage::DevicePage(QWidget *parent)
 	hlayout->addWidget(refreshButton);
 	hlayout->addWidget(addButton);
 	hlayout->addWidget(modifyButton);
-	hlayout->addWidget(forbiddenButton);
+	//hlayout->addWidget(forbiddenButton);
 	hlayout->addStretch();
 
 	QVBoxLayout *mainLayout = new QVBoxLayout(this);
@@ -123,7 +123,7 @@ void DevicePage::unlockDevice()
 
 void DevicePage::modifyDevice()
 {
-
+	modify();
 }
 
 void DevicePage::updateDeviceView(const QString& deviceType/* = QString()*/)

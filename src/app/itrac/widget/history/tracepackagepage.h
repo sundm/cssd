@@ -32,6 +32,9 @@ public:
 protected:
 	void handleBarcode(const QString &) override;
 
+private slots:
+	void loadExtOrder();
+
 private:
 	void clear();
 	void startTrace();
@@ -39,4 +42,6 @@ private:
 	
 	SearchEdit *_searchBox;
 	QGridLayout *_grid;
+
+	QVariantMap *_map;
 };

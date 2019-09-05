@@ -2,7 +2,8 @@
 #include "inliner.h"
 #include "xnotifier.h"
 #include "core/net/url.h"
-
+#include "dialog/adddptdialog.h"
+#include "ui/buttons.h"
 #include <QtWidgets/QtWidgets>
 
 DepartmentPage::DepartmentPage(QWidget *parent)
@@ -10,18 +11,14 @@ DepartmentPage::DepartmentPage(QWidget *parent)
 {
 	QHBoxLayout *hLayout = new QHBoxLayout;
 
-	QToolButton *addButton = new QToolButton;
-	addButton->setIcon(QIcon(":/res/add.png"));
-	addButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
-	hLayout->addWidget(addButton);
+	Ui::IconButton *addButton = new Ui::IconButton(":/res/plus-24.png", "添加");
 	connect(addButton, SIGNAL(clicked()), this, SLOT(addEntry()));
 
-	QToolButton *minusButton = new QToolButton;
-	minusButton->setIcon(QIcon(":/res/minus.png"));
-	minusButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
-	hLayout->addWidget(minusButton);
-	connect(minusButton, SIGNAL(clicked()), this, SLOT(removeEntry()));
+	Ui::IconButton *modifyButton = new Ui::IconButton(":/res/write-24.png", "修改");
+	connect(modifyButton, SIGNAL(clicked()), this, SLOT(modify()));
 
+	hLayout->addWidget(addButton);
+	hLayout->addWidget(modifyButton);
 	hLayout->addStretch(0);
 
 	QVBoxLayout *layout = new QVBoxLayout(this);
@@ -32,18 +29,42 @@ DepartmentPage::DepartmentPage(QWidget *parent)
 	QTimer::singleShot(0, [this] {_view->load(); });
 }
 
+void DepartmentPage::addEntry() {
+	AddDptDialog d(this);
+	if (d.exec() == QDialog::Accepted)
+	{
+		_view->load();
+	}
+}
+
+void DepartmentPage::modify() {
+	QModelIndexList indexes = _view->selectionModel()->selectedRows();
+	if (indexes.count() == 0) return;
+	int row = indexes[0].row();
+
+	QString name = _view->model()->data(_view->model()->index(row, 0)).toString();
+	QString id = _view->model()->data(_view->model()->index(row, 1)).toString();
+	QString pinyin = _view->model()->data(_view->model()->index(row, 2)).toString();
+	QString phone = _view->model()->data(_view->model()->index(row, 3)).toString();
+
+	AddDptDialog d(this);
+	d.setDtpInfo(id, name, pinyin, phone);
+	if (d.exec() == QDialog::Accepted)
+		_view->load();
+}
+
 namespace Internal {
 	DeptAssetView::DeptAssetView(QWidget *parent /*= nullptr*/)
-		:_model(new QStandardItemModel(0, Pinyin + 1, this))
+		: TableView(parent)
+		, _model(new QStandardItemModel(0, Phone + 1, this))
 	{
 		_model->setHeaderData(Name, Qt::Horizontal, "科室名称");
 		_model->setHeaderData(Id, Qt::Horizontal, "编号");
 		_model->setHeaderData(Pinyin, Qt::Horizontal, "拼音检索码");
+		_model->setHeaderData(Phone, Qt::Horizontal, "联系方式");
 		setModel(_model);
 
 		setEditTriggers(QAbstractItemView::NoEditTriggers);
-		QHeaderView *header = horizontalHeader();
-		header->setSectionResizeMode(QHeaderView::Stretch);
 	}
 
 	void DeptAssetView::load(int page /*= 0*/, int count /*= 10*/)
@@ -64,6 +85,7 @@ namespace Internal {
 				_model->setData(_model->index(i, Id), map["department_id"]);
 				_model->setData(_model->index(i, Name), map["department_name"]);
 				_model->setData(_model->index(i, Pinyin), map["pinyin_code"]);
+				_model->setData(_model->index(i, Phone), map["phone"]);
 			}
 		});
 	}

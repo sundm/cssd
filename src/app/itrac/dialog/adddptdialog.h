@@ -9,22 +9,22 @@ namespace Ui {
 
 class QCheckBox;
 class WaitingSpinner;
-class AddInstrumentDialog : public QDialog, public JsonHttpClient
+class AddDptDialog : public QDialog, public JsonHttpClient
 {
 	Q_OBJECT
 
 public:
-	AddInstrumentDialog(QWidget *parent = Q_NULLPTR);
-	void setInfo(const QString &id, const QString &name, const QString &pinyin, const bool isVIP);
+	AddDptDialog(QWidget *parent = Q_NULLPTR);
+	void setDtpInfo(const QString& id, const QString& name, const QString& pinyin, const QString& phone);
 protected:
 	void accept() override;
 
 private:
 	Ui::FlatEdit *_nameEdit;
 	Ui::FlatEdit *_pinyinEdit;
-	QCheckBox *_checkBox;
+	Ui::FlatEdit *_phoneEdit;
 	WaitingSpinner *_waiter;
 
 	bool _isModify;
-	QString _instrumentId;
+	int _dptId;
 };

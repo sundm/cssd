@@ -109,17 +109,20 @@ SterileCheckGroup::SterileCheckGroup(QWidget *parent /*= nullptr*/)
 	_bioItem = new CheckItem("生物监测审核", itrac::NotChecked);
 	layout->addWidget(_bioItem, 0, 2);
 
-	_wetItem = new CheckItem("湿包监测审核", itrac::NotChecked);
-	layout->addWidget(_wetItem, 1, 0);
+	QPushButton *commonButton = new QPushButton("常见异常");
+	layout->addWidget(commonButton, 1, 0);
 
-	_lostLabelItem = new CheckItem("飞标监测审核", itrac::NotChecked);
-	layout->addWidget(_lostLabelItem, 1, 1);
+	_wetItem = new QCheckBox("湿包", this);
+	layout->addWidget(_wetItem, 2, 0);
 
-	QPushButton *reasonButton = new QPushButton("具体描述");
-	layout->addWidget(reasonButton, 2, 0);
+	_lostLabelItem = new QCheckBox("飞标", this);
+	layout->addWidget(_lostLabelItem, 2, 1);
+
+	QPushButton *reasonButton = new QPushButton("其他异常描述");
+	layout->addWidget(reasonButton, 3, 0);
 
 	QTextEdit *reasonEdit = new QTextEdit;
-	layout->addWidget(reasonEdit, 3, 0, 1, 3);
+	layout->addWidget(reasonEdit, 4, 0, 1, 3);
 }
 
 Sterile::Result SterileCheckGroup::verdicts() const
@@ -128,8 +131,8 @@ Sterile::Result SterileCheckGroup::verdicts() const
 	result.physics = _phyItem->verdict();
 	result.chemistry = _chemItem->verdict();
 	result.bio= _bioItem->verdict();
-	result.wet = _wetItem->verdict();
-	result.lost = _lostLabelItem->verdict();
+	result.wet = _wetItem->isChecked();
+	result.lost = _lostLabelItem->isChecked();
 	return result;
 }
 
@@ -137,6 +140,6 @@ void SterileCheckGroup::reset() {
 	_phyItem->reset(itrac::NotChecked);
 	_chemItem->reset(itrac::NotChecked);
 	_bioItem->reset(itrac::NotChecked);
-	_wetItem->reset(itrac::NotChecked);
-	_lostLabelItem->reset(itrac::NotChecked);
+	_wetItem->setChecked(false);
+	_lostLabelItem->setChecked(false);
 }

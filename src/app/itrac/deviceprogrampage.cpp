@@ -35,7 +35,7 @@ DeviceProgramPage::DeviceProgramPage(QWidget *parent)
 	hlayout->addWidget(_filterComboBox);
 	hlayout->addWidget(refreshButton);
 	hlayout->addWidget(addButton);
-	hlayout->addWidget(modifyButton);
+	//hlayout->addWidget(modifyButton);
 	hlayout->addStretch();
 
 	QVBoxLayout *mainLayout = new QVBoxLayout(this);

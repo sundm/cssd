@@ -8,5 +8,6 @@ namespace Constant {
 	constexpr int IdRole = Qt::UserRole + 1;
 	constexpr int PinyinRole = IdRole + 1;
 	constexpr int OperatingRoomId = 12000035;
-	constexpr char Version[] = "V1.2.1";
+	constexpr int CSSDDeptId = 12000036;
+	constexpr char Version[] = "V1.2.2";
 }

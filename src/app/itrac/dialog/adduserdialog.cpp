@@ -1,6 +1,7 @@
 #include "adduserdialog.h"
 #include "core/application.h"
 #include "core/net/url.h"
+#include "xnotifier.h"
 #include "ui/inputfields.h"
 #include "ui/ui_commons.h"
 #include "ui/composite/waitingspinner.h"
@@ -14,7 +15,6 @@ AddUserDialog::AddUserDialog(QWidget *parent)
 	, _phoneEdit(new Ui::FlatEdit)
 	, _deptEdit(new DeptEdit)
 	, _genderCombo(new GenderComboBox)
-	, _checkBox(new QCheckBox("管理权限"))
 	, _waiter(new WaitingSpinner(this))
 {
 	setWindowTitle("添加新用户");
@@ -41,6 +41,23 @@ AddUserDialog::AddUserDialog(QWidget *parent)
 	resize(parent ? parent->width() / 3 : 360, height());
 
 	_deptEdit->load(DeptEdit::ALL);
+
+	_isModify = false;
+}
+
+void AddUserDialog::setUserInfo(const Core::User &user)
+{
+	setWindowTitle("修改当前用户");
+	_userId = user.id;
+
+	_nameEdit->setText(user.name);
+	_nameEdit->setReadOnly(true);
+
+	_phoneEdit->setText(user.phone);
+	_deptEdit->setCurrentIdPicked(user.deptId, user.deptName);
+	_genderCombo->setCurrentIndex(user.gender);
+
+	_isModify = true;
 }
 
 void AddUserDialog::accept() {
@@ -70,16 +87,35 @@ void AddUserDialog::accept() {
 	vmap.insert("gender", _genderCombo->currentData());
 	vmap.insert("dept_id", deptId);
 
-	_waiter->start();
-	post(url(PATH_USER_ADD), vmap, [this](QNetworkReply *reply) {
-		_waiter->stop();
-		JsonHttpResponse resp(reply);
-		if (!resp.success()) {
-			//return; // TODO
-		}
-		else {
-			QDialog::accept();
-		}
-	});
+	if (!_isModify){
+		_waiter->start();
+		post(url(PATH_USER_ADD), vmap, [this](QNetworkReply *reply) {
+			_waiter->stop();
+			JsonHttpResponse resp(reply);
+			if (!resp.success()) {
+				XNotifier::warn(QString("添加用户失败: ").append(resp.errorString()));
+				return;
+			}
+			else {
+				QDialog::accept();
+			}
+		});
+	}
+	else {
+		vmap.insert("operator_id", _userId);
+
+		_waiter->start();
+		post(url(PATH_USER_MODIFY), vmap, [this](QNetworkReply *reply) {
+			_waiter->stop();
+			JsonHttpResponse resp(reply);
+			if (!resp.success()) {
+				XNotifier::warn(QString("修改用户失败: ").append(resp.errorString()));
+				return;
+			}
+			else {
+				QDialog::accept();
+			}
+		});
+	}
 }
 

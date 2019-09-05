@@ -12,6 +12,7 @@ namespace Core {
 		User();
 
 		int id;
+		int account;
 		int deptId;
 		int role;
 		Gender gender;

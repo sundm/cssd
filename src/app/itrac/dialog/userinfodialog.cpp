@@ -22,8 +22,15 @@ UserInfoDialog::UserInfoDialog(QWidget *parent)
 	userLabel->setAlignment(Qt::AlignCenter);
 
 	Ui::Title *title = new Ui::Title(QString("%1 (%2)").arg(user.name, user.deptName));
+
+	QString descrip;
+	if (user.role == 1 || user.role == 2)
+		descrip = QString("管理");
+	else
+		descrip = QString("普通");
+
 	Ui::Description *account = new Ui::Description(
-		QString("工号 %1, %2权限").arg(user.id).arg(1 == user.role ? "普通":"管理"));
+		QString("工号 %1, %2权限").arg(user.id).arg(descrip));
 	Ui::Description *loginTime = new Ui::Description("登录于 " + user.loginTime);
 
 	QWidget *pwdGroup = new QWidget;

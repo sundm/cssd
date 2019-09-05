@@ -2,7 +2,7 @@
 
 #include <QVariantMap>
 
-const QString Version("V1.1.0");
+const QString Version("V1.1.1");
 
 QString PATH_BASE;
 

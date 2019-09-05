@@ -7,6 +7,8 @@ namespace Ui {
 	class FlatEdit;
 }
 
+class QCheckBox;
+
 class SterileInfoGroup : public QGroupBox
 {
 	Q_OBJECT
@@ -50,6 +52,6 @@ private:
 	CheckItem * _chemItem;
 	CheckItem * _bioItem;
 
-	CheckItem * _wetItem;
-	CheckItem * _lostLabelItem;
+	QCheckBox * _wetItem;
+	QCheckBox * _lostLabelItem;
 };

@@ -55,6 +55,7 @@ protected:
 
 private slots:
 	void addEntry();
+	void addPlateEntry();
 	void removeEntry();
 	void chooseExt();
 	void commit();

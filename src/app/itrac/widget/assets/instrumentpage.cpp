@@ -43,7 +43,23 @@ void InstrumentPage::add() {
 }
 
 void InstrumentPage::modify() {
+	QModelIndexList indexes = _view->selectionModel()->selectedRows();
+	if (indexes.count() == 0) return;
+	int row = indexes[0].row();
 
+	QString name = _view->model()->data(_view->model()->index(row, 0)).toString();
+	QString id = _view->model()->data(_view->model()->index(row, 1)).toString();
+	QString vip = _view->model()->data(_view->model()->index(row, 2)).toString();
+	QString pinyin = _view->model()->data(_view->model()->index(row, 3)).toString();
+
+	bool isVIP = false;
+	if (0 == vip.compare("是"))
+		isVIP = true;
+
+	AddInstrumentDialog d(this);
+	d.setInfo(id, name, pinyin, isVIP);
+	if (d.exec() == QDialog::Accepted)
+		_view->load();
 }
 
 namespace Internal {

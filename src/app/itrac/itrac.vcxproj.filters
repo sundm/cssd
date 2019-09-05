@@ -372,6 +372,12 @@
     <ClCompile Include="widget\analyse\sterilepage.cpp">
       <Filter>Source Files\widget\analyse</Filter>
     </ClCompile>
+    <ClCompile Include="dialog\resetuserPwddialog.cpp">
+      <Filter>Source Files\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="dialog\adddptdialog.cpp">
+      <Filter>Source Files\dialog</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="devicepage.h">
@@ -622,6 +628,12 @@
     </QtMoc>
     <QtMoc Include="widget\analyse\sterilepage.h">
       <Filter>Source Files\widget\analyse</Filter>
+    </QtMoc>
+    <QtMoc Include="dialog\resetuserPwddialog.h">
+      <Filter>Source Files\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="dialog\adddptdialog.h">
+      <Filter>Source Files\dialog</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

@@ -58,6 +58,7 @@ void DeptStatisticsPage::doSearch()
 {
 	int deptId = _deptEdit->currentId();
 	if (-1 == deptId) return;
+	_view->chart()->removeAllSeries();
 
 	QVariantMap data;
 	XDateScope ds = getMonthDateScope(_yearCombo->currentText().toInt(), _monthCombo->currentText().toInt());
