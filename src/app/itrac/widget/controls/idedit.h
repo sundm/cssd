@@ -56,3 +56,12 @@ public slots:
 	void loadForDepartment(int deptId);
 	void loadForCategary(const QString &catogary);
 };
+
+class InstrumentEdit : public IdEdit {
+	Q_OBJECT
+public:
+	InstrumentEdit(QWidget *parent = nullptr);
+
+public slots:
+	void load();
+};

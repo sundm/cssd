@@ -3,6 +3,7 @@
 #include "xnotifier.h"
 #include "core/net/url.h"
 #include "ui/buttons.h"
+#include "dialog/addpackagedialog.h"
 #include <xui/searchedit.h>
 
 #include <QtWidgets/QtWidgets>
@@ -42,6 +43,7 @@ namespace Internal {
 			for (int i = 0; i != pkgs.count(); ++i) {
 				QVariantMap map = pkgs[i].toMap();
 				_model->setData(_model->index(i, Name), map["package_name"]);
+				_model->setData(_model->index(i, Name), map["package_type_id"], 257);
 				_model->setData(_model->index(i, PackType), map["pack_type"]);
 				int steType = map["sterilize_type"].toInt();
 				_model->setData(_model->index(i, SteType), Internal::literalSteType(steType));
@@ -76,16 +78,16 @@ PackagePage::PackagePage(QWidget *parent)
 	, _searchBox(new SearchEdit)
 {
 	Ui::IconButton *refreshButton = new Ui::IconButton(":/res/refresh-24.png", "刷新");
-	connect(refreshButton, SIGNAL(clicked()), this, SLOT(addEntry()));
+	connect(refreshButton, SIGNAL(clicked()), this, SLOT(reflash()));
 
 	Ui::IconButton *addButton = new Ui::IconButton(":/res/plus-24.png", "添加");
 	connect(addButton, SIGNAL(clicked()), this, SLOT(addEntry()));
 
 	Ui::IconButton *modifyButton = new Ui::IconButton(":/res/write-24.png", "修改");
-	connect(modifyButton, SIGNAL(clicked()), this, SLOT(removeEntry()));
+	connect(modifyButton, SIGNAL(clicked()), this, SLOT(editEntry()));
 
 	Ui::IconButton *infoButton = new Ui::IconButton(":/res/info-24.png", "查看包详情");
-	connect(infoButton, SIGNAL(clicked()), this, SLOT(removeEntry()));
+	connect(infoButton, SIGNAL(clicked()), this, SLOT(infoEntry()));
 
 	//searchBox->setMinimumWidth(300);
 	_searchBox->setPlaceholderText("输入包名/拼音码搜索");
@@ -105,6 +107,33 @@ PackagePage::PackagePage(QWidget *parent)
 	layout->addWidget(_view);
 
 	QTimer::singleShot(0, [this] {_view->load(); });
+}
+
+void PackagePage::reflash()
+{
+
+}
+
+void PackagePage::addEntry()
+{
+	AddPackageDialog d(this);
+	if (QDialog::Accepted == d.exec())
+		reflash();
+}
+
+void PackagePage::editEntry()
+{
+	QModelIndexList indexes = _view->selectionModel()->selectedRows();
+	if (indexes.count() == 0) return;
+	int row = indexes[0].row();
+
+	QString id = _view->model()->data(_view->model()->index(row, 0), 257).toString();
+
+}
+
+void PackagePage::infoEntry()
+{
+
 }
 
 void PackagePage::search() {

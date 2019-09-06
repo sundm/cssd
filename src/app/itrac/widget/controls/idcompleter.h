@@ -44,3 +44,15 @@ private:
 	void loadInternal(const QByteArray &data);
 	JsonHttpClient _http;
 };
+
+class InstrumentCompleter : public IdCompleter
+{
+	Q_OBJECT
+public:
+	InstrumentCompleter(QObject *parent = nullptr);
+	void load();
+
+private:
+	void loadInternal(const QByteArray &data);
+	JsonHttpClient _http;
+};

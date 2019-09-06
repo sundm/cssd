@@ -1,4 +1,5 @@
 #include "xhttpclient.h"
+#include "xhttpresponse.h"
 #include <qnetworkreply>
 #include <QEventLoop>
 
@@ -86,4 +87,23 @@ QNetworkReply * XHttpClient::post(const QString &url, const QByteArray &data)
 	loop.exec();
 
 	return reply;
+}
+
+const QByteArray XHttpClient::post(const QString &url, QHttpMultiPart *multiPart)
+{
+	QUrl destUrl(url);
+	QNetworkRequest request(destUrl);
+
+	QNetworkAccessManager nam;
+	QNetworkReply *reply = nam.post(request, multiPart);
+
+	QEventLoop loop;
+	QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+	loop.exec();
+
+	XHttpResponse resp(reply);
+	if (resp.success())
+		return resp.data();
+	else
+		return nullptr;
 }

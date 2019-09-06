@@ -34,6 +34,12 @@ class PackagePage : public QWidget
 public:
 	PackagePage(QWidget *parent = Q_NULLPTR);
 
+private slots:
+	void reflash();
+	void addEntry();
+	void editEntry();
+	void infoEntry();
+
 private:
 	void search();
 

@@ -140,3 +140,14 @@ void PackageEdit::loadForCategary(const QString &categary) {
 	PackageCompleter *completer = static_cast<PackageCompleter *>(this->completer());
 	completer->loadForCategory(categary);
 }
+
+InstrumentEdit::InstrumentEdit(QWidget *parent /*= nullptr*/)
+	:IdEdit(parent) {
+	setCompleter(new InstrumentCompleter(this));
+}
+
+void InstrumentEdit::load() {
+	reset();
+	InstrumentCompleter *completer = static_cast<InstrumentCompleter *>(this->completer());
+	completer->load();
+}

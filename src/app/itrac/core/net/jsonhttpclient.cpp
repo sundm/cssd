@@ -25,6 +25,10 @@ void JsonHttpClient::post(const QString &url, const QVariantMap &vmap,
 	post(url, payload, finishCallback);
 }
 
+const QByteArray JsonHttpClient::post(const QString &url, QHttpMultiPart *multiPart) {
+	return XHttpClient::post(url, multiPart);
+}
+
 void JsonHttpClient::post(const QString &url, const QByteArray &data,
 	const std::function<void(QNetworkReply *)> &finishCallback,
 	const std::function<void(const QString &)> &errorCallback/* = nullptr*/)

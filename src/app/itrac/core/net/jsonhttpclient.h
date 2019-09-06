@@ -16,6 +16,8 @@ public:
 		const QVariantMap &vmap,
 		const std::function<void(QNetworkReply *)> & finishCallback);
 
+	const QByteArray post(const QString &url, QHttpMultiPart *multiPart);
+
 	void post(
 		const QString &url,
 		const QByteArray &data,

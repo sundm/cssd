@@ -19,6 +19,7 @@
 #include <QParallelAnimationGroup>
 #include <QGraphicsOpacityEffect>
 #include <QProcess>
+#include <QDir>
 
 #include <printer/labelprinter.h>
 #include "util/printermanager.h"
@@ -198,6 +199,24 @@ namespace Widget {
 						qApp->quit();
 						
 					}
+					else {
+						//todo pic md5
+						QString path("./photo/package");
+						QDir dir(path);
+						QStringList nameFilters;
+						nameFilters << "*.jpg" << "*.png";
+						QStringList files = dir.entryList(nameFilters, QDir::Files | QDir::Readable, QDir::Name);
+						QMap<QString, QString> picFileMap;
+						for each (QString file in files)
+						{
+							QString filefullPath = path.append("/").append(file);
+							QFileInfo fi(filefullPath);
+							QString base = fi.baseName();
+							QString md5 = getFileMd5(filefullPath);
+							picFileMap.insert(base, md5);
+						}
+
+					}
 				}
 				else {
 					error->shake(QString("获取版本号错误：%1").arg(resp.getAsString("msg")));
@@ -205,6 +224,15 @@ namespace Widget {
 				}
 			}
 		});
+	}
+
+	const QString LoginPanel::getFileMd5(QString filePath)
+	{
+		QFile theFile(filePath);
+		theFile.open(QIODevice::ReadOnly);
+		QByteArray ba = QCryptographicHash::hash(theFile.readAll(), QCryptographicHash::Md5);
+		theFile.close();
+		return QString(ba.toHex().constData());
 	}
 
 	void LoginPanel::login(const QString &account, const QString &pwd) {

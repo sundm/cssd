@@ -30,6 +30,8 @@ namespace Widget {
 		void login(const QString &, const QString &);
 		void version();
 
+		const QString getFileMd5(QString filePath);
+
 		Ui::FlatEdit *userEdit;
 		Ui::FlatEdit *pwdEdit;
 		Ui::ErrorLabel *error;
@@ -45,9 +47,6 @@ namespace Widget {
 
 	signals:
 		void permitted();
-
-	protected:
-		//void hideAnimated() override;
 
 	private:
 		Ui::Picture * _headPic;

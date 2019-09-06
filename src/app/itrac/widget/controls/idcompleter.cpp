@@ -87,3 +87,32 @@ void PackageCompleter::loadInternal(const QByteArray &data) {
 	});
 }
 
+InstrumentCompleter::InstrumentCompleter(QObject *parent /*= nullptr*/)
+	: IdCompleter(parent) {
+}
+
+void InstrumentCompleter::load() {
+	QByteArray data("{}");
+	loadInternal(data);
+}
+
+void InstrumentCompleter::loadInternal(const QByteArray &data) {
+	_http.post(url(PATH_INSTRUMENT_SEARCH), data, [=](QNetworkReply *reply) {
+		JsonHttpResponse resp(reply);
+		if (!resp.success()) {
+			emit error(resp.errorString());
+			return;
+		}
+
+		_model->clear();
+
+		QList<QVariant> pkgs = resp.getAsList("instrument_list");
+		for (auto &pkg : pkgs) {
+			QVariantMap map = pkg.toMap();
+			QStandardItem *pkgItem = new QStandardItem(map["instrument_name"].toString());
+			pkgItem->setData(map["instrument_id"], Constant::IdRole);
+			pkgItem->setData(map["pinyin_code"], Constant::PinyinRole);
+			_model->appendRow(pkgItem);
+		}
+	});
+}
