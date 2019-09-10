@@ -6,7 +6,7 @@
 #include "ui/container.h"
 #include "ui/ui_commons.h"
 #include "ui/composite/waitingspinner.h"
-
+#include <thirdparty/qjson/src/parser.h>
 #include "core/net/url.h"
 #include "core/user.h"
 #include "core/constants.h"
@@ -14,13 +14,14 @@
 #include "core/barcode.h"
 
 #include <QVBoxLayout>
+#include <QProgressBar>
 #include <QAction>
 #include <QPropertyAnimation>
 #include <QParallelAnimationGroup>
 #include <QGraphicsOpacityEffect>
 #include <QProcess>
 #include <QDir>
-
+#include <QNetworkReply>
 #include <printer/labelprinter.h>
 #include "util/printermanager.h"
 
@@ -75,6 +76,7 @@ namespace Widget {
 		, userEdit(new Ui::FlatEdit("工号", this))
 		, pwdEdit(new Ui::FlatEdit("密码", this))
 		, error(new Ui::ErrorLabel("用户名或密码不正确", this))
+		, bar(new QProgressBar(this))
 		, _waiter(new WaitingSpinner(this))
 	{
 		QVBoxLayout *layout = new QVBoxLayout(this);
@@ -97,6 +99,9 @@ namespace Widget {
 
 		error->hide();
 		layout->addWidget(error);
+
+		bar->hide();
+		layout->addWidget(bar);
 
 		Ui::addSpacer(layout, Qt::Vertical);
 
@@ -206,16 +211,71 @@ namespace Widget {
 						QStringList nameFilters;
 						nameFilters << "*.jpg" << "*.png";
 						QStringList files = dir.entryList(nameFilters, QDir::Files | QDir::Readable, QDir::Name);
-						QMap<QString, QString> picFileMap;
+
+						QVariantList codeList;
 						for each (QString file in files)
 						{
-							QString filefullPath = path.append("/").append(file);
+							QVariantMap code_map;
+
+							QString filefullPath = QString("%1/%2").arg(path).arg(file);
 							QFileInfo fi(filefullPath);
 							QString base = fi.baseName();
 							QString md5 = getFileMd5(filefullPath);
-							picFileMap.insert(base, md5);
+
+							code_map.insert("package_type_id", base);
+							code_map.insert("md_hash_code", md5);
+							codeList << code_map;
 						}
 
+						QVariantMap vmap;
+						vmap.insert("codes", codeList);
+
+						post(url(PATH_PKGTPYE_PKGIDS), vmap, [=](QNetworkReply *reply) {
+							JsonHttpResponse resp(reply);
+							if (!resp.success()) {
+								error->shake(QString("获取包图片错误：%1").arg(resp.errorString()));
+							}
+							else
+							{
+								QList<QVariant> pkg_ids = resp.getAsList("pkg_ids");
+								if (pkg_ids.size() > 0)
+								{
+									bar->setRange(0, pkg_ids.size());
+									bar->setHidden(false);
+								}
+								for (int i = 0; i != pkg_ids.count(); ++i) {
+									int package_type_id = pkg_ids[i].toInt();
+
+									QString req("{\"package_type_id\":%1 }");
+									QByteArray data;
+									data.append(req.arg(package_type_id));
+
+									QByteArray bytes = post(url(PATH_PKGTPYE_DOWNLOAD_IMG), data);
+
+									if (bytes != nullptr)
+									{
+										QString filefullPath = QString("%1/%2.png").arg(path).arg(package_type_id);
+										QFile file(filefullPath);
+
+										if (file.open(QIODevice::WriteOnly))
+											file.write(bytes);
+				
+										file.close();
+
+										bar->setValue(i + 1);
+										double dProgress = (bar->value() - bar->minimum()) * 100.0
+											/ (bar->maximum() - bar->minimum());
+										bar->setFormat(QString("正在更新资源，当前进度为：%1%").arg(QString::number(dProgress, 'f', 1)));
+									}
+									else
+									{
+										bar->hide();
+										error->shake(QString("下载图片出错:%1").arg(package_type_id));
+									}
+								}
+								
+							}
+						});
 					}
 				}
 				else {

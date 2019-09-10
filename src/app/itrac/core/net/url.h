@@ -30,6 +30,8 @@ extern const char PATH_RECYCLE_ADD[];
 extern const char PATH_RECYCLE_SEARCH[];
 extern const char PATH_PKGTPYE_SEARCH[];
 extern const char PATH_PKGTPYE_ADD[];
+extern const char PATH_PKGTPYE_PKGIDS[];
+extern const char PATH_PKGTPYE_MODIFY[];
 extern const char PATH_PKGTPYE_UPLOAD_IMG[];
 extern const char PATH_PKGTPYE_DOWNLOAD_IMG[];
 extern const char PATH_PKGDETAIL_SEARCH[];

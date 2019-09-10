@@ -29,6 +29,12 @@ const QByteArray JsonHttpClient::post(const QString &url, QHttpMultiPart *multiP
 	return XHttpClient::post(url, multiPart);
 }
 
+const QByteArray JsonHttpClient::post(const QString &url, const QByteArray &data) {
+	qDebug() << ">>> " << data;
+	setHeader("content-type", "application/json");
+	return XHttpClient::post(url, data);
+}
+
 void JsonHttpClient::post(const QString &url, const QByteArray &data,
 	const std::function<void(QNetworkReply *)> &finishCallback,
 	const std::function<void(const QString &)> &errorCallback/* = nullptr*/)

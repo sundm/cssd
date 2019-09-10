@@ -1,4 +1,4 @@
-#include "addpackagedialog.h"
+#include "modifypackagedialog.h"
 #include "xnotifier.h"
 #include "core/constants.h"
 #include "core/user.h"
@@ -21,7 +21,7 @@
 #include <QTimer>
 #include <QSpinBox>
 
-AddPackageDialog::AddPackageDialog(QWidget *parent)
+ModifyPackageDialog::ModifyPackageDialog(QWidget *parent, const PackageInfo info, const QList<QVariant> orders)
 	: QDialog(parent)
 	, _pkgNameEdit(new Ui::FlatEdit)
 	, _pkgPinYinCodeEdit(new Ui::FlatEdit)
@@ -34,6 +34,15 @@ AddPackageDialog::AddPackageDialog(QWidget *parent)
 	, _model(new QStandardItemModel(0, 2, _view))
 	, _imgLabel(new XPicture(this))
 {
+	_info = info;
+	_orders = orders;
+
+	_package_type_id = info.package_type_id.toInt();
+	_pkgNameEdit->setText(_info.package_name);
+	_pkgNameEdit->setReadOnly(true);
+	_pkgPinYinCodeEdit->setText(_info.package_pinyin);
+
+
 	FormGroup * pkgGroup = new FormGroup(this);
 	pkgGroup->addRow("包名 (*)", _pkgNameEdit);
 	pkgGroup->addRow("拼音检索 (*)", _pkgPinYinCodeEdit);
@@ -64,8 +73,8 @@ AddPackageDialog::AddPackageDialog(QWidget *parent)
 	viewGroup->addRow("添加器械 (*)", w);
 	viewGroup->addRow("器械列表",_view);
 
-	setWindowTitle("添加包信息");
-	_commitButton = new Ui::PrimaryButton("添加", Ui::BtnSize::Small);
+	setWindowTitle("修改包信息");
+	_commitButton = new Ui::PrimaryButton("修改", Ui::BtnSize::Small);
 	connect(_commitButton, SIGNAL(clicked()), this, SLOT(accept()));
 
 	_imgLabel->setFixedHeight(256);
@@ -99,10 +108,10 @@ AddPackageDialog::AddPackageDialog(QWidget *parent)
 
 	resize(900, sizeHint().height());
 
-	QTimer::singleShot(0, this, &AddPackageDialog::initData);
+	QTimer::singleShot(0, this, &ModifyPackageDialog::initData);
 }
 
-void AddPackageDialog::initInstrumentView() {
+void ModifyPackageDialog::initInstrumentView() {
 	_model->setHeaderData(0, Qt::Horizontal, "器械名称");
 	_model->setHeaderData(1, Qt::Horizontal, "数量");
 	_view->setModel(_model);
@@ -115,18 +124,30 @@ void AddPackageDialog::initInstrumentView() {
 	header->setStretchLastSection(true);
 	header->resizeSection(0, 150);
 	header->resizeSection(1, 50);
+
+	for (int i = 0; i != _orders.count(); ++i) {
+		QVariantMap map = _orders[i].toMap();
+		QList<QStandardItem *> items;
+		QStandardItem *insItem = new QStandardItem(map["instrument_name"].toString());
+		insItem->setData(map["instrument_id"].toInt());
+		items << insItem << new QStandardItem(map["instrument_number"].toString());
+		_model->appendRow(items);
+	}
 }
 
-void AddPackageDialog::initData() {
+void ModifyPackageDialog::initData() {
 	_pkgtypeBox->addItem(QString("手术包"), 0);
 	_pkgtypeBox->addItem(QString("临床包"), 1);
 	_pkgtypeBox->addItem(QString("外来包"), 2);
 	_pkgtypeBox->addItem(QString("敷料包"), 3);
 	_pkgtypeBox->addItem(QString("通用包"), 4);
 
+	_pkgtypeBox->setCurrentIndex(_info.package_category.toInt());
+
 	_stertypeBox->addItem(QString("通用"), 0);
 	_stertypeBox->addItem(QString("高温"), 1);
 	_stertypeBox->addItem(QString("低温"), 2);
+	_stertypeBox->setCurrentIndex(_info.steType);
 
 	_picktypeBox->clear();
 
@@ -145,13 +166,20 @@ void AddPackageDialog::initData() {
 			_picktypeBox->addItem(map["pack_type_name"].toString(), map["pack_type_id"].toInt());
 		}
 
+		_picktypeBox->setCurrentText(_info.pack_type);
 	});
 
 	_deptEdit->load(DeptEdit::ALL);
+	_deptEdit->setCurrentIdPicked(_info.dtp_id.toInt(), _info.dtp_name);
+
 	_insEdit->load();
+
+	QString imgPath = QString("./photo/package/%1.png").arg(_info.package_type_id);
+	_imgLabel->setImage(imgPath);
+	_imgLabel->setHidden(false);
 }
 
-void AddPackageDialog::addEntry() {
+void ModifyPackageDialog::addEntry() {
 	int insId = _insEdit->currentId();
 
 	if (insId == 0) return;
@@ -175,7 +203,7 @@ void AddPackageDialog::addEntry() {
 	_insEdit->reset();
 }
 
-void AddPackageDialog::removeEntry() {
+void ModifyPackageDialog::removeEntry() {
 	QItemSelectionModel *selModel = _view->selectionModel();
 	QModelIndexList indexes = selModel->selectedRows();
 	int countRow = indexes.count();
@@ -183,7 +211,7 @@ void AddPackageDialog::removeEntry() {
 		_model->removeRow(indexes.at(i - 1).row());
 }
 
-void AddPackageDialog::accept() {
+void ModifyPackageDialog::accept() {
 	QString package_type_name = _pkgNameEdit->text();
 	if (package_type_name.isEmpty()) {
 		_pkgNameEdit->setFocus();
@@ -202,7 +230,7 @@ void AddPackageDialog::accept() {
 
 	int pack_type_id = _picktypeBox->currentData().toInt();
 	if (0 == pack_type_id) {
-		_picktypeBox->showPopup();
+		_picktypeBox->setFocus();
 		return;
 	}
 
@@ -223,6 +251,7 @@ void AddPackageDialog::accept() {
 	}
 
 	QVariantMap data;
+	data.insert("package_type_id", _package_type_id);
 	data.insert("package_type_name", package_type_name);
 	data.insert("package_category", package_category);
 	data.insert("pinyin_code", pinyin_code);
@@ -231,22 +260,22 @@ void AddPackageDialog::accept() {
 	data.insert("sterilize_type", sterilize_type);
 	data.insert("instruments", instruments);
 
-	post(url(PATH_PKGTPYE_ADD), data, [this](QNetworkReply *reply) {
+	post(url(PATH_PKGTPYE_MODIFY), data, [this](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
-			XNotifier::warn(QString("添加包记录失败: ").append(resp.errorString()));
+			XNotifier::warn(QString("更新包记录失败: ").append(resp.errorString()));
 			return;
 		}
 		
 		//upload img
 		if (!_imgFilePath.isEmpty())
 		{
-			_package_type_id = 0;
-			_package_type_id = resp.getAsInt("package_type_id");
 			if (0 != _package_type_id) uploadImg();
 			return QDialog::accept();
 		}
-		
+		else {
+			return QDialog::accept();
+		}
 	});
 }
 /*
@@ -296,7 +325,7 @@ void AddPackageDialog::setInfo(const QString& pkg_type_id) {
 }
 */
 
-void AddPackageDialog::uploadImg() {
+void ModifyPackageDialog::uploadImg() {
 	_multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 
 	QHttpPart imagePart;
@@ -335,7 +364,7 @@ void AddPackageDialog::uploadImg() {
 	}
 }
 
-bool AddPackageDialog::copyFileToPath(QString sourceDir, QString toDir, bool coverFileIfExist)
+bool ModifyPackageDialog::copyFileToPath(QString sourceDir, QString toDir, bool coverFileIfExist)
 {
 	toDir.replace("\\", "/");
 
@@ -358,7 +387,7 @@ bool AddPackageDialog::copyFileToPath(QString sourceDir, QString toDir, bool cov
 	return QFile::copy(sourceDir, toDir);
 }
 
-void AddPackageDialog::loadImg() {
+void ModifyPackageDialog::loadImg() {
 	QFileDialog *fileDialog = new QFileDialog(this);
 	fileDialog->setWindowTitle(tr("打开图片"));
 	fileDialog->setDirectory(".");
@@ -385,11 +414,11 @@ void AddPackageDialog::imgClicked()
 }
 */
 
-void AddPackageDialog::loadData() {
+void ModifyPackageDialog::loadData() {
 
 }
 
-int AddPackageDialog::findRow(int insId) {
+int ModifyPackageDialog::findRow(int insId) {
 	QModelIndexList matches = _model->match(_model->index(0, 0), Qt::UserRole + 1, insId, -1);
 	for (const QModelIndex &index : matches) {	
 		return index.row();

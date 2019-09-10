@@ -252,3 +252,20 @@ Tip {
   background: #f1f8ff;
   border-color: #c8e1ff;
 }
+
+QProgressBar {
+   border: 2px solid grey;
+   border-radius: 5px;
+   background-color: #FFFFFF;
+}
+
+QProgressBar::chunk {
+   background-color: #afdfe4;
+   width: 20px;
+}
+
+QProgressBar {
+   border: 2px solid grey;
+   border-radius: 5px;
+   text-align: center;
+}

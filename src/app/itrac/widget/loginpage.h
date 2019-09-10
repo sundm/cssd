@@ -14,6 +14,7 @@ namespace Ui {
 } // namespace Ui 
 
 class WaitingSpinner;
+class QProgressBar;
 
 namespace Widget {
 	class LoginPanel : public Ui::Inner, public Scanable, public JsonHttpClient
@@ -35,6 +36,7 @@ namespace Widget {
 		Ui::FlatEdit *userEdit;
 		Ui::FlatEdit *pwdEdit;
 		Ui::ErrorLabel *error;
+		QProgressBar *bar;
 		WaitingSpinner *_waiter;
 	};
 

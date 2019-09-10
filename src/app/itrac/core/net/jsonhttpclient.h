@@ -18,6 +18,8 @@ public:
 
 	const QByteArray post(const QString &url, QHttpMultiPart *multiPart);
 
+	const QByteArray post(const QString &url, const QByteArray &data);
+
 	void post(
 		const QString &url,
 		const QByteArray &data,

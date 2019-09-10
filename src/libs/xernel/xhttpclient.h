@@ -25,7 +25,7 @@ public:
 		const std::function<void(const QString &)> &errorCallback = nullptr);
 
 	// synchronous post method
-	QNetworkReply *post(const QString &url, const QByteArray &data);
+	const QByteArray post(const QString &url, const QByteArray &data);
 
 	// synchronous post method
 	const QByteArray post(const QString &url, QHttpMultiPart *multiPart);

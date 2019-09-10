@@ -62,7 +62,7 @@ void XHttpClient::post(const QString &url,
 	}
 }
 
-QNetworkReply * XHttpClient::post(const QString &url, const QByteArray &data)
+const QByteArray XHttpClient::post(const QString &url, const QByteArray &data)
 {
 	QUrl destUrl(url);
 	QNetworkRequest request(destUrl);
@@ -86,7 +86,11 @@ QNetworkReply * XHttpClient::post(const QString &url, const QByteArray &data)
 	QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
 	loop.exec();
 
-	return reply;
+	XHttpResponse resp(reply);
+	if (resp.success())
+		return resp.data();
+	else
+		return nullptr;
 }
 
 const QByteArray XHttpClient::post(const QString &url, QHttpMultiPart *multiPart)

@@ -38,11 +38,14 @@ private slots:
 	void reflash();
 	void addEntry();
 	void editEntry();
-	void infoEntry();
+	//void infoEntry();
+	void slotRowDoubleClicked(const QModelIndex &);
 
 private:
 	void search();
+	void editRow(int row);
 
 	Internal::PackageAssetView *_view;
 	SearchEdit *_searchBox;
+	JsonHttpClient _http;
 };

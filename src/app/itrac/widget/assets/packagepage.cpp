@@ -4,6 +4,7 @@
 #include "core/net/url.h"
 #include "ui/buttons.h"
 #include "dialog/addpackagedialog.h"
+#include "dialog/modifypackagedialog.h"
 #include <xui/searchedit.h>
 
 #include <QtWidgets/QtWidgets>
@@ -45,11 +46,14 @@ namespace Internal {
 				_model->setData(_model->index(i, Name), map["package_name"]);
 				_model->setData(_model->index(i, Name), map["package_type_id"], 257);
 				_model->setData(_model->index(i, PackType), map["pack_type"]);
+				_model->setData(_model->index(i, PackType), map["package_category"], 257);
 				int steType = map["sterilize_type"].toInt();
 				_model->setData(_model->index(i, SteType), Internal::literalSteType(steType));
 				_model->setData(_model->index(i, SteType), Internal::brushForSteType(steType), Qt::BackgroundRole);
+				_model->setData(_model->index(i, SteType), map["sterilize_type"], 257);
 				_model->setData(_model->index(i, Pinyin), map["pinyin_code"]);
 				_model->setData(_model->index(i, Department), map["department_name"]);
+				_model->setData(_model->index(i, Department), map["department_id"], 257);
 			}
 		});
 	}
@@ -86,8 +90,8 @@ PackagePage::PackagePage(QWidget *parent)
 	Ui::IconButton *modifyButton = new Ui::IconButton(":/res/write-24.png", "修改");
 	connect(modifyButton, SIGNAL(clicked()), this, SLOT(editEntry()));
 
-	Ui::IconButton *infoButton = new Ui::IconButton(":/res/info-24.png", "查看包详情");
-	connect(infoButton, SIGNAL(clicked()), this, SLOT(infoEntry()));
+	//Ui::IconButton *infoButton = new Ui::IconButton(":/res/info-24.png", "查看包详情");
+	//connect(infoButton, SIGNAL(clicked()), this, SLOT(infoEntry()));
 
 	//searchBox->setMinimumWidth(300);
 	_searchBox->setPlaceholderText("输入包名/拼音码搜索");
@@ -97,7 +101,7 @@ PackagePage::PackagePage(QWidget *parent)
 	hLayout->addWidget(refreshButton);
 	hLayout->addWidget(addButton);
 	hLayout->addWidget(modifyButton);
-	hLayout->addWidget(infoButton);
+	//hLayout->addWidget(infoButton);
 	hLayout->addStretch(0);
 	hLayout->addWidget(_searchBox);
 
@@ -107,11 +111,20 @@ PackagePage::PackagePage(QWidget *parent)
 	layout->addWidget(_view);
 
 	QTimer::singleShot(0, [this] {_view->load(); });
+
+	connect(_view, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(slotRowDoubleClicked(const QModelIndex &)));
+
+}
+
+void PackagePage::slotRowDoubleClicked(const QModelIndex &index)
+{
+	int row = index.row();
+	editRow(row);
 }
 
 void PackagePage::reflash()
 {
-
+	QTimer::singleShot(0, [this] {_view->load(); });
 }
 
 void PackagePage::addEntry()
@@ -127,13 +140,45 @@ void PackagePage::editEntry()
 	if (indexes.count() == 0) return;
 	int row = indexes[0].row();
 
-	QString id = _view->model()->data(_view->model()->index(row, 0), 257).toString();
-
+	editRow(row);
 }
 
-void PackagePage::infoEntry()
+void PackagePage::editRow(int row)
 {
+	QString package_name = _view->model()->data(_view->model()->index(row, 0)).toString();
+	QString package_type_id = _view->model()->data(_view->model()->index(row, 0), 257).toString();
+	QString pack_type = _view->model()->data(_view->model()->index(row, 1)).toString();
+	QString package_category = _view->model()->data(_view->model()->index(row, 1), 257).toString();
+	int steType = _view->model()->data(_view->model()->index(row, 2), 257).toInt();
+	QString package_pinyin = _view->model()->data(_view->model()->index(row, 3)).toString();
+	QString dtp_name = _view->model()->data(_view->model()->index(row, 4)).toString();
+	QString dtp_id = _view->model()->data(_view->model()->index(row, 4), 257).toString();
 
+	PackageInfo info;
+	info.package_name = package_name;
+	info.package_type_id = package_type_id;
+	info.pack_type = pack_type;
+	info.package_category = package_category;
+	info.steType = steType;
+	info.package_pinyin = package_pinyin;
+	info.dtp_name = dtp_name;
+	info.dtp_id = dtp_id;
+
+	QByteArray data("{\"package_type_id\":");
+	data.append(package_type_id).append('}');
+	_http.post(url(PATH_PKGDETAIL_SEARCH), QByteArray().append(data), [=](QNetworkReply *reply) {
+		JsonHttpResponse resp(reply);
+		if (!resp.success()) {
+			XNotifier::warn(QString("无法获取包信息: ").append(resp.errorString()));
+			return;
+		}
+
+		QList<QVariant> orders = resp.getAsList("instruments");
+
+		ModifyPackageDialog d(this, info, orders);
+		if (QDialog::Accepted == d.exec())
+			reflash();
+	});
 }
 
 void PackagePage::search() {
