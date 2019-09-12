@@ -33,11 +33,20 @@ namespace Widget {
 
 		const QString getFileMd5(QString filePath);
 
+		void getPkgImgs();
+		void getInsImgs();
+
+		void downloadPkgImgs();
+		void downloadInsImgs();
+
 		Ui::FlatEdit *userEdit;
 		Ui::FlatEdit *pwdEdit;
 		Ui::ErrorLabel *error;
 		QProgressBar *bar;
 		WaitingSpinner *_waiter;
+
+		QList<QVariant> _pkg_ids;
+		QList<QVariant> _ins_ids;
 	};
 
 	class LoginPage : public Ui::Source

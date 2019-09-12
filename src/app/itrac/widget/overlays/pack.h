@@ -21,7 +21,6 @@ private slots:
 	void showDetail(const QModelIndex &index);
 	void reprint();
 	void abnormal();
-
 private:
 	PackPlateView * _plateView;
 	PackageDetailView * _detailView;

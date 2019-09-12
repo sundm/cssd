@@ -12,7 +12,7 @@ class InstrumentAssetView : public TableView
 	Q_OBJECT
 
 public:
-	enum Column {Name, Id, Vip, Pinyin};
+	enum Column {Name, Id, Vip, Implant, Pinyin};
 	InstrumentAssetView(QWidget *parent = nullptr);
 	void load(int page = 0, int count = 10);
 
@@ -36,6 +36,7 @@ private slots:
 	void refresh();
 	void add();
 	void modify();
+	void slotRowDoubleClicked(const QModelIndex &);
 
 private:
 	Internal::InstrumentAssetView *_view;

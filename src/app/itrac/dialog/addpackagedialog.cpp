@@ -246,6 +246,9 @@ void AddPackageDialog::accept() {
 			if (0 != _package_type_id) uploadImg();
 			return QDialog::accept();
 		}
+		else {
+			return QDialog::accept();
+		}
 		
 	});
 }
@@ -300,7 +303,7 @@ void AddPackageDialog::uploadImg() {
 	_multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 
 	QHttpPart imagePart;
-	imagePart.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("image/jpeg"));
+	imagePart.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("image/png"));
 	QString head = QString("form-data; name=\"file\"; filename=\"%1.png\"").arg(_package_type_id);
 	imagePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant(head));
 	_imgFile = new QFile(_imgFilePath);

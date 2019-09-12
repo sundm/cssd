@@ -205,77 +205,8 @@ namespace Widget {
 						
 					}
 					else {
-						//todo pic md5
-						QString path("./photo/package");
-						QDir dir(path);
-						QStringList nameFilters;
-						nameFilters << "*.jpg" << "*.png";
-						QStringList files = dir.entryList(nameFilters, QDir::Files | QDir::Readable, QDir::Name);
-
-						QVariantList codeList;
-						for each (QString file in files)
-						{
-							QVariantMap code_map;
-
-							QString filefullPath = QString("%1/%2").arg(path).arg(file);
-							QFileInfo fi(filefullPath);
-							QString base = fi.baseName();
-							QString md5 = getFileMd5(filefullPath);
-
-							code_map.insert("package_type_id", base);
-							code_map.insert("md_hash_code", md5);
-							codeList << code_map;
-						}
-
-						QVariantMap vmap;
-						vmap.insert("codes", codeList);
-
-						post(url(PATH_PKGTPYE_PKGIDS), vmap, [=](QNetworkReply *reply) {
-							JsonHttpResponse resp(reply);
-							if (!resp.success()) {
-								error->shake(QString("获取包图片错误：%1").arg(resp.errorString()));
-							}
-							else
-							{
-								QList<QVariant> pkg_ids = resp.getAsList("pkg_ids");
-								if (pkg_ids.size() > 0)
-								{
-									bar->setRange(0, pkg_ids.size());
-									bar->setHidden(false);
-								}
-								for (int i = 0; i != pkg_ids.count(); ++i) {
-									int package_type_id = pkg_ids[i].toInt();
-
-									QString req("{\"package_type_id\":%1 }");
-									QByteArray data;
-									data.append(req.arg(package_type_id));
-
-									QByteArray bytes = post(url(PATH_PKGTPYE_DOWNLOAD_IMG), data);
-
-									if (bytes != nullptr)
-									{
-										QString filefullPath = QString("%1/%2.png").arg(path).arg(package_type_id);
-										QFile file(filefullPath);
-
-										if (file.open(QIODevice::WriteOnly))
-											file.write(bytes);
-				
-										file.close();
-
-										bar->setValue(i + 1);
-										double dProgress = (bar->value() - bar->minimum()) * 100.0
-											/ (bar->maximum() - bar->minimum());
-										bar->setFormat(QString("正在更新资源，当前进度为：%1%").arg(QString::number(dProgress, 'f', 1)));
-									}
-									else
-									{
-										bar->hide();
-										error->shake(QString("下载图片出错:%1").arg(package_type_id));
-									}
-								}
-								
-							}
-						});
+						//get package Img
+						getPkgImgs();
 					}
 				}
 				else {
@@ -284,6 +215,172 @@ namespace Widget {
 				}
 			}
 		});
+	}
+
+	void LoginPanel::getPkgImgs() {
+		QString path("./photo/package");
+		QDir dir(path);
+		QStringList nameFilters;
+		nameFilters << "*.jpg" << "*.png";
+		QStringList files = dir.entryList(nameFilters, QDir::Files | QDir::Readable, QDir::Name);
+
+		QVariantList codeList;
+		for each (QString file in files)
+		{
+			QVariantMap code_map;
+
+			QString filefullPath = QString("%1/%2").arg(path).arg(file);
+			QFileInfo fi(filefullPath);
+			QString base = fi.baseName();
+			QString md5 = getFileMd5(filefullPath);
+
+			code_map.insert("package_type_id", base);
+			code_map.insert("md_hash_code", md5);
+			codeList << code_map;
+		}
+
+		QVariantMap vmap;
+		vmap.insert("codes", codeList);
+
+		post(url(PATH_PKGTPYE_PKGIDS), vmap, [=](QNetworkReply *reply) {
+			JsonHttpResponse resp(reply);
+			if (!resp.success()) {
+				error->shake(QString("获取包图片错误：%1").arg(resp.errorString()));
+			}
+			else
+			{
+				_pkg_ids = resp.getAsList("pkg_ids");
+				getInsImgs();
+			}
+
+		});
+	}
+
+	void LoginPanel::getInsImgs() {
+		QString path("./photo/instrument");
+		QDir dir(path);
+		QStringList nameFilters;
+		nameFilters << "*.jpg" << "*.png";
+		QStringList files = dir.entryList(nameFilters, QDir::Files | QDir::Readable, QDir::Name);
+
+		QVariantList codeList;
+		for each (QString file in files)
+		{
+			QVariantMap code_map;
+
+			QString filefullPath = QString("%1/%2").arg(path).arg(file);
+			QFileInfo fi(filefullPath);
+			QString base = fi.baseName();
+			QString md5 = getFileMd5(filefullPath);
+
+			code_map.insert("ins_id", base);
+			code_map.insert("md_hash_code", md5);
+			codeList << code_map;
+		}
+
+		QVariantMap vmap;
+		vmap.insert("codes", codeList);
+
+		post(url(PATH_INSTRUMENT_INSIDS), vmap, [=](QNetworkReply *reply) {
+			JsonHttpResponse resp(reply);
+			if (!resp.success()) {
+				error->shake(QString("获取器械图片错误：%1").arg(resp.errorString()));
+			}
+			else
+			{
+				_ins_ids = resp.getAsList("ins_ids");
+
+				downloadPkgImgs();
+				downloadInsImgs();
+			}
+
+		});
+	}
+
+	void LoginPanel::downloadPkgImgs() {
+		QString path("./photo/package");
+
+		if (_pkg_ids.size() > 0)
+		{
+			bar->setRange(0, _pkg_ids.size());
+			bar->setHidden(false);
+		}
+		else
+			return;
+		
+		for (int i = 0; i != _pkg_ids.count(); ++i) {
+			int package_type_id = _pkg_ids[i].toInt();
+
+			QString req("{\"package_type_id\":%1 }");
+			QByteArray data;
+			data.append(req.arg(package_type_id));
+
+			QByteArray bytes = post(url(PATH_PKGTPYE_DOWNLOAD_IMG), data);
+
+			if (bytes != nullptr)
+			{
+				QString filefullPath = QString("%1/%2.png").arg(path).arg(package_type_id);
+				QFile file(filefullPath);
+
+				if (file.open(QIODevice::WriteOnly))
+					file.write(bytes);
+
+				file.close();
+
+				bar->setValue(i + 1);
+				double dProgress = (bar->value() - bar->minimum()) * 100.0
+					/ (bar->maximum() - bar->minimum());
+				bar->setFormat(QString("正在更新包图片，当前进度为：%1%").arg(QString::number(dProgress, 'f', 1)));
+			}
+			else
+			{
+				bar->hide();
+				error->shake(QString("下载包图片出错:%1").arg(package_type_id));
+			}
+		}
+	}
+
+	void LoginPanel::downloadInsImgs() {
+		QString path("./photo/instrument");
+
+		if (_ins_ids.size() > 0)
+		{
+			bar->setRange(0, _ins_ids.size());
+			bar->setHidden(false);
+		}
+		else
+			return;
+
+		for (int i = 0; i != _ins_ids.count(); ++i) {
+			int instrument_id = _ins_ids[i].toInt();
+
+			QString req("{\"instrument_id\":%1 }");
+			QByteArray data;
+			data.append(req.arg(instrument_id));
+
+			QByteArray bytes = post(url(PATH_INSTRUMENT_DOWNLOAD_IMG), data);
+
+			if (bytes != nullptr)
+			{
+				QString filefullPath = QString("%1/%2.png").arg(path).arg(instrument_id);
+				QFile file(filefullPath);
+
+				if (file.open(QIODevice::WriteOnly))
+					file.write(bytes);
+
+				file.close();
+
+				bar->setValue(i + 1);
+				double dProgress = (bar->value() - bar->minimum()) * 100.0
+					/ (bar->maximum() - bar->minimum());
+				bar->setFormat(QString("正在更新器械图片，当前进度为：%1%").arg(QString::number(dProgress, 'f', 1)));
+			}
+			else
+			{
+				bar->hide();
+				error->shake(QString("下载器械图片出错:%1").arg(instrument_id));
+			}
+		}
 	}
 
 	const QString LoginPanel::getFileMd5(QString filePath)

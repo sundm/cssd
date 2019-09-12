@@ -8,6 +8,7 @@
 #include <xui/imageviewer.h>
 #include <QStandardItemModel>
 #include <QVBoxLayout>
+#include <QFile>
 
 AbstractPackageView::AbstractPackageView(QWidget *parent)
 	: TableView(parent), _model(new QStandardItemModel(this))
@@ -33,12 +34,13 @@ QVariantList AbstractPackageView::packages() const {
 
 SterilePackageView::SterilePackageView(QWidget *parent /*= nullptr*/)
 	: AbstractPackageView(parent) {
-	_model->setColumnCount(ExpireDate + 1);
+	_model->setColumnCount(Implant + 1);
 	_model->setHeaderData(Barcode, Qt::Horizontal, "包条码");
 	_model->setHeaderData(Name, Qt::Horizontal, "包名");
 	_model->setHeaderData(PackType, Qt::Horizontal, "包装类型");
 	_model->setHeaderData(Department, Qt::Horizontal, "所属科室");
 	_model->setHeaderData(ExpireDate, Qt::Horizontal, "失效日期");
+	_model->setHeaderData(Implant, Qt::Horizontal, "是否含有植入物");
 }
 
 void SterilePackageView::addPackage(const QString &id) {
@@ -60,7 +62,10 @@ void SterilePackageView::addPackage(const QString &id) {
 		rowItems << new QStandardItem(resp.getAsString("pack_type_name"));
 		rowItems << new QStandardItem(resp.getAsString("department_name"));
 		rowItems << new QStandardItem(resp.getAsString("valid_date"));
+		rowItems << new QStandardItem(resp.getAsBool("ins_count")?"是":"否");
 		_model->appendRow(rowItems);
+		if(resp.getAsBool("ins_count"))
+			XNotifier::warn(QString("该包含有植入物，请添加生物灭菌!"));
 	});
 }
 
@@ -264,6 +269,21 @@ PackageDetailView::PackageDetailView(QWidget *parent /*= nullptr*/)
 	_imgLabel->setHidden(true);
 
 	connect(_imgLabel, SIGNAL(clicked()), this, SLOT(imgClicked()));
+	connect(_view, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(slotItemDoubleClicked(const QModelIndex &)));
+
+}
+
+void PackageDetailView::slotItemDoubleClicked(const QModelIndex &index)
+{
+	int row = index.row();
+	QString instrument_id = _view->model()->data(_view->model()->index(row, 0), 257).toString();
+
+	QString fileName = QString("./photo/instrument/%1.png").arg(instrument_id);
+	QFile file(fileName);
+	if (file.exists()) {
+		ImageViewer *viewer = new ImageViewer(fileName);
+		viewer->showNormal();
+	}
 }
 
 void PackageDetailView::loadDetail(const QString& pkgTypeId) {
@@ -283,6 +303,7 @@ void PackageDetailView::loadDetail(const QString& pkgTypeId) {
 		for (int i = 0; i != orders.count(); ++i) {
 			QVariantMap map = orders[i].toMap();
 			_model->setData(_model->index(i, 0), map["instrument_name"]);
+			_model->setData(_model->index(i, 0), map["instrument_id"], 257);
 			_model->setData(_model->index(i, 1), map["instrument_number"]);
 		}
 

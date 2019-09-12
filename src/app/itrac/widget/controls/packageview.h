@@ -44,7 +44,7 @@ public:
 	void addPackage(const QString &) override;
 
 private:
-	enum { Barcode, Name, PackType, Department, ExpireDate };
+	enum { Barcode, Name, PackType, Department, ExpireDate, Implant};
 };
 
 class SterileCheckPackageView : public TableView
@@ -83,7 +83,7 @@ public:
 
 private slots:
 	void imgClicked();
-
+	void slotItemDoubleClicked(const QModelIndex &);
 private:
 	void imgLoad(const QString& pkgTypeId);
 
