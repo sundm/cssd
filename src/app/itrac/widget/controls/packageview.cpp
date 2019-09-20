@@ -23,6 +23,19 @@ bool AbstractPackageView::hasPackage(const QString &id) const
 	return !matches.isEmpty();
 }
 
+bool AbstractPackageView::hasImplantPackage() const
+{
+	bool b = false;
+	for (int i = 0; i != _model->rowCount(); i++) {
+		if (_model->data(_model->index(i, 0), Qt::UserRole + 1).toBool())
+		{
+			b = true;
+			break;
+		}
+	}
+	return b;
+}
+
 QVariantList AbstractPackageView::packages() const {
 	QVariantList list;
 	for (int i = 0; i != _model->rowCount(); i++) {
@@ -57,40 +70,48 @@ void SterilePackageView::addPackage(const QString &id) {
 			return;
 		}
 		QList<QStandardItem *> rowItems;
-		rowItems << new QStandardItem(id);
+		QStandardItem *idItem = new QStandardItem(id);
+		idItem->setData(resp.getAsBool("ins_count"));
+		rowItems << idItem;
 		rowItems << new QStandardItem(resp.getAsString("package_type_name"));
 		rowItems << new QStandardItem(resp.getAsString("pack_type_name"));
 		rowItems << new QStandardItem(resp.getAsString("department_name"));
 		rowItems << new QStandardItem(resp.getAsString("valid_date"));
-		rowItems << new QStandardItem(resp.getAsBool("ins_count")?"是":"否");
+		QStandardItem *insItem = new QStandardItem(resp.getAsBool("ins_count") ? "是" : "否");
+		insItem->setData(resp.getAsBool("ins_count") ? QBrush(QColor(255, 160, 122)) : QBrush(QColor(173, 216, 230)), Qt::BackgroundRole);
+		rowItems << insItem;
 		_model->appendRow(rowItems);
-		if(resp.getAsBool("ins_count"))
-			XNotifier::warn(QString("该包含有植入物，请添加生物灭菌!"));
+		
 	});
 }
 
 SterileCheckPackageView::SterileCheckPackageView(QWidget *parent /*= nullptr*/)
-	: TableView(parent), _model(new QStandardItemModel(0, 2, this)) {
+	: TableView(parent), _model(new QStandardItemModel(0, Implant+1, this)) {
 	_model->setHeaderData(Barcode, Qt::Horizontal, "包条码");
 	_model->setHeaderData(Name, Qt::Horizontal, "包名");
+	_model->setHeaderData(Implant, Qt::Horizontal, "是否含有植入物");
 	setModel(_model);
 	setEditTriggers(QAbstractItemView::NoEditTriggers);
 }
 
-void SterileCheckPackageView::addPackage(const QString &id, const QString &name) {
+void SterileCheckPackageView::addPackage(const QString &id, const QString &name, const bool &implant) {
 	QList<QStandardItem*> row;
 	row << new QStandardItem(id) << new QStandardItem(name);
+	QStandardItem *insItem = new QStandardItem(implant ? "是" : "否");
+	insItem->setData(implant ? QBrush(QColor(255, 160, 122)) : QBrush(QColor(173, 216, 230)), Qt::BackgroundRole);
+	row << insItem;
 	_model->appendRow(row);
 }
 
 DispatchPackageView::DispatchPackageView(QWidget *parent /*= nullptr*/)
 	: AbstractPackageView(parent) {
-	_model->setColumnCount(ExpireDate + 1);
+	_model->setColumnCount(Implant + 1);
 	_model->setHeaderData(Barcode, Qt::Horizontal, "包条码");
 	_model->setHeaderData(Name, Qt::Horizontal, "包名");
 	_model->setHeaderData(PackType, Qt::Horizontal, "包装类型");
 	_model->setHeaderData(Department, Qt::Horizontal, "所属科室");
 	_model->setHeaderData(ExpireDate, Qt::Horizontal, "失效日期");
+	_model->setHeaderData(Implant, Qt::Horizontal, "是否含有植入物");
 }
 
 void DispatchPackageView::addPackage(const QString &id) {
@@ -110,7 +131,12 @@ void DispatchPackageView::addPackage(const QString &id) {
 			XNotifier::warn(QString("包 [%1] 灭菌不合格，不能对其发放").arg(id));
 			return;
 		}
-
+		/*
+		if (resp.getAsString("state") == "SBT") {
+			XNotifier::warn(QString("包 [%1] 尚未完成生物灭菌审核，发放注意风险").arg(id));
+			return;
+		}
+		*/
 		if (!(resp.getAsInt("department_id") == Constant::OperatingRoomId || 
 			resp.getAsInt("department_id") == Constant::CSSDDeptId)) {
 			XNotifier::warn(QString("此包非手术室包，不能对其发放"));
@@ -118,11 +144,16 @@ void DispatchPackageView::addPackage(const QString &id) {
 		}
 
 		QList<QStandardItem *> rowItems;
-		rowItems << new QStandardItem(id);
+		QStandardItem *idItem = new QStandardItem(id);
+		idItem->setData(resp.getAsBool("ins_count"));
+		rowItems << idItem;
 		rowItems << new QStandardItem(resp.getAsString("package_type_name"));
 		rowItems << new QStandardItem(resp.getAsString("pack_type_name"));
 		rowItems << new QStandardItem(resp.getAsString("department_name"));
 		rowItems << new QStandardItem(resp.getAsString("valid_date"));
+		QStandardItem *insItem = new QStandardItem(resp.getAsBool("ins_count") ? "是" : "否");
+		insItem->setData(resp.getAsBool("ins_count") ? QBrush(QColor(255, 160, 122)) : QBrush(QColor(173, 216, 230)), Qt::BackgroundRole);
+		rowItems << insItem;
 		_model->appendRow(rowItems);
 	});
 }

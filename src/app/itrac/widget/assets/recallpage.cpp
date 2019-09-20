@@ -24,11 +24,13 @@ RecallPage::RecallPage(QWidget *parent)
 	_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
 	//Ui::PrimaryButton *recallButton = new Ui::PrimaryButton("召回", Ui::BtnSize::Small);
-	QPushButton *recallButton = new QPushButton("召回", this);
-	connect(recallButton, SIGNAL(clicked()), this, SLOT(recall()));
+	_recallButton = new QPushButton("召回", this);
+	_recallButton->setDisabled(true);
+
+	connect(_recallButton, SIGNAL(clicked()), this, SLOT(recall()));
 	QHBoxLayout *hlayout = new QHBoxLayout;
 	hlayout->addWidget(_comboBox);
-	hlayout->addWidget(recallButton);
+	hlayout->addWidget(_recallButton);
 	hlayout->addStretch();
 
 	QVBoxLayout *mainLayout = new QVBoxLayout(this);
@@ -46,6 +48,9 @@ void RecallPage::onDeviceChanged(int index)
 {
 	if (index == -1) return;
 
+	_model->removeRows(0, _model->rowCount());
+	_recallButton->setDisabled(true);
+
 	QVariantMap v;
 	v.insert("device_id", _comboBox->itemData(index));
 	post(url(PATH_RECALL_SEARCH), v, [this](QNetworkReply *reply) {
@@ -55,13 +60,22 @@ void RecallPage::onDeviceChanged(int index)
 			return;
 		}
 		QList<QVariant> packages = resp.getAsList("packages");
-		_model->insertRows(0, packages.count());
-		for (int i = 0; i != packages.count(); ++i) {
-			QVariantMap map = packages[i].toMap();
-			_model->setData(_model->index(i, PackageId), map["package_id"]);
-			_model->setData(_model->index(i, PackageName), map["package_name"]);
-			_model->setData(_model->index(i, PackType), map["pack_type_name"]);
-			_model->setData(_model->index(i, ExpireDate), map["expired_date"]);
+		if (0 < packages.count()) {
+			_model->insertRows(0, packages.count());
+			for (int i = 0; i != packages.count(); ++i) {
+				QVariantMap map = packages[i].toMap();
+				_model->setData(_model->index(i, PackageId), map["package_id"]);
+				_model->setData(_model->index(i, PackageName), map["package_name"]);
+				_model->setData(_model->index(i, PackType), map["pack_type_name"]);
+				_model->setData(_model->index(i, ExpireDate), map["expired_date"]);
+			}
+
+			_recallButton->setEnabled(true);
+		}
+		else
+		{
+			XNotifier::warn(QString("暂时没有需要待召回的物品包"));
+			return;
 		}
 	});
 }
@@ -77,6 +91,7 @@ void RecallPage::recall() {
 		}
 		else {
 			_view->clear();
+			_recallButton->setDisabled(true);
 			XNotifier::warn("已召回上次生物灭菌成功以来所有尚未使用的包 ");
 		}
 	});

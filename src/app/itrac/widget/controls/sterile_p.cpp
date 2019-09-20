@@ -51,6 +51,7 @@ CheckItem::CheckItem(const QString &title, int verdict, QWidget *parent /*= null
 	QLabel *titleLabel = new QLabel(title);
 	titleLabel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
 	layout->addWidget(titleLabel);
+	setMinimumHeight(120);
 	reset(verdict);
 }
 
@@ -60,9 +61,13 @@ void CheckItem::reset(int verdict) {
 	QLayout *layout = this->layout();
 	QLayoutItem *child;
 	while ((child = layout->takeAt(1)) != 0) {
+		if (child->widget()) {
+			delete child->widget();
+		}
 		delete child;
 	}
 
+	_disabled = true;
 	switch (verdict) {
 	case itrac::NotInvolved:
 		layout->addWidget(new QLabel("未涉及"));
@@ -80,6 +85,7 @@ void CheckItem::reset(int verdict) {
 		connect(unQualifiedButton, &QRadioButton::clicked, this, [this] {_verdict = itrac::Failed; });
 		layout->addWidget(qualifiedButton);
 		layout->addWidget(unQualifiedButton);
+		_disabled = false;
 		break;
 	}
 	setStyleSheet("background-color:#eeeeee;");
@@ -128,12 +134,31 @@ SterileCheckGroup::SterileCheckGroup(QWidget *parent /*= nullptr*/)
 Sterile::Result SterileCheckGroup::verdicts() const
 {
 	Sterile::Result result;
-	result.physics = _phyItem->verdict();
-	result.chemistry = _chemItem->verdict();
-	result.bio= _bioItem->verdict();
-	result.wet = _wetItem->isChecked();
-	result.lost = _lostLabelItem->isChecked();
+	result.physics = _phyItem->disabled()? -1 : _phyItem->verdict();
+	result.chemistry = _chemItem->disabled()? -1 : _chemItem->verdict();
+	result.bio = _bioItem->disabled()? -1 : _bioItem->verdict();
+	result.wet = _wetItem->isEnabled()? !_wetItem->isChecked() : -1;
+	result.lost = _lostLabelItem->isEnabled()? !_lostLabelItem->isChecked() : -1;
 	return result;
+}
+
+void SterileCheckGroup::updateInfo(const Sterile::Result &resultInfo)
+{
+	_phyItem->reset(resultInfo.physics);
+	_chemItem->reset(resultInfo.chemistry);
+	_bioItem->reset(resultInfo.bio);
+
+	if (resultInfo.wet != 2)
+	{
+		_wetItem->setChecked(!resultInfo.wet);
+		_wetItem->setEnabled(false);
+	}
+
+	if (resultInfo.lost != 2)
+	{
+		_lostLabelItem->setChecked(!resultInfo.lost);
+		_lostLabelItem->setEnabled(false);
+	}
 }
 
 void SterileCheckGroup::reset() {
@@ -142,4 +167,6 @@ void SterileCheckGroup::reset() {
 	_bioItem->reset(itrac::NotChecked);
 	_wetItem->setChecked(false);
 	_lostLabelItem->setChecked(false);
+	_wetItem->setEnabled(true);
+	_lostLabelItem->setEnabled(true);
 }

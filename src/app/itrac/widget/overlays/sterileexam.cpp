@@ -18,6 +18,7 @@ SterileExamPanel::SterileExamPanel(QWidget *parent)
 	, _checkGroup(new SterileCheckGroup)
 	, _view(new SterileCheckPackageView)
 	, _testInfo(new Sterile::TestInfo)
+	, _resultInfo(new Sterile::Result)
 {
 	connect(_infoGroup, &SterileInfoGroup::testIdChanged, this, &SterileExamPanel::updateSterileInfo);
 
@@ -67,29 +68,46 @@ void SterileExamPanel::commit()
 		return;
 	}
 
-	int opId = OperatorChooser::get(this, this);
-	if (0 == opId) return;
+	if (_needBio && verdicts.bio == itrac::NotChecked) {
+		XNotifier::warn(QString("警告：该灭菌审核未提交生物检测，注意风险"));
+	}
 
 	QVariantMap vmap;
 	vmap.insert("test_id", testId);
+	
+	
+	if (verdicts.physics != -1)
+		vmap.insert("phy_test_result", verdicts.toString(verdicts.physics));
+
+	if (verdicts.chemistry != -1)
+		vmap.insert("che_test_result", verdicts.toString(verdicts.chemistry));
+	
+	if (verdicts.bio != -1 && verdicts.bio != 2)
+		vmap.insert("bio_test_result", verdicts.toString(verdicts.bio));
+
+	if (verdicts.wet != -1)
+		vmap.insert("outside_result", verdicts.toString(verdicts.wet));
+
+	if (verdicts.lost != -1)
+		vmap.insert("label_off", verdicts.toString(verdicts.lost));
+
+	if (vmap.size() == 1)
+	{
+		XNotifier::warn("灭菌登记未发生变动");
+		reset();
+		return;
+	}
+
+	int opId = OperatorChooser::get(this, this);
+	if (0 == opId) return;
 	vmap.insert("test_operator_id", opId);
-	vmap.insert("phy_test_result", verdicts.toString(verdicts.physics));
-	vmap.insert("che_test_result", verdicts.toString(verdicts.chemistry));
-	QString bioResult = verdicts.toString(verdicts.bio);
-	if (!bioResult.isEmpty()) vmap.insert("bio_test_result", bioResult);
-
-	QString wetResult = verdicts.toString(verdicts.wet);
-	if (!wetResult.isEmpty()) vmap.insert("outside_result", wetResult);
-
-	QString lostResult = verdicts.toString(verdicts.lost);
-	if (!lostResult.isEmpty()) vmap.insert("label_off", lostResult);
 
 	post(url(PATH_STERILE_CHECK), vmap, [=](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success())
-			XNotifier::warn(QString("提交灭菌合格登记失败: ").append(resp.errorString()));
+			XNotifier::warn(QString("提交灭菌登记失败: ").append(resp.errorString()));
 		else {
-			XNotifier::warn("已完成灭菌合格登记");
+			XNotifier::warn("已完成灭菌登记");
 			reset();
 		}
 	});
@@ -103,7 +121,7 @@ void SterileExamPanel::updateSterileInfo(const QString &testId) {
 	post(url(PATH_STERILE_INFO), data, [this, testId](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
-			XNotifier::warn(QString("无法获取灭菌监测批次 [%1] 的数据: %2").arg(testId));
+			XNotifier::warn(QString("无法获取灭菌监测批次 [%1] 的数据: %2").arg(testId).arg(resp.errorString()));
 			return;
 		}
 
@@ -112,27 +130,28 @@ void SterileExamPanel::updateSterileInfo(const QString &testId) {
 		_testInfo->cycle = resp.getAsInt("ste_cycle");
 		_testInfo->startTimeStamp = std::move<QString>(resp.getAsString("ste_start_time")); // FIXME: redundant std::move?
 
-		/*if ("1" == resp.getAsString("chemical_test")) {
-			_result->chemistry = Sterile::Result::NotChecked;
-		}
+		_needBio = false;
 		if ("1" == resp.getAsString("biological_test")) {
-			_result->bio = Sterile::Result::NotChecked;
+			_needBio = true;
 		}
 
-		QString result = resp.getAsString("result");
-		if (result == "2")
-			resultEdit->setText("待审核");
-		else
-			resultEdit->setText(QString("%1(已审核)").arg(result == "1" ? "合格" : "不合格"));*/
-
-			// show info
+		// show info
 		_infoGroup->updateInfo(*_testInfo);
+
+		QList<QVariant> results = resp.getAsList("test_result");
+		_resultInfo->physics = results.at(0).toInt();
+		_resultInfo->bio = results.at(1).toInt();
+		_resultInfo->chemistry = results.at(2).toInt();
+		_resultInfo->wet = results.at(3).toInt();
+		_resultInfo->lost = results.at(4).toInt();
+
+		_checkGroup->updateInfo(*_resultInfo);
 
 		// show packages
 		QList<QVariant> packages = resp.getAsList("packages");
 		for(auto &package: packages) {
 			QVariantMap map = package.toMap();
-			_view->addPackage(map["package_id"].toString(), map["package_name"].toString());
+			_view->addPackage(map["package_id"].toString(), map["package_name"].toString(), map["implant"].toBool());
 		}
 	});
 }

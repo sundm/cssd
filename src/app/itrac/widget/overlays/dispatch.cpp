@@ -127,6 +127,10 @@ void OrDispatchPanel::commit() {
 		return;
 	}
 
+	if (_pkgView->hasImplantPackage()) {
+		XNotifier::warn(QString("请注意：含有植入物器械包，需关注生物监测结果。"));
+	}
+
 	int opId = OperatorChooser::get(this, this);
 	if (0 == opId) return;
 

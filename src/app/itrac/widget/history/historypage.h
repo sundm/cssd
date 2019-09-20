@@ -94,6 +94,8 @@ public:
 protected:
 	FilterGroup * createFilterGroup() override;
 	void doSearch(int page = 1) override;
+private:
+	QString toString(int v);
 };
 
 class DispatchHistoryPage : public HistoryPage

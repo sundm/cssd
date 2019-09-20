@@ -388,16 +388,27 @@ void SterileHistoryPage::doSearch(int page /*= 1*/) {
 			rowItems.append(new QStandardItem(map["package_number"].toString())); 
 			rowItems.append(new QStandardItem(map["physical_test_operator"].toString()));
 			rowItems.append(new QStandardItem(map["physical_test_time"].toString()));
-			rowItems.append(new QStandardItem(map["physical_test_result"].toInt() == 1 ? QString("合格") : QString("不合格")));
+			rowItems.append(new QStandardItem(toString(map["physical_test_result"].toInt())));
 			rowItems.append(new QStandardItem(map["chemistry_test_operator"].toString()));
 			rowItems.append(new QStandardItem(map["chemistry_test_time"].toString()));
-			rowItems.append(new QStandardItem(map["chemistry_test_result"].toInt() == 1 ? QString("合格") : QString("不合格")));
+			rowItems.append(new QStandardItem(toString(map["chemistry_test_result"].toInt())));
 			rowItems.append(new QStandardItem(map["biology_test_operator"].toString())); 
 			rowItems.append(new QStandardItem(map["biology_test_time"].toString()));
-			rowItems.append(new QStandardItem(map["biology_test_result"].toInt() == 1 ? QString("合格") : QString("不合格")));
+			rowItems.append(new QStandardItem(toString(map["biology_test_result"].toInt())));
 			_historyModel->appendRow(rowItems);
 		}
 	});
+}
+
+QString SterileHistoryPage::toString(int v)
+{
+	switch (v)
+	{
+	case 1: return "合格";
+	case 0: return "不合格";
+	case 2: return "未审核";
+	default: return QString();
+	}
 }
 
 DispatchHistoryPage::DispatchHistoryPage(QWidget *parent /*= Q_NULLPTR*/) {

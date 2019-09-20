@@ -118,6 +118,13 @@ void SterilePanel::commit() {
 		return;
 	}
 
+	bool chemInvolved = true;
+	bool bioInvolved = false;
+	if (_pkgView->hasImplantPackage()) {
+		bioInvolved = true;
+		XNotifier::warn(QString("请注意：含有植入物器械包，需做生物监测！"));
+	}
+
 	int opId = OperatorChooser::get(this, this);
 	if (0 == opId) {
 		XNotifier::warn(QString("请选择操作员"));
@@ -137,10 +144,6 @@ void SterilePanel::commit() {
 	vmap.insert("device_id", deviceId);
 	vmap.insert("program_id", programId);
 	vmap.insert("operator_id", opId);
-
-	bool chemInvolved = true; //TODO
-	bool bioInvolved = false;
-
 	vmap.insert("chemical_test", chemInvolved);
 	vmap.insert("biological_test", bioInvolved);
 

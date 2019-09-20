@@ -45,8 +45,8 @@ namespace itrac {
 	};
 
 	enum Verdict {
-		Success,
 		Failed,
+		Success,
 		NotChecked,
 		NotInvolved
 	};

@@ -150,6 +150,17 @@ FilterGroup * SterilePage::createFilterGroup()
 	return new SterileAbnormalFilterGroup(this);
 }
 
+QString SterilePage::toString(int v)
+{
+	switch (v)
+	{
+	case 0: return "不合格";
+	case 1: return "合格";
+	case 2: return "未审核";
+	default: return QString();
+	}
+}
+
 void SterilePage::doSearch(int page) {
 	_model->removeRows(0, _model->rowCount());
 	_barchartView->chart()->removeAllSeries();
@@ -188,18 +199,18 @@ void SterilePage::doSearch(int page) {
 			QList<QStandardItem *> rowItems;
 			rowItems.append(new QStandardItem(map["device_name"].toString()));
 			rowItems.append(new QStandardItem(map["device_mod_name"].toString()));
-			rowItems.append(new QStandardItem(map["wash_start_time"].toString()));
+			rowItems.append(new QStandardItem(map["sterilize_start_time"].toString()));
 			rowItems.append(new QStandardItem(map["operator_name"].toString()));
 			
 			rowItems.append(new QStandardItem(map["physical_test_operator_name"].toString()));
 			rowItems.append(new QStandardItem(map["physical_test_time"].toString()));
-			rowItems.append(new QStandardItem(map["physical_test_result"].toInt() == 1 ? QString("合格") : QString("不合格")));
+			rowItems.append(new QStandardItem(toString(map["physical_test_result"].toInt())));
 			rowItems.append(new QStandardItem(map["chemistry_test_operator_name"].toString()));
 			rowItems.append(new QStandardItem(map["chemistry_test_time"].toString()));
-			rowItems.append(new QStandardItem(map["chemistry_test_result"].toInt() == 1 ? QString("合格") : QString("不合格")));
+			rowItems.append(new QStandardItem(toString(map["chemistry_test_result"].toInt())));
 			rowItems.append(new QStandardItem(map["biology_test_operator_name"].toString()));
 			rowItems.append(new QStandardItem(map["biology_test_time"].toString()));
-			rowItems.append(new QStandardItem(map["biology_test_result"].toInt() == 1 ? QString("合格") : QString("不合格")));
+			rowItems.append(new QStandardItem(toString(map["biology_test_result"].toInt())));
 
 			rowItems.append(new QStandardItem(map["outside_result"].toInt() == 1 ? QString("否") : QString("是")));
 			rowItems.append(new QStandardItem(map["inside_result"].toInt() == 1 ? QString("否") : QString("是")));
@@ -225,13 +236,13 @@ void SterilePage::doSearch(int page) {
 			slice1->setBrush(QColor(151, 95, 228));
 			slice1->setExploded();
 			slice1->setExplodeDistanceFactor(0.2);
-			slice1->setLabel(QString("异常数:%1次").arg(abnormalCount));
+			slice1->setLabel(QString("异常记录数:%1条").arg(abnormalCount));
 
 			QPieSlice *slice2 = new QPieSlice();
 			slice2->setLabelVisible(true);
 			slice2->setLabelPosition(QPieSlice::LabelOutside);
 			slice2->setBrush(QColor(59, 160, 255));
-			slice2->setLabel(QString("合格数:%1次").arg(successCount));
+			slice2->setLabel(QString("合格记录数:%1条").arg(successCount));
 
 			QPieSeries *series = new QPieSeries();
 

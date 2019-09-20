@@ -6,6 +6,8 @@
 class QComboBox;
 class TableView;
 class QStandardItemModel;
+class QPushButton;
+
 class RecallPage : public QWidget, public JsonHttpClient
 {
 	Q_OBJECT
@@ -25,4 +27,7 @@ private:
 	QComboBox * _comboBox;
 	TableView * _view;
 	QStandardItemModel *_model;
+
+
+	QPushButton *_recallButton;
 };

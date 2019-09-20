@@ -9,6 +9,7 @@ class SterileCheckPackageView;
 
 namespace Sterile {
 	struct TestInfo;
+	struct Result;
 };
 
 class SterileExamPanel : public CssdOverlayPanel, public JsonHttpClient
@@ -31,4 +32,6 @@ private:
 	SterileCheckGroup *_checkGroup;
 	SterileCheckPackageView *_view;
 	std::unique_ptr<Sterile::TestInfo> _testInfo;
+	std::unique_ptr<Sterile::Result> _resultInfo;
+	bool _needBio;
 };

@@ -14,6 +14,7 @@ QString Result::toString(int verdict) {
 	{
 	case itrac::Success: return "1";
 	case itrac::Failed: return "0";
+	case itrac::NotChecked: return "2";
 	default: return QString();
 	}
 }

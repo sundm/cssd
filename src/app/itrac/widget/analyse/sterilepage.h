@@ -31,6 +31,7 @@ private:
 	void onFilterChanged(Filter &);
 	FilterGroup *createFilterGroup();
 	void doSearch(int page = 1);
+	QString toString(int v);
 
 	QPushButton *_filterButton;
 	QPaginationWidget *_paginator;

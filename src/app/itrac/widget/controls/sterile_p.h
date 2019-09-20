@@ -35,8 +35,10 @@ public:
 	CheckItem(const QString &title, int verdict, QWidget *parent = nullptr);
 	void reset(int);
 	int verdict() const;
+	bool disabled() const { return _disabled; };
 private:
 	int _verdict;
+	bool _disabled;
 };
 
 class SterileCheckGroup : public QGroupBox
@@ -44,6 +46,7 @@ class SterileCheckGroup : public QGroupBox
 	Q_OBJECT
 public:
 	SterileCheckGroup(QWidget *parent = nullptr);
+	void updateInfo(const Sterile::Result &);
 	Sterile::Result verdicts() const;
 	void reset();
 
