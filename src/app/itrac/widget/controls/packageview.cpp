@@ -9,6 +9,7 @@
 #include <QStandardItemModel>
 #include <QVBoxLayout>
 #include <QFile>
+#include <QMenu>
 
 AbstractPackageView::AbstractPackageView(QWidget *parent)
 	: TableView(parent), _model(new QStandardItemModel(this))
@@ -278,14 +279,16 @@ int OrRecyclePackageView::plate() const
 PackageDetailView::PackageDetailView(QWidget *parent /*= nullptr*/)
 	: QWidget(parent)
 	, _view(new TableView)
-	, _model(new QStandardItemModel(0, 2, _view))
+	, _model(new QStandardItemModel(0, State + 1, _view))
 	, _imgLabel(new XPicture(this))
 {
 	_model->setHeaderData(Name, Qt::Horizontal, "器械名");
 	_model->setHeaderData(Number, Qt::Horizontal, "数量");
+	_model->setHeaderData(State, Qt::Horizontal, "状态");
 	_view->setModel(_model);
 	_view->setSelectionMode(QAbstractItemView::SingleSelection);
 	_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	_view->setContextMenuPolicy(Qt::CustomContextMenu);
 
 	QVBoxLayout *vlayout = new QVBoxLayout(this);
 	vlayout->setContentsMargins(0, 0, 0, 0);
@@ -301,6 +304,7 @@ PackageDetailView::PackageDetailView(QWidget *parent /*= nullptr*/)
 
 	connect(_imgLabel, SIGNAL(clicked()), this, SLOT(imgClicked()));
 	connect(_view, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(slotItemDoubleClicked(const QModelIndex &)));
+	connect(_view, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(showContextMenu(const QPoint&)));
 
 }
 
@@ -315,6 +319,23 @@ void PackageDetailView::slotItemDoubleClicked(const QModelIndex &index)
 		ImageViewer *viewer = new ImageViewer(fileName);
 		viewer->showNormal();
 	}
+}
+
+void PackageDetailView::showContextMenu(const QPoint& pos)
+{
+	QModelIndex index(_view->indexAt(pos));
+	if (index.isValid()) {
+		QMenu contextMenu;
+		QAction *act = contextMenu.addAction("缺损登记", this, SLOT(regist()));
+		act->setData(index.row());
+
+		contextMenu.exec(QCursor::pos());
+	}
+}
+
+void PackageDetailView::regist()
+{
+
 }
 
 void PackageDetailView::loadDetail(const QString& pkgTypeId) {

@@ -6,15 +6,16 @@ class Barcode
 {
 public:
 	enum Type {
-		Action,       // 91
-		Package,      // 10
-		User,         // 11
-		Department,   // 12
-		Device,       // 13
-		Program,      // 14
-		Instrument,   // 15
-		Plate,        // 16
-		Test,         // 20
+		Action,			// 91
+		Package,		// 10
+		User,			// 11
+		Department,		// 12
+		Device,			// 13
+		Program,		// 14
+		Instrument,		// 15
+		Plate,			// 16
+		Test,			// 20
+		PkgCode,		// 30
 		Unknown
 	};
 

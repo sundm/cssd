@@ -352,7 +352,7 @@ void OrRecyclePanel::setExtPkg(const QString& pkgId, const QString& pkgTypeId, c
 
 void OrRecyclePanel::handleBarcode(const QString &code) {
 	Barcode bc(code);
-	if (bc.type() == Barcode::Package && !_pkgView->hasPackage(code)) {
+	if ((bc.type() == Barcode::Package || bc.type() == Barcode::PkgCode) && !_pkgView->hasPackage(code)) {
 		_pkgView->addPackage(code);
 	}
 	else if (bc.type() == Barcode::Plate) {

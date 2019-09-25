@@ -5,6 +5,7 @@
 #include "ui/buttons.h"
 #include "dialog/addpackagedialog.h"
 #include "dialog/modifypackagedialog.h"
+#include "dialog/addpkgcodedialog.h"
 #include <xui/searchedit.h>
 
 #include <QtWidgets/QtWidgets>
@@ -90,8 +91,8 @@ PackagePage::PackagePage(QWidget *parent)
 	Ui::IconButton *modifyButton = new Ui::IconButton(":/res/write-24.png", "修改");
 	connect(modifyButton, SIGNAL(clicked()), this, SLOT(editEntry()));
 
-	//Ui::IconButton *infoButton = new Ui::IconButton(":/res/info-24.png", "查看包详情");
-	//connect(infoButton, SIGNAL(clicked()), this, SLOT(infoEntry()));
+	Ui::IconButton *infoButton = new Ui::IconButton(":/res/info-24.png", "管理包内器械列表");
+	connect(infoButton, SIGNAL(clicked()), this, SLOT(infoEntry()));
 
 	//searchBox->setMinimumWidth(300);
 	_searchBox->setPlaceholderText("输入包名/拼音码搜索");
@@ -101,7 +102,7 @@ PackagePage::PackagePage(QWidget *parent)
 	hLayout->addWidget(refreshButton);
 	hLayout->addWidget(addButton);
 	hLayout->addWidget(modifyButton);
-	//hLayout->addWidget(infoButton);
+	hLayout->addWidget(infoButton);
 	hLayout->addStretch(0);
 	hLayout->addWidget(_searchBox);
 
@@ -141,6 +142,18 @@ void PackagePage::editEntry()
 	int row = indexes[0].row();
 
 	editRow(row);
+}
+
+void PackagePage::infoEntry()
+{
+	QModelIndexList indexes = _view->selectionModel()->selectedRows();
+	if (indexes.count() == 0) return;
+	int row = indexes[0].row();
+	QString package_name = _view->model()->data(_view->model()->index(row, 0)).toString();
+	QString package_type_id = _view->model()->data(_view->model()->index(row, 0), 257).toString();
+	AddpkgcodeDialog d(this, package_name, package_type_id);
+	if (QDialog::Accepted == d.exec())
+		reflash();
 }
 
 void PackagePage::editRow(int row)

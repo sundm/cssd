@@ -91,6 +91,10 @@ extern const char PATH_DEPT_STATISTICS[];
 extern const char PATH_WASH_STATISTICS[]; 
 extern const char PATH_STERILE_STATISTICS[];
 
+extern const char PATH_CARD_ADD[];
+extern const char PATH_CARD_SEARCH[];
+extern const char PATH_CARD_MODIFY[];
+
 extern const char PATH_VERSION[];
 extern const char PATH_UPDATE[];
 

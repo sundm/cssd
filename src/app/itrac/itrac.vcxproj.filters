@@ -384,6 +384,9 @@
     <ClCompile Include="dialog\modifypackagedialog.cpp">
       <Filter>Source Files\dialog</Filter>
     </ClCompile>
+    <ClCompile Include="dialog\addpkgcodedialog.cpp">
+      <Filter>Source Files\dialog</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="devicepage.h">
@@ -645,6 +648,9 @@
       <Filter>Source Files\dialog</Filter>
     </QtMoc>
     <QtMoc Include="dialog\modifypackagedialog.h">
+      <Filter>Source Files\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="dialog\addpkgcodedialog.h">
       <Filter>Source Files\dialog</Filter>
     </QtMoc>
   </ItemGroup>

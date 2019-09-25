@@ -83,11 +83,13 @@ public:
 
 private slots:
 	void imgClicked();
+	void regist();
 	void slotItemDoubleClicked(const QModelIndex &);
+	void showContextMenu(const QPoint&);
 private:
 	void imgLoad(const QString& pkgTypeId);
 
-	enum {Name, Number};
+	enum {Name, Number, State};
 	QTableView* _view;
 	QStandardItemModel* _model;
 	XPicture* _imgLabel;

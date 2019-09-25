@@ -32,6 +32,8 @@ int Barcode::type() const
 		return Plate;
 	if ("20" == indicator && 14 == len)
 		return Test;
+	if ("30" == indicator && 6 == len)
+		return PkgCode;
 
 	return Unknown;
 }

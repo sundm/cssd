@@ -99,4 +99,8 @@ const char PATH_DEPT_STATISTICS[] = "statistics/department";
 const char PATH_WASH_STATISTICS[] = "statistics/countWash";
 const char PATH_STERILE_STATISTICS[] = "statistics/countSterilize";
 
+const char PATH_CARD_ADD[] = "card/add";
+const char PATH_CARD_SEARCH[] = "card/search";
+const char PATH_CARD_MODIFY[] = "card/modify";
+
 const char PATH_VERSION[] = "file/version/itrac";
