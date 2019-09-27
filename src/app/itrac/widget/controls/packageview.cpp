@@ -4,6 +4,7 @@
 #include "core/net/url.h"
 #include "xnotifier.h"
 #include "core/constants.h"
+#include "dialog/registerinstrumentdialog.h"
 #include <xui/images.h>
 #include <xui/imageviewer.h>
 #include <QStandardItemModel>
@@ -163,6 +164,7 @@ OrRecyclePackageView::OrRecyclePackageView(QWidget *parent /*= nullptr*/)
 	: AbstractPackageView(parent) {
 	_model->setColumnCount(VPlate + 1);
 	_model->setHeaderData(Barcode, Qt::Horizontal, "包条码");
+	_model->setHeaderData(PkgCode, Qt::Horizontal, "包内器械清单号");
 	_model->setHeaderData(Name, Qt::Horizontal, "包名");
 	_model->setHeaderData(PackType, Qt::Horizontal, "包装类型");
 	_model->setHeaderData(Department, Qt::Horizontal, "来源科室");
@@ -188,8 +190,13 @@ void OrRecyclePackageView::addPackage(const QString &id) {
 		
 		QStandardItem *package_id = new QStandardItem();
 		package_id->setTextAlignment(Qt::AlignCenter);
-		package_id->setText(id);
+		package_id->setText(resp.getAsString("package_id"));
 		rowItems.append(package_id);
+
+		QStandardItem *package_code = new QStandardItem();
+		package_code->setTextAlignment(Qt::AlignCenter);
+		package_code->setText(resp.getAsString("package_code"));
+		rowItems.append(package_code);
 
 		QStandardItem *package_type_name = new QStandardItem();
 		package_type_name->setTextAlignment(Qt::AlignCenter);
@@ -335,7 +342,8 @@ void PackageDetailView::showContextMenu(const QPoint& pos)
 
 void PackageDetailView::regist()
 {
-
+	RegisterInstrumentDialog d(this);
+	d.exec();
 }
 
 void PackageDetailView::loadDetail(const QString& pkgTypeId) {
