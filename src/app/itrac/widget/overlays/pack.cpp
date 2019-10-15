@@ -3,6 +3,7 @@
 #include "devicewidget.h"
 #include "tips.h"
 #include "ui/buttons.h"
+#include "inliner.h"
 #include "widget/controls/plateview.h"
 #include "controls/packageview.h"
 #include "dialog/regexpinputdialog.h"
@@ -49,6 +50,7 @@ PackPanel::PackPanel(QWidget *parent) : CssdOverlayPanel(parent) {
 	layout->addWidget(tip, 0, 1, 2, 1);
 
 	connect(_plateView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(showDetail(const QModelIndex &)));
+	connect(_detailView, SIGNAL(sendData(int)), this, SLOT(updateRecord(int)));
 }
 
 void PackPanel::addPlate() {
@@ -58,6 +60,14 @@ void PackPanel::addPlate() {
 	if (ok) {
 		handleBarcode(code);
 	}
+}
+
+void PackPanel::updateRecord(int pkg_record)
+{
+	QStandardItemModel *model = static_cast<QStandardItemModel*>(_plateView->model());
+	QStandardItem *parentItem = model->itemFromIndex(model->index(0, 0));
+	parentItem->child(_row, 0)->setData(pkg_record, Qt::UserRole + 2);
+	parentItem->child(_row, 0)->setData(brushForSteType(pkg_record), Qt::BackgroundRole);
 }
 
 void PackPanel::handleBarcode(const QString &code) {
@@ -109,15 +119,16 @@ void PackPanel::commit() {
 
 void PackPanel::showDetail(const QModelIndex &index)
 {
-	int row = index.row();
+	_row = index.row();
 	int column = index.column();
 	if (index.parent().isValid())
 	{
 		QStandardItemModel *model = static_cast<QStandardItemModel*>(_plateView->model());
 		QStandardItem *parentItem = model->itemFromIndex(model->index(0, 0));
-		QString package_type_id = parentItem->child(row, 0)->data().toString();
-
-		_detailView->loadDetail(package_type_id);
+		QString package_type_id = parentItem->child(_row, 0)->data().toString();
+		QString package_id = parentItem->child(_row, 2)->data().toString();
+		QString card_id = parentItem->child(_row, 3)->data().toString();
+		_detailView->loadDetail(package_id, package_type_id, card_id);
 	}
 
 }

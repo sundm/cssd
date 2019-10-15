@@ -56,3 +56,20 @@ extern inline QString literal_gender(const QString &value) {
 	return QString();
 }
 
+extern inline QString literalSteType(int type) {
+	switch (type) {
+	case 1: return "有损坏";
+	case 2: return "有缺失";
+	case 3: return "缺失&损坏";
+	default: return "-";
+	}
+}
+
+extern inline QBrush brushForSteType(int type) {
+	switch (type) {
+	case 1: return QBrush(QColor(255, 215, 0));
+	case 2: return QBrush(QColor(255, 106, 106));
+	case 3: return QBrush(QColor(255, 106, 106));
+	default: return QBrush();
+	}
+}

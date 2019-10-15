@@ -7,6 +7,7 @@
 #include "core/net/url.h"
 #include "ui/buttons.h"
 #include "ui/views.h"
+#include "inliner.h"
 #include "widget/controls/packageview.h"
 #include "widget/controls/idedit.h"
 #include "dialog/operatorchooser.h"
@@ -16,7 +17,6 @@
 #include "xnotifier.h"
 
 #include <QtWidgets/QtWidgets>
-
 
 NoBCRecyclePanel::NoBCRecyclePanel(QWidget *parent)
 	: CssdOverlayPanel(parent)
@@ -330,14 +330,21 @@ OrRecyclePanel::OrRecyclePanel(QWidget *parent /*= nullptr*/)
 	layout->addWidget(tip, 1, 1);
 
 	connect(_pkgView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(showDetail(const QModelIndex &)));
+	connect(_detailView, SIGNAL(sendData(int)), this, SLOT(updateRecord(int)));
 }
 
 void OrRecyclePanel::showDetail(const QModelIndex &index)
 {
-	int row = index.row();
-	QString package_type_id = _pkgView->model()->data(_pkgView->model()->index(row, 1), 260).toString();
+	_row = index.row();
+	QString package_type_id = _pkgView->model()->data(_pkgView->model()->index(_row, 2), 260).toString();
+	QString card_id = _pkgView->model()->data(_pkgView->model()->index(_row, 1)).toString();
+	QString pkg_id = _pkgView->model()->data(_pkgView->model()->index(_row, 0)).toString();
+	_detailView->loadDetail(pkg_id, package_type_id, card_id);
+}
 
-	_detailView->loadDetail(package_type_id);
+void OrRecyclePanel::updateRecord(int pkg_record)
+{
+	_pkgView->model()->setData(_pkgView->model()->index(_row, 2), brushForSteType(pkg_record), Qt::BackgroundRole);
 }
 
 void OrRecyclePanel::chooseExt() {
@@ -387,11 +394,14 @@ void OrRecyclePanel::removeEntry() {
 	int countRow = indexes.count();
 	for (int i = countRow; i > 0; i--)
 		_pkgView->model()->removeRow(indexes.at(i - 1).row());
+
+	_detailView->clear();
 }
 
 void OrRecyclePanel::commit() {
-	QVariantList packages = _pkgView->packages();
-	if (packages.isEmpty()) {
+	QVariantList packageIds = _pkgView->packageIds();
+	QVariantList cardIds = _pkgView->cardIds();
+	if (packageIds.isEmpty()) {
 		XNotifier::warn("请先添加需要回收的包");
 		return;
 	}
@@ -406,9 +416,10 @@ void OrRecyclePanel::commit() {
 	if (0 == opId) return;
 
 	QVariantList pkgList;
-	for (int i = 0; i != packages.size(); i++) {
+	for (int i = 0; i != packageIds.size(); i++) {
 		QVariantMap package;
-		package.insert("package_id", packages[i]);
+		package.insert("package_id", packageIds[i].toString());
+		package.insert("card_id", cardIds[i].toInt());
 		package.insert("recycle_reason", 1);
 		pkgList << package;
 	}

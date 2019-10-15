@@ -39,8 +39,9 @@ private:
 		Package,
 		PackType,
 		Barcode,
+		CardId,
 		SterileDate,
-		ExpireDate,
+		ExpireDate
 	};
 
 	QList<int> getSelectedPackages(QVariantList &) const;

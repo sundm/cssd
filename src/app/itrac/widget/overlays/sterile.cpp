@@ -112,7 +112,7 @@ void SterilePanel::commit() {
 
 	int deviceId = item->id();
 
-	QVariantList packages = _pkgView->packages();
+	QVariantList packages = _pkgView->packageIds();
 	if (packages.isEmpty()) {
 		XNotifier::warn(QString("请添加包条码"));
 		return;

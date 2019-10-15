@@ -1,5 +1,6 @@
 #include "plateview.h"
 #include "core/net/url.h"
+#include "inliner.h"
 #include "xnotifier.h"
 #include "util/printermanager.h"
 #include <printer/labelprinter.h>
@@ -80,6 +81,7 @@ PackPlateView::PackPlateView(QWidget *parent)
 	_model->setHeaderData(Package, Qt::Horizontal, "托盘/待配物品");
 	_model->setHeaderData(PackType, Qt::Horizontal, "打包方式");
 	_model->setHeaderData(Barcode, Qt::Horizontal, "条码");
+	_model->setHeaderData(CardId, Qt::Horizontal, "包内器械清单号");
 	_model->setHeaderData(SterileDate, Qt::Horizontal, "灭菌日期");
 	_model->setHeaderData(ExpireDate, Qt::Horizontal, "失效日期");
 	setModel(_model);
@@ -122,18 +124,26 @@ void PackPlateView::addPlate(int id)
 			QVariantMap map = pkgType.toMap();
 			QString pkgName = map["package_type_name"].toString();
 			QString packName = map["pack_type_name"].toString();
-			QVariant pkgId = map["package_type_id"];
+			QString pkgId = map["pkg_id"].toString();
+			QVariant pkgTypeId = map["package_type_id"];
 			QVariant packId = map["pack_type_id"];
-
+			QString cardId = map["package_card"].toString();
+			int steType = map["card_record"].toInt();
 			int pkgNum = map["package_type_num"].toInt();
 			for (int i = 0; i < pkgNum; i++)
 			{
 				QStandardItem *nameItem = new QStandardItem(pkgName);
-				nameItem->setData(pkgId);
+				nameItem->setData(brushForSteType(steType), Qt::BackgroundRole);
+				nameItem->setData(steType, Qt::UserRole + 2);
+				nameItem->setData(pkgTypeId);
 				QStandardItem *packItem = new QStandardItem(packName);
 				packItem->setData(packId);
+				QStandardItem *pkgIdItem = new QStandardItem(pkgId);
+				pkgIdItem->setData(pkgId);
+				QStandardItem *cardIdItem = new QStandardItem(cardId);
+				cardIdItem->setData(cardId);
 				QList<QStandardItem *> row;
-				row << nameItem << packItem << new QStandardItem;
+				row << nameItem << packItem << pkgIdItem << cardIdItem << new QStandardItem;
 				plateItem->appendRow(row);
 			}
 			
@@ -237,10 +247,22 @@ QList<int> PackPlateView::getSelectedPackages(QVariantList &list) const {
 	QStandardItem *plateItem = _model->item(0, 0);
 	for (int i = 0; i != plateItem->rowCount(); i++) {
 		QVariantMap packageType;
-		packageType.insert("package_type_id", plateItem->child(i, 0)->data());
-		packageType.insert("pack_type_id", plateItem->child(i, 1)->data());
-		list << packageType;
-		rows << i;
+		int state = 0;
+		state = plateItem->child(i, 0)->data(Qt::UserRole + 2).toInt();
+		QString name = plateItem->child(i, 0)->text();
+		if (state < 2)
+		{
+			packageType.insert("package_type_id", plateItem->child(i, 0)->data());
+			packageType.insert("pack_type_id", plateItem->child(i, 1)->data());
+			int card_id = 0;
+			card_id = plateItem->child(i, 3)->data().toInt();
+			packageType.insert("card_id", card_id);
+			list << packageType;
+			rows << i;
+		}
+		else {
+			XNotifier::warn(QString("%1标记异常，无法进行配包，已跳过").arg(name));
+		}
 	}
 
 	return rows;

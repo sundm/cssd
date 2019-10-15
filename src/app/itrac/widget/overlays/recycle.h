@@ -61,11 +61,13 @@ private slots:
 	void commit();
 	void setExtPkg(const QString&, const QString&, const QString&);
 	void showDetail(const QModelIndex &index);
-
+	void updateRecord(int pkg_record);
 private:
 	void updatePlate(const QString &);
 	void reset();
 
 	OrRecyclePackageView * _pkgView;
 	PackageDetailView * _detailView;
+
+	int _row;
 };

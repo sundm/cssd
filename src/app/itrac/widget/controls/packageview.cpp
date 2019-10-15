@@ -3,6 +3,7 @@
 #include "core/itracnamespace.h"
 #include "core/net/url.h"
 #include "xnotifier.h"
+#include "inliner.h"
 #include "core/constants.h"
 #include "dialog/registerinstrumentdialog.h"
 #include <xui/images.h>
@@ -38,11 +39,24 @@ bool AbstractPackageView::hasImplantPackage() const
 	return b;
 }
 
-QVariantList AbstractPackageView::packages() const {
+QVariantList AbstractPackageView::packageIds() const {
 	QVariantList list;
 	for (int i = 0; i != _model->rowCount(); i++) {
-		//QString packageId = _model->data(_model->index(i, 0)).toString();
-		list.push_back(_model->data(_model->index(i, 0)));
+		QString packageId = _model->data(_model->index(i, 0)).toString();
+		if (packageId.isEmpty())
+			packageId = "0";
+		list.push_back(packageId);
+	}
+	return list;
+}
+
+QVariantList AbstractPackageView::cardIds() const {
+	QVariantList list;
+	for (int i = 0; i != _model->rowCount(); i++) {
+		QString cardId = _model->data(_model->index(i, 1)).toString();
+		if (cardId.isEmpty())
+			cardId = "0";
+		list.push_back(cardId);
 	}
 	return list;
 }
@@ -190,18 +204,20 @@ void OrRecyclePackageView::addPackage(const QString &id) {
 		
 		QStandardItem *package_id = new QStandardItem();
 		package_id->setTextAlignment(Qt::AlignCenter);
-		package_id->setText(resp.getAsString("package_id"));
+		package_id->setText(resp.getAsString("pkg_id"));
 		rowItems.append(package_id);
 
 		QStandardItem *package_code = new QStandardItem();
 		package_code->setTextAlignment(Qt::AlignCenter);
-		package_code->setText(resp.getAsString("package_code"));
+		package_code->setText(resp.getAsString("card_id"));
 		rowItems.append(package_code);
 
 		QStandardItem *package_type_name = new QStandardItem();
 		package_type_name->setTextAlignment(Qt::AlignCenter);
 		package_type_name->setText(resp.getAsString("package_type_name"));
 		package_type_name->setData(resp.getAsString("package_type_id"), 260);
+		int steType = resp.getAsInt("card_record");
+		package_type_name->setData(brushForSteType(steType), Qt::BackgroundRole);
 		rowItems.append(package_type_name);
 
 		QStandardItem *pack_type_name = new QStandardItem();
@@ -231,6 +247,7 @@ void OrRecyclePackageView::addPackage(const QString &id) {
 void OrRecyclePackageView::addExtPackage(const QString& pkgId, const QString& pkgTypeId, const QString& pkgName) {
 	QList<QStandardItem *> rowItems;
 	rowItems.append(new QStandardItem(pkgId));
+	rowItems.append(new QStandardItem("0"));
 
 	QStandardItem *package_type_name = new QStandardItem();
 	package_type_name->setTextAlignment(Qt::AlignCenter);
@@ -330,11 +347,14 @@ void PackageDetailView::slotItemDoubleClicked(const QModelIndex &index)
 
 void PackageDetailView::showContextMenu(const QPoint& pos)
 {
-	QModelIndex index(_view->indexAt(pos));
-	if (index.isValid()) {
+	posIndex = QModelIndex(_view->indexAt(pos));
+	if (posIndex.isValid()) {
+		_ins_name = _model->data(posIndex.siblingAtColumn(0)).toString();
+		_ins_id = _model->data(posIndex.siblingAtColumn(0), 257).toString();
+		_state = _model->data(posIndex.siblingAtColumn(2), 257).toInt();
 		QMenu contextMenu;
 		QAction *act = contextMenu.addAction("缺损登记", this, SLOT(regist()));
-		act->setData(index.row());
+		act->setData(posIndex.row());
 
 		contextMenu.exec(QCursor::pos());
 	}
@@ -343,12 +363,33 @@ void PackageDetailView::showContextMenu(const QPoint& pos)
 void PackageDetailView::regist()
 {
 	RegisterInstrumentDialog d(this);
+	connect(&d, SIGNAL(sendData(int, int)), this, SLOT(updateState(int, int)));
+	d.setInfo(_card_id, _pkg_id, _ins_name, _ins_id, _state);
 	d.exec();
 }
 
-void PackageDetailView::loadDetail(const QString& pkgTypeId) {
+void PackageDetailView::updateState(int pkg_record, int ins_state)
+{
+	if (posIndex.isValid()) {
+		_model->setData(posIndex.siblingAtColumn(2), ins_state, 257);
+		_model->setData(posIndex.siblingAtColumn(2), literalSteType(ins_state));
+		_model->setData(posIndex.siblingAtColumn(2), brushForSteType(ins_state), Qt::BackgroundRole);
+
+		emit sendData(pkg_record);
+	}
+
+}
+
+void PackageDetailView::loadDetail(const QString& pkgId, const QString& pkgTypeId, const QString& cardId) {
 	QByteArray data("{\"package_type_id\":");
-	data.append(pkgTypeId).append('}');
+	data.append(pkgTypeId);
+	_pkg_id = pkgId;
+	_card_id = cardId;
+	if (!_card_id.isEmpty())
+	{
+		data.append(",\"card_id\":").append(_card_id);
+	}
+	data.append('}');
 	_http.post(url(PATH_PKGDETAIL_SEARCH), QByteArray().append(data), [=](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
@@ -365,6 +406,10 @@ void PackageDetailView::loadDetail(const QString& pkgTypeId) {
 			_model->setData(_model->index(i, 0), map["instrument_name"]);
 			_model->setData(_model->index(i, 0), map["instrument_id"], 257);
 			_model->setData(_model->index(i, 1), map["instrument_number"]);
+			int steType = map["state"].toInt();
+			_model->setData(_model->index(i, 2), steType, 257);
+			_model->setData(_model->index(i, 2), literalSteType(steType));
+			_model->setData(_model->index(i, 2), brushForSteType(steType), Qt::BackgroundRole);
 		}
 
 		imgLoad(pkgTypeId);

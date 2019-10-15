@@ -121,7 +121,7 @@ void OrDispatchPanel::commit() {
 		return;
 	}
 
-	QVariantList packages = _pkgView->packages();
+	QVariantList packages = _pkgView->packageIds();
 	if (packages.isEmpty()) {
 		XNotifier::warn(QString("发放内容为空"));
 		return;

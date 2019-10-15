@@ -123,13 +123,13 @@ void AddpkgcodeDialog::initData() {
 void AddpkgcodeDialog::addEntry() {
 	Barcode bc(_pkgCodeEdit->text());
 	if (bc.type() == Barcode::PkgCode) {
-		int code = bc.intValue();
-		int existRow = findRow(code);
+		_code = bc.intValue();
+		int existRow = findRow(_code);
 		if (-1 == existRow) {
 			QVariantList codes;
 			
 			QVariantMap code_map;
-			code_map.insert("card_id", code);
+			code_map.insert("card_id", _code);
 			code_map.insert("card_name", "");//todo
 			codes << code_map;
 			
@@ -144,13 +144,15 @@ void AddpkgcodeDialog::addEntry() {
 					XNotifier::warn(QString("添加包内器械表失败: ").append(resp.errorString()));
 					return;
 				}
+
+				QList<QStandardItem *> items;
+				QStandardItem *insItem = new QStandardItem(QString::number(_code));
+				insItem->setData(_code);
+				items << insItem;
+				_model->appendRow(items);
 			});
 
-			QList<QStandardItem *> items;
-			QStandardItem *insItem = new QStandardItem(QString::number(code));
-			insItem->setData(code);
-			items << insItem;
-			_model->appendRow(items);
+
 			
 		}
 		else {

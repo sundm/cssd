@@ -14,7 +14,8 @@ public:
 	AbstractPackageView(QWidget *parent = nullptr);
 	bool hasPackage(const QString &) const;
 	bool hasImplantPackage() const;
-	QVariantList packages() const;
+	QVariantList packageIds() const;
+	QVariantList cardIds() const;
 
 	virtual void addPackage(const QString &) = 0;
 
@@ -78,14 +79,18 @@ class PackageDetailView : public QWidget
 
 public:
 	PackageDetailView(QWidget *parent = nullptr);
-	void loadDetail(const QString& pkgTypeId);
+	void loadDetail(const QString& pkgId, const QString& pkgTypeId, const QString& cardId);
 	void clear();
+
+signals:
+	void sendData(int);
 
 private slots:
 	void imgClicked();
 	void regist();
 	void slotItemDoubleClicked(const QModelIndex &);
 	void showContextMenu(const QPoint&);
+	void updateState(int, int);
 private:
 	void imgLoad(const QString& pkgTypeId);
 
@@ -94,6 +99,14 @@ private:
 	QStandardItemModel* _model;
 	XPicture* _imgLabel;
 	JsonHttpClient _http;
+
+	QModelIndex posIndex;
+
+	QString _pkg_id;
+	QString _card_id;
+	QString _ins_name;
+	QString _ins_id;
+	int _state;
 };
 
 

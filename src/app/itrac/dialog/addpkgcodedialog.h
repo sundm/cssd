@@ -43,4 +43,5 @@ private:
 	QStandardItemModel *_model;
 
 	QString _package_type_id;
+	int _code;
 };
