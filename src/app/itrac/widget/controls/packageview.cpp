@@ -94,7 +94,7 @@ void SterilePackageView::addPackage(const QString &id) {
 		rowItems << new QStandardItem(resp.getAsString("department_name"));
 		rowItems << new QStandardItem(resp.getAsString("valid_date"));
 		QStandardItem *insItem = new QStandardItem(resp.getAsBool("ins_count") ? "是" : "否");
-		insItem->setData(resp.getAsBool("ins_count") ? QBrush(QColor(255, 160, 122)) : QBrush(QColor(173, 216, 230)), Qt::BackgroundRole);
+		insItem->setData(brushForImport(resp.getAsBool("ins_count")), Qt::BackgroundRole);
 		rowItems << insItem;
 		_model->appendRow(rowItems);
 		
@@ -114,7 +114,7 @@ void SterileCheckPackageView::addPackage(const QString &id, const QString &name,
 	QList<QStandardItem*> row;
 	row << new QStandardItem(id) << new QStandardItem(name);
 	QStandardItem *insItem = new QStandardItem(implant ? "是" : "否");
-	insItem->setData(implant ? QBrush(QColor(255, 160, 122)) : QBrush(QColor(173, 216, 230)), Qt::BackgroundRole);
+	insItem->setData(brushForImport(implant), Qt::BackgroundRole);
 	row << insItem;
 	_model->appendRow(row);
 }
@@ -168,7 +168,7 @@ void DispatchPackageView::addPackage(const QString &id) {
 		rowItems << new QStandardItem(resp.getAsString("department_name"));
 		rowItems << new QStandardItem(resp.getAsString("valid_date"));
 		QStandardItem *insItem = new QStandardItem(resp.getAsBool("ins_count") ? "是" : "否");
-		insItem->setData(resp.getAsBool("ins_count") ? QBrush(QColor(255, 160, 122)) : QBrush(QColor(173, 216, 230)), Qt::BackgroundRole);
+		insItem->setData(brushForImport(resp.getAsBool("ins_count")), Qt::BackgroundRole);
 		rowItems << insItem;
 		_model->appendRow(rowItems);
 	});

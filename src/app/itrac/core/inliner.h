@@ -73,3 +73,10 @@ extern inline QBrush brushForSteType(int type) {
 	default: return QBrush();
 	}
 }
+
+extern inline QBrush brushForImport(bool import) {
+	if (import)
+		return QBrush(QColor(255, 160, 122));
+	else
+		return QBrush(QColor(255, 255, 255));
+}
