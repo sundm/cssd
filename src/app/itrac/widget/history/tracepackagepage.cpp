@@ -141,7 +141,7 @@ void TracePackagePage::tracePackage(const QString &id) {
 				item->addEntry("生物监测审核时间", ste["biology_test_time"].toString());
 				item->addEntry("生物监测审核人员", ste["biology_test_operator"].toString());
 				item->addEntry("生物监测审核结果", literalExam(ste["biology_test_result"].toInt()));
-				_grid->addWidget(item, 1, 0);
+				_grid->addWidget(item, 1, 1);
 
 				QVariantMap &issue = resp.getAsDict("issue_trace");
 				item = new TraceItem("发放");
