@@ -118,6 +118,22 @@ void SterilePanel::commit() {
 		return;
 	}
 
+	if (!_pkgView->matchType(item->sterilize_type()))
+	{
+		QString type;
+		switch (item->sterilize_type())
+		{
+		case 1:
+			type = QString("高温");
+			break;
+		case 2:
+			type = QString("低温");
+			break;
+		}
+		XNotifier::warn(QString("您选择的是%1灭菌器，列表中包所需类型不匹配。").arg(type));
+		return;
+	}
+
 	bool chemInvolved = true;
 	bool bioInvolved = false;
 	if (_pkgView->hasImplantPackage()) {

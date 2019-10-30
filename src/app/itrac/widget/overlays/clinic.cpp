@@ -86,7 +86,7 @@ ClinicPanel::ClinicPanel(QWidget *parent)
 void ClinicPanel::addPlate() {
 	bool ok;
 	QRegExp regExp("\\d{8,}");
-	QString code = RegExpInputDialog::getText(this, "手工输入条码", "请输入篮筐条码", "", regExp, &ok);
+	QString code = RegExpInputDialog::getText(this, "手工输入条码", "请输入网篮条码", "", regExp, &ok);
 	if (ok) {
 		handleBarcode(code);
 	}
@@ -260,7 +260,7 @@ void ClinicPanel::showDetail(const QModelIndex &index) {
 			QVariantMap map = orders[i].toMap();
 			_detailModel->setData(_detailModel->index(i, 0), map["package_type_name"]);
 			_detailModel->setData(_detailModel->index(i, 1), map["num"]);
-			_detailModel->setData(_detailModel->index(i, 2), QString("请扫描篮筐条码"));
+			_detailModel->setData(_detailModel->index(i, 2), QString("请扫描网篮条码"));
 
 			package p;
 			p.name = map["package_type_name"].toString();

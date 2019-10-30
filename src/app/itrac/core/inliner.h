@@ -42,12 +42,26 @@ extern inline QString literal_program_type(const QString & typeValue) {
 	return "未知程序";
 }
 
-extern inline QString literal_sterile_type(int type) {
+extern inline QString sterile_type(int type) {
+	if (-1 == type)
+		return "清洗机";
+	if (0 == type)
+		return "通用灭菌器";
 	if (1 == type)
 		return "高温灭菌器";
 	if (2 == type)
 		return "低温灭菌器";
-	return "未知类型灭菌器";
+	return "未知类型";
+}
+
+extern inline QString literal_sterile_type(int type) {
+	if (0 == type)
+		return "通用";
+	if (1 == type)
+		return "高温";
+	if (2 == type)
+		return "低温";
+	return "未知类型";
 }
 
 extern inline QString literal_gender(const QString &value) {
@@ -61,6 +75,14 @@ extern inline QString literalSteType(int type) {
 	case 1: return "有损坏";
 	case 2: return "有缺失";
 	case 3: return "缺失&损坏";
+	default: return "-";
+	}
+}
+
+extern inline QString literalExam(int type) {
+	switch (type) {
+	case 1: return "合格";
+	case 0: return "不合格";
 	default: return "-";
 	}
 }

@@ -23,7 +23,7 @@ public:
 	QString name() const;
 	int id() const;
 	int cycle() const;
-
+	int sterilize_type() const;
 	virtual int programId() const = 0;
 	virtual bool isRunning() const = 0;
 	virtual void setSelected(bool) = 0;
@@ -49,7 +49,7 @@ public:
 	WasherItem(Device *device = nullptr, QWidget *parent = nullptr);
 	int programId() const override;
 	void setSelected(bool) override;
-	void setIdle() override; 
+	void setIdle() override;
 	void setRunning() override;
 	bool isRunning() const override;
 
@@ -70,7 +70,7 @@ public:
 	DeviceArea(QWidget *parent = nullptr);
 	void addDeviceItem(DeviceItem *);
 	DeviceItem *currentItem() const { return _curItem; };
-	void load(itrac::DeviceType type);
+	void load(itrac::DeviceType type, bool isHigh = false);
 	void scanDevice(const int &code);
 
 public:
@@ -83,5 +83,6 @@ private:
 	QWidget * _content;
 	DeviceItem *_curItem;
 	QList<DeviceItem *> _items;
-};
 
+	bool _isHigh;
+};

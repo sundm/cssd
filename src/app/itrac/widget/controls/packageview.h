@@ -44,8 +44,9 @@ class SterilePackageView : public AbstractPackageView
 public:
 	SterilePackageView(QWidget *parent = nullptr);
 	void addPackage(const QString &) override;
+	bool matchType(int type) const;
 private:
-	enum { Barcode, Name, PackType, Department, ExpireDate, Implant};
+	enum { Barcode, Name, PackType, Department, ExpireDate, SterType, Implant};
 };
 
 class SterileCheckPackageView : public TableView
@@ -68,7 +69,7 @@ class DispatchPackageView : public AbstractPackageView
 public:
 	DispatchPackageView(QWidget *parent = nullptr);
 	void addPackage(const QString &) override;
-
+	
 private:
 	enum { Barcode, Name, PackType, Department, ExpireDate, Implant};
 };

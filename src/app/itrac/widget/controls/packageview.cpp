@@ -69,7 +69,21 @@ SterilePackageView::SterilePackageView(QWidget *parent /*= nullptr*/)
 	_model->setHeaderData(PackType, Qt::Horizontal, "包装类型");
 	_model->setHeaderData(Department, Qt::Horizontal, "所属科室");
 	_model->setHeaderData(ExpireDate, Qt::Horizontal, "失效日期");
+	_model->setHeaderData(SterType, Qt::Horizontal, "灭菌类型");
 	_model->setHeaderData(Implant, Qt::Horizontal, "是否含有植入物");
+}
+
+bool SterilePackageView::matchType(int type) const
+{
+	bool b = true;
+	for (int i = 0; i != _model->rowCount(); i++) {
+		int st = _model->data(_model->index(i, SterType), Qt::UserRole + 1).toInt();
+		if (st == 0 || type == st)
+			continue;
+		else
+			b = false;
+	}
+	return b;
 }
 
 void SterilePackageView::addPackage(const QString &id) {
@@ -93,6 +107,11 @@ void SterilePackageView::addPackage(const QString &id) {
 		rowItems << new QStandardItem(resp.getAsString("pack_type_name"));
 		rowItems << new QStandardItem(resp.getAsString("department_name"));
 		rowItems << new QStandardItem(resp.getAsString("valid_date"));
+
+		QStandardItem *typeItem = new QStandardItem(literal_sterile_type(resp.getAsInt("sterilize_type")));
+		typeItem->setData(resp.getAsInt("sterilize_type"));
+		rowItems << typeItem;
+
 		QStandardItem *insItem = new QStandardItem(resp.getAsBool("ins_count") ? "是" : "否");
 		insItem->setData(brushForImport(resp.getAsBool("ins_count")), Qt::BackgroundRole);
 		rowItems << insItem;
@@ -237,7 +256,7 @@ void OrRecyclePackageView::addPackage(const QString &id) {
 
 		QStandardItem *info = new QStandardItem();
 		info->setTextAlignment(Qt::AlignCenter);
-		info->setText("请扫描篮筐条码");
+		info->setText("请扫描网篮条码");
 		rowItems.append(info);
 
 		_model->appendRow(rowItems);
@@ -258,7 +277,7 @@ void OrRecyclePackageView::addExtPackage(const QString& pkgId, const QString& pk
 	rowItems.append(new QStandardItem(""));
 	rowItems.append(new QStandardItem("外来器械"));
 	rowItems.append(new QStandardItem(""));
-	rowItems.append(new QStandardItem("请扫描篮筐条码"));
+	rowItems.append(new QStandardItem("请扫描网篮条码"));
 	_model->appendRow(rowItems);
 }
 

@@ -2,7 +2,7 @@
 #include "barcode.h"
 #include "core/net/url.h"
 #include "xnotifier.h"
-
+#include "core/inliner.h"
 #include <ui/ui_commons.h>
 #include <xui/searchedit.h>
 #include <QtWidgets/QtWidgets>
@@ -105,13 +105,13 @@ void TracePatientPage::tracePackage(const QString &id) {
 		item = new TracePaientItem("灭菌审核");
 		item->addEntry("物理监测审核时间", ste["physical_test_time"].toString());
 		item->addEntry("物理监测审核人员", ste["physical_test_operator"].toString());
-		item->addEntry("物理监测审核结果", ste["physical_test_result"].toString());
+		item->addEntry("物理监测审核结果", literalExam(ste["physical_test_result"].toInt()));
 		item->addEntry("化学监测审核时间", ste["chemistry_test_time"].toString());
 		item->addEntry("化学监测审核人员", ste["chemistry_test_operator"].toString());
-		item->addEntry("化学监测审核结果", ste["chemistry_test_result"].toString());
+		item->addEntry("化学监测审核结果", literalExam(ste["chemistry_test_result"].toInt()));
 		item->addEntry("生物监测审核时间", ste["biology_test_time"].toString());
 		item->addEntry("生物监测审核人员", ste["biology_test_operator"].toString());
-		item->addEntry("生物监测审核结果", ste["biology_test_result"].toString());
+		item->addEntry("生物监测审核结果", literalExam(ste["biology_test_result"].toInt()));
 		_grid->addWidget(item, 1, 0);
 
 		QVariantMap &issue = resp.getAsDict("issue_trace");
@@ -120,11 +120,19 @@ void TracePatientPage::tracePackage(const QString &id) {
 		item->addEntry("发放者", issue["issue_operator"].toString());
 		_grid->addWidget(item, 1, 1);
 
+		QVariantMap &use = resp.getAsDict("use_trace");
+		item = new TracePaientItem("使用");
+		item->addEntry("时间", use["use_time"].toString());
+		item->addEntry("患者ID", use["patient_id"].toString());
+		item->addEntry("手术室", use["operation_room"].toString());
+		item->addEntry("手术台", use["operation_table"].toString());
+		_grid->addWidget(item, 1, 2);
+
 		QVariantMap &recycle = resp.getAsDict("recycle_trace");
 		item = new TracePaientItem("回收");
 		item->addEntry("时间", recycle["recycle_time"].toString());
 		item->addEntry("回收人", recycle["operator"].toString());
-		_grid->addWidget(item, 1, 2);
+		_grid->addWidget(item, 2, 0);
 	
 	});
 }

@@ -58,7 +58,10 @@ private:
 	Device *_device;
 	Ui::FlatEdit *_nameEdit;
 	Ui::FlatEdit *_typeEdit;
+	QComboBox *_typeCombo;
 	TableView *_view;
 	QStandardItemModel *_model;
 	WaitingSpinner *_waiter;
+
+	int type;
 };
