@@ -22,6 +22,7 @@ private:
 };
 
 QString getVipLiteral(const QString &vip);
+QString getImportLiteral(const QString &import);
 
 } //namespace Internal
 

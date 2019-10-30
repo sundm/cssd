@@ -92,7 +92,7 @@ void SterilePanel::commit() {
 		XNotifier::warn(QString("请选择灭菌器"));
 		return;
 	}
-	
+
 	bool isNeedPrintLabel = true;
 	if (item->isRunning())
 	{
@@ -115,6 +115,22 @@ void SterilePanel::commit() {
 	QVariantList packages = _pkgView->packages();
 	if (packages.isEmpty()) {
 		XNotifier::warn(QString("请添加包条码"));
+		return;
+	}
+
+	if (!_pkgView->matchType(item->sterilize_type()))
+	{
+		QString type;
+		switch (item->sterilize_type())
+		{
+		case 1:
+			type = QString("高温");
+			break;
+		case 2:
+			type = QString("低温");
+			break;
+		}
+		XNotifier::warn(QString("您选择的是%1灭菌器，列表中包所需类型不匹配。").arg(type));
 		return;
 	}
 

@@ -19,9 +19,11 @@ struct Plate : public Asset {
 struct Device : public Asset {
 	enum State { Idle, Running, Disabled };
 	enum Type { Washer, Sterilizer };
+	enum Sterile_Type {Both, High, Low};
 	int cycleToday;
 	int cycleSum;
 	int type;
+	int sterile_type;
 	int state;
 	int bdResult;
 
@@ -39,6 +41,7 @@ struct Device : public Asset {
 		else if (sterilizerType == value) type = Sterilizer;
 		else type = -1;
 	}
+
 	static int tranlateState(const QString &);
 
 	static constexpr char washerType[] = "0001";

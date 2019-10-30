@@ -31,6 +31,9 @@ int DeviceItem::id() const {
 int DeviceItem::cycle() const {
 	return _device->cycleToday;
 }
+int DeviceItem::sterilize_type() const {
+	return _device->sterile_type;
+}
 
 QString DeviceItem::name() const {
 	return _device->name;
@@ -140,10 +143,12 @@ void DeviceArea::addDeviceItem(DeviceItem *item) {
 	_items.append(item);
 }
 
-void DeviceArea::load(itrac::DeviceType type)
+void DeviceArea::load(itrac::DeviceType type, bool isHigh)
 {
 	clear();
 	_items.clear();
+
+	_isHigh = isHigh;
 
 	QString data = QString("{\"device_type\":\"000%1\"}").arg((itrac::DeviceType::Washer == type) ? 1: 2);
 
@@ -166,6 +171,10 @@ void DeviceArea::load(itrac::DeviceType type)
 			d->cycleToday = map["cycle"].toInt();
 			d->cycleSum = map["total_cycle"].toInt();
 			d->state = state;
+			int st = map["sterilize_type"].toInt();
+			d->sterile_type = st;
+			if (_isHigh && st == 2)
+				continue;
 			addDeviceItem(new WasherItem(d));
 		}
 		// call this whenever the sizeHint or sizePolicy have changed,

@@ -13,7 +13,7 @@ DevicePage::DevicePage(QWidget *parent)
 	: QWidget(parent)
 	, _filterComboBox(new QComboBox(this))
 	, _deviceView(new TableView)
-	, _deviceModel(new QStandardItemModel(0, 6, _deviceView))
+	, _deviceModel(new QStandardItemModel(0, 7, _deviceView))
 {
 	initDeviceView();
 
@@ -71,6 +71,7 @@ void DevicePage::initDeviceView()
 	_deviceModel->setHeaderData(3, Qt::Horizontal, "今日锅次");
 	_deviceModel->setHeaderData(4, Qt::Horizontal, "投产日期");
 	_deviceModel->setHeaderData(5, Qt::Horizontal, "状态");
+	_deviceModel->setHeaderData(6, Qt::Horizontal, "类型");
 	_deviceView->setModel(_deviceModel);
 
 	_deviceView->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -160,7 +161,10 @@ void DevicePage::updateDeviceView(const QString& deviceType/* = QString()*/)
 			rowItems.append(new QStandardItem(map["total_cycles"].toString()));
 			rowItems.append(new QStandardItem(map["cycle"].toString()));
 			rowItems.append(new QStandardItem(map["production_date"].toString()));
-			rowItems.append(stateItem);
+			int st = map["sterilize_type"].toInt();
+			QStandardItem *stItem = new QStandardItem(sterile_type(st));
+			stItem->setData(st);
+			rowItems.append(stItem);
 			_deviceModel->appendRow(rowItems);
 		}
 	});
@@ -197,7 +201,10 @@ void DevicePage::refresh() {
 
 void DevicePage::add() {
 	AddDeviceDialog d(this);
-	d.exec();
+	if (d.exec() == QDialog::Accepted) {
+		QString deviceType = _filterComboBox->currentData().toString();
+		updateDeviceView(deviceType);
+	}
 }
 
 void DevicePage::modify() {
@@ -209,9 +216,13 @@ void DevicePage::modify() {
 	device.id = _deviceModel->data(_deviceModel->index(row, 0)).toInt();
 	device.setTypeValue(_deviceModel->data(_deviceModel->index(row, 0), Qt::UserRole + 1).toString());
 	device.name = _deviceModel->data(_deviceModel->index(row, 1)).toString();
+	device.sterile_type = _deviceModel->data(_deviceModel->index(row, 5), Qt::UserRole + 1).toInt();
 
 	ModifyDeviceDialog d(&device, this);
-	d.exec();
+	if (d.exec() == QDialog::Accepted) {
+		QString deviceType = _filterComboBox->currentData().toString();
+		updateDeviceView(deviceType);
+	}
 }
 
 void DevicePage::disable() {

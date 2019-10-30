@@ -14,6 +14,7 @@ public:
 	AbstractPackageView(QWidget *parent = nullptr);
 	bool hasPackage(const QString &) const;
 	bool hasImplantPackage() const;
+	
 	QVariantList packages() const;
 
 	virtual void addPackage(const QString &) = 0;
@@ -43,8 +44,9 @@ class SterilePackageView : public AbstractPackageView
 public:
 	SterilePackageView(QWidget *parent = nullptr);
 	void addPackage(const QString &) override;
+	bool matchType(int type) const;
 private:
-	enum { Barcode, Name, PackType, Department, ExpireDate, Implant};
+	enum { Barcode, Name, PackType, Department, ExpireDate, SterType, Implant};
 };
 
 class SterileCheckPackageView : public TableView

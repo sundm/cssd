@@ -24,7 +24,7 @@ WashAbnormal::WashAbnormal(Scanable* candidate, QWidget *parent)
 		setCandidate(candidate);
 	}
 
-	_searchBox->setPlaceholderText("请扫描或输入篮筐ID");
+	_searchBox->setPlaceholderText("请扫描或输入网篮ID");
 	_searchBox->setMinimumHeight(36);
 	_searchBox->setMinimumWidth(450);
 	connect(_searchBox, &QLineEdit::returnPressed, this, &WashAbnormal::startTrace);

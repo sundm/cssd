@@ -125,7 +125,7 @@ namespace Internal {
 				_model->setData(_model->index(i, Name), map["instrument_name"]);
 				_model->setData(_model->index(i, Id), map["instrument_id"]);
 				_model->setData(_model->index(i, Vip), Internal::getVipLiteral(map["is_vip_instrument"].toString()));
-				_model->setData(_model->index(i, Implant), Internal::getVipLiteral(map["instrument_type"].toString()));
+				_model->setData(_model->index(i, Implant), Internal::getImportLiteral(map["instrument_type"].toString()));
 				_model->setData(_model->index(i, Pinyin), map["pinyin_code"]);
 			}
 		});
@@ -133,5 +133,9 @@ namespace Internal {
 
 	QString getVipLiteral(const QString &vip) {
 		return "0" == vip ? "否" : "是";
+	}
+
+	QString getImportLiteral(const QString &import) {
+		return "1" == import ? "是" : "否" ;
 	}
 }

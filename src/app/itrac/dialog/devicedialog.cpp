@@ -21,8 +21,10 @@ AddDeviceDialog::AddDeviceDialog(QWidget *parent)
 {
 	setWindowTitle("添加新设备");
 
-	_typeCombo->addItem("清洗机", WASH_DEVICE);
-	_typeCombo->addItem("灭菌器", STERILE_DEVICE);
+	_typeCombo->addItem("清洗机", -1);
+	_typeCombo->addItem("通用灭菌器", 0);
+	_typeCombo->addItem("高温灭菌器", 1);
+	_typeCombo->addItem("低温灭菌器", 2);
 	_typeCombo->setCurrentIndex(-1);
 	connect(_typeCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
 		this, &AddDeviceDialog::loadPrograms);
@@ -66,17 +68,28 @@ void AddDeviceDialog::accept() {
 		if (item->checkState() == Qt::Checked) programs.append(item->text());
 	}
 	QVariantMap vmap;
-	vmap.insert("device_type", _typeCombo->currentData());
+	int type = _typeCombo->currentData().toInt();
+	QString device_type = QString("0002");
+	switch (type)
+	{
+	case -1:
+		device_type = QString("0001");
+	default:
+		break;
+	}
+	vmap.insert("device_type", device_type);
 	vmap.insert("device_name", name);
 	vmap.insert("production_date", QDate::currentDate());
 	vmap.insert("support_program_ids", programs);
+	vmap.insert("sterilize_type", type);
 
 	_waiter->start();
 	post(url(PATH_DEVICE_ADD), vmap, [this](QNetworkReply *reply) {
 		_waiter->stop();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
-			//return; // TODO
+			XNotifier::warn(QString("添加设备失败: ").append(resp.errorString()));
+			return;
 		}
 		else {
 			QDialog::accept();
@@ -108,7 +121,11 @@ void AddDeviceDialog::initProgramView() {
 void AddDeviceDialog::loadPrograms(int index) {
 	_model->removeRows(0, _model->rowCount());
 
-	QString deviceType = _typeCombo->itemData(index).toString();
+	QString deviceType = QString("0002");
+	int type = _typeCombo->itemData(index).toInt();
+	if (-1 == type)
+		deviceType = QString("0001");
+
 	QByteArray data;
 	data.append("{\"program_type\":\"").append(deviceType).append("\"}");
 
@@ -139,6 +156,7 @@ ModifyDeviceDialog::ModifyDeviceDialog(Device *device, QWidget *parent /*= Q_NUL
 	, _device(device) 
 	, _nameEdit(new Ui::FlatEdit)
 	, _typeEdit(new Ui::FlatEdit)
+	, _typeCombo(new QComboBox)
 	, _view(new TableView)
 	, _model(new QStandardItemModel(0, 3, _view))
 {
@@ -148,6 +166,12 @@ ModifyDeviceDialog::ModifyDeviceDialog(Device *device, QWidget *parent /*= Q_NUL
 	_typeEdit->setReadOnly(true);
 	_nameEdit->setText(device->name);
 	_nameEdit->setReadOnly(true);
+
+	_typeCombo->addItem("通用灭菌器", 0);
+	_typeCombo->addItem("高温灭菌器", 1);
+	_typeCombo->addItem("低温灭菌器", 2);
+	_typeCombo->setCurrentIndex(device->sterile_type);
+	type = device->sterile_type;
 
 	initProgramView();
 	loadPrograms();
@@ -161,12 +185,27 @@ ModifyDeviceDialog::ModifyDeviceDialog(Device *device, QWidget *parent /*= Q_NUL
 	mainLayout->setVerticalSpacing(15);
 	mainLayout->addWidget(new QLabel("设备类型"), 0, 0);
 	mainLayout->addWidget(new QLabel("设备名称"), 1, 0);
-	mainLayout->addWidget(new QLabel("预设程序"), 2, 0);
 	mainLayout->addWidget(_typeEdit, 0, 1);
 	mainLayout->addWidget(_nameEdit, 1, 1);
-	mainLayout->addWidget(_view, 2, 1);
-	mainLayout->addWidget(Ui::createSeperator(Qt::Horizontal), 3, 0, 1, 2);
-	mainLayout->addWidget(submitButton, 4, 0, 1, 2, Qt::AlignHCenter);
+
+	if (device->type > 0)
+	{
+		mainLayout->addWidget(new QLabel("灭菌类型"), 2, 0);
+		mainLayout->addWidget(new QLabel("预设程序"), 3, 0);
+		mainLayout->addWidget(_typeCombo, 2, 1);
+		mainLayout->addWidget(_view, 3, 1);
+		mainLayout->addWidget(Ui::createSeperator(Qt::Horizontal), 4, 0, 1, 2);
+		mainLayout->addWidget(submitButton, 5, 0, 1, 2, Qt::AlignHCenter);
+	}
+	else
+	{
+		mainLayout->addWidget(new QLabel("预设程序"), 2, 0);
+		mainLayout->addWidget(_view, 2, 1);
+		mainLayout->addWidget(Ui::createSeperator(Qt::Horizontal), 3, 0, 1, 2);
+		mainLayout->addWidget(submitButton, 4, 0, 1, 2, Qt::AlignHCenter);
+	}
+	
+	
 
 	resize(parent ? parent->width() / 3 : 360, sizeHint().height());
 }
@@ -183,17 +222,23 @@ void ModifyDeviceDialog::accept() {
 		QStandardItem *item = _model->item(i);
 		if (item->checkState() == Qt::Checked) programs.append(item->text());
 	}
+
+	if (type != -1)
+		type = _typeCombo->currentData().toInt();
+
 	QVariantMap vmap;
 	vmap.insert("device_id", _device->id);
 	vmap.insert("device_name", name);
 	vmap.insert("support_program_ids", programs);
+	vmap.insert("sterilize_type", type);
 
-	_waiter->start();
+	//_waiter->start();
 	post(url(PATH_DEVICE_MODIFY), vmap, [this](QNetworkReply *reply) {
-		_waiter->stop();
+		//_waiter->stop();
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {
-			//return; // TODO
+			XNotifier::warn(QString("更新设备信息失败: ").append(resp.errorString()));
+			return;
 		}
 		else {
 			QDialog::accept();

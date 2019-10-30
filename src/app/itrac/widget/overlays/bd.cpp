@@ -31,7 +31,7 @@ BDPanel::BDPanel(QWidget *parent)
 	layout->addWidget(_deviceArea);
 	layout->addWidget(tip);
 
-	QTimer::singleShot(200, [this] { _deviceArea->load(itrac::DeviceType::Sterilizer); });
+	QTimer::singleShot(200, [this] { _deviceArea->load(itrac::DeviceType::Sterilizer, true); });
 }
 
 void BDPanel::handleBarcode(const QString &code) {

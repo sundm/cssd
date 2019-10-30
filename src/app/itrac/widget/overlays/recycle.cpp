@@ -134,7 +134,7 @@ void NoBCRecyclePanel::updateDept(const QString &deptId) {
 void NoBCRecyclePanel::addPlate() {
 	bool ok;
 	QRegExp regExp("\\d{8,}");
-	QString code = RegExpInputDialog::getText(this, "手工输入条码", "请输入篮筐条码", "", regExp, &ok);
+	QString code = RegExpInputDialog::getText(this, "手工输入条码", "请输入网篮条码", "", regExp, &ok);
 	if (ok) {
 		handleBarcode(code);
 	}
@@ -155,7 +155,7 @@ void NoBCRecyclePanel::addEntry() {
 		pkgItem->setData(_pkgEdit->currentId());
 		QStandardItem *plateItem = new QStandardItem("-");
 		plateItem->setData(0);
-		items << depItem << pkgItem << new QStandardItem("1") << new QStandardItem("请扫描篮筐条码");
+		items << depItem << pkgItem << new QStandardItem("1") << new QStandardItem("请扫描网篮条码");
 		_pkgModel->appendRow(items);
 	}
 	else {
@@ -301,7 +301,7 @@ OrRecyclePanel::OrRecyclePanel(QWidget *parent /*= nullptr*/)
 
 	hLayout->addWidget(Ui::createSeperator(Qt::Vertical));
 
-	Ui::IconButton *addPlateButton = new Ui::IconButton(":/res/fill-plate-24.png", "手工添加篮筐");
+	Ui::IconButton *addPlateButton = new Ui::IconButton(":/res/fill-plate-24.png", "手工添加网篮");
 	hLayout->addWidget(addPlateButton);
 	connect(addPlateButton, SIGNAL(clicked()), this, SLOT(addPlateEntry()));
 
@@ -375,7 +375,7 @@ void OrRecyclePanel::addEntry() {
 void OrRecyclePanel::addPlateEntry() {
 	bool ok;
 	QRegExp regExp("\\d{8,}");
-	QString code = RegExpInputDialog::getText(this, "手工输入条码", "请输入篮筐条码", "", regExp, &ok);
+	QString code = RegExpInputDialog::getText(this, "手工输入条码", "请输入网篮条码", "", regExp, &ok);
 	if (ok) {
 		handleBarcode(code);
 	}
