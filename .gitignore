@@ -29,11 +29,4 @@ dump/
 # temp backups
 *����*
 
-# VC++ profile
-*.sln
-*.vcxproj
-*.vcxproj.user
-
 log.txt
-src/libs/printer/imgprinter.h
-src/libs/printer/imgprinter.cpp
