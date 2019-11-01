@@ -12,7 +12,7 @@
 #include "core/constants.h"
 #include "core/application.h"
 #include "core/barcode.h"
-
+#include "../libs/rfidreader/rfidreader.h"
 #include <QVBoxLayout>
 #include <QProgressBar>
 #include <QAction>
@@ -115,47 +115,10 @@ namespace Widget {
 		//Ui::addPrimaryShortcut(this, Qt::Key_Enter, SLOT(submit()));
 		connect(userEdit, SIGNAL(returnPressed()), this, SLOT(submit()));
 		connect(pwdEdit, SIGNAL(returnPressed()), this, SLOT(submit()));
-
 		version();
 	}
 
 	void LoginPanel::submit() {
-		//LabelPrinter *printer = PrinterManager::currentPrinter();
-		//printer->open(COMMON_PRINTER);
-		//Issues issues;
-		//issues.deptName = "手术室";
-		//issues.date = "2019/08/08";
-
-		//package p;
-		//p.name = "成人体循器械（每份112把）";
-		//p.count = 10;
-		//QList<package> list;
-		//list.append(p);
-		//list.append(p);
-		//list.append(p);
-		//list.append(p);
-		//list.append(p);
-		//list.append(p);
-		//list.append(p);
-		//list.append(p);
-		//list.append(p);
-		//list.append(p);
-		//list.append(p);
-		//list.append(p);
-		//list.append(p);
-		//list.append(p);
-		//list.append(p);
-		//list.append(p);
-		//list.append(p);
-		//list.append(p);
-		//issues.packages = list;
-
-		//issues.operName = "周玲玲";
-		//issues.orderId = "17000001";
-
-		//printer->printIssue(issues, PaperType::recycle);
-		//return;
-		
 		QString user(userEdit->text());
 		QString pwd(pwdEdit->text());
 		if (user.isEmpty()) {
@@ -166,7 +129,19 @@ namespace Widget {
 			pwdEdit->setFocus();
 			return;
 		}
-
+		/*
+		if (REMEMBER_READER && COMPORT_LIST.contains(LAST_COM)) {
+			if (RfidReader::getInstance()->connect(LAST_COM.toStdString())) {
+				error->shake(QString("RFID读卡器连接成功!"));
+			}
+			else {
+				error->shake(QString("RFID读卡器连接失败，请登录后重新配置!"));
+			}
+		}
+		else {
+			error->shake(QString("RFID读卡器尚未连接，请登录后进行配置!"));
+		}
+		*/
 		login(user, pwd);
 	}
 
@@ -406,7 +381,6 @@ namespace Widget {
 		}
 
 		vmap.insert("sign_flag", "C");
-
 
 		/*Core::User &user = Core::currentUser();
 		user.role = Core::User::Admin;

@@ -390,6 +390,9 @@
     <ClCompile Include="dialog\registerinstrumentdialog.cpp">
       <Filter>Source Files\dialog</Filter>
     </ClCompile>
+    <ClCompile Include="dialog\rfidreaderconfigerdialog.cpp">
+      <Filter>Source Files\dialog</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="devicepage.h">
@@ -657,6 +660,9 @@
       <Filter>Source Files\dialog</Filter>
     </QtMoc>
     <QtMoc Include="dialog\registerinstrumentdialog.h">
+      <Filter>Source Files\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="dialog\rfidreaderconfigerdialog.h">
       <Filter>Source Files\dialog</Filter>
     </QtMoc>
   </ItemGroup>

@@ -1,9 +1,12 @@
 #include "topbar.h"
 #include "core/user.h"
+#include "core/net/url.h"
 #include "ui/buttons.h"
 #include "ui/composite/sliderbar.h"
 #include "dialog/userinfodialog.h"
 #include "dialog/warningdialog.h"
+#include "../libs/rfidreader/rfidreader.h"
+#include "dialog/rfidreaderconfigerdialog.h"
 #include <QtWidgets/QtWidgets>
 
 TopBar::TopBar(QWidget *parent) :
@@ -26,6 +29,7 @@ TopBar::TopBar(QWidget *parent) :
 
 	Ui::IconButton *settingsButton = new Ui::IconButton(":/res/cog-64.png");
 	settingsButton->setIconSize(QSize(24, 24));
+	connect(settingsButton, SIGNAL(clicked()), this, SLOT(showRfidConfiger()));
 
 	Ui::IconButton *aboutButton = new Ui::IconButton(":/res/info-64.png");
 	aboutButton->setIconSize(QSize(24, 24));
@@ -71,6 +75,11 @@ TopBar::TopBar(QWidget *parent) :
 
 void TopBar::showWarnings() {
 	WarningDialog d(this);
+	d.exec();
+}
+
+void TopBar::showRfidConfiger() {
+	ConfigRfidReaderDialog d(this);
 	d.exec();
 }
 

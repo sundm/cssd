@@ -1,8 +1,8 @@
 #include "launcher.h"
 #include "platform/platfom_specific.h"
-
 #include "application.h"
 #include "core/net/url.h"
+#include "../libs/rfidreader/rfidreader.h"
 #include <QSettings>
 
 namespace Core {
@@ -39,6 +39,21 @@ namespace Core {
 		LABEL_PRINTER = configIni->value("printer/label").toString();
 
 		COMMON_PRINTER = configIni->value("printer/common").toString();
+
+		REMEMBER_READER = false;
+
+		REMEMBER_READER = configIni->value("port/remember").toBool();
+
+		if (REMEMBER_READER)
+		{
+			LAST_COM = configIni->value("port/name").toString();
+		}
+		
+		std::list<std::string> ports = RfidReader::getInstance()->refreshPorts();
+		for each (std::string port in ports)
+		{
+			COMPORT_LIST.append(QString::fromStdString(port));
+		}
 
 		delete configIni;
 	}

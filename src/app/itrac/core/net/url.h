@@ -2,11 +2,15 @@
 
 //#include "jsonhttpclient.h"
 #include <QString>
+#include <QStringlist>
 #include "jsonhttpresponse.h"
 
 extern QString PATH_BASE;
 extern QString LABEL_PRINTER;
 extern QString COMMON_PRINTER;
+extern QStringList COMPORT_LIST;
+extern bool REMEMBER_READER;
+extern QString LAST_COM;
 extern const char PATH_PLATE_SEARCH[];
 extern const char PATH_DEPT_SEARCH[];
 extern const char PATH_DEPT_ADD[];

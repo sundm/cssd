@@ -16,7 +16,7 @@ signals:
 
 private slots:
 	void showWarnings();
-
+	void showRfidConfiger();
 private:
 	void popupUserInfo();
 
