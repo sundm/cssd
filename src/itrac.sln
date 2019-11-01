@@ -1,0 +1,215 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2035
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hidapi", "libs\thirdparty\hidapi\hidapi.vcxproj", "{C1D2D6BF-CDF7-4BF1-8356-75E07AA0E303}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "update", "libs\update\Winsupdate.vcxproj", "{5D00D27C-7733-497F-955E-BB9716E78F44}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "itrac", "app\itrac\itrac.vcxproj", "{B12702AD-ABFB-343A-A199-8E24837244A3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BFBC0412-0355-479E-9F89-4FB0509EE8FC} = {BFBC0412-0355-479E-9F89-4FB0509EE8FC}
+		{DA517523-296E-4A41-9E65-6D35FD0DEF46} = {DA517523-296E-4A41-9E65-6D35FD0DEF46}
+		{727D954D-244E-4DA5-9C68-2EA91DA502B2} = {727D954D-244E-4DA5-9C68-2EA91DA502B2}
+		{5D00D27C-7733-497F-955E-BB9716E78F44} = {5D00D27C-7733-497F-955E-BB9716E78F44}
+		{52B5F1C7-7C33-4BF3-9377-560555BB6969} = {52B5F1C7-7C33-4BF3-9377-560555BB6969}
+		{1069FDE9-9048-4940-B849-0379EBF72671} = {1069FDE9-9048-4940-B849-0379EBF72671}
+		{9F9E6AEC-2542-49CC-A1D4-28283EB35BEC} = {9F9E6AEC-2542-49CC-A1D4-28283EB35BEC}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xui", "libs\xui\xui.vcxproj", "{DA517523-296E-4A41-9E65-6D35FD0DEF46}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xernel", "libs\xernel\xernel.vcxproj", "{BFBC0412-0355-479E-9F89-4FB0509EE8FC}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "qscanner", "libs\qscanner\qscanner.vcxproj", "{52B5F1C7-7C33-4BF3-9377-560555BB6969}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C1D2D6BF-CDF7-4BF1-8356-75E07AA0E303} = {C1D2D6BF-CDF7-4BF1-8356-75E07AA0E303}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "qjson", "libs\thirdparty\qjson\qjson.vcxproj", "{9F9E6AEC-2542-49CC-A1D4-28283EB35BEC}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "printer", "libs\printer\printer.vcxproj", "{727D954D-244E-4DA5-9C68-2EA91DA502B2}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ortrac", "app\ortrac\ortrac.vcxproj", "{B4F7C2C5-CEB0-4CC6-913C-76BE4E0A46EC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BFBC0412-0355-479E-9F89-4FB0509EE8FC} = {BFBC0412-0355-479E-9F89-4FB0509EE8FC}
+		{DA517523-296E-4A41-9E65-6D35FD0DEF46} = {DA517523-296E-4A41-9E65-6D35FD0DEF46}
+		{5D00D27C-7733-497F-955E-BB9716E78F44} = {5D00D27C-7733-497F-955E-BB9716E78F44}
+		{52B5F1C7-7C33-4BF3-9377-560555BB6969} = {52B5F1C7-7C33-4BF3-9377-560555BB6969}
+		{9F9E6AEC-2542-49CC-A1D4-28283EB35BEC} = {9F9E6AEC-2542-49CC-A1D4-28283EB35BEC}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rfidreader", "libs\rfidreader\rfidreader.vcxproj", "{1069FDE9-9048-4940-B849-0379EBF72671}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+		releaseForItrac|x64 = releaseForItrac|x64
+		releaseForItrac|x86 = releaseForItrac|x86
+		releaseForOrtrac|x64 = releaseForOrtrac|x64
+		releaseForOrtrac|x86 = releaseForOrtrac|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C1D2D6BF-CDF7-4BF1-8356-75E07AA0E303}.Debug|x64.ActiveCfg = Debug|x64
+		{C1D2D6BF-CDF7-4BF1-8356-75E07AA0E303}.Debug|x64.Build.0 = Debug|x64
+		{C1D2D6BF-CDF7-4BF1-8356-75E07AA0E303}.Debug|x86.ActiveCfg = Debug|Win32
+		{C1D2D6BF-CDF7-4BF1-8356-75E07AA0E303}.Debug|x86.Build.0 = Debug|Win32
+		{C1D2D6BF-CDF7-4BF1-8356-75E07AA0E303}.Release|x64.ActiveCfg = Release|x64
+		{C1D2D6BF-CDF7-4BF1-8356-75E07AA0E303}.Release|x64.Build.0 = Release|x64
+		{C1D2D6BF-CDF7-4BF1-8356-75E07AA0E303}.Release|x86.ActiveCfg = Release|Win32
+		{C1D2D6BF-CDF7-4BF1-8356-75E07AA0E303}.Release|x86.Build.0 = Release|Win32
+		{C1D2D6BF-CDF7-4BF1-8356-75E07AA0E303}.releaseForItrac|x64.ActiveCfg = releaseForItrac|x64
+		{C1D2D6BF-CDF7-4BF1-8356-75E07AA0E303}.releaseForItrac|x64.Build.0 = releaseForItrac|x64
+		{C1D2D6BF-CDF7-4BF1-8356-75E07AA0E303}.releaseForItrac|x86.ActiveCfg = releaseForItrac|Win32
+		{C1D2D6BF-CDF7-4BF1-8356-75E07AA0E303}.releaseForItrac|x86.Build.0 = releaseForItrac|Win32
+		{C1D2D6BF-CDF7-4BF1-8356-75E07AA0E303}.releaseForOrtrac|x64.ActiveCfg = releaseForOrtrac|x64
+		{C1D2D6BF-CDF7-4BF1-8356-75E07AA0E303}.releaseForOrtrac|x64.Build.0 = releaseForOrtrac|x64
+		{C1D2D6BF-CDF7-4BF1-8356-75E07AA0E303}.releaseForOrtrac|x86.ActiveCfg = releaseForOrtrac|Win32
+		{C1D2D6BF-CDF7-4BF1-8356-75E07AA0E303}.releaseForOrtrac|x86.Build.0 = releaseForOrtrac|Win32
+		{5D00D27C-7733-497F-955E-BB9716E78F44}.Debug|x64.ActiveCfg = Debug|Win32
+		{5D00D27C-7733-497F-955E-BB9716E78F44}.Debug|x86.ActiveCfg = Debug|Win32
+		{5D00D27C-7733-497F-955E-BB9716E78F44}.Debug|x86.Build.0 = Debug|Win32
+		{5D00D27C-7733-497F-955E-BB9716E78F44}.Release|x64.ActiveCfg = Release|Win32
+		{5D00D27C-7733-497F-955E-BB9716E78F44}.Release|x86.ActiveCfg = Release|Win32
+		{5D00D27C-7733-497F-955E-BB9716E78F44}.Release|x86.Build.0 = Release|Win32
+		{5D00D27C-7733-497F-955E-BB9716E78F44}.releaseForItrac|x64.ActiveCfg = releaseForItrac|Win32
+		{5D00D27C-7733-497F-955E-BB9716E78F44}.releaseForItrac|x86.ActiveCfg = releaseForItrac|Win32
+		{5D00D27C-7733-497F-955E-BB9716E78F44}.releaseForItrac|x86.Build.0 = releaseForItrac|Win32
+		{5D00D27C-7733-497F-955E-BB9716E78F44}.releaseForOrtrac|x64.ActiveCfg = releaseForOrtrac|Win32
+		{5D00D27C-7733-497F-955E-BB9716E78F44}.releaseForOrtrac|x86.ActiveCfg = releaseForOrtrac|Win32
+		{5D00D27C-7733-497F-955E-BB9716E78F44}.releaseForOrtrac|x86.Build.0 = releaseForOrtrac|Win32
+		{B12702AD-ABFB-343A-A199-8E24837244A3}.Debug|x64.ActiveCfg = Debug|x64
+		{B12702AD-ABFB-343A-A199-8E24837244A3}.Debug|x64.Build.0 = Debug|x64
+		{B12702AD-ABFB-343A-A199-8E24837244A3}.Debug|x86.ActiveCfg = Debug|Win32
+		{B12702AD-ABFB-343A-A199-8E24837244A3}.Debug|x86.Build.0 = Debug|Win32
+		{B12702AD-ABFB-343A-A199-8E24837244A3}.Release|x64.ActiveCfg = Release|x64
+		{B12702AD-ABFB-343A-A199-8E24837244A3}.Release|x64.Build.0 = Release|x64
+		{B12702AD-ABFB-343A-A199-8E24837244A3}.Release|x86.ActiveCfg = Release|Win32
+		{B12702AD-ABFB-343A-A199-8E24837244A3}.Release|x86.Build.0 = Release|Win32
+		{B12702AD-ABFB-343A-A199-8E24837244A3}.releaseForItrac|x64.ActiveCfg = releaseForItrac|x64
+		{B12702AD-ABFB-343A-A199-8E24837244A3}.releaseForItrac|x64.Build.0 = releaseForItrac|x64
+		{B12702AD-ABFB-343A-A199-8E24837244A3}.releaseForItrac|x86.ActiveCfg = releaseForItrac|Win32
+		{B12702AD-ABFB-343A-A199-8E24837244A3}.releaseForItrac|x86.Build.0 = releaseForItrac|Win32
+		{B12702AD-ABFB-343A-A199-8E24837244A3}.releaseForOrtrac|x64.ActiveCfg = releaseForOrtrac|x64
+		{B12702AD-ABFB-343A-A199-8E24837244A3}.releaseForOrtrac|x64.Build.0 = releaseForOrtrac|x64
+		{B12702AD-ABFB-343A-A199-8E24837244A3}.releaseForOrtrac|x86.ActiveCfg = releaseForOrtrac|Win32
+		{DA517523-296E-4A41-9E65-6D35FD0DEF46}.Debug|x64.ActiveCfg = Debug|x64
+		{DA517523-296E-4A41-9E65-6D35FD0DEF46}.Debug|x64.Build.0 = Debug|x64
+		{DA517523-296E-4A41-9E65-6D35FD0DEF46}.Debug|x86.ActiveCfg = Debug|Win32
+		{DA517523-296E-4A41-9E65-6D35FD0DEF46}.Debug|x86.Build.0 = Debug|Win32
+		{DA517523-296E-4A41-9E65-6D35FD0DEF46}.Release|x64.ActiveCfg = Release|x64
+		{DA517523-296E-4A41-9E65-6D35FD0DEF46}.Release|x64.Build.0 = Release|x64
+		{DA517523-296E-4A41-9E65-6D35FD0DEF46}.Release|x86.ActiveCfg = Release|Win32
+		{DA517523-296E-4A41-9E65-6D35FD0DEF46}.Release|x86.Build.0 = Release|Win32
+		{DA517523-296E-4A41-9E65-6D35FD0DEF46}.releaseForItrac|x64.ActiveCfg = releaseForItrac|x64
+		{DA517523-296E-4A41-9E65-6D35FD0DEF46}.releaseForItrac|x64.Build.0 = releaseForItrac|x64
+		{DA517523-296E-4A41-9E65-6D35FD0DEF46}.releaseForItrac|x86.ActiveCfg = releaseForItrac|Win32
+		{DA517523-296E-4A41-9E65-6D35FD0DEF46}.releaseForItrac|x86.Build.0 = releaseForItrac|Win32
+		{DA517523-296E-4A41-9E65-6D35FD0DEF46}.releaseForOrtrac|x64.ActiveCfg = releaseForOrtrac|x64
+		{DA517523-296E-4A41-9E65-6D35FD0DEF46}.releaseForOrtrac|x64.Build.0 = releaseForOrtrac|x64
+		{DA517523-296E-4A41-9E65-6D35FD0DEF46}.releaseForOrtrac|x86.ActiveCfg = releaseForOrtrac|Win32
+		{DA517523-296E-4A41-9E65-6D35FD0DEF46}.releaseForOrtrac|x86.Build.0 = releaseForOrtrac|Win32
+		{BFBC0412-0355-479E-9F89-4FB0509EE8FC}.Debug|x64.ActiveCfg = Debug|x64
+		{BFBC0412-0355-479E-9F89-4FB0509EE8FC}.Debug|x64.Build.0 = Debug|x64
+		{BFBC0412-0355-479E-9F89-4FB0509EE8FC}.Debug|x86.ActiveCfg = Debug|Win32
+		{BFBC0412-0355-479E-9F89-4FB0509EE8FC}.Debug|x86.Build.0 = Debug|Win32
+		{BFBC0412-0355-479E-9F89-4FB0509EE8FC}.Release|x64.ActiveCfg = Release|x64
+		{BFBC0412-0355-479E-9F89-4FB0509EE8FC}.Release|x64.Build.0 = Release|x64
+		{BFBC0412-0355-479E-9F89-4FB0509EE8FC}.Release|x86.ActiveCfg = Release|Win32
+		{BFBC0412-0355-479E-9F89-4FB0509EE8FC}.Release|x86.Build.0 = Release|Win32
+		{BFBC0412-0355-479E-9F89-4FB0509EE8FC}.releaseForItrac|x64.ActiveCfg = releaseForItrac|x64
+		{BFBC0412-0355-479E-9F89-4FB0509EE8FC}.releaseForItrac|x64.Build.0 = releaseForItrac|x64
+		{BFBC0412-0355-479E-9F89-4FB0509EE8FC}.releaseForItrac|x86.ActiveCfg = releaseForItrac|Win32
+		{BFBC0412-0355-479E-9F89-4FB0509EE8FC}.releaseForItrac|x86.Build.0 = releaseForItrac|Win32
+		{BFBC0412-0355-479E-9F89-4FB0509EE8FC}.releaseForOrtrac|x64.ActiveCfg = releaseForOrtrac|x64
+		{BFBC0412-0355-479E-9F89-4FB0509EE8FC}.releaseForOrtrac|x64.Build.0 = releaseForOrtrac|x64
+		{BFBC0412-0355-479E-9F89-4FB0509EE8FC}.releaseForOrtrac|x86.ActiveCfg = releaseForOrtrac|Win32
+		{BFBC0412-0355-479E-9F89-4FB0509EE8FC}.releaseForOrtrac|x86.Build.0 = releaseForOrtrac|Win32
+		{52B5F1C7-7C33-4BF3-9377-560555BB6969}.Debug|x64.ActiveCfg = Debug|x64
+		{52B5F1C7-7C33-4BF3-9377-560555BB6969}.Debug|x64.Build.0 = Debug|x64
+		{52B5F1C7-7C33-4BF3-9377-560555BB6969}.Debug|x86.ActiveCfg = Debug|Win32
+		{52B5F1C7-7C33-4BF3-9377-560555BB6969}.Debug|x86.Build.0 = Debug|Win32
+		{52B5F1C7-7C33-4BF3-9377-560555BB6969}.Release|x64.ActiveCfg = Release|x64
+		{52B5F1C7-7C33-4BF3-9377-560555BB6969}.Release|x64.Build.0 = Release|x64
+		{52B5F1C7-7C33-4BF3-9377-560555BB6969}.Release|x86.ActiveCfg = Release|Win32
+		{52B5F1C7-7C33-4BF3-9377-560555BB6969}.Release|x86.Build.0 = Release|Win32
+		{52B5F1C7-7C33-4BF3-9377-560555BB6969}.releaseForItrac|x64.ActiveCfg = releaseForItrac|x64
+		{52B5F1C7-7C33-4BF3-9377-560555BB6969}.releaseForItrac|x64.Build.0 = releaseForItrac|x64
+		{52B5F1C7-7C33-4BF3-9377-560555BB6969}.releaseForItrac|x86.ActiveCfg = releaseForItrac|Win32
+		{52B5F1C7-7C33-4BF3-9377-560555BB6969}.releaseForItrac|x86.Build.0 = releaseForItrac|Win32
+		{52B5F1C7-7C33-4BF3-9377-560555BB6969}.releaseForOrtrac|x64.ActiveCfg = releaseForOrtrac|x64
+		{52B5F1C7-7C33-4BF3-9377-560555BB6969}.releaseForOrtrac|x64.Build.0 = releaseForOrtrac|x64
+		{52B5F1C7-7C33-4BF3-9377-560555BB6969}.releaseForOrtrac|x86.ActiveCfg = releaseForOrtrac|Win32
+		{52B5F1C7-7C33-4BF3-9377-560555BB6969}.releaseForOrtrac|x86.Build.0 = releaseForOrtrac|Win32
+		{9F9E6AEC-2542-49CC-A1D4-28283EB35BEC}.Debug|x64.ActiveCfg = Debug|x64
+		{9F9E6AEC-2542-49CC-A1D4-28283EB35BEC}.Debug|x64.Build.0 = Debug|x64
+		{9F9E6AEC-2542-49CC-A1D4-28283EB35BEC}.Debug|x86.ActiveCfg = Debug|Win32
+		{9F9E6AEC-2542-49CC-A1D4-28283EB35BEC}.Debug|x86.Build.0 = Debug|Win32
+		{9F9E6AEC-2542-49CC-A1D4-28283EB35BEC}.Release|x64.ActiveCfg = Release|x64
+		{9F9E6AEC-2542-49CC-A1D4-28283EB35BEC}.Release|x64.Build.0 = Release|x64
+		{9F9E6AEC-2542-49CC-A1D4-28283EB35BEC}.Release|x86.ActiveCfg = Release|Win32
+		{9F9E6AEC-2542-49CC-A1D4-28283EB35BEC}.Release|x86.Build.0 = Release|Win32
+		{9F9E6AEC-2542-49CC-A1D4-28283EB35BEC}.releaseForItrac|x64.ActiveCfg = releaseForItrac|x64
+		{9F9E6AEC-2542-49CC-A1D4-28283EB35BEC}.releaseForItrac|x64.Build.0 = releaseForItrac|x64
+		{9F9E6AEC-2542-49CC-A1D4-28283EB35BEC}.releaseForItrac|x86.ActiveCfg = releaseForItrac|Win32
+		{9F9E6AEC-2542-49CC-A1D4-28283EB35BEC}.releaseForItrac|x86.Build.0 = releaseForItrac|Win32
+		{9F9E6AEC-2542-49CC-A1D4-28283EB35BEC}.releaseForOrtrac|x64.ActiveCfg = releaseForOrtrac|x64
+		{9F9E6AEC-2542-49CC-A1D4-28283EB35BEC}.releaseForOrtrac|x64.Build.0 = releaseForOrtrac|x64
+		{9F9E6AEC-2542-49CC-A1D4-28283EB35BEC}.releaseForOrtrac|x86.ActiveCfg = releaseForOrtrac|Win32
+		{9F9E6AEC-2542-49CC-A1D4-28283EB35BEC}.releaseForOrtrac|x86.Build.0 = releaseForOrtrac|Win32
+		{727D954D-244E-4DA5-9C68-2EA91DA502B2}.Debug|x64.ActiveCfg = Debug|x64
+		{727D954D-244E-4DA5-9C68-2EA91DA502B2}.Debug|x64.Build.0 = Debug|x64
+		{727D954D-244E-4DA5-9C68-2EA91DA502B2}.Debug|x86.ActiveCfg = Debug|Win32
+		{727D954D-244E-4DA5-9C68-2EA91DA502B2}.Debug|x86.Build.0 = Debug|Win32
+		{727D954D-244E-4DA5-9C68-2EA91DA502B2}.Release|x64.ActiveCfg = Release|x64
+		{727D954D-244E-4DA5-9C68-2EA91DA502B2}.Release|x64.Build.0 = Release|x64
+		{727D954D-244E-4DA5-9C68-2EA91DA502B2}.Release|x86.ActiveCfg = Release|Win32
+		{727D954D-244E-4DA5-9C68-2EA91DA502B2}.Release|x86.Build.0 = Release|Win32
+		{727D954D-244E-4DA5-9C68-2EA91DA502B2}.releaseForItrac|x64.ActiveCfg = releaseForItrac|x64
+		{727D954D-244E-4DA5-9C68-2EA91DA502B2}.releaseForItrac|x64.Build.0 = releaseForItrac|x64
+		{727D954D-244E-4DA5-9C68-2EA91DA502B2}.releaseForItrac|x86.ActiveCfg = releaseForItrac|Win32
+		{727D954D-244E-4DA5-9C68-2EA91DA502B2}.releaseForItrac|x86.Build.0 = releaseForItrac|Win32
+		{727D954D-244E-4DA5-9C68-2EA91DA502B2}.releaseForOrtrac|x64.ActiveCfg = releaseForOrtrac|x64
+		{727D954D-244E-4DA5-9C68-2EA91DA502B2}.releaseForOrtrac|x64.Build.0 = releaseForOrtrac|x64
+		{727D954D-244E-4DA5-9C68-2EA91DA502B2}.releaseForOrtrac|x86.ActiveCfg = releaseForOrtrac|Win32
+		{B4F7C2C5-CEB0-4CC6-913C-76BE4E0A46EC}.Debug|x64.ActiveCfg = Debug|x64
+		{B4F7C2C5-CEB0-4CC6-913C-76BE4E0A46EC}.Debug|x64.Build.0 = Debug|x64
+		{B4F7C2C5-CEB0-4CC6-913C-76BE4E0A46EC}.Debug|x86.ActiveCfg = Debug|Win32
+		{B4F7C2C5-CEB0-4CC6-913C-76BE4E0A46EC}.Debug|x86.Build.0 = Debug|Win32
+		{B4F7C2C5-CEB0-4CC6-913C-76BE4E0A46EC}.Release|x64.ActiveCfg = Release|x64
+		{B4F7C2C5-CEB0-4CC6-913C-76BE4E0A46EC}.Release|x64.Build.0 = Release|x64
+		{B4F7C2C5-CEB0-4CC6-913C-76BE4E0A46EC}.Release|x86.ActiveCfg = Release|Win32
+		{B4F7C2C5-CEB0-4CC6-913C-76BE4E0A46EC}.Release|x86.Build.0 = Release|Win32
+		{B4F7C2C5-CEB0-4CC6-913C-76BE4E0A46EC}.releaseForItrac|x64.ActiveCfg = releaseForItrac|x64
+		{B4F7C2C5-CEB0-4CC6-913C-76BE4E0A46EC}.releaseForItrac|x86.ActiveCfg = releaseForItrac|Win32
+		{B4F7C2C5-CEB0-4CC6-913C-76BE4E0A46EC}.releaseForOrtrac|x64.ActiveCfg = releaseForOrtrac|x64
+		{B4F7C2C5-CEB0-4CC6-913C-76BE4E0A46EC}.releaseForOrtrac|x86.ActiveCfg = releaseForOrtrac|Win32
+		{B4F7C2C5-CEB0-4CC6-913C-76BE4E0A46EC}.releaseForOrtrac|x86.Build.0 = releaseForOrtrac|Win32
+		{1069FDE9-9048-4940-B849-0379EBF72671}.Debug|x64.ActiveCfg = Debug|x64
+		{1069FDE9-9048-4940-B849-0379EBF72671}.Debug|x64.Build.0 = Debug|x64
+		{1069FDE9-9048-4940-B849-0379EBF72671}.Debug|x86.ActiveCfg = Debug|Win32
+		{1069FDE9-9048-4940-B849-0379EBF72671}.Debug|x86.Build.0 = Debug|Win32
+		{1069FDE9-9048-4940-B849-0379EBF72671}.Release|x64.ActiveCfg = Release|x64
+		{1069FDE9-9048-4940-B849-0379EBF72671}.Release|x64.Build.0 = Release|x64
+		{1069FDE9-9048-4940-B849-0379EBF72671}.Release|x86.ActiveCfg = Release|Win32
+		{1069FDE9-9048-4940-B849-0379EBF72671}.Release|x86.Build.0 = Release|Win32
+		{1069FDE9-9048-4940-B849-0379EBF72671}.releaseForItrac|x64.ActiveCfg = Release|x64
+		{1069FDE9-9048-4940-B849-0379EBF72671}.releaseForItrac|x64.Build.0 = Release|x64
+		{1069FDE9-9048-4940-B849-0379EBF72671}.releaseForItrac|x86.ActiveCfg = Release|Win32
+		{1069FDE9-9048-4940-B849-0379EBF72671}.releaseForItrac|x86.Build.0 = Release|Win32
+		{1069FDE9-9048-4940-B849-0379EBF72671}.releaseForOrtrac|x64.ActiveCfg = Release|x64
+		{1069FDE9-9048-4940-B849-0379EBF72671}.releaseForOrtrac|x64.Build.0 = Release|x64
+		{1069FDE9-9048-4940-B849-0379EBF72671}.releaseForOrtrac|x86.ActiveCfg = Release|Win32
+		{1069FDE9-9048-4940-B849-0379EBF72671}.releaseForOrtrac|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8BF06911-8A18-46B4-B486-AF57D7258BFA}
+	EndGlobalSection
+EndGlobal
