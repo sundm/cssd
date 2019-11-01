@@ -393,6 +393,9 @@
     <ClCompile Include="dialog\rfidreaderconfigerdialog.cpp">
       <Filter>Source Files\dialog</Filter>
     </ClCompile>
+    <ClCompile Include="core\rfidlistener.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="devicepage.h">
@@ -664,6 +667,9 @@
     </QtMoc>
     <QtMoc Include="dialog\rfidreaderconfigerdialog.h">
       <Filter>Source Files\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="core\rfidlistener.h">
+      <Filter>Source Files\core</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

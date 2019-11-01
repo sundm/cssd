@@ -4,6 +4,7 @@
 #include <QString>
 #include <QStringlist>
 #include "jsonhttpresponse.h"
+#include "../rfidlistener.h"
 
 extern QString PATH_BASE;
 extern QString LABEL_PRINTER;
@@ -11,6 +12,7 @@ extern QString COMMON_PRINTER;
 extern QStringList COMPORT_LIST;
 extern bool REMEMBER_READER;
 extern QString LAST_COM;
+extern RfidCodelistener* _listener;
 extern const char PATH_PLATE_SEARCH[];
 extern const char PATH_DEPT_SEARCH[];
 extern const char PATH_DEPT_ADD[];

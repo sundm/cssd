@@ -55,6 +55,13 @@ namespace Core {
 			COMPORT_LIST.append(QString::fromStdString(port));
 		}
 
+		RfidReader::getInstance()->clearlistener();
+
+		if (_listener == nullptr)
+			_listener = new RfidCodelistener();
+
+		RfidReader::getInstance()->addlistener(_listener);
+
 		delete configIni;
 	}
 

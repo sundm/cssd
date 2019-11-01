@@ -1,6 +1,5 @@
 #include "recycle.h"
 #include "tips.h"
-
 #include "core/constants.h"
 #include "core/barcode.h"
 #include "core/assets.h"
@@ -331,6 +330,9 @@ OrRecyclePanel::OrRecyclePanel(QWidget *parent /*= nullptr*/)
 
 	connect(_pkgView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(showDetail(const QModelIndex &)));
 	connect(_detailView, SIGNAL(sendData(int)), this, SLOT(updateRecord(int)));
+
+	connect(_listener, SIGNAL(onTransponder(const QString&)), this, SLOT(onTransponderReceviced(const QString&)));
+	connect(_listener, SIGNAL(onBarcode(const QString&)), this, SLOT(onBarcodeReceviced(const QString&)));
 }
 
 void OrRecyclePanel::showDetail(const QModelIndex &index)
@@ -340,6 +342,16 @@ void OrRecyclePanel::showDetail(const QModelIndex &index)
 	QString card_id = _pkgView->model()->data(_pkgView->model()->index(_row, 1)).toString();
 	QString pkg_id = _pkgView->model()->data(_pkgView->model()->index(_row, 0)).toString();
 	_detailView->loadDetail(pkg_id, package_type_id, card_id);
+}
+
+void OrRecyclePanel::onTransponderReceviced(const QString& code)
+{
+	qDebug() << code;
+}
+
+void OrRecyclePanel::onBarcodeReceviced(const QString& code)
+{
+	qDebug() << code;
 }
 
 void OrRecyclePanel::updateRecord(int pkg_record)

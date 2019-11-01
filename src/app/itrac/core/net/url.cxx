@@ -16,6 +16,7 @@ QString COMMON_PRINTER;
 QStringList COMPORT_LIST;
 bool REMEMBER_READER;
 QString LAST_COM;
+RfidCodelistener* _listener;
 const char PATH_PLATE_SEARCH[] = "plate/search";
 const char PATH_DEPT_SEARCH[] = "department/search";
 const char PATH_DEPT_ADD[] = "department/add";

@@ -62,6 +62,10 @@ private slots:
 	void setExtPkg(const QString&, const QString&, const QString&);
 	void showDetail(const QModelIndex &index);
 	void updateRecord(int pkg_record);
+	
+	void onTransponderReceviced(const QString& code);
+	void onBarcodeReceviced(const QString& code);
+
 private:
 	void updatePlate(const QString &);
 	void reset();
