@@ -15,7 +15,7 @@
 AddInstrumentDialog::AddInstrumentDialog(QWidget *parent)
 	: QDialog(parent)
 	, _nameEdit(new Ui::FlatEdit)
-	, _pinyinEdit(new Ui::FlatEdit)
+	, _rfidEdit(new Ui::FlatEdit)
 	, _checkVIPBox(new QCheckBox("贵重器械"))
 	, _checkImplantBox(new QCheckBox("植入器械"))
 	, _imgLabel(new XPicture(this))
@@ -25,7 +25,7 @@ AddInstrumentDialog::AddInstrumentDialog(QWidget *parent)
 
 	_isModify = false;
 
-	_pinyinEdit->setInputValidator(Ui::InputValitor::LetterOnly);
+	_rfidEdit->setInputValidator(Ui::InputValitor::LetterOnly);
 
 	QPushButton *submitButton = new QPushButton("提交");
 	submitButton->setIcon(QIcon(":/res/check-24.png"));
@@ -42,10 +42,10 @@ AddInstrumentDialog::AddInstrumentDialog(QWidget *parent)
 
 	QGridLayout *mainLayout = new QGridLayout(this);
 	mainLayout->setVerticalSpacing(15);
-	mainLayout->addWidget(new QLabel("新器械名称"), 0, 0);
-	mainLayout->addWidget(new QLabel("拼音码"), 1, 0);
-	mainLayout->addWidget(_nameEdit, 0, 1);
-	mainLayout->addWidget(_pinyinEdit, 1, 1);
+	mainLayout->addWidget(new QLabel("器械ID"), 0, 0);
+	mainLayout->addWidget(new QLabel("器械名"), 1, 0);
+	mainLayout->addWidget(_rfidEdit, 0, 1);
+	mainLayout->addWidget(_nameEdit, 1, 1);
 	mainLayout->addWidget(_checkVIPBox, 2, 0, 1, 1);
 	mainLayout->addWidget(_checkImplantBox, 2, 1, 1, 1);
 	mainLayout->addWidget(Ui::createSeperator(Qt::Horizontal), 3, 0, 1, 2);
@@ -56,17 +56,21 @@ AddInstrumentDialog::AddInstrumentDialog(QWidget *parent)
 	mainLayout->addWidget(submitButton, 6, 0, 1, 2, Qt::AlignHCenter);
 
 	resize(parent ? parent->width() / 3 : 360, sizeHint().height());
+
+	connect(_listener, SIGNAL(onTransponder(const QString&)), this, SLOT(onTransponderReceviced(const QString&)));
+	connect(_listener, SIGNAL(onBarcode(const QString&)), this, SLOT(onBarcodeReceviced(const QString&)));
 }
 
-void AddInstrumentDialog::setInfo(const QString &id, const QString &name, const QString &pinyin, const bool isVIP, const bool isImplant)
+void AddInstrumentDialog::setInfo(const QString &id, const QString &name, const bool isVIP, const bool isImplant)
 {
-	setWindowTitle("修改新器械");
+	setWindowTitle("修改器械");
 	_isModify = true;
 	_instrumentId = id;
 
 	_nameEdit->setText(name);
-	_pinyinEdit->setText(pinyin);
+	_rfidEdit->setText(_instrumentId);
 	_nameEdit->setReadOnly(_isModify);
+	_rfidEdit->setReadOnly(_isModify);
 	//_pinyinEdit->setReadOnly(_isModify);
 
 	_checkVIPBox->setChecked(isVIP);
@@ -102,13 +106,13 @@ void AddInstrumentDialog::loadImg() {
 
 void AddInstrumentDialog::accept() {
 	QString name = _nameEdit->text();
-	QString pinyin = _pinyinEdit->text().toUpper();
+	QString pinyin = _rfidEdit->text().toUpper();
 	if (name.isEmpty()) {
 		_nameEdit->setFocus();
 		return;
 	}
 	if (pinyin.isEmpty()) {
-		_pinyinEdit->setFocus();
+		_rfidEdit->setFocus();
 		return;
 	}
 
@@ -166,6 +170,17 @@ void AddInstrumentDialog::accept() {
 		});
 	}
 	
+}
+
+void AddInstrumentDialog::onTransponderReceviced(const QString& code)
+{
+	qDebug() << code;
+	_rfidEdit->setText(code);
+}
+
+void AddInstrumentDialog::onBarcodeReceviced(const QString& code)
+{
+	qDebug() << code;
 }
 
 void AddInstrumentDialog::uploadImg(int instrument_id) {

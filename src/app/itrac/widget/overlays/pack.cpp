@@ -128,7 +128,7 @@ void PackPanel::showDetail(const QModelIndex &index)
 		QString package_type_id = parentItem->child(_row, 0)->data().toString();
 		QString package_id = parentItem->child(_row, 2)->data().toString();
 		QString card_id = parentItem->child(_row, 3)->data().toString();
-		_detailView->loadDetail(package_id, package_type_id, card_id);
+		//_detailView->loadDetail(package_id, package_type_id, card_id);
 	}
 
 }

@@ -19,16 +19,18 @@ class AddInstrumentDialog : public QDialog, public JsonHttpClient
 
 public:
 	AddInstrumentDialog(QWidget *parent = Q_NULLPTR);
-	void setInfo(const QString &id, const QString &name, const QString &pinyin, const bool isVIP, const bool isImplant);
+	void setInfo(const QString &id, const QString &name, const bool isVIP, const bool isImplant);
 protected:
 	void accept() override;
 
 private slots:
 	void loadImg();
+	void onTransponderReceviced(const QString& code);
+	void onBarcodeReceviced(const QString& code);
 
 private:
 	Ui::FlatEdit *_nameEdit;
-	Ui::FlatEdit *_pinyinEdit;
+	Ui::FlatEdit *_rfidEdit;
 	QCheckBox *_checkVIPBox;
 	QCheckBox *_checkImplantBox;
 	WaitingSpinner *_waiter;

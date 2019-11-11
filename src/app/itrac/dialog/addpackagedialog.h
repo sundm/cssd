@@ -35,6 +35,9 @@ private slots:
 	void removeEntry();
 	void loadImg();
 
+	void onTransponderReceviced(const QString& code);
+	void onBarcodeReceviced(const QString& code);
+
 private:
 	void initInstrumentView();
 	void initData();
@@ -44,7 +47,7 @@ private:
 	void uploadImg();
 
 	Ui::FlatEdit * _pkgNameEdit;
-	Ui::FlatEdit * _pkgPinYinCodeEdit;
+	Ui::FlatEdit * _pkgRFIDCodeEdit;
 	QComboBox * _pkgtypeBox;
 	QComboBox * _picktypeBox;
 	QComboBox * _stertypeBox;

@@ -22,13 +22,14 @@ class QHttpMultiPart;
 
 struct PackageInfo
 {
+	QString package_rfid;
 	QString package_type_id;
 	QString package_name;			
 	QString dtp_id;
 	QString dtp_name;
 	QString pack_type;
 	QString package_category;
-	QString package_pinyin;
+	//QString package_pinyin;
 	int steType;
 
 };
@@ -57,7 +58,7 @@ private:
 	void uploadImg();
 
 	Ui::FlatEdit * _pkgNameEdit;
-	Ui::FlatEdit * _pkgPinYinCodeEdit;
+	Ui::FlatEdit * _pkgRFIDCodeEdit;
 	QComboBox * _pkgtypeBox;
 	QComboBox * _picktypeBox;
 	QComboBox * _stertypeBox;

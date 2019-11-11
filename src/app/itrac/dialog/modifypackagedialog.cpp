@@ -24,7 +24,7 @@
 ModifyPackageDialog::ModifyPackageDialog(QWidget *parent, const PackageInfo info, const QList<QVariant> orders)
 	: QDialog(parent)
 	, _pkgNameEdit(new Ui::FlatEdit)
-	, _pkgPinYinCodeEdit(new Ui::FlatEdit)
+	, _pkgRFIDCodeEdit(new Ui::FlatEdit)
 	, _pkgtypeBox(new QComboBox)
 	, _picktypeBox(new QComboBox)
 	, _stertypeBox(new QComboBox)
@@ -40,12 +40,12 @@ ModifyPackageDialog::ModifyPackageDialog(QWidget *parent, const PackageInfo info
 	_package_type_id = info.package_type_id.toInt();
 	_pkgNameEdit->setText(_info.package_name);
 	_pkgNameEdit->setReadOnly(true);
-	_pkgPinYinCodeEdit->setText(_info.package_pinyin);
-
+	_pkgRFIDCodeEdit->setText(_info.package_rfid);
+	_pkgRFIDCodeEdit->setReadOnly(true);
 
 	FormGroup * pkgGroup = new FormGroup(this);
 	pkgGroup->addRow("包名 (*)", _pkgNameEdit);
-	pkgGroup->addRow("拼音检索 (*)", _pkgPinYinCodeEdit);
+	pkgGroup->addRow("包ID (*)", _pkgRFIDCodeEdit);
 	pkgGroup->addRow("包类型 (*)", _pkgtypeBox);
 	pkgGroup->addRow("打包类型 (*)", _picktypeBox);
 	pkgGroup->addRow("高低温灭菌 (*)", _stertypeBox);
@@ -219,9 +219,9 @@ void ModifyPackageDialog::accept() {
 	}
 		
 
-	QString pinyin_code = _pkgPinYinCodeEdit->text();
+	QString pinyin_code = _pkgRFIDCodeEdit->text();
 	if (pinyin_code.isEmpty()) {
-		_pkgPinYinCodeEdit->setFocus();
+		_pkgRFIDCodeEdit->setFocus();
 		return;
 	}
 		

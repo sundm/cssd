@@ -52,7 +52,7 @@ void InstrumentPage::slotRowDoubleClicked(const QModelIndex &index)
 	QString id = _view->model()->data(_view->model()->index(row, Internal::InstrumentAssetView::Id)).toString();
 	QString vip = _view->model()->data(_view->model()->index(row, Internal::InstrumentAssetView::Vip)).toString();
 	QString implant = _view->model()->data(_view->model()->index(row, Internal::InstrumentAssetView::Implant)).toString();
-	QString pinyin = _view->model()->data(_view->model()->index(row, Internal::InstrumentAssetView::Pinyin)).toString();
+	//QString pinyin = _view->model()->data(_view->model()->index(row, Internal::InstrumentAssetView::Pinyin)).toString();
 
 	bool isVIP = false;
 	if (0 == vip.compare("是"))
@@ -63,7 +63,7 @@ void InstrumentPage::slotRowDoubleClicked(const QModelIndex &index)
 		isImplant = true;
 
 	AddInstrumentDialog d(this);
-	d.setInfo(id, name, pinyin, isVIP, isImplant);
+	d.setInfo(id, name, isVIP, isImplant);
 	if (d.exec() == QDialog::Accepted)
 		_view->load();
 }
@@ -77,7 +77,7 @@ void InstrumentPage::modify() {
 	QString id = _view->model()->data(_view->model()->index(row, Internal::InstrumentAssetView::Id)).toString();
 	QString vip = _view->model()->data(_view->model()->index(row, Internal::InstrumentAssetView::Vip)).toString();
 	QString implant = _view->model()->data(_view->model()->index(row, Internal::InstrumentAssetView::Implant)).toString();
-	QString pinyin = _view->model()->data(_view->model()->index(row, Internal::InstrumentAssetView::Pinyin)).toString();
+	//QString pinyin = _view->model()->data(_view->model()->index(row, Internal::InstrumentAssetView::Pinyin)).toString();
 
 	bool isVIP = false;
 	if (0 == vip.compare("是"))
@@ -88,7 +88,7 @@ void InstrumentPage::modify() {
 		isImplant = true;
 
 	AddInstrumentDialog d(this);
-	d.setInfo(id, name, pinyin, isVIP, isImplant);
+	d.setInfo(id, name, isVIP, isImplant);
 	if (d.exec() == QDialog::Accepted)
 		_view->load();
 }
@@ -96,13 +96,12 @@ void InstrumentPage::modify() {
 namespace Internal {
 	InstrumentAssetView::InstrumentAssetView(QWidget *parent /*= nullptr*/)
 		: TableView(parent)
-		, _model(new QStandardItemModel(0, Pinyin + 1, this))
+		, _model(new QStandardItemModel(0, Implant + 1, this))
 	{
 		_model->setHeaderData(Name, Qt::Horizontal, "器械名");
-		_model->setHeaderData(Id, Qt::Horizontal, "编号");
+		_model->setHeaderData(Id, Qt::Horizontal, "器械编号");
 		_model->setHeaderData(Vip, Qt::Horizontal, "是否贵重器械");
 		_model->setHeaderData(Implant, Qt::Horizontal, "是否为植入器械");
-		_model->setHeaderData(Pinyin, Qt::Horizontal, "拼音检索码");
 		setModel(_model);
 		setEditTriggers(QAbstractItemView::NoEditTriggers);
 	}
@@ -126,7 +125,6 @@ namespace Internal {
 				_model->setData(_model->index(i, Id), map["instrument_id"]);
 				_model->setData(_model->index(i, Vip), Internal::getVipLiteral(map["is_vip_instrument"].toString()));
 				_model->setData(_model->index(i, Implant), Internal::getImportLiteral(map["instrument_type"].toString()));
-				_model->setData(_model->index(i, Pinyin), map["pinyin_code"]);
 			}
 		});
 	}

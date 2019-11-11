@@ -45,3 +45,21 @@ int Barcode::intValue() const
 	return 0;
 }
 
+TranspondCode::TranspondCode(QString bc)
+	:_bc(bc)
+{
+}
+
+int TranspondCode::type() const
+{
+	int len = _bc.length();
+	QString indicator = _bc.left(7);
+
+	if ("E2009A9" == indicator && 24 == len)
+		return Package;
+
+	if ("E2009A8" == indicator && 24 == len)
+		return Instrument;
+
+	return Unknown;
+}

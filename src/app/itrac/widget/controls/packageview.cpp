@@ -2,16 +2,19 @@
 #include "core/assets.h"
 #include "core/itracnamespace.h"
 #include "core/net/url.h"
+#include "ui/inputfields.h"
 #include "xnotifier.h"
 #include "inliner.h"
 #include "core/constants.h"
 #include "dialog/registerinstrumentdialog.h"
 #include <xui/images.h>
 #include <xui/imageviewer.h>
+#include <QLabel>
 #include <QStandardItemModel>
 #include <QVBoxLayout>
 #include <QFile>
 #include <QMenu>
+#include <QHeaderView>
 
 AbstractPackageView::AbstractPackageView(QWidget *parent)
 	: TableView(parent), _model(new QStandardItemModel(this))
@@ -319,72 +322,203 @@ int OrRecyclePackageView::plate() const
 	return _model->item(0, OrRecyclePackageView::VPlate)->data().toInt();
 }
 
-PackageDetailView::PackageDetailView(QWidget *parent /*= nullptr*/)
+PackageInfoView::PackageInfoView(QWidget *parent /*= nullptr*/)
 	: QWidget(parent)
-	, _view(new TableView)
-	, _model(new QStandardItemModel(0, State + 1, _view))
-	, _imgLabel(new XPicture(this))
+	, _packageIDLabel(new QLabel)
+	, _tipsLabel(new QLabel)
+	, _packageNameLabel(new QLabel)
+	, _totalNumLabel(new QLabel)
+	, _scannedNumLabel(new QLabel)
+	, _residueNumLabel(new QLabel)
+	, _unusualNumLabel(new QLabel)
 {
-	_model->setHeaderData(Name, Qt::Horizontal, "器械名");
-	_model->setHeaderData(Number, Qt::Horizontal, "数量");
-	_model->setHeaderData(State, Qt::Horizontal, "状态");
-	_view->setModel(_model);
-	_view->setSelectionMode(QAbstractItemView::SingleSelection);
-	_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	_view->setContextMenuPolicy(Qt::CustomContextMenu);
+	const QString m_label_style = "min-width: 48px; min-height: 48px;max-width:48px; max-height: 48px;border-radius: 24px;";
+	_totalNumLabel->setStyleSheet(QString("%1%2").arg(m_label_style).arg("background:grey"));
+	_scannedNumLabel->setStyleSheet(QString("%1%2").arg(m_label_style).arg("background:green"));
+	_residueNumLabel->setStyleSheet(QString("%1%2").arg(m_label_style).arg("background:yellow"));
+	_unusualNumLabel->setStyleSheet(QString("%1%2").arg(m_label_style).arg("background:red"));
 
-	QVBoxLayout *vlayout = new QVBoxLayout(this);
-	vlayout->setContentsMargins(0, 0, 0, 0);
-	vlayout->setSpacing(0);
-	vlayout->addWidget(_imgLabel);
-	vlayout->addWidget(_view);
+	QFont font1;
+	font1.setPointSize(16);
+	_totalNumLabel->setFont(font1);
+	_scannedNumLabel->setFont(font1);
+	_residueNumLabel->setFont(font1);
+	_unusualNumLabel->setFont(font1);
 
-	vlayout->setStretch(1, 1);
+	_totalNumLabel->setAlignment(Qt::AlignCenter);
+	_scannedNumLabel->setAlignment(Qt::AlignCenter);
+	_residueNumLabel->setAlignment(Qt::AlignCenter);
+	_unusualNumLabel->setAlignment(Qt::AlignCenter);
 
-	_imgLabel->setFixedHeight(256);
-	_imgLabel->setBgColor(QColor(245, 246, 247));
-	_imgLabel->setHidden(true);
+	_totalNumLabel->setText("0");
+	_scannedNumLabel->setText("0");
+	_residueNumLabel->setText("0");
+	_unusualNumLabel->setText("0");
 
-	connect(_imgLabel, SIGNAL(clicked()), this, SLOT(imgClicked()));
-	connect(_view, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(slotItemDoubleClicked(const QModelIndex &)));
-	connect(_view, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(showContextMenu(const QPoint&)));
+	QHBoxLayout *hLayout = new QHBoxLayout;
+	hLayout->setContentsMargins(0, 0, 0, 0);
+	hLayout->addWidget(_totalNumLabel);
+	hLayout->addWidget(_scannedNumLabel);
+	hLayout->addWidget(_residueNumLabel);
+	hLayout->addWidget(_unusualNumLabel);
+
+	QFont font;
+	font.setPointSize(20);
+
+	QHBoxLayout *bLayout = new QHBoxLayout;
+	QLabel *idlabel = new QLabel(QString("包编号:"));
+	idlabel->setFont(font);
+	bLayout->addWidget(idlabel);
+
+	_packageIDLabel->setMinimumWidth(400);
+	_packageIDLabel->setFont(font);
+	bLayout->addWidget(_packageIDLabel);
+
+	QLabel *namelabel = new QLabel(QString("包名称:"));
+	namelabel->setFont(font);
+	bLayout->addWidget(namelabel);
+
+	_packageNameLabel->setFont(font);
+	bLayout->addWidget(_packageNameLabel);
+	bLayout->addLayout(hLayout);
+	bLayout->setStretch(3, 1);
+	
+	
+	_tipsLabel->setFont(font);
+	_tipsLabel->setText(QString("请扫描篮筐ID"));
+
+	QVBoxLayout *vLayout = new QVBoxLayout(this);
+	vLayout->addWidget(_tipsLabel);
+	vLayout->addLayout(bLayout);
+}
+
+void PackageInfoView::updateTips(const QString& tips)
+{
+	_tipsLabel->setText(tips);
+}
+
+void PackageInfoView::updatePackageInfo(const QString &pkgId, const QString &pkgName, const int &insCount)
+{
+	_packageIDLabel->setText(pkgId);
+	_packageNameLabel->setText(pkgName);
+
+	_totalNum = insCount;
+	_scannedNum = 0;
+	_unusualNum = 0;
+
+	_totalNumLabel->setText(QString::number(_totalNum));
+	_scannedNumLabel->setText(QString::number(_scannedNum));
+	_residueNumLabel->setText(QString::number(_totalNum));
+	_unusualNumLabel->setText(QString::number(_unusualNum));
+
+	_tipsLabel->setText("请扫描器械");
+}
+
+void PackageInfoView::scanned()
+{
+	//todo
+	_scannedNum++;
+	_scannedNumLabel->setText(QString::number(_scannedNum));
+	_residueNumLabel->setText(QString::number(_totalNum - _scannedNum));
+}
+
+void PackageInfoView::unusualed() 
+{
+	//todo
+	_unusualNum++;
+	_unusualNumLabel->setText(QString::number(_unusualNum));
+}
+
+UnusualInstrumentView::UnusualInstrumentView(QWidget *parent /*= nullptr*/)
+	: TableView(parent), _model(new QStandardItemModel(this))
+{
+	_model->setColumnCount(PackageName + 1);
+	_model->setHeaderData(InstrumentID, Qt::Horizontal, "异常器械ID");
+	_model->setHeaderData(InstrumentName, Qt::Horizontal, "异常器械名");
+	_model->setHeaderData(PackageID, Qt::Horizontal, "所属包ID");
+	_model->setHeaderData(PackageName, Qt::Horizontal, "所属包名");
+
+	setModel(_model);
+	setSelectionMode(QAbstractItemView::SingleSelection);
+	setEditTriggers(QAbstractItemView::NoEditTriggers);
+}
+
+void UnusualInstrumentView::addUnusual(const QString& instrumentID)
+{
+	QList<QStandardItem *> rowItems;
+	rowItems << new QStandardItem(instrumentID);
+	rowItems << new QStandardItem("测试器械04");
+	rowItems << new QStandardItem("E2009A9050048AF000000213");
+	rowItems << new QStandardItem("RFID测试器械包02");
+
+	for each (QStandardItem * item in rowItems)
+	{
+		item->setTextAlignment(Qt::AlignCenter);
+	}
+	_model->appendRow(rowItems);
+	/*
+	QByteArray data("{\"package_type_id\":");
+	data.append(",\"card_id\":").append(instrumentID).append('}');
+	_http.post(url(PATH_PKGDETAIL_SEARCH), QByteArray().append(data), [=](QNetworkReply *reply) {
+		JsonHttpResponse resp(reply);
+		if (!resp.success()) {
+			XNotifier::warn(QString("无法获取包信息: ").append(resp.errorString()));
+			return;
+		}
+		int row = _model->rowCount();
+		//todo
+		QList<QVariant> orders = resp.getAsList("instruments");
+		_model->insertRows(0, orders.count());
+		for (int i = 0; i != orders.count(); ++i) {
+			QVariantMap map = orders[i].toMap();
+			_model->setData(_model->index(i, 0), map["instrument_name"]);
+		}
+	});
+	*/
+}
+
+PackageDetailView::PackageDetailView(QWidget *parent /*= nullptr*/)
+	: TableView(parent)
+	, _model(new QStandardItemModel(this))
+	, _instruments(new QList<instrument_struct>)
+{
+	_model->setColumnCount(Tips + 1);
+	_model->setHeaderData(Name, Qt::Horizontal, "器械名称");
+	_model->setHeaderData(Total, Qt::Horizontal, "数量");
+	_model->setHeaderData(Scanned, Qt::Horizontal, "通过");
+	_model->setHeaderData(Residue, Qt::Horizontal, "剩余");
+	_model->setHeaderData(Tips, Qt::Horizontal, "说明");
+
+	setModel(_model);
+
+	horizontalHeader()->setSectionResizeMode(1, QHeaderView::Fixed);
+	horizontalHeader()->setSectionResizeMode(2, QHeaderView::Fixed);
+	horizontalHeader()->setSectionResizeMode(3, QHeaderView::Fixed);
+	horizontalHeader()->setSectionResizeMode(4, QHeaderView::Fixed);
+	setColumnWidth(1, 100);
+	setColumnWidth(2, 100);
+	setColumnWidth(3, 100);
+	setColumnWidth(4, 200);
+
+	setSelectionMode(QAbstractItemView::SingleSelection);
+	setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+	//connect(_imgLabel, SIGNAL(clicked()), this, SLOT(imgClicked()));
+	connect(this, SIGNAL(clicked(const QModelIndex &)), this, SLOT(slotItemClicked(const QModelIndex &)));
+	//connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(showContextMenu(const QPoint&)));
 
 }
 
-void PackageDetailView::slotItemDoubleClicked(const QModelIndex &index)
+void PackageDetailView::slotItemClicked(const QModelIndex &index)
 {
 	int row = index.row();
-	QString instrument_id = _view->model()->data(_view->model()->index(row, 0), 257).toString();
+	QString instrument_id = _model->data(_model->index(row, 0), 257).toString();
 
 	QString fileName = QString("./photo/instrument/%1.png").arg(instrument_id);
 	QFile file(fileName);
 	if (file.exists()) {
-		ImageViewer *viewer = new ImageViewer(fileName);
-		viewer->showNormal();
+		//todo
 	}
-}
-
-void PackageDetailView::showContextMenu(const QPoint& pos)
-{
-	posIndex = QModelIndex(_view->indexAt(pos));
-	if (posIndex.isValid()) {
-		_ins_name = _model->data(posIndex.siblingAtColumn(0)).toString();
-		_ins_id = _model->data(posIndex.siblingAtColumn(0), 257).toString();
-		_state = _model->data(posIndex.siblingAtColumn(2), 257).toInt();
-		QMenu contextMenu;
-		QAction *act = contextMenu.addAction("缺损登记", this, SLOT(regist()));
-		act->setData(posIndex.row());
-
-		contextMenu.exec(QCursor::pos());
-	}
-}
-
-void PackageDetailView::regist()
-{
-	RegisterInstrumentDialog d(this);
-	connect(&d, SIGNAL(sendData(int, int)), this, SLOT(updateState(int, int)));
-	d.setInfo(_card_id, _pkg_id, _ins_name, _ins_id, _state);
-	d.exec();
 }
 
 void PackageDetailView::updateState(int pkg_record, int ins_state)
@@ -399,58 +533,91 @@ void PackageDetailView::updateState(int pkg_record, int ins_state)
 
 }
 
-void PackageDetailView::loadDetail(const QString& pkgId, const QString& pkgTypeId, const QString& cardId) {
-	QByteArray data("{\"package_type_id\":");
-	data.append(pkgTypeId);
-	_pkg_id = pkgId;
-	_card_id = cardId;
-	if (!_card_id.isEmpty())
+void PackageDetailView::scanned(const QString & code) {
+	QList<instrument_struct>::const_iterator k;
+	int i = 0;
+	for (k = _instruments->constBegin(); k != _instruments->constEnd(); k++)
 	{
-		data.append(",\"card_id\":").append(_card_id);
+		if (k->codes.contains(code))
+		{
+			instrument_struct st = _instruments->at(i);
+			st.codes.removeOne(code);
+			_instruments->replace(i, st);
+			
+			int count = _model->item(i, 2)->text().toInt() + 1;
+			_model->item(i, 2)->setText(QString::number(count));
+
+			count = _model->item(i, 3)->text().toInt() - 1;
+			_model->item(i, 3)->setText(QString::number(count));
+
+			if (0 == count)
+			{
+				_model->item(i, 4)->setText("通过检查");
+			}
+			break;
+		}
+		i++;
 	}
-	data.append('}');
-	_http.post(url(PATH_PKGDETAIL_SEARCH), QByteArray().append(data), [=](QNetworkReply *reply) {
-		JsonHttpResponse resp(reply);
-		if (!resp.success()) {
-			XNotifier::warn(QString("无法获取包信息: ").append(resp.errorString()));
-			return;
-		}
-
-		_model->removeRows(0, _model->rowCount());
-
-		QList<QVariant> orders = resp.getAsList("instruments");
-		_model->insertRows(0, orders.count());
-		for (int i = 0; i != orders.count(); ++i) {
-			QVariantMap map = orders[i].toMap();
-			_model->setData(_model->index(i, 0), map["instrument_name"]);
-			_model->setData(_model->index(i, 0), map["instrument_id"], 257);
-			_model->setData(_model->index(i, 1), map["instrument_number"]);
-			int steType = map["state"].toInt();
-			_model->setData(_model->index(i, 2), steType, 257);
-			_model->setData(_model->index(i, 2), literalSteType(steType));
-			_model->setData(_model->index(i, 2), brushForSteType(steType), Qt::BackgroundRole);
-		}
-
-		imgLoad(pkgTypeId);
-	});
+	
 }
 
-void PackageDetailView::imgLoad(const QString& pkgTypeId)
-{
-	QString fileName = QString("./photo/package/%1.png").arg(pkgTypeId);
-	_imgLabel->setImage(fileName);
-	_imgLabel->setHidden(false);
+void PackageDetailView::loadDetail(const QHash<QString, QString> * const maps) {
+	_instruments->clear();
+	QStringList names = maps->values();
+	names.removeDuplicates();
+
+	for each (QString name in names)
+	{
+		QStringList codelist;
+		QHash<QString, QString>::const_iterator j;
+		for (j = maps->constBegin(); j != maps->constEnd(); j++)
+		{
+			if (j.value() == name)
+			{
+				codelist.append(j.key());
+			}
+		}
+
+		instrument_struct ins;
+		ins.name = name;
+		ins.codes = codelist;
+		_instruments->append(ins);
+	}
+
+	QList<instrument_struct>::const_iterator k;
+	for (k = _instruments->constBegin(); k != _instruments->constEnd(); k++)
+	{
+		QList<QStandardItem *> rowItems;
+		rowItems << new QStandardItem(k->name);
+		rowItems << new QStandardItem(QString::number(k->codes.size()));
+		rowItems << new QStandardItem("0");
+		rowItems << new QStandardItem(QString::number(k->codes.size()));
+		rowItems << new QStandardItem();
+		for each (QStandardItem * item in rowItems)
+		{
+			item->setTextAlignment(Qt::AlignCenter);
+		}
+		_model->appendRow(rowItems);
+	}
+	
 }
+
+//void PackageDetailView::imgLoad(const QString& pkgTypeId)
+//{
+//	QString fileName = QString("./photo/package/%1.png").arg(pkgTypeId);
+//	_imgLabel->setImage(fileName);
+//	_imgLabel->setHidden(false);
+//}
 
 void PackageDetailView::clear()
 {
 	//_imgLabel->setImage();
-	_imgLabel->setHidden(true);
+	//_imgLabel->setHidden(true);
 	_model->removeRows(0, _model->rowCount());
 }
 
-void PackageDetailView::imgClicked()
-{
-	ImageViewer *viewer = new ImageViewer(_imgLabel->fileName());
-	viewer->showMaximized();
-}
+//void PackageDetailView::imgClicked()
+//{
+//	ImageViewer *viewer = new ImageViewer(_imgLabel->fileName());
+//	viewer->showMaximized();
+//}

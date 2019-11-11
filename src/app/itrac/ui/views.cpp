@@ -7,7 +7,7 @@ TableView::TableView(QWidget *parent)
 	setSelectionBehavior(QAbstractItemView::SelectRows);
 
 	QHeaderView *header = horizontalHeader();
-	header->setStretchLastSection(true);
+	//header->setStretchLastSection(true);
 	header->setSectionResizeMode(QHeaderView::Stretch);
 }
 

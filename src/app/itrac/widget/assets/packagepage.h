@@ -13,7 +13,7 @@ class PackageAssetView : public TableView
 	Q_OBJECT
 
 public:
-	enum Column {Name, PackType, SteType, Pinyin, Department};
+	enum Column {Name, RFID, PackType, SteType, Department};
 	PackageAssetView(QWidget *parent = nullptr);
 	void load(const QString &kw = QString(), int page = 0, int count = 10);
 

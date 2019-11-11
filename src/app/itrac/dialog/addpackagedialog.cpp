@@ -24,7 +24,7 @@
 AddPackageDialog::AddPackageDialog(QWidget *parent)
 	: QDialog(parent)
 	, _pkgNameEdit(new Ui::FlatEdit)
-	, _pkgPinYinCodeEdit(new Ui::FlatEdit)
+	, _pkgRFIDCodeEdit(new Ui::FlatEdit)
 	, _pkgtypeBox(new QComboBox)
 	, _picktypeBox(new QComboBox)
 	, _stertypeBox(new QComboBox)
@@ -36,7 +36,7 @@ AddPackageDialog::AddPackageDialog(QWidget *parent)
 {
 	FormGroup * pkgGroup = new FormGroup(this);
 	pkgGroup->addRow("包名 (*)", _pkgNameEdit);
-	pkgGroup->addRow("拼音检索 (*)", _pkgPinYinCodeEdit);
+	pkgGroup->addRow("包ID (*)", _pkgRFIDCodeEdit);
 	pkgGroup->addRow("包类型 (*)", _pkgtypeBox);
 	pkgGroup->addRow("打包类型 (*)", _picktypeBox);
 	pkgGroup->addRow("高低温灭菌 (*)", _stertypeBox);
@@ -100,6 +100,21 @@ AddPackageDialog::AddPackageDialog(QWidget *parent)
 	resize(900, sizeHint().height());
 
 	QTimer::singleShot(0, this, &AddPackageDialog::initData);
+
+	connect(_listener, SIGNAL(onTransponder(const QString&)), this, SLOT(onTransponderReceviced(const QString&)));
+	connect(_listener, SIGNAL(onBarcode(const QString&)), this, SLOT(onBarcodeReceviced(const QString&)));
+
+}
+
+void AddPackageDialog::onTransponderReceviced(const QString& code)
+{
+	qDebug() << code;
+	_pkgRFIDCodeEdit->setText(code);
+}
+
+void AddPackageDialog::onBarcodeReceviced(const QString& code)
+{
+	qDebug() << code;
 }
 
 void AddPackageDialog::initInstrumentView() {
@@ -191,9 +206,9 @@ void AddPackageDialog::accept() {
 	}
 		
 
-	QString pinyin_code = _pkgPinYinCodeEdit->text();
+	QString pinyin_code = _pkgRFIDCodeEdit->text();
 	if (pinyin_code.isEmpty()) {
-		_pkgPinYinCodeEdit->setFocus();
+		_pkgRFIDCodeEdit->setFocus();
 		return;
 	}
 		

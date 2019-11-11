@@ -14,7 +14,8 @@
 #include "importextdialog.h"
 #include "model/spinboxdelegate.h"
 #include "xnotifier.h"
-
+#include <xui/images.h>
+#include <xui/imageviewer.h>
 #include <QtWidgets/QtWidgets>
 
 NoBCRecyclePanel::NoBCRecyclePanel(QWidget *parent)
@@ -284,69 +285,102 @@ void NoBCRecyclePanel::reset() {
 
 OrRecyclePanel::OrRecyclePanel(QWidget *parent /*= nullptr*/)
 	: CssdOverlayPanel(parent)
-	, _pkgView(new OrRecyclePackageView)
+	, _pkgView(new PackageInfoView)
 	, _detailView(new PackageDetailView)
+	, _unusualView(new UnusualInstrumentView)
+	, _codeMap(new QHash<QString, QString>)
+	, _unusualCodes(new QStringList)
+	, _scannedCodes(new QStringList)
+	, _pkgImg(new XPicture(this))
+	, _insImg(new XPicture(this))
 {
-	QHBoxLayout *hLayout = new QHBoxLayout;
-	hLayout->setContentsMargins(0, 0, 0, 0);
-
-	Ui::IconButton *addButton = new Ui::IconButton(":/res/plus-24.png", "手工添加包");
-	hLayout->addWidget(addButton);
-	connect(addButton, SIGNAL(clicked()), this, SLOT(addEntry()));
-
-	Ui::IconButton *minusButton = new Ui::IconButton(":/res/delete-24.png", "删除选中");
-	hLayout->addWidget(minusButton);
-	connect(minusButton, SIGNAL(clicked()), this, SLOT(removeEntry()));
-
-	hLayout->addWidget(Ui::createSeperator(Qt::Vertical));
-
-	Ui::IconButton *addPlateButton = new Ui::IconButton(":/res/fill-plate-24.png", "手工添加网篮");
-	hLayout->addWidget(addPlateButton);
-	connect(addPlateButton, SIGNAL(clicked()), this, SLOT(addPlateEntry()));
-
-	Ui::IconButton *extImportButton = new Ui::IconButton(":/res/add.png", "外部器械导入");
-	hLayout->addWidget(extImportButton);
-	connect(extImportButton, SIGNAL(clicked()), this, SLOT(chooseExt()));
-
-	hLayout->addStretch();
-
-	const QString text = "1 扫描或手工输入手术室物品包的条码\n2 扫描托盘进行装篮\n3 确认回收";
+	const QString text = "1 扫描物品包ID\n2 扫描托盘内器械\n3 确认回收 \n说明\n灰色：实际数量\n绿色：通过数量\n黄色：剩余数量\n红色：异常数量";
 	Tip *tip = new Tip(text);
 	Ui::PrimaryButton *commitButton = new Ui::PrimaryButton("确认回收");
 	tip->addQr();
 	tip->addButton(commitButton);
 	connect(commitButton, SIGNAL(clicked()), this, SLOT(commit()));
 
-	QHBoxLayout *bLayout = new QHBoxLayout;
-	bLayout->addWidget(_pkgView);
-	bLayout->addWidget(_detailView);
-	bLayout->setStretch(0, 2);
-	bLayout->setStretch(1, 1);
+	QVBoxLayout *aLayout = new QVBoxLayout;
+	aLayout->addWidget(_pkgView);
+	aLayout->addWidget(_detailView);
+	aLayout->addWidget(_unusualView);
+	aLayout->setStretch(1, 1);
 
-	QGridLayout *layout = new QGridLayout(this);
-	layout->addLayout(hLayout, 0, 0);
-	layout->addLayout(bLayout, 1, 0);
-	layout->addWidget(tip, 1, 1);
+	QString fileName = QString("./photo/timg.png");
+	_pkgImg->setBgColor(QColor(245, 246, 247));
+	_pkgImg->setImage(fileName);
+	_pkgImg->setMinimumWidth(300);
+	_insImg->setBgColor(QColor(245, 246, 247));
+	_insImg->setImage(fileName);
+	_insImg->setMinimumWidth(300);
 
-	connect(_pkgView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(showDetail(const QModelIndex &)));
-	connect(_detailView, SIGNAL(sendData(int)), this, SLOT(updateRecord(int)));
+	QVBoxLayout *imgLayout = new QVBoxLayout;
+	imgLayout->addWidget(_pkgImg);
+	imgLayout->addWidget(_insImg);
+
+	QHBoxLayout *layout = new QHBoxLayout(this);
+	layout->addLayout(aLayout);
+	layout->addLayout(imgLayout);
+	layout->addWidget(tip);
 
 	connect(_listener, SIGNAL(onTransponder(const QString&)), this, SLOT(onTransponderReceviced(const QString&)));
 	connect(_listener, SIGNAL(onBarcode(const QString&)), this, SLOT(onBarcodeReceviced(const QString&)));
+
+	_step = 0;
 }
 
-void OrRecyclePanel::showDetail(const QModelIndex &index)
+void OrRecyclePanel::showDetail(const QString &pkgId)
 {
-	_row = index.row();
-	QString package_type_id = _pkgView->model()->data(_pkgView->model()->index(_row, 2), 260).toString();
-	QString card_id = _pkgView->model()->data(_pkgView->model()->index(_row, 1)).toString();
-	QString pkg_id = _pkgView->model()->data(_pkgView->model()->index(_row, 0)).toString();
-	_detailView->loadDetail(pkg_id, package_type_id, card_id);
+	_detailView->loadDetail(_codeMap);
 }
 
 void OrRecyclePanel::onTransponderReceviced(const QString& code)
 {
 	qDebug() << code;
+	TranspondCode tc(code);
+	if (tc.type() == TranspondCode::Package && 0 == _step)
+	{
+		_codeMap->clear();
+		_unusualCodes->clear();
+		_scannedCodes->clear();
+		_codeMap->insert("E2009A8020020AF000006502", "测试器械01");
+		_codeMap->insert("E2009A8020020AF000005618", "测试器械01");
+		_codeMap->insert("E2009A8020020AF000006342", "测试器械01");
+
+		_codeMap->insert("E2009A8020020AF000006090", "测试器械02");
+		_codeMap->insert("E2009A8020020AF000004398", "测试器械02");
+		_codeMap->insert("E2009A8020020AF000006048", "测试器械02");
+		_codeMap->insert("E2009A8020020AF000003250", "测试器械02");
+		_codeMap->insert("E2009A8020020AF000005811", "测试器械02");
+
+		_codeMap->insert("E2009A8020020AF000005187", "测试器械03");
+
+		_pkgView->updatePackageInfo(code, QString("RFID测试器械包001"), _codeMap->size());
+		_detailView->loadDetail(_codeMap);
+
+		_step = 1;
+	}
+
+	if (tc.type() == TranspondCode::Instrument && 1 == _step)
+	{
+		if (_codeMap->size() > 0 && _codeMap->contains(code) && !_scannedCodes->contains(code))
+		{
+			_scannedCodes->append(code);
+			_pkgView->scanned();
+			_detailView->scanned(code);
+		}
+		else if (_codeMap->size() > 0 && !_codeMap->contains(code))
+		{
+			if (!_unusualCodes->contains(code))
+			{
+				_unusualCodes->append(code);
+				_pkgView->unusualed();
+				_unusualView->addUnusual(code);
+			}
+			
+		}
+	}
 }
 
 void OrRecyclePanel::onBarcodeReceviced(const QString& code)
@@ -354,73 +388,24 @@ void OrRecyclePanel::onBarcodeReceviced(const QString& code)
 	qDebug() << code;
 }
 
-void OrRecyclePanel::updateRecord(int pkg_record)
-{
-	_pkgView->model()->setData(_pkgView->model()->index(_row, 2), brushForSteType(pkg_record), Qt::BackgroundRole);
-}
-
-void OrRecyclePanel::chooseExt() {
-	ImportExtDialog d(this);
-	connect(&d, SIGNAL(extPkgImport(const QString&, const QString&, const QString&)), this, SLOT(setExtPkg(const QString&, const QString&, const QString&)));
-	d.exec();
-}
-
-void OrRecyclePanel::setExtPkg(const QString& pkgId, const QString& pkgTypeId, const QString& pkgName) {
-	_pkgView->addExtPackage(pkgId, pkgTypeId, pkgName);
-}
-
 void OrRecyclePanel::handleBarcode(const QString &code) {
 	Barcode bc(code);
-	if ((bc.type() == Barcode::Package || bc.type() == Barcode::PkgCode) && !_pkgView->hasPackage(code)) {
-		_pkgView->addPackage(code);
+	if ((bc.type() == Barcode::Package || bc.type() == Barcode::PkgCode)) {//&& !_pkgView->hasPackage(code)) {
+		//_pkgView->addPackage(code);
 	}
 	else if (bc.type() == Barcode::Plate) {
-		updatePlate(code);
+		//updatePlate(code);
 	}
 	else if (bc.type() == Barcode::Action && code == "910108") {
 		commit();
 	}
 }
 
-void OrRecyclePanel::addEntry() {
-	bool ok;
-	QRegExp regExp("\\d{18,}");
-	QString code = RegExpInputDialog::getText(this, "手工输入条码", "请输入包条码", "", regExp, &ok);
-	if (ok) {
-		handleBarcode(code);
-	}
-}
-
-void OrRecyclePanel::addPlateEntry() {
-	bool ok;
-	QRegExp regExp("\\d{8,}");
-	QString code = RegExpInputDialog::getText(this, "手工输入条码", "请输入网篮条码", "", regExp, &ok);
-	if (ok) {
-		handleBarcode(code);
-	}
-}
-
-void OrRecyclePanel::removeEntry() {
-	QItemSelectionModel *selModel = _pkgView->selectionModel();
-	QModelIndexList indexes = selModel->selectedRows();
-	int countRow = indexes.count();
-	for (int i = countRow; i > 0; i--)
-		_pkgView->model()->removeRow(indexes.at(i - 1).row());
-
-	_detailView->clear();
-}
-
 void OrRecyclePanel::commit() {
-	QVariantList packageIds = _pkgView->packageIds();
-	QVariantList cardIds = _pkgView->cardIds();
+	QVariantList packageIds;// = _pkgView->packageIds();
+	QVariantList cardIds;// = _pkgView->cardIds();
 	if (packageIds.isEmpty()) {
 		XNotifier::warn("请先添加需要回收的包");
-		return;
-	}
-
-	int plateId = _pkgView->plate();
-	if (0 == plateId) {
-		XNotifier::warn("请添加网篮");
 		return;
 	}
 
@@ -438,7 +423,7 @@ void OrRecyclePanel::commit() {
 
 	QVariantMap vmap;
 	vmap.insert("packages", pkgList);
-	vmap.insert("plate_id", plateId);
+	//vmap.insert("plate_id", plateId);
 	vmap.insert("operator_id", opId);
 
 	post(url(PATH_RECYCLE_ADD), vmap, [this](QNetworkReply *reply) {
@@ -453,11 +438,7 @@ void OrRecyclePanel::commit() {
 	});
 }
 
-void OrRecyclePanel::updatePlate(const QString &plateId) {
-	_pkgView->updatePlate(plateId);
-}
-
-void OrRecyclePanel::reset() {
-	_pkgView->clear();
-	_detailView->clear();
+void OrRecyclePanel::reset()
+{
+	//todo
 }

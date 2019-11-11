@@ -29,3 +29,18 @@ private:
 };
 
 
+class TranspondCode
+{
+public:
+	enum Type {
+		Package,		// E2009A9
+		Instrument,		// E2009A8
+		Unknown
+	};
+
+	TranspondCode(QString bc);
+
+	int type() const;
+private:
+	QString _bc;
+};

@@ -2,9 +2,21 @@
 
 #include "ui/views.h"
 #include "core/net/jsonhttpclient.h"
+#include <QHash>
 
 class QStandardItemModel;
 class XPicture;
+class QLabel;
+
+struct instrument_struct
+{
+	QString name;
+	QStringList codes;
+};
+
+namespace Ui {
+	class FlatEdit;
+}
 
 class AbstractPackageView : public TableView
 {
@@ -74,39 +86,72 @@ private:
 	enum { Barcode, Name, PackType, Department, ExpireDate, Implant};
 };
 
-class PackageDetailView : public QWidget
+class PackageInfoView : public QWidget
+{
+	Q_OBJECT
+public:
+	PackageInfoView(QWidget *parent = nullptr);
+	void updateTips(const QString& tips);
+	void updatePackageInfo(const QString &pkgId, const QString &pkgName, const int &insCount);
+	void scanned();
+	void unusualed();
+private:
+	QLabel * _tipsLabel;
+
+	QLabel * _packageIDLabel;
+	QLabel * _packageNameLabel;
+
+	QLabel * _totalNumLabel;
+	QLabel * _scannedNumLabel;
+	QLabel * _residueNumLabel;
+	QLabel * _unusualNumLabel;
+
+	JsonHttpClient _http;
+
+	int _totalNum;
+	int _scannedNum;
+	int _unusualNum;
+};
+
+class UnusualInstrumentView : public TableView
+{
+	Q_OBJECT
+
+public:
+	UnusualInstrumentView(QWidget *parent = nullptr);
+	void addUnusual(const QString& instrumentID);	
+
+private:
+	enum {InstrumentID, InstrumentName, PackageID, PackageName};
+	QStandardItemModel * _model;
+	JsonHttpClient _http;
+};
+
+class PackageDetailView : public TableView
 {
 	Q_OBJECT
 
 public:
 	PackageDetailView(QWidget *parent = nullptr);
-	void loadDetail(const QString& pkgId, const QString& pkgTypeId, const QString& cardId);
+	void loadDetail(const QHash<QString, QString>* const maps);
+	void scanned(const QString & code);
 	void clear();
 
 signals:
 	void sendData(int);
 
 private slots:
-	void imgClicked();
-	void regist();
-	void slotItemDoubleClicked(const QModelIndex &);
-	void showContextMenu(const QPoint&);
+	void slotItemClicked(const QModelIndex &);
 	void updateState(int, int);
-private:
-	void imgLoad(const QString& pkgTypeId);
 
-	enum {Name, Number, State};
-	QTableView* _view;
-	QStandardItemModel* _model;
-	XPicture* _imgLabel;
+private:
+	enum {Name, Total, Scanned, Residue, Tips};
+	QStandardItemModel * _model;
 	JsonHttpClient _http;
 
 	QModelIndex posIndex;
 
-	QString _pkg_id;
-	QString _card_id;
-	QString _ins_name;
-	QString _ins_id;
+	QList<instrument_struct> *_instruments;
 	int _state;
 };
 
