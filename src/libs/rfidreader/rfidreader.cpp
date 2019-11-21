@@ -11,7 +11,6 @@ using namespace TechnologySolutions::Rfid::AsciiProtocol;
 using namespace TechnologySolutions::Rfid::AsciiProtocol::Commands;
 using namespace TechnologySolutions::Rfid::AsciiProtocol::Parameters;
 
-//初始化静态成员变量
 RfidReader *RfidReader::m_instance = NULL;
 
 std::string CastToString(System::String^ str)
@@ -74,6 +73,8 @@ RfidReader::RfidReader()
 
 	gcroot<BarcodeCommand^> *c = new gcroot<BarcodeCommand^>(bc);
 	this->_barcodeResponder = static_cast<void*>(c);
+
+	_listeners = new std::list<Abstractlistener *>();
 }
 
 RfidReader::~RfidReader()
@@ -98,6 +99,8 @@ RfidReader::~RfidReader()
 		delete bc;
 		this->_barcodeResponder = 0;
 	}
+
+	delete _listeners;
 }
 
 bool RfidReader::connect(const std::string port)
@@ -161,21 +164,21 @@ void RfidReader::setOutPutPower(const int power)
 
 int RfidReader::getcount()
 {
-	return listenerlist.size();
+	return _listeners->size();
 }
 
 void RfidReader::addlistener(Abstractlistener *listener)
 {
-	listenerlist.push_back(listener);
+	_listeners->push_back(listener);
 }
 
 void RfidReader::removelistener(Abstractlistener *listener)
 {
-	for each (Abstractlistener *li in listenerlist)
+	for each (Abstractlistener *li in *_listeners)
 	{
 		if (li == listener)
 		{
-			listenerlist.remove(listener);
+			//listenerlist.(listener);
 			break;
 		}
 	}
@@ -183,12 +186,12 @@ void RfidReader::removelistener(Abstractlistener *listener)
 
 void RfidReader::clearlistener()
 {
-	listenerlist.clear();
+	_listeners->clear();
 }
 
 void RfidReader::firestatelistener(CodeType type, std::string code)
 {
-	for each (Abstractlistener *listener in listenerlist)
+	for each (Abstractlistener *listener in *_listeners)
 	{
 		listener->actionperformed(type, code);
 	}

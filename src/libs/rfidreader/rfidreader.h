@@ -1,4 +1,5 @@
 #pragma once
+
 #include <stdio.h>
 #include <string>
 #include <list>
@@ -8,6 +9,7 @@
 #else
 #define DLL_API _declspec(dllimport)
 #endif
+
 
 enum class CodeType {
 	Transponder,
@@ -22,8 +24,9 @@ public:
 	virtual void actionperformed(CodeType type, std::string code) = 0;
 };
 
-class DLL_API RfidReader {
-
+// class RfidReader
+class DLL_API RfidReader
+{
 private:
 	RfidReader();
 	~RfidReader();
@@ -38,7 +41,7 @@ public:
 	void disconnect();
 	int getOutPutPower();
 
-	//the power is range in(10, 29)
+	//the power is in range(10, 29)
 	void setOutPutPower(const int power);
 
 	int getcount();
@@ -53,5 +56,6 @@ private:
 	void* _transponderResponder;
 	void* _barcodeResponder;
 
-	std::list<Abstractlistener*> listenerlist;
+	// DECLARE AS A POINTER TO AVOID WARNING C4251 (https://stackoverflow.com/a/6869033/2079686)
+	std::list<Abstractlistener*> *_listeners;
 };
