@@ -2,15 +2,15 @@
 #include "core/application.h"
 #include "core/net/url.h"
 #include "ui/labels.h"
+#include "ui/inputfields.h"
 #include "ui/ui_commons.h"
 #include "xnotifier.h"
-#include "../libs/rfidreader/rfidreader.h"
 #include <QtWidgets/QtWidgets>
 
 ConfigRfidReaderDialog::ConfigRfidReaderDialog(QWidget *parent)
 	: QDialog(parent)
+	, _nameEdit(new Ui::FlatEdit)
 	, _comBox(new QComboBox(this))
-	, _rememberMeBox(new QCheckBox(this))
 {
 	setWindowTitle("配置RFID扫描器");
 
@@ -25,28 +25,31 @@ ConfigRfidReaderDialog::ConfigRfidReaderDialog(QWidget *parent)
 	QPushButton *disconnectButton = new QPushButton("断开");
 	connect(disconnectButton, &QPushButton::clicked, this, &ConfigRfidReaderDialog::onClickDisconnectBtn);
 
-	_comBox->addItems(COMPORT_LIST);
-	_rememberMeBox->setText(QString("记住我"));
-	_rememberMeBox->setChecked(REMEMBER_READER);
+	QStringList portlist;
+	std::list<std::string> ports = refreshPorts();
+	for each (std::string port in ports)
+	{
+		portlist.append(QString::fromStdString(port));
+	}
+	_comBox->addItems(portlist);
 
 	QGridLayout *mainLayout = new QGridLayout(this);
 	mainLayout->setVerticalSpacing(15);
-	mainLayout->addWidget(_comBox, 0, 0);
-	mainLayout->addWidget(_rememberMeBox, 0, 1);
-	mainLayout->addWidget(connectButton, 1, 0);
-	mainLayout->addWidget(disconnectButton, 1, 1);
+	mainLayout->addWidget(_nameEdit, 0, 0);
+	mainLayout->addWidget(_comBox, 0, 1);
+	mainLayout->addWidget(connectButton, 1, 0, 1, 2);
 	mainLayout->addWidget(Ui::createSeperator(Qt::Horizontal), 2, 0, 1, 2);
 	mainLayout->addWidget(submitButton, 3, 0, 1, 2, Qt::AlignHCenter);
 
 	setFixedHeight(sizeHint().height());
-	resize(parent ? parent->width() / 5 : 360, height());
+	resize(360, height());
 }
 
 void ConfigRfidReaderDialog::accept() {
-	REMEMBER_READER = _rememberMeBox->isChecked();
+	/*REMEMBER_READER = _rememberMeBox->isChecked();
 	QSettings *configIni = new QSettings("prepareSettings.ini", QSettings::IniFormat);
 	configIni->setValue("port/remember", REMEMBER_READER);
-	configIni->setValue("port/name", LAST_COM);
+	configIni->setValue("port/name", LAST_COM);*/
 	return QDialog::accept();
 }
 
@@ -59,16 +62,16 @@ void ConfigRfidReaderDialog::onClickConnectBtn() {
 		return;
 	}
 
-	if (RfidReader::getInstance()->connect(port.toStdString()))
+	/*if (RfidReader::getInstance()->connect(port.toStdString()))
 	{
 		LAST_COM = port;
 		XNotifier::warn(QString("%1连接成功！").arg(port));
 	}
 	else {
 		XNotifier::warn(QString("%1连接失败！").arg(port));
-	}
+	}*/
 }
 
 void ConfigRfidReaderDialog::onClickDisconnectBtn() {
-	RfidReader::getInstance()->disconnect();
+	//RfidReader::getInstance()->disconnect();
 }

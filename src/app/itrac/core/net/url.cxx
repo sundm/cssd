@@ -13,9 +13,7 @@
 QString PATH_BASE;
 QString LABEL_PRINTER;
 QString COMMON_PRINTER;
-QStringList COMPORT_LIST;
-bool REMEMBER_READER;
-QString LAST_COM;
+QList<TSL1128Reader*> TSL1128Readers;
 RfidCodelistener* _listener;
 const char PATH_PLATE_SEARCH[] = "plate/search";
 const char PATH_DEPT_SEARCH[] = "department/search";

@@ -7,6 +7,7 @@
 #include "dialog/warningdialog.h"
 #include "../libs/rfidreader/rfidreader.h"
 #include "dialog/rfidreaderconfigerdialog.h"
+#include "dialog/rfidconfigerdialog.h"
 #include <QtWidgets/QtWidgets>
 
 TopBar::TopBar(QWidget *parent) :
@@ -79,7 +80,7 @@ void TopBar::showWarnings() {
 }
 
 void TopBar::showRfidConfiger() {
-	ConfigRfidReaderDialog d(this);
+	ConfigRfidDialog d(this);
 	d.exec();
 }
 

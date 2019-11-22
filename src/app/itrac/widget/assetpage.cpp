@@ -3,8 +3,10 @@
 #include "deviceprogrampage.h"
 #include "userpage.h"
 #include "assets/packagepage.h"
+#include "assets/packageIdpage.h"
 #include "assets/packtypepage.h"
 #include "assets/instrumentpage.h"
+#include "assets/instrumentIdpage.h"
 #include "assets/departmentpage.h"
 #include "assets/recallpage.h"
 #include "core/itracnamespace.h"
@@ -28,12 +30,16 @@ AssetPage::AssetPage(QWidget *parent)
 	vLayout->addWidget(deviceButton);
 	QPushButton *programButton = new QPushButton("设备预设程序");
 	vLayout->addWidget(programButton);
-	QPushButton *pkgButton = new QPushButton("包");
+	QPushButton *pkgButton = new QPushButton("基础包");
 	vLayout->addWidget(pkgButton);
+	QPushButton *pkgIdButton = new QPushButton("包UID");
+	vLayout->addWidget(pkgIdButton);
 	QPushButton *pkgTypeButton = new QPushButton("打包类型");
 	vLayout->addWidget(pkgTypeButton);
-	QPushButton *instrumentButton = new QPushButton("器械");
+	QPushButton *instrumentButton = new QPushButton("基础器械");
 	vLayout->addWidget(instrumentButton);
+	QPushButton *instrumentIdButton = new QPushButton("器械UID");
+	vLayout->addWidget(instrumentIdButton);
 	QPushButton *deptButton = new QPushButton("科室");
 	vLayout->addWidget(deptButton);
 	QPushButton *userButton = new QPushButton("用户");
@@ -52,8 +58,10 @@ AssetPage::AssetPage(QWidget *parent)
 	btnGroup->addButton(deviceButton, itrac::DEVICE);
 	btnGroup->addButton(programButton, itrac::PROGRAM);
 	btnGroup->addButton(pkgButton, itrac::PACKAGE);
+	btnGroup->addButton(pkgIdButton, itrac::PACKAGEID);
 	btnGroup->addButton(pkgTypeButton, itrac::PACKTYPE);
 	btnGroup->addButton(instrumentButton, itrac::INSTRUMENT);
+	btnGroup->addButton(instrumentIdButton, itrac::INSTRUMENTID);
 	btnGroup->addButton(deptButton, itrac::DEPT);
 	btnGroup->addButton(userButton, itrac::USER);
 	btnGroup->addButton(recallButton, itrac::RECALL);
@@ -77,7 +85,11 @@ void AssetPage::showPage(int id)
 			break;
 		case itrac::PACKAGE:
 			page = new PackagePage;
-			_tabWidget->addTab(page, "包管理");
+			_tabWidget->addTab(page, "基础包管理");
+			break;
+		case itrac::PACKAGEID:
+			page = new PackageIdPage;
+			_tabWidget->addTab(page, "包UID管理");
 			break;
 		case itrac::PACKTYPE:
 			page = new PacktypePage;
@@ -85,7 +97,11 @@ void AssetPage::showPage(int id)
 			break;
 		case itrac::INSTRUMENT:
 			page = new InstrumentPage;
-			_tabWidget->addTab(page, "器械管理");
+			_tabWidget->addTab(page, "基础器械管理");
+			break;
+		case itrac::INSTRUMENTID:
+			page = new InstrumentIdPage;
+			_tabWidget->addTab(page, "器械UID管理");
 			break;
 		case itrac::DEPT:
 			page = new DepartmentPage;

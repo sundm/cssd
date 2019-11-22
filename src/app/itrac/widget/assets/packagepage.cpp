@@ -16,10 +16,9 @@ namespace Internal {
 		, _model(new QStandardItemModel(0, Department + 1, this))
 	{
 		_model->setHeaderData(Name, Qt::Horizontal, "包名");
-		_model->setHeaderData(RFID, Qt::Horizontal, "包ID");
+		_model->setHeaderData(Pinyin, Qt::Horizontal, "拼音检索码");
 		_model->setHeaderData(PackType, Qt::Horizontal, "包装类型");
 		_model->setHeaderData(SteType, Qt::Horizontal, "适用灭菌类型");
-		//_model->setHeaderData(Pinyin, Qt::Horizontal, "拼音检索码");
 		_model->setHeaderData(Department, Qt::Horizontal, "所属科室");
 		setModel(_model);
 		setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -47,14 +46,13 @@ namespace Internal {
 				QVariantMap map = pkgs[i].toMap();
 				_model->setData(_model->index(i, Name), map["package_name"]);
 				_model->setData(_model->index(i, Name), map["package_type_id"], 257);
-				_model->setData(_model->index(i, RFID), map["package_type_id"]);//todo
+				_model->setData(_model->index(i, Pinyin), map["pinyin_code"]);
 				_model->setData(_model->index(i, PackType), map["pack_type"]);
 				_model->setData(_model->index(i, PackType), map["package_category"], 257);
 				int steType = map["sterilize_type"].toInt();
 				_model->setData(_model->index(i, SteType), Internal::literalSteType(steType));
 				_model->setData(_model->index(i, SteType), Internal::brushForSteType(steType), Qt::BackgroundRole);
 				_model->setData(_model->index(i, SteType), map["sterilize_type"], 257);
-				//_model->setData(_model->index(i, Pinyin), map["pinyin_code"]);
 				_model->setData(_model->index(i, Department), map["department_name"]);
 				_model->setData(_model->index(i, Department), map["department_id"], 257);
 			}
@@ -93,18 +91,14 @@ PackagePage::PackagePage(QWidget *parent)
 	Ui::IconButton *modifyButton = new Ui::IconButton(":/res/write-24.png", "修改");
 	connect(modifyButton, SIGNAL(clicked()), this, SLOT(editEntry()));
 
-	Ui::IconButton *infoButton = new Ui::IconButton(":/res/info-24.png", "管理包内器械列表");
-	connect(infoButton, SIGNAL(clicked()), this, SLOT(infoEntry()));
-
 	//searchBox->setMinimumWidth(300);
-	_searchBox->setPlaceholderText("输入包名/ID搜索");
+	_searchBox->setPlaceholderText("输入包名搜索");
 	connect(_searchBox, &SearchEdit::returnPressed, this, &PackagePage::search);
 
 	QHBoxLayout *hLayout = new QHBoxLayout;
 	hLayout->addWidget(refreshButton);
 	hLayout->addWidget(addButton);
 	hLayout->addWidget(modifyButton);
-	hLayout->addWidget(infoButton);
 	hLayout->addStretch(0);
 	hLayout->addWidget(_searchBox);
 
@@ -165,7 +159,7 @@ void PackagePage::editRow(int row)
 	QString pack_type = _view->model()->data(_view->model()->index(row, Internal::PackageAssetView::PackType)).toString();
 	QString package_category = _view->model()->data(_view->model()->index(row, Internal::PackageAssetView::PackType), 257).toString();
 	int steType = _view->model()->data(_view->model()->index(row, Internal::PackageAssetView::SteType), 257).toInt();
-	QString package_rfid = _view->model()->data(_view->model()->index(row, Internal::PackageAssetView::RFID)).toString();
+	QString package_pinyin = _view->model()->data(_view->model()->index(row, Internal::PackageAssetView::Pinyin)).toString();
 	QString dtp_name = _view->model()->data(_view->model()->index(row, Internal::PackageAssetView::Department)).toString();
 	QString dtp_id = _view->model()->data(_view->model()->index(row, Internal::PackageAssetView::Department), 257).toString();
 
@@ -175,7 +169,7 @@ void PackagePage::editRow(int row)
 	info.pack_type = pack_type;
 	info.package_category = package_category;
 	info.steType = steType;
-	info.package_rfid = package_rfid;
+	info.package_pinyin = package_pinyin;
 	info.dtp_name = dtp_name;
 	info.dtp_id = dtp_id;
 

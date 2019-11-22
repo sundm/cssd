@@ -7,13 +7,13 @@ class QStandardItemModel;
 
 namespace Internal {
 
-class InstrumentAssetView : public TableView
+class InstrumentIdAssetView : public TableView
 {
 	Q_OBJECT
 
 public:
-	enum Column {Name, Pinyin, Vip, Implant};
-	InstrumentAssetView(QWidget *parent = nullptr);
+	enum Column {Name, Id, Basics};
+	InstrumentIdAssetView(QWidget *parent = nullptr);
 	void load(int page = 0, int count = 10);
 
 private:
@@ -21,17 +21,14 @@ private:
 	JsonHttpClient _http;
 };
 
-QString getVipLiteral(const QString &vip);
-QString getImportLiteral(const QString &import);
-
 } //namespace Internal
 
-class InstrumentPage : public QWidget, public JsonHttpClient
+class InstrumentIdPage : public QWidget, public JsonHttpClient
 {
 	Q_OBJECT
 
 public:
-	InstrumentPage(QWidget *parent = Q_NULLPTR);
+	InstrumentIdPage(QWidget *parent = Q_NULLPTR);
 
 private slots:
 	void refresh();
@@ -40,5 +37,5 @@ private slots:
 	void slotRowDoubleClicked(const QModelIndex &);
 
 private:
-	Internal::InstrumentAssetView *_view;
+	Internal::InstrumentIdAssetView *_view;
 };

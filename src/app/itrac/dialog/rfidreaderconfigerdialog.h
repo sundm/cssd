@@ -2,6 +2,10 @@
 
 #include <QDialog>
 
+namespace Ui {
+	class FlatEdit;
+}
+
 class QComboBox;
 class QCheckBox;
 class ConfigRfidReaderDialog : public QDialog
@@ -15,8 +19,8 @@ protected:
 	void accept() override;
 
 private:
+	Ui::FlatEdit * _nameEdit;
 	QComboBox *_comBox;
-	QCheckBox *_rememberMeBox;
 
 	void onClickConnectBtn();
 	void onClickDisconnectBtn();

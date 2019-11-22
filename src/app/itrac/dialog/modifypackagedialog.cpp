@@ -40,7 +40,7 @@ ModifyPackageDialog::ModifyPackageDialog(QWidget *parent, const PackageInfo info
 	_package_type_id = info.package_type_id.toInt();
 	_pkgNameEdit->setText(_info.package_name);
 	_pkgNameEdit->setReadOnly(true);
-	_pkgRFIDCodeEdit->setText(_info.package_rfid);
+	_pkgRFIDCodeEdit->setText(_info.package_pinyin);
 	_pkgRFIDCodeEdit->setReadOnly(true);
 
 	FormGroup * pkgGroup = new FormGroup(this);

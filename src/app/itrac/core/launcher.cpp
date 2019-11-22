@@ -3,7 +3,8 @@
 #include "application.h"
 #include "core/net/url.h"
 #include "../libs/rfidreader/rfidreader.h"
-#include <QSettings>
+#include <QFile>
+#include <QDomDocument>
 
 namespace Core {
 
@@ -32,6 +33,59 @@ namespace Core {
 	}
 
 	void Launcher::prepareSettings() {
+		QString xmlFileName = "prepareSetting.xml";
+		QFile file(xmlFileName);
+		if (!file.open(QFile::ReadOnly | QFile::Text))
+		{
+			return;
+		}
+
+		QDomDocument document;
+		QString error;
+		int row = 0, column = 0;
+		if (!document.setContent(&file, false, &error, &row, &column))
+		{
+			return;
+		}
+
+		if (document.isNull())
+		{
+			return;
+		}
+
+		QDomElement root = document.documentElement();
+
+		//root_tag_nameΪpersons
+		QString root_tag_name = root.tagName();
+		if (root_tag_name.compare("cssd") == 0)
+		{
+			QDomElement address = root.firstChildElement();
+			if (address.isNull() || address.tagName().compare("address") != 0)
+				return;
+			PATH_BASE = address.attribute("url", "");
+			QDomElement labelPrinter = address.nextSiblingElement("labelPrinter");
+			LABEL_PRINTER = labelPrinter.attribute("name", "");
+			QDomElement commonPrinter = labelPrinter.nextSiblingElement("commonPrinter");
+			COMMON_PRINTER = commonPrinter.attribute("name", "");
+
+			QDomNodeList readerNodes = root.elementsByTagName("reader");
+
+			for (int i = 0; i < readerNodes.count(); i++) {
+				QDomNode readerNode = readerNodes.at(i);
+				if (readerNode.toElement().attribute("type", "0").toInt() == 1)
+				{
+					TSL1128Reader * reader = new TSL1128Reader();
+					reader->setName(readerNode.toElement().attribute("name", "").toStdString());
+					reader->setPort(readerNode.toElement().attribute("port", "").toStdString());
+
+					TSL1128Readers.append(reader);
+				}
+			}
+			
+		}
+
+		file.close();
+		/*
 		QSettings *configIni = new QSettings("prepareSettings.ini", QSettings::IniFormat);
 
 		PATH_BASE = configIni->value("address/t").toString();
@@ -63,6 +117,7 @@ namespace Core {
 		RfidReader::getInstance()->addlistener(_listener);
 
 		delete configIni;
+		*/
 	}
 
 	void Launcher::initialize() {

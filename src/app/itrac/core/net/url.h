@@ -2,16 +2,15 @@
 
 //#include "jsonhttpclient.h"
 #include <QString>
-#include <QStringlist>
+#include <QList>
 #include "jsonhttpresponse.h"
 #include "../rfidlistener.h"
+#include "../libs/rfidreader/tsl_1128.h"
 
 extern QString PATH_BASE;
 extern QString LABEL_PRINTER;
 extern QString COMMON_PRINTER;
-extern QStringList COMPORT_LIST;
-extern bool REMEMBER_READER;
-extern QString LAST_COM;
+extern QList<TSL1128Reader*> TSL1128Readers;
 extern RfidCodelistener* _listener;
 extern const char PATH_PLATE_SEARCH[];
 extern const char PATH_DEPT_SEARCH[];

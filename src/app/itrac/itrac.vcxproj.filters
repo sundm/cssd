@@ -396,6 +396,18 @@
     <ClCompile Include="core\rfidlistener.cpp">
       <Filter>Source Files\core</Filter>
     </ClCompile>
+    <ClCompile Include="widget\assets\instrumentIdpage.cpp">
+      <Filter>Source Files\widget\assets</Filter>
+    </ClCompile>
+    <ClCompile Include="dialog\addinstrumentIddialog.cpp">
+      <Filter>Source Files\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\assets\packageIdpage.cpp">
+      <Filter>Source Files\widget\assets</Filter>
+    </ClCompile>
+    <ClCompile Include="dialog\rfidconfigerdialog.cpp">
+      <Filter>Source Files\dialog</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="devicepage.h">
@@ -670,6 +682,18 @@
     </QtMoc>
     <QtMoc Include="core\rfidlistener.h">
       <Filter>Source Files\core</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\assets\instrumentIdpage.h">
+      <Filter>Source Files\widget\assets</Filter>
+    </QtMoc>
+    <QtMoc Include="dialog\addinstrumentIddialog.h">
+      <Filter>Source Files\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\assets\packageIdpage.h">
+      <Filter>Source Files\widget\assets</Filter>
+    </QtMoc>
+    <QtMoc Include="dialog\rfidconfigerdialog.h">
+      <Filter>Source Files\dialog</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
