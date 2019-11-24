@@ -19,8 +19,8 @@ ConfigRfidReaderDialog::ConfigRfidReaderDialog(QWidget *parent)
 	submitButton->setDefault(true);
 	connect(submitButton, &QPushButton::clicked, this, &ConfigRfidReaderDialog::accept);
 
-	QPushButton *connectButton = new QPushButton("连接");
-	connect(connectButton, &QPushButton::clicked, this, &ConfigRfidReaderDialog::onClickConnectBtn);
+	_connectButton = new QPushButton("连接");
+	connect(_connectButton, &QPushButton::clicked, this, &ConfigRfidReaderDialog::onClickConnectBtn);
 
 	QPushButton *disconnectButton = new QPushButton("断开");
 	connect(disconnectButton, &QPushButton::clicked, this, &ConfigRfidReaderDialog::onClickDisconnectBtn);
@@ -37,23 +37,46 @@ ConfigRfidReaderDialog::ConfigRfidReaderDialog(QWidget *parent)
 	mainLayout->setVerticalSpacing(15);
 	mainLayout->addWidget(_nameEdit, 0, 0);
 	mainLayout->addWidget(_comBox, 0, 1);
-	mainLayout->addWidget(connectButton, 1, 0, 1, 2);
+	mainLayout->addWidget(_connectButton, 1, 0);
+	mainLayout->addWidget(disconnectButton, 1, 1);
 	mainLayout->addWidget(Ui::createSeperator(Qt::Horizontal), 2, 0, 1, 2);
 	mainLayout->addWidget(submitButton, 3, 0, 1, 2, Qt::AlignHCenter);
 
 	setFixedHeight(sizeHint().height());
 	resize(360, height());
+
+	_reader = nullptr;
 }
 
 void ConfigRfidReaderDialog::accept() {
-	/*REMEMBER_READER = _rememberMeBox->isChecked();
-	QSettings *configIni = new QSettings("prepareSettings.ini", QSettings::IniFormat);
-	configIni->setValue("port/remember", REMEMBER_READER);
-	configIni->setValue("port/name", LAST_COM);*/
+	QString name = _nameEdit->text();
+	if (name.isEmpty())
+	{
+		_nameEdit->setFocus();
+		return;
+	}
+	QString port = _comBox->currentText();
+	if (port.isEmpty())
+	{
+		_comBox->setFocus();
+		return;
+	}
+
+	if (_reader == nullptr)
+	{
+		_reader = new TSL1128Reader();
+		
+		TSL1128Readers.append(_reader);
+	}
+	_reader->setName(name.toStdString());
+	_reader->setPort(port.toStdString());
+	
+
 	return QDialog::accept();
 }
 
 void ConfigRfidReaderDialog::onClickConnectBtn() {
+	QString name = _nameEdit->text();
 	QString port = _comBox->currentText();
 
 	if (port.isEmpty())
@@ -62,16 +85,47 @@ void ConfigRfidReaderDialog::onClickConnectBtn() {
 		return;
 	}
 
-	/*if (RfidReader::getInstance()->connect(port.toStdString()))
+	if (_reader == nullptr)
 	{
-		LAST_COM = port;
-		XNotifier::warn(QString("%1连接成功！").arg(port));
+		_reader = new TSL1128Reader();
+		TSL1128Readers.append(_reader);
 	}
-	else {
-		XNotifier::warn(QString("%1连接失败！").arg(port));
-	}*/
+	
+	if (_reader->connect()) {
+		XNotifier::warn(QString("%1连接成功！").arg(name));
+	}
+	else
+	{
+		XNotifier::warn(QString("%1连接失败！").arg(name));
+	}
+
+	setItemEnabled();
 }
 
 void ConfigRfidReaderDialog::onClickDisconnectBtn() {
-	//RfidReader::getInstance()->disconnect();
+	if (_reader != nullptr)
+	{
+		_reader->disconnect();
+
+		setItemEnabled();
+	}
+}
+
+void ConfigRfidReaderDialog::setReader(const int index)
+{
+	_reader = TSL1128Readers.at(index);
+	_nameEdit->setText(QString::fromStdString(_reader->getName()));
+	_comBox->setCurrentText(QString::fromStdString(_reader->getPort()));
+
+	setItemEnabled();
+}
+
+void ConfigRfidReaderDialog::setItemEnabled()
+{
+	if (_reader == nullptr) return;
+
+	bool isConnected = _reader->isConnected();
+	_nameEdit->setReadOnly(isConnected);
+	_comBox->setDisabled(isConnected);
+	_connectButton->setDisabled(isConnected);
 }

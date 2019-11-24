@@ -55,7 +55,6 @@ namespace Core {
 
 		QDomElement root = document.documentElement();
 
-		//root_tag_nameΪpersons
 		QString root_tag_name = root.tagName();
 		if (root_tag_name.compare("cssd") == 0)
 		{
@@ -77,6 +76,11 @@ namespace Core {
 					TSL1128Reader * reader = new TSL1128Reader();
 					reader->setName(readerNode.toElement().attribute("name", "").toStdString());
 					reader->setPort(readerNode.toElement().attribute("port", "").toStdString());
+
+					reader->clearListeners();
+					if (_listener == nullptr)
+						_listener = new RfidCodelistener();
+					reader->addListener(_listener);
 
 					TSL1128Readers.append(reader);
 				}

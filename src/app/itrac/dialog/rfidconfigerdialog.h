@@ -19,10 +19,10 @@ protected:
 private slots:
 	void addEntry();
 	void removeEntry();
-
+	void slotRowDoubleClicked(const QModelIndex &);
 private:
 	void initView();
-
+	void loadReaders();
 	QComboBox *_comBox;
 	TableView *_view;
 	QStandardItemModel *_model;

@@ -9,6 +9,8 @@
 #include "ui/views.h"
 #include "rfidreaderconfigerdialog.h"
 #include <QtWidgets/QtWidgets>
+#include <QFile>
+#include <QDomDocument>
 
 ConfigRfidDialog::ConfigRfidDialog(QWidget *parent)
 	: QDialog(parent)
@@ -52,51 +54,90 @@ ConfigRfidDialog::ConfigRfidDialog(QWidget *parent)
 	mainLayout->addWidget(submitButton, 2, 0, 1, 2, Qt::AlignHCenter);
 
 	setFixedHeight(sizeHint().height());
-	resize(800, height());
+	resize(700, height());
+
+	connect(_view, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(slotRowDoubleClicked(const QModelIndex &)));
 
 	initView();
 }
 
 void ConfigRfidDialog::accept() {
-	/*REMEMBER_READER = _rememberMeBox->isChecked();
-	QSettings *configIni = new QSettings("prepareSettings.ini", QSettings::IniFormat);
-	configIni->setValue("port/remember", REMEMBER_READER);
-	configIni->setValue("port/name", LAST_COM);*/
+	QString xmlFileName = "prepareSetting.xml";
+	QFile file(xmlFileName);
+	if (!file.open(QFile::ReadOnly | QFile::Text))
+	{
+		return;
+	}
+
+	QDomDocument document;
+	QString error;
+	int row = 0, column = 0;
+	if (!document.setContent(&file, false, &error, &row, &column))
+	{
+		return;
+	}
+
+	file.close();
+
+	if (document.isNull())
+	{
+		return;
+	}
+
+	QDomElement root = document.documentElement();
+
+	QString root_tag_name = root.tagName();
+	if (root_tag_name.compare("cssd") == 0)
+	{
+		QDomNodeList readerNodes = document.elementsByTagName("reader");
+		int count = readerNodes.count();
+		for (int i = 0; i < count; i++) {
+			QDomNode readerNode = readerNodes.at(0);
+			root.removeChild(readerNode);
+		}
+
+		for each (TSL1128Reader* reader in TSL1128Readers)
+		{
+			QDomElement element = document.createElement("reader");
+			element.setAttribute("type", "1");
+			element.setAttribute("name", QString::fromStdString(reader->getName()));
+			element.setAttribute("port", QString::fromStdString(reader->getPort()));
+
+			root.appendChild(element);
+		}
+	
+		if (!file.open(QFile::WriteOnly | QFile::Text))
+		{
+			return;
+		}
+
+		QTextStream out(&file);
+		document.save(out, 4);
+		file.close();
+	}
+
+	
 	return QDialog::accept();
 }
 
 void ConfigRfidDialog::addEntry() {
 	ConfigRfidReaderDialog d(this);
-	d.exec();
-	/*int insId = _insEdit->currentId();
-
-	if (insId == 0) return;
-
-	int existRow = findRow(insId);
-	if (-1 == existRow) {
-		QList<QStandardItem *> items;
-		QStandardItem *insItem = new QStandardItem(_insEdit->currentName());
-		insItem->setData(_insEdit->currentId());
-		items << insItem << new QStandardItem("1");
-		_model->appendRow(items);
+	if (d.exec() == QDialog::Accepted)
+	{
+		loadReaders();
 	}
-	else {
-		QStandardItem *countItem = _model->item(existRow, 1);
-		int count = countItem->text().toInt();
-		if (count < Constant::maxPackageCount) {
-			countItem->setText(QString::number(count + 1));
-			_view->selectRow(existRow);
-		}
-	}
-	_insEdit->reset();*/
 }
 
 void ConfigRfidDialog::removeEntry() {
 	QItemSelectionModel *selModel = _view->selectionModel();
 	QModelIndexList indexes = selModel->selectedRows();
-	int countRow = indexes.count();
-	for (int i = countRow; i > 0; i--)
-		_model->removeRow(indexes.at(i - 1).row());
+	if (indexes.size() > 0)
+	{
+		int row = indexes.at(0).row();
+		TSL1128Readers.removeAt(row);
+		_model->removeRow(row);
+	}
+	
 }
 
 void ConfigRfidDialog::initView()
@@ -108,6 +149,7 @@ void ConfigRfidDialog::initView()
 	_view->setModel(_model);
 	_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	_view->setSelectionBehavior(QAbstractItemView::SelectRows);
+	_view->setSelectionMode(QAbstractItemView::SingleSelection);
 
 	QHeaderView *header = _view->horizontalHeader();
 	header->setStretchLastSection(true);
@@ -118,6 +160,12 @@ void ConfigRfidDialog::initView()
 	readerTypeList.append("TSL-1128");
 	_comBox->addItems(readerTypeList);
 
+	loadReaders();
+}
+
+void ConfigRfidDialog::loadReaders()
+{
+	_model->removeRows(0, _model->rowCount());
 
 	for each (TSL1128Reader* reader in TSL1128Readers)
 	{
@@ -130,5 +178,16 @@ void ConfigRfidDialog::initView()
 		stateItem->setData(reader->isConnected());
 		items << nameItem << typeItem << portItem << stateItem;
 		_model->appendRow(items);
+	}
+}
+
+void ConfigRfidDialog::slotRowDoubleClicked(const QModelIndex &index)
+{
+	int row = index.row();
+	ConfigRfidReaderDialog d(this);
+	d.setReader(row);
+	if (d.exec() == QDialog::Accepted)
+	{
+		loadReaders();
 	}
 }
