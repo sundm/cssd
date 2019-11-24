@@ -25,7 +25,7 @@ Application::Application(Core::Launcher* launcher, int &argc, char **argv)
 
 	// showMaximized only affects windows(Qt::Window), and the widget's sizeHint is not (0, 0),
 	// when show/showMaximized called, all child widgets are visible
-	_loader->showMaximized();
+	_loader->showFullScreen();
 }
 
 Application::~Application()

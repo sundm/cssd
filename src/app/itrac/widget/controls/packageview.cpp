@@ -524,9 +524,10 @@ void PackageDetailView::slotItemClicked(const QModelIndex &index)
 void PackageDetailView::updateState(int pkg_record, int ins_state)
 {
 	if (posIndex.isValid()) {
-		_model->setData(posIndex.siblingAtColumn(2), ins_state, 257);
-		_model->setData(posIndex.siblingAtColumn(2), literalSteType(ins_state));
-		_model->setData(posIndex.siblingAtColumn(2), brushForSteType(ins_state), Qt::BackgroundRole);
+		QModelIndex stateIdx = posIndex.sibling(posIndex.row(), 2);
+		_model->setData(stateIdx, ins_state, 257);
+		_model->setData(stateIdx, literalSteType(ins_state));
+		_model->setData(stateIdx, brushForSteType(ins_state), Qt::BackgroundRole);
 
 		emit sendData(pkg_record);
 	}

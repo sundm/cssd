@@ -246,7 +246,7 @@ ExtManagePanel::ExtManagePanel(QWidget *parent)
 	_dateButtons->addButton(_monthButton, XPeriod::ThisMonth);
 	_dateButtons->addButton(_yearButton, XPeriod::ThisYear);
 	_dateButtons->addButton(_customButton, XPeriod::Custom);
-	connect(_dateButtons, QOverload<int, bool>::of(&QButtonGroup::buttonToggled),
+	connect(_dateButtons, static_cast<void(QButtonGroup::*)(int, bool)>(&QButtonGroup::buttonToggled),
 		this, &ExtManagePanel::onDateButtonToggled);
 
 	QWidget *topWidget = new QWidget(this);

@@ -34,7 +34,7 @@ void IdEdit::setCompleter(IdCompleter *completer) {
 	QLineEdit::setCompleter(completer);
 	if (completer) {
 		connect(completer, SIGNAL(error(const QString&)), this, SIGNAL(error(const QString&)));
-		connect(completer, QOverload<const QModelIndex &>::of(&QCompleter::activated),
+		connect(completer, static_cast<void(QCompleter::*)(const QModelIndex &)>(&QCompleter::activated),
 			[this](const QModelIndex &index) { complete(index); });
 	}
 }

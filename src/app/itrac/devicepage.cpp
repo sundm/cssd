@@ -21,7 +21,8 @@ DevicePage::DevicePage(QWidget *parent)
 	_filterComboBox->addItem("仅清洗设备", WASH_DEVICE);
 	_filterComboBox->addItem("仅灭菌设备", STERILE_DEVICE);
 	_filterComboBox->setCurrentIndex(0);
-	connect(_filterComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &DevicePage::onFilterChanged);
+	connect(_filterComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+		this, &DevicePage::onFilterChanged);
 
 	Ui::IconButton *refreshButton = new Ui::IconButton(":/res/refresh-24.png", "刷新");
 	connect(refreshButton, &QToolButton::clicked, this, &DevicePage::refresh);
@@ -91,7 +92,7 @@ void DevicePage::showDeviceItemContextMenu(const QPoint& pos)
 {
 	QModelIndex index(_deviceView->indexAt(pos));
 	if (index.isValid()) {
-		QString state = _deviceModel->data(index.siblingAtColumn(5), Qt::UserRole + 1).toString();
+		QString state = _deviceModel->data(index.sibling(index.row(), 5), Qt::UserRole + 1).toString();
 		if ("2" == state) // it's running
 			return;
 

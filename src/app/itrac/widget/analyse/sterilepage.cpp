@@ -9,6 +9,7 @@
 #include "xnotifier.h"
 #include <xernel/xtimescope.h>
 #include <QtWidgets/QtWidgets>
+#include <QtCharts>
 
 SterilePage::SterilePage(QWidget *parent)
 	: QWidget(parent)

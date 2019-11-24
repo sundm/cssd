@@ -11,4 +11,7 @@ public:
 	~AppLoader() = default;
 
 	void loadMainContent();
+
+private slots:
+	void toggleFullScreen();
 };

@@ -9,6 +9,7 @@
 #include "xnotifier.h"
 #include <xernel/xtimescope.h>
 #include <QtWidgets/QtWidgets>
+#include <QtCharts>
 
 WashPage::WashPage(QWidget *parent)
 	: QWidget(parent)

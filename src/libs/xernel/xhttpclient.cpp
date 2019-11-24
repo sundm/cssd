@@ -56,7 +56,7 @@ void XHttpClient::post(const QString &url,
 		reply->deleteLater();
 	});
 	if (nullptr != errorCallback) {
-		QObject::connect(reply, QOverload<QNetworkReply::NetworkError>::of(&QNetworkReply::error), [=] {
+		QObject::connect(reply, static_cast<void(QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error), [=] {
 			errorCallback(reply->errorString());
 		});
 	}

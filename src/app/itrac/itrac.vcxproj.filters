@@ -330,9 +330,6 @@
     <ClCompile Include="widget\analyse\kpipage.cpp">
       <Filter>Source Files\widget\analyse</Filter>
     </ClCompile>
-    <ClCompile Include="widget\analyse\themewidget.cpp">
-      <Filter>Source Files\widget\analyse</Filter>
-    </ClCompile>
     <ClCompile Include="widget\analysepage.cpp">
       <Filter>Source Files\widget</Filter>
     </ClCompile>
@@ -396,16 +393,19 @@
     <ClCompile Include="core\rfidlistener.cpp">
       <Filter>Source Files\core</Filter>
     </ClCompile>
+    <ClCompile Include="startupthread.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dialog\rfidconfigerdialog.cpp">
+      <Filter>Source Files\dialog</Filter>
+    </ClCompile>
     <ClCompile Include="widget\assets\instrumentIdpage.cpp">
       <Filter>Source Files\widget\assets</Filter>
-    </ClCompile>
-    <ClCompile Include="dialog\addinstrumentIddialog.cpp">
-      <Filter>Source Files\dialog</Filter>
     </ClCompile>
     <ClCompile Include="widget\assets\packageIdpage.cpp">
       <Filter>Source Files\widget\assets</Filter>
     </ClCompile>
-    <ClCompile Include="dialog\rfidconfigerdialog.cpp">
+    <ClCompile Include="dialog\addinstrumentIddialog.cpp">
       <Filter>Source Files\dialog</Filter>
     </ClCompile>
   </ItemGroup>
@@ -617,9 +617,6 @@
     <QtMoc Include="widget\analyse\kpipage.h">
       <Filter>Source Files\widget\analyse</Filter>
     </QtMoc>
-    <QtMoc Include="widget\analyse\themewidget.h">
-      <Filter>Source Files\widget\analyse</Filter>
-    </QtMoc>
     <QtMoc Include="widget\analysepage.h">
       <Filter>Source Files\widget</Filter>
     </QtMoc>
@@ -683,16 +680,19 @@
     <QtMoc Include="core\rfidlistener.h">
       <Filter>Source Files\core</Filter>
     </QtMoc>
+    <QtMoc Include="startupthread.h">
+      <Filter>Generated Files</Filter>
+    </QtMoc>
+    <QtMoc Include="dialog\rfidconfigerdialog.h">
+      <Filter>Source Files\dialog</Filter>
+    </QtMoc>
     <QtMoc Include="widget\assets\instrumentIdpage.h">
       <Filter>Source Files\widget\assets</Filter>
-    </QtMoc>
-    <QtMoc Include="dialog\addinstrumentIddialog.h">
-      <Filter>Source Files\dialog</Filter>
     </QtMoc>
     <QtMoc Include="widget\assets\packageIdpage.h">
       <Filter>Source Files\widget\assets</Filter>
     </QtMoc>
-    <QtMoc Include="dialog\rfidconfigerdialog.h">
+    <QtMoc Include="dialog\addinstrumentIddialog.h">
       <Filter>Source Files\dialog</Filter>
     </QtMoc>
   </ItemGroup>

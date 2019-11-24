@@ -2,7 +2,7 @@
 #include "core/itracnamespace.h"
 #include "analyse/kpipage.h"
 #include "analyse/deptstatisticpage.h"
-#include "analyse/themewidget.h"
+//#include "analyse/themewidget.h"
 #include "analyse/costpage.h"
 #include "analyse/washpage.h"
 #include "analyse/sterilepage.h"
@@ -33,8 +33,8 @@ AnalysePage::AnalysePage(QWidget *parent)
 	vLayout->addWidget(washButton);
 	QPushButton *sterileButton = new QPushButton("灭菌异常统计");
 	vLayout->addWidget(sterileButton);
-	QPushButton *realtimeButton = new QPushButton("更多统计");
-	vLayout->addWidget(realtimeButton);
+	//QPushButton *realtimeButton = new QPushButton("更多统计");
+	//vLayout->addWidget(realtimeButton);
 	vLayout->addStretch(0);
 
 	QHBoxLayout *layout = new QHBoxLayout(this);
@@ -49,8 +49,9 @@ AnalysePage::AnalysePage(QWidget *parent)
 	btnGroup->addButton(costButton, Cost);
 	btnGroup->addButton(washButton, Wash);
 	btnGroup->addButton(sterileButton, Sterile);
-	btnGroup->addButton(realtimeButton, RealTime);
-	connect(btnGroup, QOverload<int>::of(&QButtonGroup::buttonClicked), this, &AnalysePage::showPage);
+	//btnGroup->addButton(realtimeButton, RealTime);
+	connect(btnGroup, static_cast<void(QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked),
+		this, &AnalysePage::showPage);
 }
 
 void AnalysePage::showPage(int id)
@@ -80,10 +81,10 @@ void AnalysePage::showPage(int id)
 			page = new SterilePage(this);
 			_tabWidget->addTab(page, "灭菌异常统计");
 			break;
-		case RealTime:
+		/*case RealTime:
 			page = new ThemeWidget(this);
 			_tabWidget->addTab(page, "更多统计");
-			break;
+			break;*/
 		default: // this should never happen
 			break;
 		}

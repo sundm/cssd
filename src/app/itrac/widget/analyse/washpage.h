@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QWidget>
-#include <QtCharts>
+#include <QtCharts/QChartGlobal>
 #include "core/net/jsonhttpclient.h"
 
 class FilterWidget;
@@ -12,6 +12,12 @@ class QTableView;
 class QPushButton;
 class QPaginationWidget;
 class WaitingSpinner;
+
+QT_CHARTS_BEGIN_NAMESPACE
+class QChartView;
+class QChart;
+QT_CHARTS_END_NAMESPACE
+QT_CHARTS_USE_NAMESPACE
 
 class WashPage : public QWidget, public JsonHttpClient
 {

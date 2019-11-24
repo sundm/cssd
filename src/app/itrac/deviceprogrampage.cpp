@@ -19,7 +19,7 @@ DeviceProgramPage::DeviceProgramPage(QWidget *parent)
 	_filterComboBox->addItem("仅清洗程序", WASH_DEVICE);
 	_filterComboBox->addItem("仅灭菌程序", STERILE_DEVICE);
 	_filterComboBox->setCurrentIndex(0);
-	connect(_filterComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+	connect(_filterComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
 		this, &DeviceProgramPage::onFilterChanged);
 
 	Ui::IconButton *refreshButton = new Ui::IconButton(":/res/refresh-24.png", "刷新");

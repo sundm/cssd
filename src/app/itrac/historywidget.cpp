@@ -20,7 +20,8 @@ HistoryWidget::HistoryWidget(QWidget *parent)
 	btnGroup->addButton(tracePackageButton, itrac::PackageTrace);
 	btnGroup->addButton(tracePatientButton, itrac::PatientTrace);
 	//traceButton->hide();
-	connect(btnGroup, QOverload<int>::of(&QButtonGroup::buttonClicked), this, &HistoryWidget::showPage);
+	connect(btnGroup, static_cast<void(QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked),
+		this, &HistoryWidget::showPage);
 
 	tabWidget->setTabsClosable(true);
 	tabWidget->setMovable(true);

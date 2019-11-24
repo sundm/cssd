@@ -65,7 +65,8 @@ AssetPage::AssetPage(QWidget *parent)
 	btnGroup->addButton(deptButton, itrac::DEPT);
 	btnGroup->addButton(userButton, itrac::USER);
 	btnGroup->addButton(recallButton, itrac::RECALL);
-	connect(btnGroup, QOverload<int>::of(&QButtonGroup::buttonClicked), this, &AssetPage::showPage);
+	connect(btnGroup, static_cast<void(QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked),
+		this, &AssetPage::showPage);
 }
 
 void AssetPage::showPage(int id)

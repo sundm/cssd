@@ -241,7 +241,7 @@ int NoBCRecyclePanel::findRow(int deptId, int pkgId) {
 	// filter package first
 	QModelIndexList matches = _pkgModel->match(_pkgModel->index(0, 1), Qt::UserRole + 1, pkgId, -1);
 	for (const QModelIndex &index : matches) {
-		if (_pkgModel->data(index.siblingAtColumn(0), Qt::UserRole + 1).toInt() == deptId)
+		if (_pkgModel->data(index.sibling(index.row(), 0), Qt::UserRole + 1).toInt() == deptId)
 			return index.row();
 	}
 	return -1;

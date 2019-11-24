@@ -26,7 +26,7 @@ AddDeviceDialog::AddDeviceDialog(QWidget *parent)
 	_typeCombo->addItem("高温灭菌器", 1);
 	_typeCombo->addItem("低温灭菌器", 2);
 	_typeCombo->setCurrentIndex(-1);
-	connect(_typeCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
+	connect(_typeCombo, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
 		this, &AddDeviceDialog::loadPrograms);
 
 	initProgramView();

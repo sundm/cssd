@@ -1,16 +1,35 @@
-src/app/itrac/GeneratedFiles/
-src/libs/thirdparty/hidapi/Debug/
-src/libs/xui/GeneratedFiles/
-temp/
-src/.vs/
-src/libs/qscanner/GeneratedFiles/
-src/libs/thirdparty/qjson/GeneratedFiles/
-src/libs/update/Debug/
-src/libs/update/GeneratedFiles/
+# Build directories
+[Bb]in/
+[Ll]ib/
+[Dd]ebug/
+[Rr]elease/
 
-# Visual C++ cache files
-bin/
-lib/
+# Temp or Dumps
+temp/
+candidate/
+dump/
+*.bak
+*.back
+
+# Generated files
+*.dll
+*.exe
+*.lib
+*.exp
+*.obj
+*.ilk
+*.meta
+*.pch
+*.pdb
+*.idb
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp
+*.log
+
+# VC++ cache files
 ipch/
 *.aps
 *.ncb
@@ -21,12 +40,22 @@ ipch/
 *.VC.db
 *.VC.VC.opendb
 
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# VS profile
+.vs/
+*.sln
+*.vcproj
+*.vcxproj
+
 # Qt moc files
 GeneratedFiles/
-candidate/
-dump/
+moc_*
 
-# temp backups
-*����*
-
+# log files
 log.txt
+itrac.sln
