@@ -74,10 +74,11 @@ void DoorPlate::updateInternalData() {
 
 void DoorPlate::createInterlData() {
 	std::vector<Data> vec;
-	vec.reserve(3);
+	vec.reserve(4);
 	vec.emplace_back("去污区", QColor(212, 98, 98));
 	vec.emplace_back("检查包装及灭菌区", QColor(0, 160, 221));
 	vec.emplace_back("无菌物品存放区", Qt::darkGreen);
+	vec.emplace_back("手术室操作区", Qt::darkGreen);
 	_data = vec;
 
 	for (auto point : points)
@@ -183,23 +184,24 @@ QAbstractButton * CssdAreaPanel::addButton(int id,
 	const QString &text,
 	const QString &desc) {
 	Ui::CommandButton *button = new Ui::CommandButton(QIcon(file), text, desc);
+	button->setMinimumWidth(350);
 	connect(button, SIGNAL(clicked()), _signalMapper, SLOT(map()));
 	_signalMapper->setMapping(button, id);
 	int row = _count / columnCount, col = _count % columnCount;
 	if (col) {
 		_layout->addWidget(Ui::createSeperator(Qt::Vertical), row, col * 2 - 1);
 	}
-	_layout->addWidget(button, row, col * 2);
+	_layout->addWidget(button, row, col * 2 );
 	_count++;
 	return button;
 }
 
 PollutedAreaPanel::PollutedAreaPanel(QWidget *parent) : CssdAreaPanel(parent) {
-	addButton(itrac::OrRecycleAction, ":/res/a1-gun.png", "手术器械回收", "手术室器械扫码回收");
-	addButton(itrac::ClinicRecycleAction, ":/res/a1-recycle.png", "申领回收", "临床申领器械清点回收");
+	addButton(itrac::OrRecycleAction, ":/res/a1-gun.png", "器械回收", "手术室器械扫码回收");
+	//addButton(itrac::ClinicRecycleAction, ":/res/a1-recycle.png", "申领回收", "临床申领器械清点回收");
 	//addButton(itrac::BorrowRecycleAction, ":/res/a1-return.png", "借用回收", "临床借用器械清点回收");
-	addButton(itrac::NoBarcodeRecycleAction, ":/res/a1-nobarcode.png", "无码回收", "条码丢失器械回收");
-	addButton(itrac::ExtInstrumentRecycleAction, ":/res/a1-ext.png", "外来器械登记", "外来器械/植入物管理");
+	//addButton(itrac::NoBarcodeRecycleAction, ":/res/a1-nobarcode.png", "无码回收", "条码丢失器械回收");
+	//addButton(itrac::ExtInstrumentRecycleAction, ":/res/a1-ext.png", "外来器械登记", "外来器械/植入物管理");
 	addButton(itrac::WashAction, ":/res/a1-wash.png", "清洗", "器械装篮、预清洗、清洗");
 }
 
@@ -211,8 +213,8 @@ CleanAreaPanel::CleanAreaPanel(QWidget *parent) : CssdAreaPanel(parent) {
 
 AsepsisAreaPanel::AsepsisAreaPanel(QWidget *parent) : CssdAreaPanel(parent) {
 	addButton(itrac::SterileExamAction, ":/res/a3-audit.png", "灭菌审核", "物品包灭菌审核");
-	addButton(itrac::OrDispatchAction, ":/res/a3-ordispatch.png", "手术室物品发放", "手术室专用物品发放");
-	addButton(itrac::ClinicDispatchAction, ":/res/a3-dispatch.png", "申领发放", "临床申领物品发放");
+	addButton(itrac::OrDispatchAction, ":/res/a3-ordispatch.png", "物品发放", "手术室专用物品发放");
+	//addButton(itrac::ClinicDispatchAction, ":/res/a3-dispatch.png", "申领发放", "临床申领物品发放");
 	//addButton(itrac::BorrowDispatchAction, ":/res/a1-return.png", "借用发放", "临床借用物品发放");
 }
 

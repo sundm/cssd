@@ -64,8 +64,6 @@ private slots:
 private:
 	void reset();
 
-	void showDetail(const QString &pkgId);
-
 	PackageInfoView * _pkgView;
 	PackageDetailView * _detailView;
 	UnusualInstrumentView * _unusualView;

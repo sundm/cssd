@@ -24,7 +24,7 @@
 AddPackageDialog::AddPackageDialog(QWidget *parent)
 	: QDialog(parent)
 	, _pkgNameEdit(new Ui::FlatEdit)
-	, _pkgRFIDCodeEdit(new Ui::FlatEdit)
+	, _pkgPYCodeEdit(new Ui::FlatEdit)
 	, _pkgtypeBox(new QComboBox)
 	, _picktypeBox(new QComboBox)
 	, _stertypeBox(new QComboBox)
@@ -32,11 +32,12 @@ AddPackageDialog::AddPackageDialog(QWidget *parent)
 	, _insEdit(new InstrumentEdit)
 	, _view(new TableView(this))
 	, _model(new QStandardItemModel(0, 2, _view))
-	, _imgLabel(new XPicture(this))
 {
+	_isModfy = false;
+
 	FormGroup * pkgGroup = new FormGroup(this);
 	pkgGroup->addRow("包名 (*)", _pkgNameEdit);
-	pkgGroup->addRow("包ID (*)", _pkgRFIDCodeEdit);
+	pkgGroup->addRow("拼音检索码 (*)", _pkgPYCodeEdit);
 	pkgGroup->addRow("包类型 (*)", _pkgtypeBox);
 	pkgGroup->addRow("打包类型 (*)", _picktypeBox);
 	pkgGroup->addRow("高低温灭菌 (*)", _stertypeBox);
@@ -57,79 +58,26 @@ AddPackageDialog::AddPackageDialog(QWidget *parent)
 	minusButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
 	hLayout->addWidget(minusButton);
 	connect(minusButton, SIGNAL(clicked()), this, SLOT(removeEntry()));
-
-	FormGroup * viewGroup = new FormGroup(this);
-	QWidget *w = new QWidget(viewGroup);
-	w->setLayout(hLayout);
-	viewGroup->addRow("添加器械 (*)", w);
-	viewGroup->addRow("器械列表",_view);
+	
+	QVBoxLayout *vlayout = new QVBoxLayout;
+	vlayout->addLayout(hLayout);
+	vlayout->addWidget(_view);
 
 	setWindowTitle("添加包信息");
-	_commitButton = new Ui::PrimaryButton("添加", Ui::BtnSize::Small);
+	_commitButton = new Ui::PrimaryButton("确定", Ui::BtnSize::Small);
 	connect(_commitButton, SIGNAL(clicked()), this, SLOT(accept()));
 
-	_imgLabel->setFixedHeight(256);
-	_imgLabel->setBgColor(QColor(245, 246, 247));
-	_imgLabel->setHidden(true);
-	//connect(_imgLabel, SIGNAL(clicked()), this, SLOT(imgClicked()));
-
-	_loadImgButton = new Ui::PrimaryButton("加载图片", Ui::BtnSize::Small);
-	connect(_loadImgButton, SIGNAL(clicked()), this, SLOT(loadImg()));
-
-	QVBoxLayout *avlayout = new QVBoxLayout();
-	avlayout->addWidget(pkgGroup);
-	avlayout->addWidget(viewGroup);
-
-	QVBoxLayout *bvlayout = new QVBoxLayout();
-	bvlayout->addWidget(_imgLabel);
-	bvlayout->addWidget(_loadImgButton);
-	
-
-	QHBoxLayout *cLayout = new QHBoxLayout;
-	cLayout->addLayout(avlayout);
-	cLayout->addLayout(bvlayout);
-	cLayout->setStretch(0, 3);
-	cLayout->setStretch(1, 2);
-
 	QVBoxLayout *layout = new QVBoxLayout(this);
-	layout->addLayout(cLayout);
+	layout->addWidget(pkgGroup);
+	layout->addLayout(vlayout);
 	layout->addWidget(_commitButton);
+
+	resize(600, 800);
 
 	initInstrumentView();
 
-	resize(900, sizeHint().height());
-
 	QTimer::singleShot(0, this, &AddPackageDialog::initData);
 
-	connect(_listener, SIGNAL(onTransponder(const QString&)), this, SLOT(onTransponderReceviced(const QString&)));
-	connect(_listener, SIGNAL(onBarcode(const QString&)), this, SLOT(onBarcodeReceviced(const QString&)));
-
-}
-
-void AddPackageDialog::onTransponderReceviced(const QString& code)
-{
-	qDebug() << code;
-	_pkgRFIDCodeEdit->setText(code);
-}
-
-void AddPackageDialog::onBarcodeReceviced(const QString& code)
-{
-	qDebug() << code;
-}
-
-void AddPackageDialog::initInstrumentView() {
-	_model->setHeaderData(0, Qt::Horizontal, "器械名称");
-	_model->setHeaderData(1, Qt::Horizontal, "数量");
-	_view->setModel(_model);
-	_view->setMinimumHeight(500);
-
-	_view->setItemDelegate(new SpinBoxDelegate(
-		1, Constant::maxPackageCount, Constant::minPackageCount, _view));
-
-	QHeaderView *header = _view->horizontalHeader();
-	header->setStretchLastSection(true);
-	header->resizeSection(0, 150);
-	header->resizeSection(1, 50);
 }
 
 void AddPackageDialog::initData() {
@@ -166,6 +114,150 @@ void AddPackageDialog::initData() {
 	_insEdit->load();
 }
 
+void AddPackageDialog::accept() {
+	QString package_type_name = _pkgNameEdit->text();
+	if (package_type_name.isEmpty()) {
+		_pkgNameEdit->setFocus();
+		return;
+	}
+		
+
+	QString pinyin_code = _pkgPYCodeEdit->text();
+	if (pinyin_code.isEmpty()) {
+		_pkgPYCodeEdit->setFocus();
+		return;
+	}
+		
+
+	QString package_category = _pkgtypeBox->currentData().toString();
+
+	int pack_type_id = _picktypeBox->currentData().toInt();
+	if (0 == pack_type_id) {
+		_picktypeBox->showPopup();
+		return;
+	}
+
+	int sterilize_type = _stertypeBox->currentData().toInt();
+
+	int department_id = _deptEdit->currentId();
+	if (_deptEdit->currentName().isEmpty()) {
+		_deptEdit->setFocus();
+		return;
+	}
+
+	QVariantMap data;
+	data.insert("package_type_name", package_type_name);
+	data.insert("package_category", package_category);
+	data.insert("pinyin_code", pinyin_code);
+	data.insert("pack_type_id", pack_type_id);
+	data.insert("department_id", department_id);
+	data.insert("sterilize_type", sterilize_type);
+	if (_isModfy)
+	{
+		data.insert("package_type_id", _package_type_id);
+		post(url(PATH_PKGTPYE_MODIFY), data, [this](QNetworkReply *reply) {
+			JsonHttpResponse resp(reply);
+			if (!resp.success()) {
+				XNotifier::warn(QString("更新包记录失败: ").append(resp.errorString()));
+				return;
+			}
+
+			return QDialog::accept();
+		});
+	}
+	else
+	{
+		post(url(PATH_PKGTPYE_ADD), data, [this](QNetworkReply *reply) {
+			JsonHttpResponse resp(reply);
+			if (!resp.success()) {
+				XNotifier::warn(QString("添加包记录失败: ").append(resp.errorString()));
+				return;
+			}
+			return QDialog::accept();
+
+		});
+	}
+	
+}
+
+void AddPackageDialog::setInfo(const QString& pkg_type_id) {
+	_package_type_id = pkg_type_id.toInt();
+	_isModfy = true;
+	setWindowTitle("修改包信息");
+	QTimer::singleShot(1000, this, &AddPackageDialog::initPackageInfo);
+}
+
+void AddPackageDialog::initPackageInfo()
+{
+	QVariantMap data;
+	data.insert("package_type_id", _package_type_id);
+
+	post(url(PATH_PKGTPYE_SEARCH), data, [=](QNetworkReply *reply) {
+		JsonHttpResponse resp(reply);
+		if (!resp.success()) {
+			XNotifier::warn(QString("获取包信息失败: ").append(resp.errorString()));
+			return;
+		}
+
+		QList<QVariant> pkgs = resp.getAsList("package_types");
+		if (pkgs.count() != 1)
+		{
+			XNotifier::warn(QString("获取包信息失败。"));
+			return;
+		}
+
+		for (int i = 0; i != pkgs.count(); ++i) {
+			QVariantMap map = pkgs[i].toMap();
+
+			_package_type_id = map["package_type_id"].toInt();
+
+			QString package_name = map["package_name"].toString();
+			_pkgNameEdit->setText(package_name);
+			_pkgNameEdit->setReadOnly(true);
+
+			QString pinyin_code = map["pinyin_code"].toString();
+			_pkgPYCodeEdit->setText(pinyin_code);
+
+			int package_category = map["package_category"].toInt();
+			_pkgtypeBox->setCurrentIndex(_pkgtypeBox->findData(package_category));
+
+			QString pack_type = map["pack_type"].toString();
+			_picktypeBox->setCurrentText(pack_type);
+
+			int sterilize_type = map["sterilize_type"].toInt();
+			_stertypeBox->setCurrentIndex(_stertypeBox->findData(sterilize_type));
+
+			int dep_id = map["department_id"].toInt();
+			QString dep_name = map["department_name"].toString();
+			_deptEdit->setCurrentIdPicked(dep_id, dep_name);
+		}
+	});
+}
+
+void AddPackageDialog::initInstrumentView() {
+	_model->setHeaderData(0, Qt::Horizontal, "器械名称");
+	_model->setHeaderData(1, Qt::Horizontal, "数量");
+	_view->setModel(_model);
+	_view->setMinimumHeight(500);
+
+	_view->setItemDelegate(new SpinBoxDelegate(
+		1, Constant::maxPackageCount, Constant::minPackageCount, _view));
+
+	QHeaderView *header = _view->horizontalHeader();
+	header->setStretchLastSection(true);
+	header->resizeSection(0, 150);
+	header->resizeSection(1, 50);
+
+	for (int i = 0; i != _orders.count(); ++i) {
+		QVariantMap map = _orders[i].toMap();
+		QList<QStandardItem *> items;
+		QStandardItem *insItem = new QStandardItem(map["instrument_name"].toString());
+		insItem->setData(map["instrument_id"].toInt());
+		items << insItem << new QStandardItem(map["instrument_number"].toString());
+		_model->appendRow(items);
+	}
+}
+
 void AddPackageDialog::addEntry() {
 	int insId = _insEdit->currentId();
 
@@ -198,218 +290,9 @@ void AddPackageDialog::removeEntry() {
 		_model->removeRow(indexes.at(i - 1).row());
 }
 
-void AddPackageDialog::accept() {
-	QString package_type_name = _pkgNameEdit->text();
-	if (package_type_name.isEmpty()) {
-		_pkgNameEdit->setFocus();
-		return;
-	}
-		
-
-	QString pinyin_code = _pkgRFIDCodeEdit->text();
-	if (pinyin_code.isEmpty()) {
-		_pkgRFIDCodeEdit->setFocus();
-		return;
-	}
-		
-
-	QString package_category = _pkgtypeBox->currentData().toString();
-
-	int pack_type_id = _picktypeBox->currentData().toInt();
-	if (0 == pack_type_id) {
-		_picktypeBox->showPopup();
-		return;
-	}
-
-	int sterilize_type = _stertypeBox->currentData().toInt();
-
-	int department_id = _deptEdit->currentId();
-	if (_deptEdit->currentName().isEmpty()) {
-		_deptEdit->setFocus();
-		return;
-	}
-
-	QVariantList instruments;
-	for (int i = 0; i != _model->rowCount(); i++) {
-		QVariantMap ext_info_map;
-		ext_info_map.insert("instrument_id", _model->item(i, 0)->data().toInt());
-		ext_info_map.insert("instrument_number", _model->item(i, 1)->text().toInt());
-		instruments << ext_info_map;
-	}
-
-	QVariantMap data;
-	data.insert("package_type_name", package_type_name);
-	data.insert("package_category", package_category);
-	data.insert("pinyin_code", pinyin_code);
-	data.insert("pack_type_id", pack_type_id);
-	data.insert("department_id", department_id);
-	data.insert("sterilize_type", sterilize_type);
-	data.insert("instruments", instruments);
-
-	post(url(PATH_PKGTPYE_ADD), data, [this](QNetworkReply *reply) {
-		JsonHttpResponse resp(reply);
-		if (!resp.success()) {
-			XNotifier::warn(QString("添加包记录失败: ").append(resp.errorString()));
-			return;
-		}
-		
-		//upload img
-		if (!_imgFilePath.isEmpty())
-		{
-			_package_type_id = 0;
-			_package_type_id = resp.getAsInt("package_type_id");
-			if (0 != _package_type_id) uploadImg();
-			return QDialog::accept();
-		}
-		else {
-			return QDialog::accept();
-		}
-		
-	});
-}
-/*
-void AddPackageDialog::setInfo(const QString& pkg_type_id) {
-	QVariantMap data;
-	data.insert("package_type_id", pkg_type_id);
-
-	post(url(PATH_PKGTPYE_SEARCH), data, [=](QNetworkReply *reply) {
-		JsonHttpResponse resp(reply);
-		if (!resp.success()) {
-			XNotifier::warn(QString("获取包信息失败: ").append(resp.errorString()));
-			return;
-		}
-
-		QList<QVariant> pkgs = resp.getAsList("package_types");
-		if (pkgs.count() != 1)
-		{
-			XNotifier::warn(QString("获取包信息失败。"));
-			return;
-		}
-
-
-
-		for (int i = 0; i != pkgs.count(); ++i) {
-			QVariantMap map = pkgs[i].toMap();
-			
-			_package_type_id = map["package_type_id"].toInt();
-
-			QString package_name = map["package_name"].toString();
-			_pkgNameEdit->setText(package_name);
-			_pkgNameEdit->setReadOnly(true);
-			
-			QString pinyin_code = map["pinyin_code"].toString();
-			_pkgPinYinCodeEdit->setText(pinyin_code);
-
-			int package_category = map["package_category"].toInt();
-			_pkgtypeBox->setCurrentIndex(_pkgtypeBox->findData(package_category));
-
-			QString pack_type = map["pack_type"].toString();
-			int data = _picktypeBox->findData(pack_type);
-			int text = _picktypeBox->findText(pack_type);
-
-			int sterilize_type = map["sterilize_type"].toInt();
-			_stertypeBox->setCurrentIndex(_stertypeBox->findData(sterilize_type));
-		}
-	});
-}
-*/
-
-void AddPackageDialog::uploadImg() {
-	_multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
-
-	QHttpPart imagePart;
-	imagePart.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("image/png"));
-	QString head = QString("form-data; name=\"file\"; filename=\"%1.png\"").arg(_package_type_id);
-	imagePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant(head));
-	_imgFile = new QFile(_imgFilePath);
-	_imgFile->open(QIODevice::ReadOnly);
-	imagePart.setBodyDevice(_imgFile);
-	_imgFile->setParent(_multiPart);
-	_multiPart->append(imagePart);
-
-	const QByteArray resp = post(url(PATH_PKGTPYE_UPLOAD_IMG), _multiPart);
-
-	QJson::Parser parser;
-	bool ok;
-	QVariantMap vmap = parser.parse(resp, &ok).toMap();
-	if (!ok) {
-		XNotifier::warn(QString("上传包图片失败"));
-		return;
-	}
-	else {
-		QString code = vmap.value("code").toString();
-		if ("9000" != code) {
-			XNotifier::warn(QString("上传包图片失败:").append(code));
-			return;
-		}
-		else {
-			QString newFileName = QString("./photo/package/%1.png").arg(_package_type_id);
-			if (!copyFileToPath(_imgFilePath, newFileName, true)) {
-				XNotifier::warn(QString("包信息添加成功，拷贝本地包图片失败!"));
-				return;
-			}
-
-		}
-	}
-}
-
-bool AddPackageDialog::copyFileToPath(QString sourceDir, QString toDir, bool coverFileIfExist)
-{
-	toDir.replace("\\", "/");
-
-	if (sourceDir == toDir) {
-		return true;
-	}
-
-	if (!QFile::exists(sourceDir)) {
-		return false;
-	}
-
-	QDir *createfile = new QDir;
-	bool exist = createfile->exists(toDir);
-	if (exist) {
-		if (coverFileIfExist) {
-			createfile->remove(toDir);
-		}
-	}
-
-	return QFile::copy(sourceDir, toDir);
-}
-
-void AddPackageDialog::loadImg() {
-	QFileDialog *fileDialog = new QFileDialog(this);
-	fileDialog->setWindowTitle(tr("打开图片"));
-	fileDialog->setDirectory(".");
-	fileDialog->setNameFilter(tr("Images(*.png *.jpg *.jpeg)"));
-	fileDialog->setFileMode(QFileDialog::ExistingFiles);
-	fileDialog->setViewMode(QFileDialog::Detail);
-
-	QStringList fileNames;
-	if (fileDialog->exec())
-		fileNames = fileDialog->selectedFiles();
-
-	if (fileNames.size() == 0 || fileNames.size() > 1) return;
-
-	_imgFilePath = fileNames.at(0);
-	_imgLabel->setImage(_imgFilePath);
-	_imgLabel->setHidden(false);
-}
-
-/*
-void AddPackageDialog::imgClicked()
-{
-	ImageViewer *viewer = new ImageViewer(_imgLabel->fileName());
-	viewer->showNormal();
-}
-*/
-
-void AddPackageDialog::loadData() {
-
-}
-
 int AddPackageDialog::findRow(int insId) {
 	QModelIndexList matches = _model->match(_model->index(0, 0), Qt::UserRole + 1, insId, -1);
-	for (const QModelIndex &index : matches) {	
+	for (const QModelIndex &index : matches) {
 		return index.row();
 	}
 	return -1;

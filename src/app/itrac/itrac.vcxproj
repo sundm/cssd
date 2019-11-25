@@ -104,7 +104,7 @@
     <QtMoc>
       <OutputFile>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</OutputFile>
       <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
-      <IncludePath>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtXml;%(AdditionalIncludeDirectories)</IncludePath>
+      <IncludePath>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtXml</IncludePath>
       <Define>UNICODE;_UNICODE;WIN32;WIN64;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;QT_CHARTS_LIB;QT_NETWORK_LIB;QT_XML_LIB;%(PreprocessorDefinitions)</Define>
     </QtMoc>
     <QtUic>
@@ -139,7 +139,7 @@
     <QtMoc>
       <OutputFile>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</OutputFile>
       <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
-      <IncludePath>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtCharts;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtXml;%(AdditionalIncludeDirectories)</IncludePath>
+      <IncludePath>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtCharts;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtXml</IncludePath>
       <Define>QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;UNICODE;_UNICODE;WIN32;WIN64;QT_CHARTS_LIB;QT_NETWORK_LIB;QT_XML_LIB;%(PreprocessorDefinitions)</Define>
     </QtMoc>
     <QtUic>
@@ -171,7 +171,7 @@
     <QtMoc>
       <OutputFile>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</OutputFile>
       <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
-      <IncludePath>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtXml;%(AdditionalIncludeDirectories)</IncludePath>
+      <IncludePath>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtXml</IncludePath>
       <Define>UNICODE;_UNICODE;WIN32;WIN64;QT_NO_DEBUG;NDEBUG;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;QT_CHARTS_LIB;QT_NETWORK_LIB;QT_XML_LIB;%(PreprocessorDefinitions)</Define>
     </QtMoc>
     <QtUic>
@@ -206,7 +206,7 @@
     <QtMoc>
       <OutputFile>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</OutputFile>
       <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
-      <IncludePath>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtXml;%(AdditionalIncludeDirectories)</IncludePath>
+      <IncludePath>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtXml</IncludePath>
       <Define>QT_NO_DEBUG;NDEBUG;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;UNICODE;_UNICODE;WIN32;WIN64;QT_CHARTS_LIB;QT_NETWORK_LIB;QT_XML_LIB;%(PreprocessorDefinitions)</Define>
     </QtMoc>
     <QtUic>
@@ -385,33 +385,10 @@
     <QtMoc Include="dialog\registerinstrumentdialog.h" />
     <QtMoc Include="dialog\rfidreaderconfigerdialog.h" />
     <QtMoc Include="core\rfidlistener.h" />
-    <QtMoc Include="dialog\rfidconfigerdialog.h">
-      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtCharts;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtXml</IncludePath>
-      <Define Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;UNICODE;_UNICODE;WIN32;WIN64;QT_CHARTS_LIB;QT_NETWORK_LIB;QT_XML_LIB;_USING_V110_SDK71_</Define>
-      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtXml</IncludePath>
-      <Define Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">UNICODE;_UNICODE;WIN32;WIN64;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;QT_CHARTS_LIB;QT_NETWORK_LIB;QT_XML_LIB;_USING_V110_SDK71_</Define>
-      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtXml</IncludePath>
-      <Define Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">QT_NO_DEBUG;NDEBUG;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;UNICODE;_UNICODE;WIN32;WIN64;QT_CHARTS_LIB;QT_NETWORK_LIB;QT_XML_LIB;_USING_V110_SDK71_</Define>
-      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtXml</IncludePath>
-      <Define Condition="'$(Configuration)|$(Platform)'=='Release|x64'">UNICODE;_UNICODE;WIN32;WIN64;QT_NO_DEBUG;NDEBUG;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;QT_CHARTS_LIB;QT_NETWORK_LIB;QT_XML_LIB;_USING_V110_SDK71_</Define>
-    </QtMoc>
-    <QtMoc Include="dialog\addinstrumentIddialog.h">
-      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtCharts;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtXml</IncludePath>
-      <Define Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;UNICODE;_UNICODE;WIN32;WIN64;QT_CHARTS_LIB;QT_NETWORK_LIB;QT_XML_LIB;_USING_V110_SDK71_</Define>
-      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtXml</IncludePath>
-      <Define Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">UNICODE;_UNICODE;WIN32;WIN64;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;QT_CHARTS_LIB;QT_NETWORK_LIB;QT_XML_LIB;_USING_V110_SDK71_</Define>
-      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtXml</IncludePath>
-      <Define Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">QT_NO_DEBUG;NDEBUG;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;UNICODE;_UNICODE;WIN32;WIN64;QT_CHARTS_LIB;QT_NETWORK_LIB;QT_XML_LIB;_USING_V110_SDK71_</Define>
-      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtXml</IncludePath>
-      <Define Condition="'$(Configuration)|$(Platform)'=='Release|x64'">UNICODE;_UNICODE;WIN32;WIN64;QT_NO_DEBUG;NDEBUG;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;QT_CHARTS_LIB;QT_NETWORK_LIB;QT_XML_LIB;_USING_V110_SDK71_</Define>
-    </QtMoc>
+    <QtMoc Include="dialog\rfidconfigerdialog.h" />
+    <QtMoc Include="dialog\addinstrumentIddialog.h" />
     <ClInclude Include="resource.h" />
-    <QtMoc Include="startupthread.h">
-      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtCharts;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util</IncludePath>
-      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtNetwork</IncludePath>
-      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtNetwork</IncludePath>
-      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtNetwork</IncludePath>
-    </QtMoc>
+    <QtMoc Include="startupthread.h" />
     <ClInclude Include="util\printermanager.h">
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog</IncludePath>
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog</IncludePath>
@@ -430,26 +407,8 @@
     <QtMoc Include="widget\assets\packtypepage.h" />
     <QtMoc Include="widget\analyse\washpage.h" />
     <QtMoc Include="widget\analyse\sterilepage.h" />
-    <QtMoc Include="widget\assets\instrumentIdpage.h">
-      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtCharts;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtXml</IncludePath>
-      <Define Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;UNICODE;_UNICODE;WIN32;WIN64;QT_CHARTS_LIB;QT_NETWORK_LIB;QT_XML_LIB;_USING_V110_SDK71_</Define>
-      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtXml</IncludePath>
-      <Define Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">UNICODE;_UNICODE;WIN32;WIN64;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;QT_CHARTS_LIB;QT_NETWORK_LIB;QT_XML_LIB;_USING_V110_SDK71_</Define>
-      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtXml</IncludePath>
-      <Define Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">QT_NO_DEBUG;NDEBUG;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;UNICODE;_UNICODE;WIN32;WIN64;QT_CHARTS_LIB;QT_NETWORK_LIB;QT_XML_LIB;_USING_V110_SDK71_</Define>
-      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtXml</IncludePath>
-      <Define Condition="'$(Configuration)|$(Platform)'=='Release|x64'">UNICODE;_UNICODE;WIN32;WIN64;QT_NO_DEBUG;NDEBUG;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;QT_CHARTS_LIB;QT_NETWORK_LIB;QT_XML_LIB;_USING_V110_SDK71_</Define>
-    </QtMoc>
-    <QtMoc Include="widget\assets\packageIdpage.h">
-      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtCharts;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtXml</IncludePath>
-      <Define Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;UNICODE;_UNICODE;WIN32;WIN64;QT_CHARTS_LIB;QT_NETWORK_LIB;QT_XML_LIB;_USING_V110_SDK71_</Define>
-      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtXml</IncludePath>
-      <Define Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">UNICODE;_UNICODE;WIN32;WIN64;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;QT_CHARTS_LIB;QT_NETWORK_LIB;QT_XML_LIB;_USING_V110_SDK71_</Define>
-      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtXml</IncludePath>
-      <Define Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">QT_NO_DEBUG;NDEBUG;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;UNICODE;_UNICODE;WIN32;WIN64;QT_CHARTS_LIB;QT_NETWORK_LIB;QT_XML_LIB;_USING_V110_SDK71_</Define>
-      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtXml</IncludePath>
-      <Define Condition="'$(Configuration)|$(Platform)'=='Release|x64'">UNICODE;_UNICODE;WIN32;WIN64;QT_NO_DEBUG;NDEBUG;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;QT_CHARTS_LIB;QT_NETWORK_LIB;QT_XML_LIB;_USING_V110_SDK71_</Define>
-    </QtMoc>
+    <QtMoc Include="widget\assets\instrumentIdpage.h" />
+    <QtMoc Include="widget\assets\packageIdpage.h" />
     <ClInclude Include="widget\history\filter.h" />
     <QtMoc Include="widget\history\historypage.h" />
     <QtMoc Include="widget\history\filterwidget.h" />
@@ -566,7 +525,7 @@
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties MocDir=".\GeneratedFiles\$(ConfigurationName)" UicDir=".\GeneratedFiles" RccDir=".\GeneratedFiles" lupdateOptions="" lupdateOnBuild="0" lreleaseOptions="" Qt5Version_x0020_Win32="563-msvc2017-x86" Qt5Version_x0020_x64="5.11.1" MocOptions="" />
+      <UserProperties MocDir=".\GeneratedFiles\$(ConfigurationName)" UicDir=".\GeneratedFiles" RccDir=".\GeneratedFiles" lupdateOptions="" lupdateOnBuild="0" lreleaseOptions="" Qt5Version_x0020_Win32="msvc2015_5_6_3" Qt5Version_x0020_x64="5.11.1" MocOptions="" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

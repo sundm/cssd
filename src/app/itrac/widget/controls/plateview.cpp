@@ -8,15 +8,12 @@
 #include <QHeaderView>
 
 PlateView::PlateView(QWidget *parent)
-	: QTreeView(parent), _model(new QStandardItemModel(0, 2, this))
+	: TableView(parent), _model(new QStandardItemModel(0, 2, this))
 {
-	_model->setHeaderData(0, Qt::Horizontal, "托盘/物品类型");
+	_model->setHeaderData(0, Qt::Horizontal, "托盘编号");
 	_model->setHeaderData(1, Qt::Horizontal, "物品数量");
 	setModel(_model);
 	setEditTriggers(QAbstractItemView::NoEditTriggers);
-
-	QHeaderView *header = this->header();
-	header->setSectionResizeMode(QHeaderView::Stretch);
 }
 
 bool PlateView::hasPlate(int id) const
@@ -57,7 +54,6 @@ void PlateView::addPlate(int id) {
 			plateItem->appendRow(rowItems);
 		}
 		_model->appendRow(plateItem);
-		setExpanded(plateItem->index(), true);
 	});
 }
 

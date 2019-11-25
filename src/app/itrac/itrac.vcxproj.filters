@@ -680,9 +680,6 @@
     <QtMoc Include="core\rfidlistener.h">
       <Filter>Source Files\core</Filter>
     </QtMoc>
-    <QtMoc Include="startupthread.h">
-      <Filter>Generated Files</Filter>
-    </QtMoc>
     <QtMoc Include="dialog\rfidconfigerdialog.h">
       <Filter>Source Files\dialog</Filter>
     </QtMoc>
@@ -694,6 +691,9 @@
     </QtMoc>
     <QtMoc Include="dialog\addinstrumentIddialog.h">
       <Filter>Source Files\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="startupthread.h">
+      <Filter>Source Files</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

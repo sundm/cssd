@@ -26,6 +26,7 @@ class AddPackageDialog : public QDialog, public JsonHttpClient
 
 public:
 	AddPackageDialog(QWidget *parent);
+	void setInfo(const QString& pkg_type_id);
 
 protected:
 	void accept() override;
@@ -33,39 +34,28 @@ protected:
 private slots:
 	void addEntry();
 	void removeEntry();
-	void loadImg();
-
-	void onTransponderReceviced(const QString& code);
-	void onBarcodeReceviced(const QString& code);
 
 private:
-	void initInstrumentView();
 	void initData();
-	void loadData();
+	void initPackageInfo();
+
+	void initInstrumentView();
 	int findRow(int insId);
-	bool copyFileToPath(QString sourceDir, QString toDir, bool coverFileIfExist);
-	void uploadImg();
 
 	Ui::FlatEdit * _pkgNameEdit;
-	Ui::FlatEdit * _pkgRFIDCodeEdit;
+	Ui::FlatEdit * _pkgPYCodeEdit;
 	QComboBox * _pkgtypeBox;
 	QComboBox * _picktypeBox;
 	QComboBox * _stertypeBox;
 	DeptEdit * _deptEdit;
 	InstrumentEdit * _insEdit;
 
-	
 	TableView *_view;
 	QItemSelectionModel *_theSelectionModel;
 	QStandardItemModel *_model;
-
-	XPicture* _imgLabel;
-	Ui::PrimaryButton *_loadImgButton;
+	QList<QVariant> _orders;
 
 	Ui::PrimaryButton *_commitButton;
-
-	QHttpMultiPart *_multiPart;
-	QFile *_imgFile;
-	QString _imgFilePath;
+	bool _isModfy;
 	int _package_type_id;
 };

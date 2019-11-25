@@ -88,8 +88,8 @@ PackagePage::PackagePage(QWidget *parent)
 	Ui::IconButton *addButton = new Ui::IconButton(":/res/plus-24.png", "添加");
 	connect(addButton, SIGNAL(clicked()), this, SLOT(addEntry()));
 
-	Ui::IconButton *modifyButton = new Ui::IconButton(":/res/write-24.png", "修改");
-	connect(modifyButton, SIGNAL(clicked()), this, SLOT(editEntry()));
+	//Ui::IconButton *modifyButton = new Ui::IconButton(":/res/write-24.png", "修改");
+	//connect(modifyButton, SIGNAL(clicked()), this, SLOT(editEntry()));
 
 	//searchBox->setMinimumWidth(300);
 	_searchBox->setPlaceholderText("输入包名搜索");
@@ -98,7 +98,7 @@ PackagePage::PackagePage(QWidget *parent)
 	QHBoxLayout *hLayout = new QHBoxLayout;
 	hLayout->addWidget(refreshButton);
 	hLayout->addWidget(addButton);
-	hLayout->addWidget(modifyButton);
+	//hLayout->addWidget(modifyButton);
 	hLayout->addStretch(0);
 	hLayout->addWidget(_searchBox);
 
@@ -140,54 +140,59 @@ void PackagePage::editEntry()
 	editRow(row);
 }
 
-void PackagePage::infoEntry()
-{
-	QModelIndexList indexes = _view->selectionModel()->selectedRows();
-	if (indexes.count() == 0) return;
-	int row = indexes[0].row();
-	QString package_name = _view->model()->data(_view->model()->index(row, Internal::PackageAssetView::Name)).toString();
-	QString package_type_id = _view->model()->data(_view->model()->index(row, Internal::PackageAssetView::Name), 257).toString();
-	AddpkgcodeDialog d(this, package_name, package_type_id);
-	if (QDialog::Accepted == d.exec())
-		reflash();
-}
+//void PackagePage::infoEntry()
+//{
+//	QModelIndexList indexes = _view->selectionModel()->selectedRows();
+//	if (indexes.count() == 0) return;
+//	int row = indexes[0].row();
+//	QString package_name = _view->model()->data(_view->model()->index(row, Internal::PackageAssetView::Name)).toString();
+//	QString package_type_id = _view->model()->data(_view->model()->index(row, Internal::PackageAssetView::Name), 257).toString();
+//	AddpkgcodeDialog d(this);
+//	if (QDialog::Accepted == d.exec())
+//		reflash();
+//}
 
 void PackagePage::editRow(int row)
 {
-	QString package_name = _view->model()->data(_view->model()->index(row, Internal::PackageAssetView::Name)).toString();
 	QString package_type_id = _view->model()->data(_view->model()->index(row, Internal::PackageAssetView::Name), 257).toString();
-	QString pack_type = _view->model()->data(_view->model()->index(row, Internal::PackageAssetView::PackType)).toString();
-	QString package_category = _view->model()->data(_view->model()->index(row, Internal::PackageAssetView::PackType), 257).toString();
-	int steType = _view->model()->data(_view->model()->index(row, Internal::PackageAssetView::SteType), 257).toInt();
-	QString package_pinyin = _view->model()->data(_view->model()->index(row, Internal::PackageAssetView::Pinyin)).toString();
-	QString dtp_name = _view->model()->data(_view->model()->index(row, Internal::PackageAssetView::Department)).toString();
-	QString dtp_id = _view->model()->data(_view->model()->index(row, Internal::PackageAssetView::Department), 257).toString();
+	AddPackageDialog d(this);
+	d.setInfo(package_type_id);
+	if (QDialog::Accepted == d.exec())
+		reflash();
+	//QString package_name = _view->model()->data(_view->model()->index(row, Internal::PackageAssetView::Name)).toString();
+	//QString package_type_id = _view->model()->data(_view->model()->index(row, Internal::PackageAssetView::Name), 257).toString();
+	//QString pack_type = _view->model()->data(_view->model()->index(row, Internal::PackageAssetView::PackType)).toString();
+	//QString package_category = _view->model()->data(_view->model()->index(row, Internal::PackageAssetView::PackType), 257).toString();
+	//int steType = _view->model()->data(_view->model()->index(row, Internal::PackageAssetView::SteType), 257).toInt();
+	//QString package_pinyin = _view->model()->data(_view->model()->index(row, Internal::PackageAssetView::Pinyin)).toString();
+	//QString dtp_name = _view->model()->data(_view->model()->index(row, Internal::PackageAssetView::Department)).toString();
+	//QString dtp_id = _view->model()->data(_view->model()->index(row, Internal::PackageAssetView::Department), 257).toString();
 
-	PackageInfo info;
-	info.package_name = package_name;
-	info.package_type_id = package_type_id;
-	info.pack_type = pack_type;
-	info.package_category = package_category;
-	info.steType = steType;
-	info.package_pinyin = package_pinyin;
-	info.dtp_name = dtp_name;
-	info.dtp_id = dtp_id;
+	//PackageInfo info;
+	//info.package_name = package_name;
+	//info.package_type_id = package_type_id;
+	//info.pack_type = pack_type;
+	//info.package_category = package_category;
+	//info.steType = steType;
+	//info.package_pinyin = package_pinyin;
+	//info.dtp_name = dtp_name;
+	//info.dtp_id = dtp_id;
 
-	QByteArray data("{\"package_type_id\":");
-	data.append(package_type_id).append('}');
-	_http.post(url(PATH_PKGDETAIL_SEARCH), QByteArray().append(data), [=](QNetworkReply *reply) {
-		JsonHttpResponse resp(reply);
-		if (!resp.success()) {
-			XNotifier::warn(QString("无法获取包信息: ").append(resp.errorString()));
-			return;
-		}
+	//QByteArray data("{\"package_type_id\":");
+	//data.append(package_type_id).append('}');
+	//_http.post(url(PATH_PKGDETAIL_SEARCH), QByteArray().append(data), [=](QNetworkReply *reply) {
+	//	JsonHttpResponse resp(reply);
+	//	if (!resp.success()) {
+	//		XNotifier::warn(QString("无法获取包信息: ").append(resp.errorString()));
+	//		return;
+	//	}
 
-		QList<QVariant> orders = resp.getAsList("instruments");
+	//	QList<QVariant> orders = resp.getAsList("instruments");
 
-		ModifyPackageDialog d(this, info, orders);
-		if (QDialog::Accepted == d.exec())
-			reflash();
-	});
+	//	ModifyPackageDialog d(this, info, orders);
+	//	if (QDialog::Accepted == d.exec())
+	//		reflash();
+	//});
 }
 
 void PackagePage::search() {

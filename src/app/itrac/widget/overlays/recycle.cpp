@@ -330,11 +330,6 @@ OrRecyclePanel::OrRecyclePanel(QWidget *parent /*= nullptr*/)
 	_step = 0;
 }
 
-void OrRecyclePanel::showDetail(const QString &pkgId)
-{
-	_detailView->loadDetail(_codeMap);
-}
-
 void OrRecyclePanel::onTransponderReceviced(const QString& code)
 {
 	qDebug() << code;

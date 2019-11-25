@@ -1,10 +1,11 @@
 #pragma once
 
+#include "ui/views.h"
 #include <QTreeView>
 #include "core/net/jsonhttpclient.h"
 
 class QStandardItemModel;
-class PlateView : public QTreeView
+class PlateView : public TableView
 {
 	Q_OBJECT
 

@@ -12,12 +12,21 @@
 #include "dialog/washabnormal.h"
 #include "core/net/url.h"
 #include "xnotifier.h"
+#include <xui/images.h>
+#include <xui/imageviewer.h>
 #include <printer/labelprinter.h>
 #include <QtWidgets/QtWidgets>
 
-PackPanel::PackPanel(QWidget *parent) : CssdOverlayPanel(parent) {
-	_plateView = new PackPlateView;
-	_detailView = new PackageDetailView;
+PackPanel::PackPanel(QWidget *parent) : CssdOverlayPanel(parent) 
+	, _pkgView(new PackageInfoView)
+	, _detailView(new PackageDetailView)
+	, _unusualView(new UnusualInstrumentView)
+	, _codeMap(new QHash<QString, QString>)
+	, _unusualCodes(new QStringList)
+	, _scannedCodes(new QStringList)
+	, _pkgImg(new XPicture(this))
+	, _insImg(new XPicture(this))
+{
 	//connect(_plateView, &PackPlateView::packed, this, &PackPanel::print);
 
 	const QString text = "1 扫描或输入托盘条码\n2 开始配包"
@@ -34,53 +43,37 @@ PackPanel::PackPanel(QWidget *parent) : CssdOverlayPanel(parent) {
 	connect(rePrintButton, SIGNAL(clicked()), this, SLOT(reprint()));
 	connect(abnormalButton, SIGNAL(clicked()), this, SLOT(abnormal()));
 
-	Ui::IconButton *addPlateButton = new Ui::IconButton(":/res/fill-plate-24.png");
-	addPlateButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
-	connect(addPlateButton, SIGNAL(clicked()), this, SLOT(addPlate()));
+	QVBoxLayout *aLayout = new QVBoxLayout;
+	aLayout->addWidget(_pkgView);
+	aLayout->addWidget(_detailView);
+	aLayout->addWidget(_unusualView);
+	aLayout->setStretch(1, 1);
 
-	QHBoxLayout *bLayout = new QHBoxLayout;
-	bLayout->addWidget(_plateView);
-	bLayout->addWidget(_detailView);
-	bLayout->setStretch(0, 2);
-	bLayout->setStretch(1, 1);
+	QString fileName = QString("./photo/timg.png");
+	_pkgImg->setBgColor(QColor(245, 246, 247));
+	_pkgImg->setImage(fileName);
+	_pkgImg->setMinimumWidth(300);
+	_insImg->setBgColor(QColor(245, 246, 247));
+	_insImg->setImage(fileName);
+	_insImg->setMinimumWidth(300);
 
-	QGridLayout *layout = new QGridLayout(this);
-	layout->addWidget(addPlateButton, 0, 0);
-	layout->addLayout(bLayout, 1, 0);
-	layout->addWidget(tip, 0, 1, 2, 1);
+	QVBoxLayout *imgLayout = new QVBoxLayout;
+	imgLayout->addWidget(_pkgImg);
+	imgLayout->addWidget(_insImg);
 
-	connect(_plateView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(showDetail(const QModelIndex &)));
-	connect(_detailView, SIGNAL(sendData(int)), this, SLOT(updateRecord(int)));
-}
+	QHBoxLayout *layout = new QHBoxLayout(this);
+	layout->addLayout(aLayout);
+	layout->addLayout(imgLayout);
+	layout->addWidget(tip);
 
-void PackPanel::addPlate() {
-	bool ok;
-	QRegExp regExp("\\d{8,}");
-	QString code = RegExpInputDialog::getText(this, "手工输入条码", "请输入网篮条码", "", regExp, &ok);
-	if (ok) {
-		handleBarcode(code);
-	}
-}
+	connect(_listener, SIGNAL(onTransponder(const QString&)), this, SLOT(onTransponderReceviced(const QString&)));
+	connect(_listener, SIGNAL(onBarcode(const QString&)), this, SLOT(onBarcodeReceviced(const QString&)));
 
-void PackPanel::updateRecord(int pkg_record)
-{
-	QStandardItemModel *model = static_cast<QStandardItemModel*>(_plateView->model());
-	QStandardItem *parentItem = model->itemFromIndex(model->index(0, 0));
-	parentItem->child(_row, 0)->setData(pkg_record, Qt::UserRole + 2);
-	parentItem->child(_row, 0)->setData(brushForSteType(pkg_record), Qt::BackgroundRole);
+	_step = 0;
 }
 
 void PackPanel::handleBarcode(const QString &code) {
 	Barcode bc(code);
-	if (bc.type() == Barcode::Plate) {
-		int id = bc.intValue();
-		//if (!_plateView->hasPlate(id)) {
-		_plateView->addPlate(id);
-		//}
-	}
-	else if (bc.type() == Barcode::Action && code == "910108") {
-		commit();
-	}
 }
 
 void PackPanel::reprint() {
@@ -94,41 +87,63 @@ void PackPanel::abnormal() {
 }
 
 void PackPanel::commit() {
-	QVariantList plates = _plateView->plates();
-	if (plates.isEmpty()) {
-		XNotifier::warn("请先添加需要打包的网篮");
-		return;
-	}
 
-	int opId = OperatorChooser::get(this, this);
-	if (0 == opId) return;
-
-	int checkerId = OperatorChooser::get(this, this);
-	if (0 == checkerId) return;
-
-	/*if (checkerId == opId)
-	{
-		XNotifier::warn("不允许使用同一个操作员进行审核");
-		return;
-	}*/
-
-	_plateView->doPack(opId, checkerId);
-
-	_detailView->clear();
 }
 
-void PackPanel::showDetail(const QModelIndex &index)
+void PackPanel::onTransponderReceviced(const QString& code)
 {
-	_row = index.row();
-	int column = index.column();
-	if (index.parent().isValid())
+	qDebug() << code;
+	TranspondCode tc(code);
+	if (tc.type() == TranspondCode::Package && 0 == _step)
 	{
-		QStandardItemModel *model = static_cast<QStandardItemModel*>(_plateView->model());
-		QStandardItem *parentItem = model->itemFromIndex(model->index(0, 0));
-		QString package_type_id = parentItem->child(_row, 0)->data().toString();
-		QString package_id = parentItem->child(_row, 2)->data().toString();
-		QString card_id = parentItem->child(_row, 3)->data().toString();
-		//_detailView->loadDetail(package_id, package_type_id, card_id);
+		_codeMap->clear();
+		_unusualCodes->clear();
+		_scannedCodes->clear();
+		_codeMap->insert("E2009A8020020AF000006502", "测试器械01");
+		_codeMap->insert("E2009A8020020AF000005618", "测试器械01");
+		_codeMap->insert("E2009A8020020AF000006342", "测试器械01");
+
+		_codeMap->insert("E2009A8020020AF000006090", "测试器械02");
+		_codeMap->insert("E2009A8020020AF000004398", "测试器械02");
+		_codeMap->insert("E2009A8020020AF000006048", "测试器械02");
+		_codeMap->insert("E2009A8020020AF000003250", "测试器械02");
+		_codeMap->insert("E2009A8020020AF000005811", "测试器械02");
+
+		_codeMap->insert("E2009A8020020AF000005187", "测试器械03");
+
+		_pkgView->updatePackageInfo(code, QString("RFID测试器械包001"), _codeMap->size());
+		_detailView->loadDetail(_codeMap);
+
+		_step = 1;
 	}
 
+	if (tc.type() == TranspondCode::Instrument && 1 == _step)
+	{
+		if (_codeMap->size() > 0 && _codeMap->contains(code) && !_scannedCodes->contains(code))
+		{
+			_scannedCodes->append(code);
+			_pkgView->scanned();
+			_detailView->scanned(code);
+		}
+		else if (_codeMap->size() > 0 && !_codeMap->contains(code))
+		{
+			if (!_unusualCodes->contains(code))
+			{
+				_unusualCodes->append(code);
+				_pkgView->unusualed();
+				_unusualView->addUnusual(code);
+			}
+
+		}
+	}
+}
+
+void PackPanel::onBarcodeReceviced(const QString& code)
+{
+	qDebug() << code;
+}
+
+void PackPanel::reset()
+{
+	//todo
 }
