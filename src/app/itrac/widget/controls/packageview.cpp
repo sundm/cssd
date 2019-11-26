@@ -7,8 +7,10 @@
 #include "inliner.h"
 #include "core/constants.h"
 #include "dialog/registerinstrumentdialog.h"
+#include "dialog/addoperationdialog.h"
 #include <xui/images.h>
 #include <xui/imageviewer.h>
+#include <QtWidgets/QtWidgets>
 #include <QLabel>
 #include <QStandardItemModel>
 #include <QVBoxLayout>
@@ -322,6 +324,72 @@ int OrRecyclePackageView::plate() const
 	return _model->item(0, OrRecyclePackageView::VPlate)->data().toInt();
 }
 
+PackageSimpleInfoView::PackageSimpleInfoView(QWidget *parent /*= nullptr*/)
+	: QWidget(parent)
+	, _totalNumLabel(new QLabel)
+	, _scannedNumLabel(new QLabel)
+	, _residueNumLabel(new QLabel)
+	, _unusualNumLabel(new QLabel)
+{
+	const QString m_label_style = "min-width: 48px; min-height: 48px;max-width:48px; max-height: 48px;border-radius: 24px;";
+	_totalNumLabel->setStyleSheet(QString("%1%2").arg(m_label_style).arg("background:grey"));
+	_scannedNumLabel->setStyleSheet(QString("%1%2").arg(m_label_style).arg("background:green"));
+	_residueNumLabel->setStyleSheet(QString("%1%2").arg(m_label_style).arg("background:yellow"));
+	_unusualNumLabel->setStyleSheet(QString("%1%2").arg(m_label_style).arg("background:red"));
+
+	QFont font1;
+	font1.setPointSize(16);
+	_totalNumLabel->setFont(font1);
+	_scannedNumLabel->setFont(font1);
+	_residueNumLabel->setFont(font1);
+	_unusualNumLabel->setFont(font1);
+
+	_totalNumLabel->setAlignment(Qt::AlignCenter);
+	_scannedNumLabel->setAlignment(Qt::AlignCenter);
+	_residueNumLabel->setAlignment(Qt::AlignCenter);
+	_unusualNumLabel->setAlignment(Qt::AlignCenter);
+
+	_totalNumLabel->setText("0");
+	_scannedNumLabel->setText("0");
+	_residueNumLabel->setText("0");
+	_unusualNumLabel->setText("0");
+
+	QHBoxLayout *hLayout = new QHBoxLayout(this);
+	hLayout->setContentsMargins(0, 0, 0, 0);
+	hLayout->addWidget(_totalNumLabel);
+	hLayout->addWidget(_scannedNumLabel);
+	hLayout->addWidget(_residueNumLabel);
+	hLayout->addWidget(_unusualNumLabel);
+	hLayout->addStretch(0);
+}
+
+void PackageSimpleInfoView::updatePackageInfo(const int &insCount)
+{
+	_totalNum = insCount;
+	_scannedNum = 0;
+	_unusualNum = 0;
+
+	_totalNumLabel->setText(QString::number(_totalNum));
+	_scannedNumLabel->setText(QString::number(_scannedNum));
+	_residueNumLabel->setText(QString::number(_totalNum));
+	_unusualNumLabel->setText(QString::number(_unusualNum));
+}
+
+void PackageSimpleInfoView::scanned()
+{
+	//todo
+	_scannedNum++;
+	_scannedNumLabel->setText(QString::number(_scannedNum));
+	_residueNumLabel->setText(QString::number(_totalNum - _scannedNum));
+}
+
+void PackageSimpleInfoView::unusualed()
+{
+	//todo
+	_unusualNum++;
+	_unusualNumLabel->setText(QString::number(_unusualNum));
+}
+
 PackageInfoView::PackageInfoView(QWidget *parent /*= nullptr*/)
 	: QWidget(parent)
 	, _packageIDLabel(new QLabel)
@@ -382,8 +450,8 @@ PackageInfoView::PackageInfoView(QWidget *parent /*= nullptr*/)
 	bLayout->addWidget(_packageNameLabel);
 	bLayout->addLayout(hLayout);
 	bLayout->setStretch(3, 1);
-	
-	
+
+
 	_tipsLabel->setFont(font);
 	_tipsLabel->setText(QString("请扫描篮筐ID"));
 
@@ -422,11 +490,157 @@ void PackageInfoView::scanned()
 	_residueNumLabel->setText(QString::number(_totalNum - _scannedNum));
 }
 
-void PackageInfoView::unusualed() 
+void PackageInfoView::unusualed()
 {
 	//todo
 	_unusualNum++;
 	_unusualNumLabel->setText(QString::number(_unusualNum));
+}
+
+OperationInfoTabelView::OperationInfoTabelView(QWidget *parent /*= nullptr*/)
+	: TableView(parent), _model(new QStandardItemModel(this))
+{
+	_model->setColumnCount(PatientName + 1);
+	_model->setHeaderData(OperationID, Qt::Horizontal, "手术ID");
+	_model->setHeaderData(OperationRoom, Qt::Horizontal, "手术室");
+	_model->setHeaderData(OperationTime, Qt::Horizontal, "手术时间");
+	_model->setHeaderData(OperationName, Qt::Horizontal, "手术名称");
+	_model->setHeaderData(PatientName, Qt::Horizontal, "病人姓名");
+
+	setModel(_model);
+	setSelectionMode(QAbstractItemView::SingleSelection);
+	setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+	connect(this, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(slotRowDoubleClicked(const QModelIndex &)));
+}
+
+void OperationInfoTabelView::slotRowDoubleClicked(const QModelIndex &index)
+{
+	int row = index.row();
+	QString operationId = _model->item(row, OperationID)->text();
+	emit operationClicked(operationId);
+}
+
+void OperationInfoTabelView::loadOperations()
+{
+	_model->removeRows(0, _model->rowCount());
+
+	QList<QStandardItem *> rowItems;
+	rowItems << new QStandardItem("201911260159");
+	rowItems << new QStandardItem("2#手术室");
+	rowItems << new QStandardItem("2019-11-22 12:30:00");
+	rowItems << new QStandardItem("阑尾手术");
+	rowItems << new QStandardItem("王阳");
+
+	for each (QStandardItem * item in rowItems)
+	{
+		item->setTextAlignment(Qt::AlignCenter);
+	}
+	_model->appendRow(rowItems);
+}
+
+
+OperationInfoView::OperationInfoView(QWidget *parent /*= nullptr*/)
+	: QWidget(parent), _view(new OperationInfoTabelView(this))
+{
+	QHBoxLayout *hLayout = new QHBoxLayout;
+	hLayout->setContentsMargins(0, 0, 0, 0);
+
+	QToolButton *addButton = new QToolButton;
+	addButton->setIcon(QIcon(":/res/plus-24.png"));
+	addButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
+	hLayout->addWidget(addButton);
+	connect(addButton, SIGNAL(clicked()), this, SLOT(addOperation()));
+
+	QToolButton *minusButton = new QToolButton;
+	minusButton->setIcon(QIcon(":/res/delete-24.png"));
+	minusButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
+	hLayout->addWidget(minusButton);
+	connect(minusButton, SIGNAL(clicked()), this, SLOT(delOperation()));
+
+	QToolButton *refreshButton = new QToolButton;
+	refreshButton->setIcon(QIcon(":/res/refresh-24.png"));
+	refreshButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
+	hLayout->addWidget(refreshButton);
+	connect(refreshButton, SIGNAL(clicked()), this, SLOT(refresh()));
+
+	hLayout->addStretch(0);
+
+	QVBoxLayout *vLayout = new QVBoxLayout(this);
+	vLayout->setContentsMargins(0, 0, 0, 0);
+	vLayout->addLayout(hLayout);
+	vLayout->addWidget(_view);
+
+	connect(_view, SIGNAL(operationClicked(const QString &)), this, SIGNAL(operation(const QString &)));
+}
+
+void OperationInfoView::addOperation()
+{
+	AddOperatinDialog d(this);
+	if (d.exec() == QDialog::Accepted)
+	{
+		//todo
+	}
+}
+
+void OperationInfoView::delOperation()
+{
+
+}
+
+void OperationInfoView::refresh()
+{
+
+}
+
+
+
+OperationPackageView::OperationPackageView(QWidget *parent /*= nullptr*/)
+	: TableView(parent), _model(new QStandardItemModel(this))
+{
+	_model->setColumnCount(State + 1);
+	_model->setHeaderData(PackageType, Qt::Horizontal, "包类型");
+	_model->setHeaderData(PackageID, Qt::Horizontal, "包ID");
+	_model->setHeaderData(PackageName, Qt::Horizontal, "包名称");
+	_model->setHeaderData(State, Qt::Horizontal, "状态");
+
+	setModel(_model);
+	setSelectionMode(QAbstractItemView::SingleSelection);
+	setEditTriggers(QAbstractItemView::NoEditTriggers);
+}
+
+void OperationPackageView::loadPackages(const QString& operationId)
+{
+	QList<QStandardItem *> rowItems;
+	rowItems << new QStandardItem(operationId);
+	rowItems << new QStandardItem("测试器械04");
+	rowItems << new QStandardItem("E2009A9050048AF000000213");
+	rowItems << new QStandardItem("RFID测试器械包02");
+
+	for each (QStandardItem * item in rowItems)
+	{
+		item->setTextAlignment(Qt::AlignCenter);
+	}
+	_model->appendRow(rowItems);
+	/*
+	QByteArray data("{\"package_type_id\":");
+	data.append(",\"card_id\":").append(instrumentID).append('}');
+	_http.post(url(PATH_PKGDETAIL_SEARCH), QByteArray().append(data), [=](QNetworkReply *reply) {
+		JsonHttpResponse resp(reply);
+		if (!resp.success()) {
+			XNotifier::warn(QString("无法获取包信息: ").append(resp.errorString()));
+			return;
+		}
+		int row = _model->rowCount();
+		//todo
+		QList<QVariant> orders = resp.getAsList("instruments");
+		_model->insertRows(0, orders.count());
+		for (int i = 0; i != orders.count(); ++i) {
+			QVariantMap map = orders[i].toMap();
+			_model->setData(_model->index(i, 0), map["instrument_name"]);
+		}
+	});
+	*/
 }
 
 UnusualInstrumentView::UnusualInstrumentView(QWidget *parent /*= nullptr*/)

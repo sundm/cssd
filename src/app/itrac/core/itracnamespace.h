@@ -17,7 +17,9 @@ namespace itrac {
 		SterileExamAction,
 		OrDispatchAction,
 		ClinicDispatchAction,
-		BorrowDispatchAction
+		BorrowDispatchAction,
+		PreExamAction,
+		PostExamAction
 	};
 
 	enum Flow {

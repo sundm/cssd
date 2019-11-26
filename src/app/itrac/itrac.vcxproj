@@ -242,6 +242,7 @@
     <ClCompile Include="dialog\addextdialog.cpp" />
     <ClCompile Include="dialog\addinstrumentdialog.cpp" />
     <ClCompile Include="dialog\addinstrumentIddialog.cpp" />
+    <ClCompile Include="dialog\addoperationdialog.cpp" />
     <ClCompile Include="dialog\addpackagedialog.cpp" />
     <ClCompile Include="dialog\addpkgcodedialog.cpp" />
     <ClCompile Include="dialog\adduserdialog.cpp" />
@@ -318,6 +319,7 @@
     <ClCompile Include="widget\loginpage.cpp" />
     <ClCompile Include="widget\mainwindow.cpp" />
     <ClCompile Include="widget\overlays\bd.cpp" />
+    <ClCompile Include="widget\overlays\check.cpp" />
     <ClCompile Include="widget\overlays\clinic.cpp" />
     <ClCompile Include="widget\overlays\clinic_dispatch.cpp" />
     <ClCompile Include="widget\overlays\cssd_overlay.cpp" />
@@ -357,6 +359,7 @@
     <ClInclude Include="core\inliner.h" />
     <ClInclude Include="core\net\jsonhttpclient.h" />
     <ClInclude Include="core\net\jsonhttpresponse.h" />
+    <QtMoc Include="widget\overlays\check.h" />
     <QtMoc Include="widget\history\tracepatientpage.h" />
     <QtMoc Include="widget\overlays\clinic_dispatch.h" />
     <QtMoc Include="widget\overlays\ext.h" />
@@ -387,6 +390,7 @@
     <QtMoc Include="core\rfidlistener.h" />
     <QtMoc Include="dialog\rfidconfigerdialog.h" />
     <QtMoc Include="dialog\addinstrumentIddialog.h" />
+    <QtMoc Include="dialog\addoperationdialog.h" />
     <ClInclude Include="resource.h" />
     <QtMoc Include="startupthread.h" />
     <ClInclude Include="util\printermanager.h">

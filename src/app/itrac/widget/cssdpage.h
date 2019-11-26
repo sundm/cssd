@@ -99,6 +99,12 @@ public:
 	AsepsisAreaPanel(QWidget *parent = nullptr);
 };
 
+class OperatingAreaPanel : public CssdAreaPanel {
+	Q_OBJECT
+public:
+	OperatingAreaPanel(QWidget *parent = nullptr);
+};
+
 class CssdButtonsPanelLoader : public Ui::Loader {
 	Q_OBJECT
 public:
@@ -118,6 +124,6 @@ public:
     explicit CssdPage(QWidget *parent = 0);
     ~CssdPage() = default;
 private:
-	using InternalLoader = Ui::CyclicLoader<PollutedAreaPanel, CleanAreaPanel, AsepsisAreaPanel>;
+	using InternalLoader = Ui::CyclicLoader<PollutedAreaPanel, CleanAreaPanel, AsepsisAreaPanel, OperatingAreaPanel>;
 	InternalLoader *_loader;
 };

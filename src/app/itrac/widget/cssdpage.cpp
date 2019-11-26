@@ -16,6 +16,7 @@
 #include "widget/overlays/bd.h"
 #include "widget/overlays/dispatch.h"
 #include "widget/overlays/clinic_dispatch.h"
+#include "widget/overlays/check.h"
 #include <QtGui/QtGui>
 #include <QtWidgets/QtWidgets>
 
@@ -78,7 +79,7 @@ void DoorPlate::createInterlData() {
 	vec.emplace_back("去污区", QColor(212, 98, 98));
 	vec.emplace_back("检查包装及灭菌区", QColor(0, 160, 221));
 	vec.emplace_back("无菌物品存放区", Qt::darkGreen);
-	vec.emplace_back("手术室操作区", Qt::darkGreen);
+	vec.emplace_back("手术室操作区", QColor(0, 160, 221));
 	_data = vec;
 
 	for (auto point : points)
@@ -163,6 +164,8 @@ void CssdAreaPanel::clickCallback(int id) {
 	case itrac::BDAction: panel = new BDPanel; break;
 	case itrac::OrDispatchAction: panel = new OrDispatchPanel; break;
 	case itrac::ClinicDispatchAction: panel = new ClinicDispatchPanel; break;
+	case itrac::PreExamAction: panel = new PreExamPanel; break;
+	case itrac::PostExamAction: panel = new PostExamPanel; break;
 	default: return;
 	}
 
@@ -184,7 +187,6 @@ QAbstractButton * CssdAreaPanel::addButton(int id,
 	const QString &text,
 	const QString &desc) {
 	Ui::CommandButton *button = new Ui::CommandButton(QIcon(file), text, desc);
-	button->setMinimumWidth(350);
 	connect(button, SIGNAL(clicked()), _signalMapper, SLOT(map()));
 	_signalMapper->setMapping(button, id);
 	int row = _count / columnCount, col = _count % columnCount;
@@ -201,7 +203,7 @@ PollutedAreaPanel::PollutedAreaPanel(QWidget *parent) : CssdAreaPanel(parent) {
 	//addButton(itrac::ClinicRecycleAction, ":/res/a1-recycle.png", "申领回收", "临床申领器械清点回收");
 	//addButton(itrac::BorrowRecycleAction, ":/res/a1-return.png", "借用回收", "临床借用器械清点回收");
 	//addButton(itrac::NoBarcodeRecycleAction, ":/res/a1-nobarcode.png", "无码回收", "条码丢失器械回收");
-	//addButton(itrac::ExtInstrumentRecycleAction, ":/res/a1-ext.png", "外来器械登记", "外来器械/植入物管理");
+	addButton(itrac::ExtInstrumentRecycleAction, ":/res/a1-ext.png", "外来器械登记", "外来器械/植入物管理");
 	addButton(itrac::WashAction, ":/res/a1-wash.png", "清洗", "器械装篮、预清洗、清洗");
 }
 
@@ -216,6 +218,11 @@ AsepsisAreaPanel::AsepsisAreaPanel(QWidget *parent) : CssdAreaPanel(parent) {
 	addButton(itrac::OrDispatchAction, ":/res/a3-ordispatch.png", "物品发放", "手术室专用物品发放");
 	//addButton(itrac::ClinicDispatchAction, ":/res/a3-dispatch.png", "申领发放", "临床申领物品发放");
 	//addButton(itrac::BorrowDispatchAction, ":/res/a1-return.png", "借用发放", "临床借用物品发放");
+}
+
+OperatingAreaPanel::OperatingAreaPanel(QWidget *parent) : CssdAreaPanel(parent) {
+	addButton(itrac::PreExamAction, ":/res/dept-64.png", "术前检查", "创建手术、绑定器械包");
+	addButton(itrac::PostExamAction, ":/res/dept-64.png", "术后清点", "手术后清点器械包");
 }
 
 CssdButtonsPanelLoader::CssdButtonsPanelLoader(QWidget *parent)
@@ -234,6 +241,9 @@ void CssdButtonsPanelLoader::loadNext() {
 		break;
 	case 2:
 		Ui::Loader::setSourceAnimated(new AsepsisAreaPanel);
+		break;
+	case 3:
+		Ui::Loader::setSourceAnimated(new OperatingAreaPanel);
 		break;
 	}
 }

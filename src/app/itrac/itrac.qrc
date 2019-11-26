@@ -52,5 +52,6 @@
         <file>res/a3-dispatch.png</file>
         <file>res/filter-24.png</file>
         <file>res/more-20.png</file>
+        <file>res/dept-64.png</file>
     </qresource>
 </RCC>

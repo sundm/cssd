@@ -408,6 +408,12 @@
     <ClCompile Include="dialog\addinstrumentIddialog.cpp">
       <Filter>Source Files\dialog</Filter>
     </ClCompile>
+    <ClCompile Include="widget\overlays\check.cpp">
+      <Filter>Source Files\widget\overlays</Filter>
+    </ClCompile>
+    <ClCompile Include="dialog\addoperationdialog.cpp">
+      <Filter>Source Files\dialog</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="devicepage.h">
@@ -694,6 +700,12 @@
     </QtMoc>
     <QtMoc Include="startupthread.h">
       <Filter>Source Files</Filter>
+    </QtMoc>
+    <QtMoc Include="widget\overlays\check.h">
+      <Filter>Source Files\widget\overlays</Filter>
+    </QtMoc>
+    <QtMoc Include="dialog\addoperationdialog.h">
+      <Filter>Source Files\dialog</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

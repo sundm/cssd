@@ -86,6 +86,80 @@ private:
 	enum { Barcode, Name, PackType, Department, ExpireDate, Implant};
 };
 
+class OperationInfoTabelView : public TableView
+{
+	Q_OBJECT
+
+public:
+	OperationInfoTabelView(QWidget *parent = nullptr);
+	void loadOperations();
+
+signals:
+	void operationClicked(const QString &operationId);
+
+private slots:
+	void slotRowDoubleClicked(const QModelIndex &);
+
+private:
+	enum { OperationID, OperationRoom, OperationTime, OperationName, PatientName };
+	QStandardItemModel * _model;
+	JsonHttpClient _http;
+};
+
+class OperationInfoView : public QWidget
+{
+	Q_OBJECT
+
+public:
+	OperationInfoView(QWidget *parent = nullptr);
+
+signals:
+	void operation(const QString &operationId);
+
+private slots:
+	void addOperation();
+	void delOperation();
+	void refresh();
+
+private:
+	OperationInfoTabelView * _view;
+};
+
+class OperationPackageView : public TableView
+{
+	Q_OBJECT
+
+public:
+	OperationPackageView(QWidget *parent = nullptr);
+	void loadPackages(const QString& operationId);
+
+private:
+	enum { PackageType, PackageID, PackageName, State};
+	QStandardItemModel * _model;
+	JsonHttpClient _http;
+};
+
+class PackageSimpleInfoView : public QWidget
+{
+	Q_OBJECT
+public:
+	PackageSimpleInfoView(QWidget *parent = nullptr);
+	void updatePackageInfo(const int &insCount);
+	void scanned();
+	void unusualed();
+private:
+	QLabel * _totalNumLabel;
+	QLabel * _scannedNumLabel;
+	QLabel * _residueNumLabel;
+	QLabel * _unusualNumLabel;
+
+	JsonHttpClient _http;
+
+	int _totalNum;
+	int _scannedNum;
+	int _unusualNum;
+};
+
 class PackageInfoView : public QWidget
 {
 	Q_OBJECT
