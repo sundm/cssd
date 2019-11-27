@@ -64,15 +64,15 @@ int Device::tranlateState(const QString &s) {
 	return Device::Disabled;
 }
 
-Package::Package()
+DumpPackage::DumpPackage()
 	:deptId(-1)
 	, state(itrac::Packed)
 	, expired(false)
 	, steQualified(false)
 {}
 
-void Package::fetchOnce(const QString &id, const std::function<void(Package*)> &fn) {
-	Package *package = new Package;
+void DumpPackage::fetchOnce(const QString &id, const std::function<void(DumpPackage*)> &fn) {
+	DumpPackage *package = new DumpPackage;
 
 	QString data = QString("{\"package_id\":\"%1\"}").arg(id);
 	JsonHttpClient *http = new JsonHttpClient;

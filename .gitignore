@@ -49,8 +49,8 @@ ipch/
 # VS profile
 .vs/
 *.sln
-*.vcproj
-*.vcxproj
+# *.vcproj
+# *.vcxproj
 
 # Qt moc files
 GeneratedFiles/
@@ -58,4 +58,3 @@ moc_*
 
 # log files
 log.txt
-itrac.sln

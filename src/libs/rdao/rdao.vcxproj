@@ -104,14 +104,23 @@
     </QtMoc>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="dao\InstrumentDao.h" />
     <ClInclude Include="dao\operatordao.h" />
+    <ClInclude Include="dao\PackageDao.h" />
     <ClInclude Include="dbconnection.h" />
+    <ClInclude Include="entity\department.h" />
+    <ClInclude Include="entity\device.h" />
+    <ClInclude Include="entity\enums.h" />
+    <ClInclude Include="entity\instrument.h" />
     <ClInclude Include="entity\operator.h" />
+    <ClInclude Include="entity\package.h" />
     <ClInclude Include="errors.h" />
     <ClInclude Include="rdao_global.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="dao\InstrumentDao.cpp" />
     <ClCompile Include="dao\operatordao.cpp" />
+    <ClCompile Include="dao\PackageDao.cpp" />
     <ClCompile Include="dbconnection.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

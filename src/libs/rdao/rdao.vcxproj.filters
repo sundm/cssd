@@ -43,12 +43,39 @@
     <ClInclude Include="rdao_global.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="entity\instrument.h">
+      <Filter>Source Files\entity</Filter>
+    </ClInclude>
+    <ClInclude Include="entity\package.h">
+      <Filter>Source Files\entity</Filter>
+    </ClInclude>
+    <ClInclude Include="entity\enums.h">
+      <Filter>Source Files\entity</Filter>
+    </ClInclude>
+    <ClInclude Include="dao\PackageDao.h">
+      <Filter>Source Files\dao</Filter>
+    </ClInclude>
+    <ClInclude Include="entity\department.h">
+      <Filter>Source Files\entity</Filter>
+    </ClInclude>
+    <ClInclude Include="entity\device.h">
+      <Filter>Source Files\entity</Filter>
+    </ClInclude>
+    <ClInclude Include="dao\InstrumentDao.h">
+      <Filter>Source Files\dao</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dbconnection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="dao\operatordao.cpp">
+      <Filter>Source Files\dao</Filter>
+    </ClCompile>
+    <ClCompile Include="dao\PackageDao.cpp">
+      <Filter>Source Files\dao</Filter>
+    </ClCompile>
+    <ClCompile Include="dao\InstrumentDao.cpp">
       <Filter>Source Files\dao</Filter>
     </ClCompile>
   </ItemGroup>

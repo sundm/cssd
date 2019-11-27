@@ -47,7 +47,7 @@ struct Device : public Asset {
 	static constexpr char sterilizerType[] = "0002";
 };
 
-struct Package : public Asset{
+struct DumpPackage : public Asset{
 	QString label;
 	QString expireDate;
 	QString packName;
@@ -58,7 +58,7 @@ struct Package : public Asset{
 	bool expired;
 	bool steQualified;
 
-	Package();
-	static void fetchOnce(const QString &id, const std::function<void(Package*)> &fn);
+	DumpPackage();
+	static void fetchOnce(const QString &id, const std::function<void(DumpPackage*)> &fn);
 };
 

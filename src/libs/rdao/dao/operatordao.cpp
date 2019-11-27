@@ -23,7 +23,7 @@ result_t OperatorDao::login(int id, const QString &pwd, Operator *op/* = Q_NULLP
 	query.addBindValue(id);
 	query.addBindValue(encodePwd(pwd));
 	if (!query.exec())
-		return kErrorQueryExec;
+		return kErrorDbUnreachable;
 
 	if (!query.first())
 		return "用户名或密码不正确";
@@ -32,9 +32,9 @@ result_t OperatorDao::login(int id, const QString &pwd, Operator *op/* = Q_NULLP
 		op->id = id;
 		op->name = query.value(2).toString();
 		op->phone = query.value(3).toString();
-		op->gender = static_cast<Operator::Gender>(query.value(4).toInt());
-		op->status = static_cast<Operator::Status>(query.value(5).toInt());
-		op->role = static_cast<Operator::Role>(query.value(6).toInt());
+		op->gender = static_cast<Rt::Gender>(query.value(4).toInt());
+		op->status = static_cast<Rt::Status>(query.value(5).toInt());
+		op->role = static_cast<Rt::Role>(query.value(6).toInt());
 		op->isOnline = query.value(8).toBool();
 		op->lastLoginTime = query.value(9).toDateTime(); // TODO
 	}
@@ -55,7 +55,7 @@ result_t OperatorDao::changePassword(int id, const QString &oldPwd, const QStrin
 	query.addBindValue(id);
 	query.addBindValue(encodePwd(oldPwd));
 	if (!query.exec())
-		return kErrorQueryExec;
+		return kErrorDbUnreachable;
 	if (1 != query.numRowsAffected())
 		return "原密码不正确";
 
