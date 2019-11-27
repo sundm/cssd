@@ -11,7 +11,7 @@ result_t InstrumentDao::getInstrumentType(int typeId, InstrumentType* insType)
 	QSqlQuery q;
 	q.prepare("SELECT category, name, pinyin, photo, is_vip"
 		" FROM t_instrument_type"
-		" WHERE a.id = ?");
+		" WHERE id = ?");
 	q.addBindValue(typeId);
 
 	if (!q.exec())
@@ -36,7 +36,7 @@ result_t InstrumentDao::getInstrumentTypeList(
 	QList<InstrumentType> *insTypes, int page/* = 1*/, int count/* = -1*/)
 {
 	QSqlQuery q;
-	QString sql = "SELECT category, name, pinyin, photo, is_vip"
+	QString sql = "SELECT id, category, name, pinyin, photo, is_vip"
 		" FROM t_instrument_type";
 
 	if (-1 != count) { // do pagination
@@ -63,15 +63,33 @@ result_t InstrumentDao::getInstrumentTypeList(
 	return 0;
 }
 
-result_t InstrumentDao::addInstrumentType(const InstrumentType &it)
+result_t InstrumentDao::updateInstrumentType(const InstrumentType &it)
 {
 	QSqlQuery query;
-	query.prepare("INSERT INTO t_instrument_type (category, name, pinyin, photo)"
-	" VALUES (?, ?, ?, ?)");
+	query.prepare("UPDATE t_instrument_type SET category = ?, name = ?, pinyin = ?, photo = ?, is_vip = ?"
+		" WHERE id = ?");
 	query.addBindValue(it.category);
 	query.addBindValue(it.name);
 	query.addBindValue(it.pinyin);
 	query.addBindValue(it.photo);
+	query.addBindValue(it.isVip);
+	query.addBindValue(it.typeId);
+
+	if (!query.exec())
+		return query.lastError().text();
+	return 0;
+}
+
+result_t InstrumentDao::addInstrumentType(const InstrumentType &it)
+{
+	QSqlQuery query;
+	query.prepare("INSERT INTO t_instrument_type (category, name, pinyin, photo, is_vip)"
+	" VALUES (?, ?, ?, ?, ?)");
+	query.addBindValue(it.category);
+	query.addBindValue(it.name);
+	query.addBindValue(it.pinyin);
+	query.addBindValue(it.photo);
+	query.addBindValue(it.isVip);
 
 	if (!query.exec())
 		return query.lastError().text();

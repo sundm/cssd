@@ -32,6 +32,7 @@ public:
 
 	result_t addInstrumentType(const InstrumentType &insType);
 
+	result_t updateInstrumentType(const InstrumentType &it);
 
 	result_t getInstrument(
 		int udi,
