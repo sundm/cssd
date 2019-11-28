@@ -114,7 +114,7 @@ result_t InstrumentDao::getInstrument(const QString& udi, Instrument* ins)
 		ins->typeId = q.value(0).toInt();
 		ins->name = q.value(1).toString();
 		ins->photo = q.value(2).toString();
-		ins->packageUdi = q.value(3).toInt();
+		ins->packageUdi = q.value(3).toString();
 		ins->price = q.value(4).toInt();
 		ins->isVip = q.value(5).toBool();
 		ins->category = static_cast<Rt::InstrumentCategory>(q.value(6).toInt());

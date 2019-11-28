@@ -264,9 +264,9 @@ result_t PackageDao::addPackage(const Package &pkg)
 	QStringList insUdis;
 	for each(const Instrument &ins in pkg.instruments) {
 		if (ins.packageUdi.isEmpty())
-			insUdis << ins.udi;
+			insUdis << QString("'%1'").arg(ins.udi);
 	}
-	QString sql = QString("UPDATE t_instrument SET package_udi=%1"
+	QString sql = QString("UPDATE t_instrument SET package_udi='%1'"
 		" WHERE udi IN (%2)").arg(pkg.udi, insUdis.join(','));
 	if (!q.exec(sql))
 		return q.lastError().text();
