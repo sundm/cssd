@@ -35,7 +35,7 @@ public:
 	result_t updateInstrumentType(const InstrumentType &it);
 
 	result_t getInstrument(
-		int udi,
+		const QString& udi,
 		Instrument* ins);
 
 	result_t getInstrumentList(
@@ -44,5 +44,6 @@ public:
 		int count = -1);
 
 	result_t addInstrument(const Instrument &ins);
+	result_t updateInstrument(const Instrument &it);
 };
 

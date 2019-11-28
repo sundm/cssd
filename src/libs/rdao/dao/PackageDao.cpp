@@ -263,7 +263,7 @@ result_t PackageDao::addPackage(const Package &pkg)
 
 	QStringList insUdis;
 	for each(const Instrument &ins in pkg.instruments) {
-		if (ins.packageUdi == pkg.udi)
+		if (ins.packageUdi.isEmpty())
 			insUdis << ins.udi;
 	}
 	QString sql = QString("UPDATE t_instrument SET package_udi=%1"

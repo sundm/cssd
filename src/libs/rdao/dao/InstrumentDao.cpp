@@ -94,7 +94,7 @@ result_t InstrumentDao::addInstrumentType(const InstrumentType &it)
 	return 0;
 }
 
-result_t InstrumentDao::getInstrument(int udi, Instrument* ins)
+result_t InstrumentDao::getInstrument(const QString& udi, Instrument* ins)
 {
 	QSqlQuery q;
 	q.prepare("SELECT a.type_id, a.name, a.photo, a.package_udi, a.price, b.category, b.is_vip"
@@ -178,5 +178,20 @@ result_t InstrumentDao::addInstrument(const Instrument &ins)
 
 	if (!q.exec())
 		return q.lastError().text();
+	return 0;
+}
+
+result_t InstrumentDao::updateInstrument(const Instrument &it)
+{
+	QSqlQuery query;
+	query.prepare("UPDATE t_instrument SET name = ?, photo = ?, price = ?"
+		" WHERE id = ?");
+	query.addBindValue(it.name);
+	query.addBindValue(it.photo);
+	query.addBindValue(it.price);
+	query.addBindValue(it.udi);
+
+	if (!query.exec())
+		return query.lastError().text();
 	return 0;
 }
