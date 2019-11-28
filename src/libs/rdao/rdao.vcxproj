@@ -104,6 +104,7 @@
     </QtMoc>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="dao\deptdao.h" />
     <ClInclude Include="dao\devicedao.h" />
     <ClInclude Include="dao\instrumentdao.h" />
     <ClInclude Include="dao\operatordao.h" />
@@ -120,6 +121,7 @@
     <ClInclude Include="rdao_global.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="dao\deptdao.cpp" />
     <ClCompile Include="dao\devicedao.cpp" />
     <ClCompile Include="dao\instrumentdao.cpp" />
     <ClCompile Include="dao\operatordao.cpp" />
