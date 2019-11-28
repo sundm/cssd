@@ -5,19 +5,6 @@
 #include <rdao/dbconnection.h>
 #include "rdao/dao/PackageDao.h"
 
-void doTest()
-{
-	PackageDao dao;
-	//PackageType pt;
-	//result_t res = dao.getPackageType(220001, &pt, true);
-
-	QList<PackageType> pts;
-	result_t res = dao.getPackageTypeList(&pts);
-	pts.clear();
-	res = dao.getPackageTypeList(&pts, 7, 10);
-	QString s = res.msg();
-}
-
 StartupThread::StartupThread(QObject *parent)
 	: QThread(parent), _hasError(true)
 {
@@ -110,9 +97,6 @@ bool StartupThread::openDatabase()
 			//break;
 		}
 	//} while (0);
-
-	//test
-		doTest();
 
 	QString err;
 	switch(ret){

@@ -9,16 +9,24 @@ struct PackType {
 	int id;
 	QString name;
 	unsigned int validPeriod;
-	PackType() : id(-1), validPeriod(0) {}
+	unsigned int standardPeriod;
+	PackType() : id(-1), validPeriod(0),standardPeriod(0) {}
 };
 
 struct PackageType
 {
-	typedef struct {
+	struct DetailItem {
 		int insTypeId;
-		QString insName;
 		int insNum;
-	} DetailItem;
+		QString insName;
+
+		DetailItem() = default;
+		DetailItem(int typeId, int num, QString &name = QString()) :
+			insTypeId(typeId),
+			insNum(num),
+			insName(name)
+		{}
+	};
 
 	int typeId;
 	Rt::PackageCategory category;

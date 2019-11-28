@@ -96,18 +96,47 @@ result_t PackageDao::getPackageTypeList(
 
 result_t PackageDao::addPackageType(const PackageType &pt)
 {
-	QSqlQuery query;
-	query.prepare("INSERT INTO t_package_type (category, name, pinyin, sterilize_type, pack_type_id, dept_id)"
+	QSqlQuery q;
+	q.prepare("INSERT INTO t_package_type (category, name, pinyin, sterilize_type, pack_type_id, dept_id)"
 	" VALUES (?, ?, ?, ?, ?, ?)");
-	query.addBindValue(pt.category);
-	query.addBindValue(pt.name);
-	query.addBindValue(pt.pinyin);
-	query.addBindValue(pt.sterType);
-	query.addBindValue(pt.packType.id);
-	query.addBindValue(pt.dept.id);
+	q.addBindValue(pt.category);
+	q.addBindValue(pt.name);
+	q.addBindValue(pt.pinyin);
+	q.addBindValue(pt.sterType);
+	q.addBindValue(pt.packType.id);
+	q.addBindValue(pt.dept.id);
 
-	if (!query.exec())
-		return query.lastError().text();
+	if (!q.exec())
+		return q.lastError().text();
+
+	// get type id of the new package
+	if (!q.exec("SELECT id FROM t_package_type ORDER BY id DESC LIMIT 1"))
+		return q.lastError().text();
+	if (!q.first()) // this should never happen
+		return "Internal Error";
+	int typeId = q.value(0).toInt();
+
+	// add instrument types
+	if (pt.detail.isEmpty()) {
+		qWarning("You are trying to add a new package type without instrument types binded!");
+		return 0;
+	}
+
+	QVariantList pkgTypeIds, insTypeIds, insNums;
+	for each(const PackageType::DetailItem &detail in pt.detail) {
+		pkgTypeIds << typeId;
+		insTypeIds << detail.insTypeId;
+		insNums << detail.insNum;
+	}
+
+	q.prepare("INSERT INTO t_package_type_detail (`pkg_type_id`, `ins_type_id`, `num`) VALUES (?, ?, ?)");
+	q.addBindValue(pkgTypeIds);
+	q.addBindValue(insTypeIds);
+	q.addBindValue(insNums);
+
+	if (!q.execBatch(QSqlQuery::ValuesAsRows))
+		return q.lastError().text();
+
 	return 0;
 }
 
@@ -226,10 +255,12 @@ result_t PackageDao::addPackage(const Package &pkg)
 	if (!q.exec())
 		return q.lastError().text();
 
-	if (pkg.instruments.isEmpty())
-		return 0;
-
 	// add instruments
+	if (pkg.instruments.isEmpty()) {
+		qWarning("You are trying to add a new package without instruments binded!");
+		return 0;
+	}
+
 	QStringList insUdis;
 	for each(const Instrument &ins in pkg.instruments) {
 		if (ins.packageUdi == pkg.udi)
@@ -240,5 +271,38 @@ result_t PackageDao::addPackage(const Package &pkg)
 	if (!q.exec(sql))
 		return q.lastError().text();
 
+	return 0;
+}
+
+result_t PackageDao::getPackTypeList(QList<PackType> *packTypes)
+{
+	QSqlQuery q;
+	if (!q.exec("SELECT id, name, valid_period, standard_period FROM t_pack_type"))
+		return q.lastError().text();
+
+	if (packTypes) {
+		PackType pt;
+		while (q.next()) {
+			pt.id = q.value(0).toInt();
+			pt.name = q.value(1).toString();
+			pt.validPeriod = q.value(2).toInt();
+			pt.standardPeriod = q.value(3).toInt();
+			packTypes->append(pt);
+		}
+	}
+
+	return 0;
+}
+
+result_t PackageDao::updatePackType(const PackType &packType)
+{
+	QSqlQuery q;
+	q.prepare("UPDATE t_pack_type SET valid_period = ?"
+		" WHERE id = ?");
+	q.addBindValue(packType.validPeriod);
+	q.addBindValue(packType.id);
+
+	if (!q.exec())
+		return q.lastError().text();
 	return 0;
 }

@@ -19,7 +19,7 @@ DebugSqlQuery::~DebugSqlQuery()
 bool DebugSqlQuery::exec(const QString &query)
 {
 	bool res = QSqlQuery::exec(query);
-	qDebug() << getLastExecutedQuery();
+	qDebug() << query;
 	return res;
 }
 

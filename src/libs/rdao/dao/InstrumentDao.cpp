@@ -169,7 +169,7 @@ result_t InstrumentDao::addInstrument(const Instrument &ins)
 
 	// when we add a new instrument, we don't know its package udi  
 	q.prepare("INSERT INTO t_instrument (udi, type_id, name, photo, price)"
-		" VALUES (?, ?, ?, ?, ?, ?)");
+		" VALUES (?, ?, ?, ?, ?)");
 	q.addBindValue(ins.udi);
 	q.addBindValue(ins.typeId);
 	q.addBindValue(ins.name);

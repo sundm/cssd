@@ -11,6 +11,7 @@ struct Device{
 	Rt::Status status;
 	int cycleCount;
 	int cycleTotal;
+	Rt::SterilizeType sterilizeType;
 	QDate cycleDate;
 	QDate productionDate;
 	QDateTime lastMaintainTime;
@@ -22,17 +23,10 @@ struct Device{
 		status(Rt::Normal),
 		cycleCount(-1),
 		cycleTotal(-1),
+		sterilizeType(Rt::UnknownSterilizeType),
 		maintainCycle(0)
 	{}
 };
 
 typedef Device Washer;
-
-struct Sterilizer : public Device {
-	Rt::SterilizeType sterilizeType;
-
-	Sterilizer() :
-		Device(),
-		sterilizeType(Rt::BothTemperature)
-	{}
-};
+typedef Device Sterilizer;

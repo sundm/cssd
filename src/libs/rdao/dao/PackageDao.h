@@ -53,8 +53,14 @@ public:
 	 */
 	result_t addPackage(const Package &package);
 
-
 	// TODO
 	//result_t releaseInstruments(const QString &udi);
+
+	result_t getPackTypeList(QList<PackType> *packTypes);
+
+	/**
+	 * NOTE: only valid period is allowed to be updated, other fields are ignored.
+	 */
+	result_t updatePackType(const PackType &packType);
 };
 

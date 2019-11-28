@@ -7,7 +7,8 @@ namespace Rt
 	enum SterilizeType {
 		BothTemperature,
 		LowTemperature,
-		HighTemperature
+		HighTemperature,
+		UnknownSterilizeType = -1
 	};
 
 	enum Status {

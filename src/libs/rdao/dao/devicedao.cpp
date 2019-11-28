@@ -4,40 +4,62 @@
 #include "devicedao.h"
 #include "errors.h"
 
-result_t DeviceDao::getWasherList(
-	QList<Washer> *washers, int page/* = 1*/, int count/* = -1*/)
+result_t DeviceDao :: getWasherList(
+	QList<Washer> *washers, bool onlyAvailable/* = true*/)
 {
-	QSqlQuery q;
-
-	QString sql = "SELECT id, category, name, pinyin, photo, is_vip"
-		" FROM t_instrument_type";
-
-	//if (-1 != count) { // do pagination
-	//	count = qMax(10, count);
-	//	page = qMax(1, page);
-	//	sql.append(QString(" LIMIT %1, %2").arg((page-1)*count).arg(count));
-	//}
-
-	//if (!q.exec(sql))
-	//	return q.lastError().text();
-
-	//if (insTypes) {
-	//	InstrumentType it;
-	//	while (q.next()) {
-	//		it.typeId = q.value(0).toInt();
-	//		it.category = static_cast<Rt::InstrumentCategory>(q.value(1).toInt());
-	//		it.name = q.value(2).toString();
-	//		it.pinyin = q.value(3).toString();
-	//		it.photo = q.value(4).toString();
-	//		it.isVip = q.value(5).toBool();
-	//		insTypes->append(it);
-	//	}
-	//}
-	return 0;
+	return getDeviceList(Rt::Washer, washers, onlyAvailable);
 }
 
-result_t DeviceDao::getSterilizerList(QList<Sterilizer> *sterilizers, int page /*= 1*/, int count /*= -1*/)
+result_t DeviceDao::getSterilizerList(QList<Sterilizer> *sterilizers, bool onlyAvailable/* = true*/)
 {
+	return getDeviceList(Rt::Sterilizer, sterilizers, onlyAvailable);
+}
+
+result_t DeviceDao::getAllDeivces(QList<Device> *devices, bool onlyAvailable /*= true */)
+{
+	return getDeviceList(Rt::UnknownDevice, devices, onlyAvailable);
+}
+
+result_t DeviceDao::getDeviceList(
+	Rt::DeviceCategory cat,
+	QList<Device> *devices,
+	bool onlyAvailable/* = true*/)
+{
+	QString sql = "SELECT id, name, status, cycle_count, cycle_date,"
+		" cycle_total, production_time, last_maintain_time, maintain_cycle, sterilize_type"
+		" FROM t_device";
+	bool hasWhere = false;
+
+	if (Rt::UnknownDevice != cat) {
+		sql.append(QString(" WHERE category = %1").arg(cat));
+		hasWhere = true;
+	}
+	if (onlyAvailable) {
+		sql.append(hasWhere ? " AND " : " WHERE ");
+		sql.append(QString("status = %1").arg(Rt::Status::Normal));
+	}
+
+	QSqlQuery q;
+	if (!q.exec(sql))
+		return q.lastError().text();
+
+	if (devices) {
+		Device d;
+		while (q.next()) {
+			d.id = q.value(0).toInt();
+			d.name = q.value(1).toString();
+			d.category = Rt::DeviceCategory::Washer;
+			d.status = static_cast<Rt::Status>(q.value(2).toInt());
+			d.cycleCount = q.value(3).toInt();
+			d.cycleDate = q.value(4).toDate();
+			d.cycleTotal = q.value(5).toInt();
+			d.productionDate = q.value(6).toDate();
+			d.lastMaintainTime = q.value(7).toDateTime();
+			d.maintainCycle = q.value(8).toUInt();
+			d.sterilizeType = static_cast<Rt::SterilizeType>(q.value(9).toInt());
+			devices->append(d);
+		}
+	}
 	return 0;
 }
 
