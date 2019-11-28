@@ -1,8 +1,6 @@
-#include <QDateTime>
 #include <QVariant>
-#include <QSqlQuery>
 #include <QSqlError>
-#include <QDebug>
+#include "debugsqlquery.h"
 #include "instrumentdao.h"
 #include "errors.h"
 

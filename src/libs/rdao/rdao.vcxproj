@@ -72,8 +72,8 @@
       <ImportLibrary>$(SolutionDir)..\lib\$(Platform)\$(TargetName).lib</ImportLibrary>
     </Link>
     <QtMoc>
-      <Define>UNICODE;WIN32;WIN64;RDAO_LIB;QT_CORE_LIB;QT_SQL_LIB;%(PreprocessorDefinitions)</Define>
-      <IncludePath>.;.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName);$(SolutionDir)libs;$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtSql;%(AdditionalIncludeDirectories)</IncludePath>
+      <Define>UNICODE;WIN32;WIN64;RDAO_LIB;QT_CORE_LIB;QT_SQL_LIB;_USING_V110_SDK71_;_WINDLL</Define>
+      <IncludePath>.;.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName)\.;$(SolutionDir)libs;$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtSql</IncludePath>
       <OutputFile>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</OutputFile>
       <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
     </QtMoc>
@@ -97,17 +97,19 @@
       <ImportLibrary>$(SolutionDir)..\lib\$(Platform)\$(TargetName).lib</ImportLibrary>
     </Link>
     <QtMoc>
-      <Define>UNICODE;WIN32;WIN64;QT_NO_DEBUG;NDEBUG;RDAO_LIB;QT_CORE_LIB;QT_SQL_LIB;%(PreprocessorDefinitions)</Define>
-      <IncludePath>.;.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName);$(SolutionDir)libs;$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtSql;%(AdditionalIncludeDirectories)</IncludePath>
+      <Define>UNICODE;WIN32;WIN64;QT_NO_DEBUG;NDEBUG;RDAO_LIB;QT_CORE_LIB;QT_SQL_LIB;_USING_V110_SDK71_;_WINDLL</Define>
+      <IncludePath>.;.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName)\.;$(SolutionDir)libs;$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtSql</IncludePath>
       <OutputFile>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</OutputFile>
       <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
     </QtMoc>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="dao\InstrumentDao.h" />
+    <ClInclude Include="dao\devicedao.h" />
+    <ClInclude Include="dao\instrumentdao.h" />
     <ClInclude Include="dao\operatordao.h" />
-    <ClInclude Include="dao\PackageDao.h" />
+    <ClInclude Include="dao\packagedao.h" />
     <ClInclude Include="dbconnection.h" />
+    <ClInclude Include="debugsqlquery.h" />
     <ClInclude Include="entity\department.h" />
     <ClInclude Include="entity\device.h" />
     <ClInclude Include="entity\enums.h" />
@@ -118,10 +120,12 @@
     <ClInclude Include="rdao_global.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dao\InstrumentDao.cpp" />
+    <ClCompile Include="dao\devicedao.cpp" />
+    <ClCompile Include="dao\instrumentdao.cpp" />
     <ClCompile Include="dao\operatordao.cpp" />
-    <ClCompile Include="dao\PackageDao.cpp" />
+    <ClCompile Include="dao\packagedao.cpp" />
     <ClCompile Include="dbconnection.cpp" />
+    <ClCompile Include="debugsqlquery.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

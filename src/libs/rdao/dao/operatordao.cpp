@@ -1,9 +1,7 @@
-#include <QDateTime>
 #include <QVariant>
-#include <QSqlQuery>
 #include <QSqlError>
-#include <QDebug>
 #include <QCryptographicHash>
+#include "debugsqlquery.h"
 #include "operatordao.h"
 #include "errors.h"
 #include "entity/operator.h"

@@ -12,7 +12,6 @@ struct Device{
 	int cycleCount;
 	int cycleTotal;
 	QDate cycleDate;
-	Rt::SterilizeType sterilizeType;
 	QDate productionDate;
 	QDateTime lastMaintainTime;
 	unsigned int maintainCycle;
@@ -23,44 +22,17 @@ struct Device{
 		status(Rt::Normal),
 		cycleCount(-1),
 		cycleTotal(-1),
-		sterilizeType(Rt::BothTemperature),
 		maintainCycle(0)
 	{}
 };
 
-struct PackageType
-{
-	typedef struct {
-		int insTypeId;
-		QString insName;
-		int insNum;
-	} DetailItem;
+typedef Device Washer;
 
-	enum Category {
-		Surgical,
-		Clinical,
-		External,
-		Dressing,
-		Universal,
-		Unknown
-	};
-	
-	int typeId;
-	Category category;
-	QString name;
-	QString pinyin;
-	QString photo;
-	SterilizeType sterType;
-	PackType packType;
-	QList<DetailItem> detail;
+struct Sterilizer : public Device {
+	Rt::SterilizeType sterilizeType;
 
-	PackageType() : category(Unknown) {}
+	Sterilizer() :
+		Device(),
+		sterilizeType(Rt::BothTemperature)
+	{}
 };
-
-struct Package : public PackageType
-{
-	QString udi;
-	QList<Instrument> instruments;
-};
-
-#endif // PACKAGE_H

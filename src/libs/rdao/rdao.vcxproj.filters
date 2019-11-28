@@ -26,6 +26,11 @@
     <Filter Include="Source Files\dao">
       <UniqueIdentifier>{0001acd5-b36a-41a3-a2c3-1b63e323a030}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+      <ParseFiles>true</ParseFiles>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="entity\operator.h">
@@ -52,16 +57,22 @@
     <ClInclude Include="entity\enums.h">
       <Filter>Source Files\entity</Filter>
     </ClInclude>
-    <ClInclude Include="dao\PackageDao.h">
-      <Filter>Source Files\dao</Filter>
-    </ClInclude>
     <ClInclude Include="entity\department.h">
       <Filter>Source Files\entity</Filter>
     </ClInclude>
     <ClInclude Include="entity\device.h">
       <Filter>Source Files\entity</Filter>
     </ClInclude>
-    <ClInclude Include="dao\InstrumentDao.h">
+    <ClInclude Include="debugsqlquery.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dao\devicedao.h">
+      <Filter>Source Files\dao</Filter>
+    </ClInclude>
+    <ClInclude Include="dao\instrumentdao.h">
+      <Filter>Source Files\dao</Filter>
+    </ClInclude>
+    <ClInclude Include="dao\packagedao.h">
       <Filter>Source Files\dao</Filter>
     </ClInclude>
   </ItemGroup>
@@ -72,10 +83,16 @@
     <ClCompile Include="dao\operatordao.cpp">
       <Filter>Source Files\dao</Filter>
     </ClCompile>
-    <ClCompile Include="dao\PackageDao.cpp">
+    <ClCompile Include="debugsqlquery.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dao\devicedao.cpp">
       <Filter>Source Files\dao</Filter>
     </ClCompile>
-    <ClCompile Include="dao\InstrumentDao.cpp">
+    <ClCompile Include="dao\instrumentdao.cpp">
+      <Filter>Source Files\dao</Filter>
+    </ClCompile>
+    <ClCompile Include="dao\packagedao.cpp">
       <Filter>Source Files\dao</Filter>
     </ClCompile>
   </ItemGroup>

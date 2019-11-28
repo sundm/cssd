@@ -46,7 +46,7 @@ public:
 		int count = -1);
 
 	/**
-	 * Add a fresh package, if has instruments, they are binded to this package. 
+	 * Add a fresh package, instruments are binded if any of them exists.
 	 * NOTE: instruments already binded are ignored.
 	 * @param package: the package to be added
 	 * @return a result_t object
