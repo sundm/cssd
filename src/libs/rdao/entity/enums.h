@@ -49,7 +49,7 @@ namespace Rt
 	enum DeviceCategory {
 		Washer,
 		Sterilizer,
-		UnknownDevice
+		UnknownDeviceCategory
 	};
 
 }

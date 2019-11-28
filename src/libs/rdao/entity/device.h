@@ -4,6 +4,15 @@
 #include <QString>
 #include <QDateTime>
 
+struct Program {
+	int id;
+	Rt::DeviceCategory category;
+	QString name;
+	QString remark;
+
+	Program() : category(Rt::UnknownDeviceCategory) {}
+};
+
 struct Device{
 	int id;
 	QString name;
@@ -16,10 +25,11 @@ struct Device{
 	QDate productionDate;
 	QDateTime lastMaintainTime;
 	unsigned int maintainCycle;
+	QList<Program> programs;
 
 	Device() :
 		id(-1),
-		category(Rt::UnknownDevice),
+		category(Rt::UnknownDeviceCategory),
 		status(Rt::Normal),
 		cycleCount(-1),
 		cycleTotal(-1),
