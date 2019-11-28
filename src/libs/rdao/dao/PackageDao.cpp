@@ -118,7 +118,7 @@ result_t PackageDao::addPackageType(const PackageType &pt)
 
 	// add instrument types
 	if (pt.detail.isEmpty()) {
-		qWarning("You are trying to add a new package type without instrument types binded!");
+		qWarning("You are trying to add a new package type without instrument types bound!");
 		return 0;
 	}
 
@@ -257,7 +257,7 @@ result_t PackageDao::addPackage(const Package &pkg)
 
 	// add instruments
 	if (pkg.instruments.isEmpty()) {
-		qWarning("You are trying to add a new package without instruments binded!");
+		qWarning("You are trying to add a new package without instruments bound!");
 		return 0;
 	}
 

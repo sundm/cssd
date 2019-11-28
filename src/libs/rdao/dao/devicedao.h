@@ -7,6 +7,8 @@
 class RDAO_EXPORT DeviceDao
 {
 public:
+	result_t getDevice(int id, Device *device, bool withPrograms = false);
+
 	/**
 	 * Fetch washer devices.
 	 * @param washers: out param
@@ -28,11 +30,22 @@ public:
 		bool onlyAvailable = true
 	);
 
+	result_t getProgramsForDevice(int deviceId, QList<Program> *programs);
+
+	result_t getWashPrograms(QList<Program> *programs);
+	result_t getSterilizePrograms(QList<Program> *programs);
+	result_t getAllPrograms(QList<Program> *programs);
+
 private:
 	result_t getDeviceList(
 		Rt::DeviceCategory cat,
 		QList<Device> *devices,
 		bool onlyAvailable = true
+	);
+
+	result_t getProgramList(
+		Rt::DeviceCategory cat,
+		QList<Program> *programs
 	);
 };
 

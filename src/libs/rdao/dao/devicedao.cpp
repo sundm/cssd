@@ -10,6 +10,39 @@ result_t DeviceDao :: getWasherList(
 	return getDeviceList(Rt::Washer, washers, onlyAvailable);
 }
 
+result_t DeviceDao::getDevice(int id, Device *d, bool withPrograms/* = false*/)
+{
+	QSqlQuery q;
+	q.prepare("SELECT name, category, status, cycle_count, cycle_date,"
+		" cycle_total, production_time, last_maintain_time, maintain_cycle, sterilize_type"
+		" FROM t_device"
+		" WHERE id = ?");
+	q.addBindValue(id);
+	if (!q.exec())
+		return q.lastError().text();
+	if (!q.first())
+		return "未找到对应的设备信息";
+
+	if (d) {
+		d->id = id;
+		d->name = q.value(0).toString();
+		d->category = static_cast<Rt::DeviceCategory>(q.value(1).toInt());
+		d->status = static_cast<Rt::Status>(q.value(2).toInt());
+		d->cycleCount = q.value(3).toInt();
+		d->cycleDate = q.value(4).toDate();
+		d->cycleTotal = q.value(5).toInt();
+		d->productionDate = q.value(6).toDate();
+		d->lastMaintainTime = q.value(7).toDateTime();
+		d->maintainCycle = q.value(8).toUInt();
+		d->sterilizeType = static_cast<Rt::SterilizeType>(q.value(9).toInt());
+
+		if (withPrograms) // get bound programs
+			return this->getProgramsForDevice(id, &d->programs);
+	}
+
+	return 0;
+}
+
 result_t DeviceDao::getSterilizerList(QList<Sterilizer> *sterilizers, bool onlyAvailable/* = true*/)
 {
 	return getDeviceList(Rt::Sterilizer, sterilizers, onlyAvailable);
@@ -17,7 +50,47 @@ result_t DeviceDao::getSterilizerList(QList<Sterilizer> *sterilizers, bool onlyA
 
 result_t DeviceDao::getAllDeivces(QList<Device> *devices, bool onlyAvailable /*= true */)
 {
-	return getDeviceList(Rt::UnknownDevice, devices, onlyAvailable);
+	return getDeviceList(Rt::UnknownDeviceCategory, devices, onlyAvailable);
+}
+
+result_t DeviceDao::getProgramsForDevice(int deviceId, QList<Program> *programs)
+{
+	QSqlQuery q;
+	q.prepare("SELECT b.id, b.category, b.name, b.remark FROM"
+		" device_programs a"
+		" LEFT JOIN t_program b ON a.program_id = b.id"
+		" WHERE a.device_id = ?");
+	q.addBindValue(deviceId);
+
+	if (!q.exec())
+		return q.lastError().text();
+
+	if (programs) {
+		Program p;
+		while (q.next()) {
+			p.id = q.value(0).toInt();
+			p.category = static_cast<Rt::DeviceCategory>(q.value(1).toInt());
+			p.name = q.value(2).toString();
+			p.remark = q.value(3).toString();
+			programs->append(p);
+		}
+	}
+	return 0;
+}
+
+result_t DeviceDao::getWashPrograms(QList<Program> *programs)
+{
+	return getProgramList(Rt::Washer, programs);
+}
+
+result_t DeviceDao::getSterilizePrograms(QList<Program> *programs)
+{
+	return getProgramList(Rt::Sterilizer, programs);
+}
+
+result_t DeviceDao::getAllPrograms(QList<Program> *programs)
+{
+	return getProgramList(Rt::UnknownDeviceCategory, programs);
 }
 
 result_t DeviceDao::getDeviceList(
@@ -25,12 +98,12 @@ result_t DeviceDao::getDeviceList(
 	QList<Device> *devices,
 	bool onlyAvailable/* = true*/)
 {
-	QString sql = "SELECT id, name, status, cycle_count, cycle_date,"
+	QString sql = "SELECT id, name, category, status, cycle_count, cycle_date,"
 		" cycle_total, production_time, last_maintain_time, maintain_cycle, sterilize_type"
 		" FROM t_device";
 	bool hasWhere = false;
 
-	if (Rt::UnknownDevice != cat) {
+	if (Rt::UnknownDeviceCategory != cat) {
 		sql.append(QString(" WHERE category = %1").arg(cat));
 		hasWhere = true;
 	}
@@ -48,16 +121,41 @@ result_t DeviceDao::getDeviceList(
 		while (q.next()) {
 			d.id = q.value(0).toInt();
 			d.name = q.value(1).toString();
-			d.category = Rt::DeviceCategory::Washer;
-			d.status = static_cast<Rt::Status>(q.value(2).toInt());
-			d.cycleCount = q.value(3).toInt();
-			d.cycleDate = q.value(4).toDate();
-			d.cycleTotal = q.value(5).toInt();
-			d.productionDate = q.value(6).toDate();
-			d.lastMaintainTime = q.value(7).toDateTime();
-			d.maintainCycle = q.value(8).toUInt();
-			d.sterilizeType = static_cast<Rt::SterilizeType>(q.value(9).toInt());
+			d.category = static_cast<Rt::DeviceCategory>(q.value(2).toInt());
+			d.status = static_cast<Rt::Status>(q.value(3).toInt());
+			d.cycleCount = q.value(4).toInt();
+			d.cycleDate = q.value(5).toDate();
+			d.cycleTotal = q.value(6).toInt();
+			d.productionDate = q.value(7).toDate();
+			d.lastMaintainTime = q.value(8).toDateTime();
+			d.maintainCycle = q.value(9).toUInt();
+			d.sterilizeType = static_cast<Rt::SterilizeType>(q.value(10).toInt());
 			devices->append(d);
+		}
+	}
+	return 0;
+}
+
+result_t DeviceDao::getProgramList(Rt::DeviceCategory cat, QList<Program> *programs)
+{
+	QString sql = "SELECT id, category, name, remark FROM t_program";
+
+	if (Rt::UnknownDeviceCategory != cat) {
+		sql.append(QString(" WHERE category = %1").arg(cat));
+	}
+	
+	QSqlQuery q;
+	if (!q.exec(sql))
+		return q.lastError().text();
+
+	if (programs) {
+		Program p;
+		while (q.next()) {
+			p.id = q.value(0).toInt();
+			p.category = static_cast<Rt::DeviceCategory>(q.value(1).toInt());
+			p.name = q.value(2).toString();
+			p.remark = q.value(3).toString();
+			programs->append(p);
 		}
 	}
 	return 0;
