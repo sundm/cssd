@@ -5,6 +5,7 @@
 #include "errors.h"
 #include "../entity/package.h"
 #include "../entity/operator.h"
+#include "../entity/device.h"
 
 result_t FlowDao::addRecycle(const Package &pkg, const Operator& op)
 {
@@ -64,9 +65,14 @@ result_t FlowDao::addRecycle(const Package &pkg, const Operator& op)
 	return 0;
 }
 
-result_t FlowDao::addWash(const QList<Package> &pkgs, const Operator& op)
+result_t FlowDao::addWash(const QList<Package> &pkgs,
+	const Device &device,
+	const Program &program,
+	const Operator &op)
 {
-	//if (pkgs.isEmpty()) return 0;
+	if (pkgs.isEmpty()) return 0;
+
+	// TODO: check package status is Recycled?
 
 	return 0;
 }
