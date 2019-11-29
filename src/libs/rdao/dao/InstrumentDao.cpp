@@ -118,7 +118,7 @@ result_t InstrumentDao::getInstrument(const QString& udi, Instrument* ins)
 		ins->price = q.value(3).toInt();
 		ins->category = static_cast<Rt::InstrumentCategory>(q.value(4).toInt());
 		ins->isVip = q.value(5).toBool();
-		ins->packageUdi = q.value(6).toInt();
+		ins->packageUdi = q.value(6).toString();
 	}
 
 	return 0;
@@ -128,7 +128,7 @@ result_t InstrumentDao::getInstrumentList(
 	QList<Instrument> *instruments, int page/* = 1*/, int count/* = -1*/)
 {
 	QSqlQuery q;
-	QString sql = "SELECT a.udi, a.type_id, a.name, a.photo, a.price, b.category, b.is_vip, c.package_udi"
+	QString sql = "SELECT a.udi, a.type_id, a.name, a.photo, a.price, b.category, b.is_vip, c.pkg_udi"
 		" FROM t_instrument a"
 		" LEFT JOIN t_instrument_type b ON a.type_id=b.id"
 		" LEFT JOIN t_package_detail c ON a.udi=c.ins_udi AND c.status=1";
@@ -152,7 +152,7 @@ result_t InstrumentDao::getInstrumentList(
 			ins.price = q.value(4).toInt();
 			ins.category = static_cast<Rt::InstrumentCategory>(q.value(5).toInt());
 			ins.isVip = q.value(6).toBool();
-			ins.packageUdi = q.value(7).toInt();
+			ins.packageUdi = q.value(7).toString();
 			instruments->append(ins);
 		}
 	}

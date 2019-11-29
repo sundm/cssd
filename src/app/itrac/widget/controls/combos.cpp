@@ -1,5 +1,6 @@
 #include "combos.h"
 #include "core/net/url.h"
+#include "rdao/dao/devicedao.h"
 
 GenderComboBox::GenderComboBox(QWidget *parent /*= nullptr*/)
 	: QComboBox(parent)
@@ -20,6 +21,17 @@ void ProgramComboBox::updateEntry(bool force)
 
 	clear();
 
+	DeviceDao dao;
+	QList<Program> programs;
+	result_t resp = dao.getProgramsForDevice(_deviceId, &programs);
+	if (resp.isOk())
+	{
+		for (auto &program : programs) {
+			addItem(program.name, program.id);
+		}
+	}
+	
+	/*
 	QByteArray data("{\"device_id\":");
 	data.append(QString::number(_deviceId)).append('}');
 	_http.post(url(PATH_PROGRAM_SUPPORT), data, [=](QNetworkReply *reply) {
@@ -35,6 +47,7 @@ void ProgramComboBox::updateEntry(bool force)
 			addItem(map["program_name"].toString(), map["device_program_id"]);
 		}
 	});
+	*/
 }
 
 int ProgramComboBox::currentProgramId() const {

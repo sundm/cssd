@@ -8,6 +8,8 @@
 #include "core/constants.h"
 #include "dialog/registerinstrumentdialog.h"
 #include "dialog/addoperationdialog.h"
+#include "rdao/dao/PackageDao.h"
+#include "rdao/dao/instrumentdao.h"
 #include <xui/images.h>
 #include <xui/imageviewer.h>
 #include <QtWidgets/QtWidgets>
@@ -497,6 +499,30 @@ void PackageInfoView::unusualed()
 	_unusualNumLabel->setText(QString::number(_unusualNum));
 }
 
+bool PackageInfoView::isScanFinished()
+{
+	if (_totalNum == _scannedNum && _unusualNum == 0)
+		return true;
+	else
+		return false;
+}
+
+void PackageInfoView::reset()
+{
+	_packageIDLabel->setText("");
+	_packageNameLabel->setText("");
+	_tipsLabel->setText(QString("请扫描篮筐ID"));
+
+	_totalNumLabel->setText("0");
+	_scannedNumLabel->setText("0");
+	_residueNumLabel->setText("0");
+	_unusualNumLabel->setText("0");
+
+	_totalNum = 0;
+	_scannedNum = 0;
+	_unusualNum = 0;
+}
+
 OperationInfoTabelView::OperationInfoTabelView(QWidget *parent /*= nullptr*/)
 	: TableView(parent), _model(new QStandardItemModel(this))
 {
@@ -659,60 +685,51 @@ UnusualInstrumentView::UnusualInstrumentView(QWidget *parent /*= nullptr*/)
 
 void UnusualInstrumentView::addUnusual(const QString& instrumentID)
 {
-	QList<QStandardItem *> rowItems;
-	rowItems << new QStandardItem(instrumentID);
-	rowItems << new QStandardItem("测试器械04");
-	rowItems << new QStandardItem("E2009A9050048AF000000213");
-	rowItems << new QStandardItem("RFID测试器械包02");
-
-	for each (QStandardItem * item in rowItems)
+	InstrumentDao dao;
+	Instrument it;
+	result_t resp = dao.getInstrument(instrumentID, &it);
+	if (resp.isOk())
 	{
-		item->setTextAlignment(Qt::AlignCenter);
+		PackageDao dao;
+		Package pkg;
+		dao.getPackage(it.packageUdi, &pkg);
+		QList<QStandardItem *> rowItems;
+		rowItems << new QStandardItem(it.udi);
+		rowItems << new QStandardItem(it.name);
+		rowItems << new QStandardItem(it.packageUdi);
+		rowItems << new QStandardItem(pkg.name);
+
+		for each (QStandardItem * item in rowItems)
+		{
+			item->setTextAlignment(Qt::AlignCenter);
+		}
+		_model->appendRow(rowItems);
 	}
-	_model->appendRow(rowItems);
-	/*
-	QByteArray data("{\"package_type_id\":");
-	data.append(",\"card_id\":").append(instrumentID).append('}');
-	_http.post(url(PATH_PKGDETAIL_SEARCH), QByteArray().append(data), [=](QNetworkReply *reply) {
-		JsonHttpResponse resp(reply);
-		if (!resp.success()) {
-			XNotifier::warn(QString("无法获取包信息: ").append(resp.errorString()));
-			return;
-		}
-		int row = _model->rowCount();
-		//todo
-		QList<QVariant> orders = resp.getAsList("instruments");
-		_model->insertRows(0, orders.count());
-		for (int i = 0; i != orders.count(); ++i) {
-			QVariantMap map = orders[i].toMap();
-			_model->setData(_model->index(i, 0), map["instrument_name"]);
-		}
-	});
-	*/
+}
+
+void UnusualInstrumentView::reset()
+{
+	_model->removeRows(0, _model->rowCount());
 }
 
 PackageDetailView::PackageDetailView(QWidget *parent /*= nullptr*/)
 	: TableView(parent)
 	, _model(new QStandardItemModel(this))
-	, _instruments(new QList<instrument_struct>)
+	, _instruments(new QList<Instrument>)
 {
-	_model->setColumnCount(Tips + 1);
+	_model->setColumnCount(Status + 1);
 	_model->setHeaderData(Name, Qt::Horizontal, "器械名称");
-	_model->setHeaderData(Total, Qt::Horizontal, "数量");
-	_model->setHeaderData(Scanned, Qt::Horizontal, "通过");
-	_model->setHeaderData(Residue, Qt::Horizontal, "剩余");
-	_model->setHeaderData(Tips, Qt::Horizontal, "说明");
+	_model->setHeaderData(Code, Qt::Horizontal, "器械UDI");
+	_model->setHeaderData(Status, Qt::Horizontal, "状态");
 
 	setModel(_model);
 
+	horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
 	horizontalHeader()->setSectionResizeMode(1, QHeaderView::Fixed);
 	horizontalHeader()->setSectionResizeMode(2, QHeaderView::Fixed);
-	horizontalHeader()->setSectionResizeMode(3, QHeaderView::Fixed);
-	horizontalHeader()->setSectionResizeMode(4, QHeaderView::Fixed);
-	setColumnWidth(1, 100);
-	setColumnWidth(2, 100);
-	setColumnWidth(3, 100);
-	setColumnWidth(4, 200);
+	setColumnWidth(0, 300);
+	setColumnWidth(1, 500);
+	setColumnWidth(2, 500);
 
 	setSelectionMode(QAbstractItemView::SingleSelection);
 	setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -726,109 +743,56 @@ PackageDetailView::PackageDetailView(QWidget *parent /*= nullptr*/)
 void PackageDetailView::slotItemClicked(const QModelIndex &index)
 {
 	int row = index.row();
-	QString instrument_id = _model->data(_model->index(row, 0), 257).toString();
-
-	QString fileName = QString("./photo/instrument/%1.png").arg(instrument_id);
-	QFile file(fileName);
-	if (file.exists()) {
-		//todo
-	}
-}
-
-void PackageDetailView::updateState(int pkg_record, int ins_state)
-{
-	if (posIndex.isValid()) {
-		QModelIndex stateIdx = posIndex.sibling(posIndex.row(), 2);
-		_model->setData(stateIdx, ins_state, 257);
-		_model->setData(stateIdx, literalSteType(ins_state));
-		_model->setData(stateIdx, brushForSteType(ins_state), Qt::BackgroundRole);
-
-		emit sendData(pkg_record);
-	}
-
+	QString instrument_id = _model->item(row, 1)->text();
+	emit onclick(instrument_id);
 }
 
 void PackageDetailView::scanned(const QString & code) {
-	QList<instrument_struct>::const_iterator k;
+	QList<Instrument>::const_iterator k;
 	int i = 0;
+	bool iScanned = false;
 	for (k = _instruments->constBegin(); k != _instruments->constEnd(); k++)
 	{
-		if (k->codes.contains(code))
-		{
-			instrument_struct st = _instruments->at(i);
-			st.codes.removeOne(code);
-			_instruments->replace(i, st);
-			
-			int count = _model->item(i, 2)->text().toInt() + 1;
-			_model->item(i, 2)->setText(QString::number(count));
-
-			count = _model->item(i, 3)->text().toInt() - 1;
-			_model->item(i, 3)->setText(QString::number(count));
-
-			if (0 == count)
-			{
-				_model->item(i, 4)->setText("通过检查");
-			}
+		if (k->udi.compare(code) == 0)
+		{	
+			_model->item(i, 2)->setText("通过检查");
+			iScanned = true;
 			break;
 		}
 		i++;
 	}
-	
+
+	if (iScanned)
+		emit scand(code);
+	else
+		emit unusual(code);
 }
 
-void PackageDetailView::loadDetail(const QHash<QString, QString> * const maps) {
+void PackageDetailView::loadDetail(const QList<Instrument> * instruments) {
 	_instruments->clear();
-	QStringList names = maps->values();
-	names.removeDuplicates();
+	_model->removeRows(0, _model->rowCount());
 
-	for each (QString name in names)
-	{
-		QStringList codelist;
-		QHash<QString, QString>::const_iterator j;
-		for (j = maps->constBegin(); j != maps->constEnd(); j++)
-		{
-			if (j.value() == name)
-			{
-				codelist.append(j.key());
-			}
-		}
-
-		instrument_struct ins;
-		ins.name = name;
-		ins.codes = codelist;
-		_instruments->append(ins);
-	}
-
-	QList<instrument_struct>::const_iterator k;
-	for (k = _instruments->constBegin(); k != _instruments->constEnd(); k++)
+	QList<Instrument>::const_iterator k;
+	for (k = instruments->constBegin(); k != instruments->constEnd(); k++)
 	{
 		QList<QStandardItem *> rowItems;
 		rowItems << new QStandardItem(k->name);
-		rowItems << new QStandardItem(QString::number(k->codes.size()));
-		rowItems << new QStandardItem("0");
-		rowItems << new QStandardItem(QString::number(k->codes.size()));
+		rowItems << new QStandardItem(k->udi);
 		rowItems << new QStandardItem();
 		for each (QStandardItem * item in rowItems)
 		{
 			item->setTextAlignment(Qt::AlignCenter);
 		}
 		_model->appendRow(rowItems);
+		_instruments->append(*k);
 	}
 	
 }
 
-//void PackageDetailView::imgLoad(const QString& pkgTypeId)
-//{
-//	QString fileName = QString("./photo/package/%1.png").arg(pkgTypeId);
-//	_imgLabel->setImage(fileName);
-//	_imgLabel->setHidden(false);
-//}
-
-void PackageDetailView::clear()
+void PackageDetailView::reset()
 {
-	//_imgLabel->setImage();
-	//_imgLabel->setHidden(true);
 	_model->removeRows(0, _model->rowCount());
+	_instruments->clear();
 }
 
 //void PackageDetailView::imgClicked()

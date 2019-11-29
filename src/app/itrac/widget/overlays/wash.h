@@ -5,6 +5,8 @@
 
 class DeviceArea;
 class PlateView;
+struct Package;
+
 class WashPanel : public CssdOverlayPanel, public JsonHttpClient
 {
 	Q_OBJECT
@@ -17,10 +19,15 @@ protected:
 
 private slots:
 	void commit();
-	void addPlate();
+
+	void onTransponderReceviced(const QString& code);
+	void onBarcodeReceviced(const QString& code);
+
 private:
 	void reset();
 
 	DeviceArea * _deviceArea;
 	PlateView * _plateView;
+
+	QList<Package> _pkgList;
 };

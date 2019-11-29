@@ -7,12 +7,7 @@
 class QStandardItemModel;
 class XPicture;
 class QLabel;
-
-struct instrument_struct
-{
-	QString name;
-	QStringList codes;
-};
+struct Instrument;
 
 namespace Ui {
 	class FlatEdit;
@@ -165,10 +160,12 @@ class PackageInfoView : public QWidget
 	Q_OBJECT
 public:
 	PackageInfoView(QWidget *parent = nullptr);
+	void reset();
 	void updateTips(const QString& tips);
 	void updatePackageInfo(const QString &pkgId, const QString &pkgName, const int &insCount);
 	void scanned();
 	void unusualed();
+	bool isScanFinished();
 private:
 	QLabel * _tipsLabel;
 
@@ -194,6 +191,7 @@ class UnusualInstrumentView : public TableView
 public:
 	UnusualInstrumentView(QWidget *parent = nullptr);
 	void addUnusual(const QString& instrumentID);	
+	void reset();
 
 private:
 	enum {InstrumentID, InstrumentName, PackageID, PackageName};
@@ -207,26 +205,26 @@ class PackageDetailView : public TableView
 
 public:
 	PackageDetailView(QWidget *parent = nullptr);
-	void loadDetail(const QHash<QString, QString>* const maps);
+	void loadDetail(const QList<Instrument> *instruments);
 	void scanned(const QString & code);
-	void clear();
+	void reset();
 
 signals:
-	void sendData(int);
+	void scand(const QString &);
+	void unusual(const QString &);
+	void onclick(const QString &);
 
 private slots:
 	void slotItemClicked(const QModelIndex &);
-	void updateState(int, int);
 
 private:
-	enum {Name, Total, Scanned, Residue, Tips};
+	enum {Name, Code, Status};
 	QStandardItemModel * _model;
 	JsonHttpClient _http;
 
 	QModelIndex posIndex;
 
-	QList<instrument_struct> *_instruments;
-	int _state;
+	QList<Instrument> *_instruments;
 };
 
 

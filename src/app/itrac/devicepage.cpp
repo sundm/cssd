@@ -6,7 +6,7 @@
 #include "ui/buttons.h"
 #include "ui/views.h"
 #include "dialog/devicedialog.h"
-
+#include "rdao/dao/devicedao.h"
 #include <QtWidgets/QtWidgets>
 
 DevicePage::DevicePage(QWidget *parent)
@@ -131,7 +131,43 @@ void DevicePage::modifyDevice()
 void DevicePage::updateDeviceView(const QString& deviceType/* = QString()*/)
 {
 	_deviceModel->removeRows(0, _deviceModel->rowCount());
+	DeviceDao dao;
+	QList<Device> devices;
+	result_t resp = dao.getAllDeivces(&devices, false);
+	if (resp.isOk())
+	{
+		for (auto &device : devices) {
 
+			QStandardItem *idItem = new QStandardItem(QString::number(device.id));
+			Rt::DeviceCategory category = device.category;
+			idItem->setData(category);
+
+			int status = device.status;
+			QStandardItem *stateItem = new QStandardItem(literal_device_state(status));
+			stateItem->setData(status);
+
+			QList<QStandardItem *> rowItems;
+			rowItems.append(idItem);
+			rowItems.append(new QStandardItem(device.name));
+			rowItems.append(new QStandardItem(QString::number(device.cycleTotal)));
+			rowItems.append(new QStandardItem(QString::number(device.cycleCount)));
+			rowItems.append(new QStandardItem(device.productionDate.toString("yyyy-MM-dd")));
+			rowItems.append(stateItem);
+
+			int st = device.sterilizeType;
+			QStandardItem *stItem = new QStandardItem(sterile_type(st));
+			stItem->setData(st);
+			rowItems.append(stItem);
+
+			_deviceModel->appendRow(rowItems);
+		}
+	}
+	else
+	{
+		XNotifier::warn(QString("无法获取设备列表: ").append(resp.msg()));
+		return;
+	}
+	/*
 	QByteArray data;
 	if (deviceType.isEmpty())
 		data.append("{}");
@@ -169,6 +205,7 @@ void DevicePage::updateDeviceView(const QString& deviceType/* = QString()*/)
 			_deviceModel->appendRow(rowItems);
 		}
 	});
+	*/
 }
 
 void DevicePage::setDeviceEnabled(bool enabled)
@@ -189,8 +226,8 @@ void DevicePage::setDeviceEnabled(bool enabled)
 			}
 
 			QStandardItem *item = _deviceModel->item(row, 5);
-			item->setText(literal_device_state(enabled ? "0" : "1"));
-			item->setData(enabled ? "0" : "1");
+			item->setText(literal_device_state(enabled ? Rt::Status::Normal : Rt::Status::Frozen));
+			item->setData(enabled ? Rt::Status::Normal : Rt::Status::Frozen);
 		});
 	}
 }
@@ -213,16 +250,25 @@ void DevicePage::modify() {
 	if (indexes.count() == 0) return;
 	int row = indexes[0].row();
 
-	Device device;
-	device.id = _deviceModel->data(_deviceModel->index(row, 0)).toInt();
-	device.setTypeValue(_deviceModel->data(_deviceModel->index(row, 0), Qt::UserRole + 1).toString());
-	device.name = _deviceModel->data(_deviceModel->index(row, 1)).toString();
+	//Device device;
+	//device.id = _deviceModel->data(_deviceModel->index(row, 0)).toInt();
+	//device.setTypeValue(_deviceModel->data(_deviceModel->index(row, 0), Qt::UserRole + 1).toString());
+	//device.name = _deviceModel->data(_deviceModel->index(row, 1)).toString();
 
-	ModifyDeviceDialog d(&device, this);
-	if (d.exec() == QDialog::Accepted) {
-		QString deviceType = _filterComboBox->currentData().toString();
-		updateDeviceView(deviceType);
-	}
+	//ModifyDeviceDialog d(&device, this);
+	//if (d.exec() == QDialog::Accepted) {
+	//	QString deviceType = _filterComboBox->currentData().toString();
+	//	updateDeviceView(deviceType);
+	//}	//Device device;
+	//device.id = _deviceModel->data(_deviceModel->index(row, 0)).toInt();
+	//device.setTypeValue(_deviceModel->data(_deviceModel->index(row, 0), Qt::UserRole + 1).toString());
+	//device.name = _deviceModel->data(_deviceModel->index(row, 1)).toString();
+
+	//ModifyDeviceDialog d(&device, this);
+	//if (d.exec() == QDialog::Accepted) {
+	//	QString deviceType = _filterComboBox->currentData().toString();
+	//	updateDeviceView(deviceType);
+	//}
 }
 
 void DevicePage::disable() {

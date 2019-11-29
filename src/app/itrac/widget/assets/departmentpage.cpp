@@ -4,6 +4,7 @@
 #include "core/net/url.h"
 #include "dialog/adddptdialog.h"
 #include "ui/buttons.h"
+#include "rdao/dao/deptdao.h"
 #include <QtWidgets/QtWidgets>
 
 DepartmentPage::DepartmentPage(QWidget *parent)
@@ -69,25 +70,27 @@ namespace Internal {
 
 	void DeptAssetView::load(int page /*= 0*/, int count /*= 10*/)
 	{
-		_http.post(url(PATH_DEPT_SEARCH), "{}", [=](QNetworkReply *reply) {
-			JsonHttpResponse resp(reply);
-			if (!resp.success()) {
-				XNotifier::warn(QString("获取科室列表失败: ").append(resp.errorString()));
-				return;
-			}
-
+		DeptDao dao;
+		QList<Department> depts;
+		result_t resp = dao.getDeptList(&depts);
+		if (resp.isOk())
+		{
 			clear(); // when succeeded
 
-			QList<QVariant> pkgs = resp.getAsList("department_list");
-			_model->insertRows(0, pkgs.count());
-			for (int i = 0; i != pkgs.count(); ++i) {
-				QVariantMap map = pkgs[i].toMap();
-				_model->setData(_model->index(i, Id), map["department_id"]);
-				_model->setData(_model->index(i, Name), map["department_name"]);
-				_model->setData(_model->index(i, Pinyin), map["pinyin_code"]);
-				_model->setData(_model->index(i, Phone), map["phone"]);
+			_model->insertRows(0, depts.count());
+			for (int i = 0; i != depts.count(); ++i) {
+				Department dept = depts[i];
+				_model->setData(_model->index(i, Id), dept.id);
+				_model->setData(_model->index(i, Name), dept.name);
+				_model->setData(_model->index(i, Pinyin), dept.pinyin);
+				_model->setData(_model->index(i, Phone), dept.phone);
 			}
-		});
+		}
+		else
+		{
+			XNotifier::warn(QString("获取科室列表失败: ").append(resp.msg()));
+			return;
+		}
 	}
 
 	void DeptAssetView::clear() {

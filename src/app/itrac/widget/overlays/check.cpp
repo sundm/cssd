@@ -73,7 +73,7 @@ void PreExamPanel::onTransponderReceviced(const QString& code)
 	TranspondCode tc(code);
 	if (tc.type() == TranspondCode::Package && 0 == _step)
 	{
-		_codeMap->clear();
+		/*_codeMap->clear();
 		_unusualCodes->clear();
 		_scannedCodes->clear();
 		_codeMap->insert("E2009A8020020AF000006502", "测试器械01");
@@ -91,7 +91,7 @@ void PreExamPanel::onTransponderReceviced(const QString& code)
 		_pkgView->updatePackageInfo(_codeMap->size());
 		_detailView->loadDetail(_codeMap);
 
-		_step = 1;
+		_step = 1;*/
 	}
 
 	if (tc.type() == TranspondCode::Instrument && 1 == _step)
@@ -198,7 +198,7 @@ void PostExamPanel::onTransponderReceviced(const QString& code)
 	TranspondCode tc(code);
 	if (tc.type() == TranspondCode::Package && 0 == _step)
 	{
-		_codeMap->clear();
+		/*_codeMap->clear();
 		_unusualCodes->clear();
 		_scannedCodes->clear();
 		_codeMap->insert("E2009A8020020AF000006502", "测试器械01");
@@ -214,7 +214,7 @@ void PostExamPanel::onTransponderReceviced(const QString& code)
 		_codeMap->insert("E2009A8020020AF000005187", "测试器械03");
 
 		_pkgView->updatePackageInfo(_codeMap->size());
-		_detailView->loadDetail(_codeMap);
+		_detailView->loadDetail(_codeMap);*/
 
 		_step = 1;
 	}

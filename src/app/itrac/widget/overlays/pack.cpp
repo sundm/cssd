@@ -96,7 +96,7 @@ void PackPanel::onTransponderReceviced(const QString& code)
 	TranspondCode tc(code);
 	if (tc.type() == TranspondCode::Package && 0 == _step)
 	{
-		_codeMap->clear();
+		/*_codeMap->clear();
 		_unusualCodes->clear();
 		_scannedCodes->clear();
 		_codeMap->insert("E2009A8020020AF000006502", "测试器械01");
@@ -114,7 +114,7 @@ void PackPanel::onTransponderReceviced(const QString& code)
 		_pkgView->updatePackageInfo(code, QString("RFID测试器械包001"), _codeMap->size());
 		_detailView->loadDetail(_codeMap);
 
-		_step = 1;
+		_step = 1;*/
 	}
 
 	if (tc.type() == TranspondCode::Instrument && 1 == _step)

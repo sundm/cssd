@@ -52,7 +52,7 @@ void UserPage::updateView()
 {
 	if (_userModel->rowCount() > 0)
 		_userModel->clear();
-
+	
 	post(url(PATH_USER_SEARCH), "{}", [=](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
 		if (!resp.success()) {

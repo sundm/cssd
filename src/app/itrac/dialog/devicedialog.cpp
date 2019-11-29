@@ -9,6 +9,7 @@
 #include "ui/ui_commons.h"
 #include "ui/views.h"
 #include "ui/composite/waitingspinner.h"
+#include "rdao/dao/devicedao.h"
 #include <QtWidgets/QtWidgets>
 
 AddDeviceDialog::AddDeviceDialog(QWidget *parent)
@@ -162,7 +163,7 @@ ModifyDeviceDialog::ModifyDeviceDialog(Device *device, QWidget *parent /*= Q_NUL
 {
 	setWindowTitle("修改设备属性");
 
-	_typeEdit->setText(Device::Washer == device->type ? "清洗设备" : "灭菌设备");
+	_typeEdit->setText(Rt::DeviceCategory::Washer == device->category ? "清洗设备" : "灭菌设备");
 	_typeEdit->setReadOnly(true);
 	_nameEdit->setText(device->name);
 	_nameEdit->setReadOnly(true);
@@ -170,8 +171,8 @@ ModifyDeviceDialog::ModifyDeviceDialog(Device *device, QWidget *parent /*= Q_NUL
 	_typeCombo->addItem("通用灭菌器", 0);
 	_typeCombo->addItem("高温灭菌器", 1);
 	_typeCombo->addItem("低温灭菌器", 2);
-	_typeCombo->setCurrentIndex(device->sterile_type);
-	type = device->sterile_type;
+	_typeCombo->setCurrentIndex(device->sterilizeType);
+	type = device->sterilizeType;
 
 	initProgramView();
 	loadPrograms();
@@ -188,7 +189,7 @@ ModifyDeviceDialog::ModifyDeviceDialog(Device *device, QWidget *parent /*= Q_NUL
 	mainLayout->addWidget(_typeEdit, 0, 1);
 	mainLayout->addWidget(_nameEdit, 1, 1);
 
-	if (device->type > 0)
+	if (Rt::DeviceCategory::Sterilizer == device->category)
 	{
 		mainLayout->addWidget(new QLabel("灭菌类型"), 2, 0);
 		mainLayout->addWidget(new QLabel("预设程序"), 3, 0);
@@ -269,6 +270,30 @@ void ModifyDeviceDialog::initProgramView() {
 
 void ModifyDeviceDialog::loadPrograms()
 {
+	DeviceDao dao;
+	int deviceId = _device->id;
+	QList<Program> programs;
+	result_t resp = dao.getProgramsForDevice(deviceId, &programs);
+	if (resp.isOk())
+	{
+		for (auto &program : programs) {
+			QList<QStandardItem *> rowItems;
+			QStandardItem *checkItem = new QStandardItem(QString::number(program.id));
+			checkItem->setCheckable(true);
+			rowItems.append(checkItem);
+			rowItems.append(new QStandardItem(program.name));
+			rowItems.append(new QStandardItem(program.remark));
+			_model->appendRow(rowItems);
+		}
+
+		selectPrograms();
+	}
+	else
+	{
+		XNotifier::warn(QString("无法获取设备程序列表: ").append(resp.msg()));
+		return;
+	}
+	/*
 	QString deviceType = _device->typeValue();
 	QByteArray data;
 	data.append("{\"program_type\":\"").append(deviceType).append("\"}");
@@ -294,6 +319,7 @@ void ModifyDeviceDialog::loadPrograms()
 
 		selectPrograms();
 	});
+	*/
 }
 
 void ModifyDeviceDialog::selectPrograms() {

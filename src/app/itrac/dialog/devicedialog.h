@@ -2,6 +2,7 @@
 
 #include <QDialog>
 #include "core/net/jsonhttpclient.h"
+#include "rdao/entity/enums.h"
 
 namespace Ui {
 	class FlatEdit;

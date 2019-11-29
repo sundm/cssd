@@ -14,6 +14,7 @@
 #include "filterrow.h"
 #include "filter.h"
 #include "idedit.h"
+#include "rdao/dao/devicedao.h"
 
 FilterRow::FilterRow(const QString &head, QWidget *parent)
 	: QWidget(parent), _layout(new QHBoxLayout)
@@ -190,28 +191,44 @@ DeviceFilterRow::DeviceFilterRow(const QString &head, QWidget *parent, itrac::De
 void DeviceFilterRow::reset()
 {
 	_deviceBox->clear();
-
-	QString data = QString("{\"device_type\":\"000%1\"}").arg((itrac::DeviceType::Washer == _type) ? 1 : 2);
-
-	_http.post(url(PATH_DEVICE_SEARCH), QByteArray().append(data), [this](QNetworkReply *reply) {
-		JsonHttpResponse resp(reply);
-		if (!resp.success()) {
-			XNotifier::warn(QString("无法获取设备列表: ").append(resp.errorString()));
+	DeviceDao dao;
+	if (itrac::DeviceType::Washer == _type)
+	{
+		QList<Washer> washers;
+		result_t resp = dao.getWasherList(&washers);
+		if (resp.isOk())
+		{
+			_deviceBox->addItem(QString("不限"), QString(""));
+			for (auto &device : washers) {
+				_deviceBox->addItem(device.name, device.id);
+			}
+			updateGeometry();
+		}
+		else
+		{
+			XNotifier::warn(QString("无法获取设备列表: ").append(resp.msg()));
 			return;
 		}
+	}
 
-		_deviceBox->addItem(QString("不限"), QString(""));
-
-		QList<QVariant> devices = resp.getAsList("devices");
-		for (auto &device : devices) {
-			QVariantMap map = device.toMap();
-			int state = Device::tranlateState(map["is_forbidden"].toString());
-			if (state == Device::Disabled) continue;
-			_deviceBox->addItem(map["device_name"].toString(), map["device_id"].toInt());
+	if (itrac::DeviceType::Sterilizer == _type)
+	{
+		QList<Sterilizer> sterilizers;
+		result_t resp = dao.getSterilizerList(&sterilizers);
+		if (resp.isOk())
+		{
+			_deviceBox->addItem(QString("不限"), QString(""));
+			for (auto &device : sterilizers) {
+				_deviceBox->addItem(device.name, device.id);
+			}
+			updateGeometry();
 		}
-
-		updateGeometry();
-	});
+		else
+		{
+			XNotifier::warn(QString("无法获取设备列表: ").append(resp.msg()));
+			return;
+		}
+	}
 }
 
 void DeviceFilterRow::setCondition2Filter(Filter *f)

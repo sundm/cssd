@@ -13,7 +13,7 @@ class PacktypeAssetView : public TableView
 	Q_OBJECT
 
 public:
-	enum Column {PackType, Valid, Max};
+	enum Column {Type, Valid, Max};
 	PacktypeAssetView(QWidget *parent = nullptr);
 	void load();
 

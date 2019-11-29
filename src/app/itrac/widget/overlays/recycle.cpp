@@ -13,6 +13,8 @@
 #include "dialog/regexpinputdialog.h"
 #include "importextdialog.h"
 #include "model/spinboxdelegate.h"
+#include "rdao/dao/PackageDao.h"
+#include "rdao/dao/instrumentdao.h"
 #include "xnotifier.h"
 #include <xui/images.h>
 #include <xui/imageviewer.h>
@@ -287,8 +289,8 @@ OrRecyclePanel::OrRecyclePanel(QWidget *parent /*= nullptr*/)
 	: CssdOverlayPanel(parent)
 	, _pkgView(new PackageInfoView)
 	, _detailView(new PackageDetailView)
+	, _package(new Package)
 	, _unusualView(new UnusualInstrumentView)
-	, _codeMap(new QHash<QString, QString>)
 	, _unusualCodes(new QStringList)
 	, _scannedCodes(new QStringList)
 	, _pkgImg(new XPicture(this))
@@ -297,8 +299,11 @@ OrRecyclePanel::OrRecyclePanel(QWidget *parent /*= nullptr*/)
 	const QString text = "1 扫描物品包ID\n2 扫描托盘内器械\n3 确认回收 \n说明\n灰色：实际数量\n绿色：通过数量\n黄色：剩余数量\n红色：异常数量";
 	Tip *tip = new Tip(text);
 	Ui::PrimaryButton *commitButton = new Ui::PrimaryButton("确认回收");
+	Ui::PrimaryButton *resetButton = new Ui::PrimaryButton("重置");
 	tip->addQr();
+	tip->addButton(resetButton);
 	tip->addButton(commitButton);
+	connect(resetButton, SIGNAL(clicked()), this, SLOT(reset()));
 	connect(commitButton, SIGNAL(clicked()), this, SLOT(commit()));
 
 	QVBoxLayout *aLayout = new QVBoxLayout;
@@ -326,6 +331,10 @@ OrRecyclePanel::OrRecyclePanel(QWidget *parent /*= nullptr*/)
 
 	connect(_listener, SIGNAL(onTransponder(const QString&)), this, SLOT(onTransponderReceviced(const QString&)));
 	connect(_listener, SIGNAL(onBarcode(const QString&)), this, SLOT(onBarcodeReceviced(const QString&)));
+	
+	connect(_detailView, SIGNAL(scand(const QString&)), this, SLOT(onScanned(const QString&)));
+	connect(_detailView, SIGNAL(unusual(const QString&)), this, SLOT(onUnusual(const QString&)));
+	connect(_detailView, SIGNAL(onclick(const QString&)), this, SLOT(loadInstrumentImg(const QString&)));
 
 	_step = 0;
 }
@@ -336,45 +345,50 @@ void OrRecyclePanel::onTransponderReceviced(const QString& code)
 	TranspondCode tc(code);
 	if (tc.type() == TranspondCode::Package && 0 == _step)
 	{
-		_codeMap->clear();
 		_unusualCodes->clear();
 		_scannedCodes->clear();
-		_codeMap->insert("E2009A8020020AF000006502", "测试器械01");
-		_codeMap->insert("E2009A8020020AF000005618", "测试器械01");
-		_codeMap->insert("E2009A8020020AF000006342", "测试器械01");
 
-		_codeMap->insert("E2009A8020020AF000006090", "测试器械02");
-		_codeMap->insert("E2009A8020020AF000004398", "测试器械02");
-		_codeMap->insert("E2009A8020020AF000006048", "测试器械02");
-		_codeMap->insert("E2009A8020020AF000003250", "测试器械02");
-		_codeMap->insert("E2009A8020020AF000005811", "测试器械02");
-
-		_codeMap->insert("E2009A8020020AF000005187", "测试器械03");
-
-		_pkgView->updatePackageInfo(code, QString("RFID测试器械包001"), _codeMap->size());
-		_detailView->loadDetail(_codeMap);
-
-		_step = 1;
+		PackageDao dao;
+		
+		result_t resp = dao.getPackage(code, _package, true);
+		if (resp.isOk())
+		{
+			_pkgView->updatePackageInfo(code, _package->name, _package->instruments.size());
+			_detailView->loadDetail(&_package->instruments);
+			loadPackageImg(code);
+			_step = 1;
+		}
+		
 	}
 
 	if (tc.type() == TranspondCode::Instrument && 1 == _step)
 	{
-		if (_codeMap->size() > 0 && _codeMap->contains(code) && !_scannedCodes->contains(code))
+		InstrumentDao dao;
+		Instrument it;
+		result_t resp = dao.getInstrument(code, &it);
+		if (resp.isOk())
 		{
-			_scannedCodes->append(code);
-			_pkgView->scanned();
 			_detailView->scanned(code);
 		}
-		else if (_codeMap->size() > 0 && !_codeMap->contains(code))
-		{
-			if (!_unusualCodes->contains(code))
-			{
-				_unusualCodes->append(code);
-				_pkgView->unusualed();
-				_unusualView->addUnusual(code);
-			}
-			
-		}
+	}
+}
+
+void OrRecyclePanel::onScanned(const QString& code)
+{
+	if (!_scannedCodes->contains(code))
+	{
+		_scannedCodes->append(code);
+		_pkgView->scanned();
+	}
+}
+
+void OrRecyclePanel::onUnusual(const QString& code)
+{
+	if (!_unusualCodes->contains(code))
+	{
+		_unusualCodes->append(code);
+		_pkgView->unusualed();
+		_unusualView->addUnusual(code);
 	}
 }
 
@@ -435,5 +449,45 @@ void OrRecyclePanel::commit() {
 
 void OrRecyclePanel::reset()
 {
-	//todo
+	_pkgView->reset();
+	_detailView->reset();
+	_unusualView->reset();
+
+	_scannedCodes->clear();
+	_unusualCodes->clear();
+	_step = 0;
+
+	QString fileName = QString("./photo/timg.png");
+	_pkgImg->setImage(fileName);
+	_insImg->setImage(fileName);
+
+	delete _package;
+	_package = new Package();
+}
+
+void OrRecyclePanel::loadPackageImg(const QString& udi)
+{
+	QString imgPath = QString("./photo/package/%1.png").arg(udi);
+	QFile file(imgPath);
+	if (file.exists()) {
+		_pkgImg->setImage(imgPath);
+	}
+	else {
+		QString fileName = QString("./photo/timg.png");
+		_pkgImg->setImage(fileName);
+	}
+}
+
+void OrRecyclePanel::loadInstrumentImg(const QString& udi)
+{
+	QString imgPath = QString("./photo/instrument/%1.png").arg(udi);
+	QFile file(imgPath);
+	if (file.exists()) {
+		_insImg->setImage(imgPath);
+	}
+	else
+	{
+		QString fileName = QString("./photo/timg.png");
+		_insImg->setImage(fileName);
+	}
 }

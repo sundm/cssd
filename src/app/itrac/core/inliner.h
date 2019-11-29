@@ -1,5 +1,7 @@
 #pragma once
 
+#include "rdao/entity/enums.h"
+
 #define WASH_DEVICE    "0001"
 #define STERILE_DEVICE "0002"
 #define MALE "M"
@@ -24,20 +26,20 @@
  *  inline function is the same object in different translation units"
  */
 
-extern inline QString literal_device_state(const QString & isForbidden) {
-	if (isForbidden == "0")
+extern inline QString literal_device_state(const int state) {
+	if (state == Rt::Status::Normal)
 		return "空闲";
-	if (isForbidden == "1")
+	if (state == Rt::Status::Frozen)
 		return "已禁用";
-	if (isForbidden == "2")
+	if (state == Rt::Status::Deleted)
 		return "运行中";
 	return "未知状态";
 }
 
-extern inline QString literal_program_type(const QString & typeValue) {
-	if (typeValue == WASH_DEVICE)
+extern inline QString literal_program_type(const int typeValue) {
+	if (typeValue == Rt::DeviceCategory::Washer)
 		return "清洗预设程序";
-	if (typeValue == STERILE_DEVICE)
+	if (typeValue == Rt::DeviceCategory::Sterilizer)
 		return "灭菌预设程序";
 	return "未知程序";
 }
@@ -48,9 +50,9 @@ extern inline QString sterile_type(int type) {
 	if (0 == type)
 		return "通用灭菌器";
 	if (1 == type)
-		return "高温灭菌器";
-	if (2 == type)
 		return "低温灭菌器";
+	if (2 == type)
+		return "高温灭菌器";
 	return "未知类型";
 }
 

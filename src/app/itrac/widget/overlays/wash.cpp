@@ -6,6 +6,7 @@
 #include "widget/controls/plateview.h"
 #include "dialog/regexpinputdialog.h"
 #include "core/net/url.h"
+#include "rdao/dao/PackageDao.h"
 #include "dialog/operatorchooser.h"
 #include "xnotifier.h"
 #include "QtWidgets/QtWidgets"
@@ -38,16 +39,21 @@ WashPanel::WashPanel(QWidget *parent)
 	layout->addWidget(tip, 0, 1, 3, 1);
 	layout->setRowStretch(2, 1);
 
+	connect(_listener, SIGNAL(onTransponder(const QString&)), this, SLOT(onTransponderReceviced(const QString&)));
+	connect(_listener, SIGNAL(onBarcode(const QString&)), this, SLOT(onBarcodeReceviced(const QString&)));
+
+	_pkgList.clear();
 	QTimer::singleShot(200, [this] { _deviceArea->load(itrac::DeviceType::Washer); });
 }
 
-void WashPanel::addPlate() {
-	bool ok;
-	QRegExp regExp("\\d{8,}");
-	QString code = RegExpInputDialog::getText(this, "手工输入条码", "请输入网篮条码", "", regExp, &ok);
-	if (ok) {
-		handleBarcode(code);
-	}
+void WashPanel::onTransponderReceviced(const QString& code)
+{
+	qDebug() << code;
+}
+
+void WashPanel::onBarcodeReceviced(const QString& code)
+{
+	qDebug() << code;
 }
 
 void WashPanel::handleBarcode(const QString &code) {

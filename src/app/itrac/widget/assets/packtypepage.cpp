@@ -6,7 +6,7 @@
 #include "ui/buttons.h"
 #include "dialog/packtypedialog.h"
 #include <xui/searchedit.h>
-
+#include "rdao/dao/PackageDao.h"
 #include <QtWidgets/QtWidgets>
 
 namespace Internal {
@@ -14,7 +14,7 @@ namespace Internal {
 		: TableView(parent)
 		, _model(new QStandardItemModel(0, Max + 1, this))
 	{
-		_model->setHeaderData(PackType, Qt::Horizontal, "包装类型");
+		_model->setHeaderData(Type, Qt::Horizontal, "包装类型");
 		_model->setHeaderData(Valid, Qt::Horizontal, "当前有效期(天)");
 		_model->setHeaderData(Max, Qt::Horizontal, "最大有效期(天)");
 		setModel(_model);
@@ -24,6 +24,27 @@ namespace Internal {
 
 	void PacktypeAssetView::load()
 	{
+		PackageDao dao;
+		QList<PackType> pkgs;
+		result_t resp = dao.getPackTypeList(&pkgs);
+		if (resp.isOk())
+		{
+			clear(); // when succeeded
+			_model->insertRows(0, pkgs.count());
+			for (int i = 0; i != pkgs.count(); ++i) {
+				PackType pt = pkgs[i];
+				_model->setData(_model->index(i, Type), pt.name);
+				_model->setData(_model->index(i, Type), pt.id, Constant::IdRole);
+				_model->setData(_model->index(i, Valid), pt.validPeriod);
+				_model->setData(_model->index(i, Max), pt.standardPeriod);
+			}
+		}
+		else
+		{
+			XNotifier::warn(QString("获取包类型列表失败: ").append(resp.msg()));
+			return;
+		}
+		/*
 		QByteArray data;
 		data.append("{}");
 		_http.post(url(PATH_PACKTYPE_SEARCH), data, [=](QNetworkReply *reply) {
@@ -45,6 +66,7 @@ namespace Internal {
 				_model->setData(_model->index(i, Max), map["max_date"]);
 			}
 		});
+		*/
 	}
 
 }

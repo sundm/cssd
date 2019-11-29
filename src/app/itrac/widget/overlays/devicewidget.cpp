@@ -1,5 +1,5 @@
 #include "devicewidget.h"
-
+#include "rdao/dao/devicedao.h"
 #include "core/assets.h"
 #include "core/net/url.h"
 #include "ui/labels.h"
@@ -29,10 +29,10 @@ int DeviceItem::id() const {
 }
 
 int DeviceItem::cycle() const {
-	return _device->cycleToday;
+	return _device->cycleCount;
 }
 int DeviceItem::sterilize_type() const {
-	return _device->sterile_type;
+	return _device->sterilizeType;
 }
 
 QString DeviceItem::name() const {
@@ -42,7 +42,7 @@ QString DeviceItem::name() const {
 bool DeviceItem::eventFilter(QObject *object, QEvent *e) {
 	if (object == _icon && e->type() == QEvent::MouseButtonRelease) {
 		qDebug() << "selected";
-		if (_device->isIdle() && !_icon->isChecked()) {
+		if (_device->status == Rt::DeviceStatus::Idle && !_icon->isChecked()) {
 			setSelected(true);
 			emit selected(this);
 		}
@@ -57,13 +57,13 @@ WasherItem::WasherItem(Device *device, QWidget *parent)
 	QGridLayout *layout = new QGridLayout(this);
 
 	_icon->setPixmap(
-		QPixmap(_device->isIdle() ? ":/res/washer.png" : ":/res/washer-busy.png"));
+		QPixmap(_device->status == Rt::DeviceStatus::Idle ? ":/res/washer.png" : ":/res/washer-busy.png"));
 	layout->addWidget(_icon, 0, 0, 3, 1);
 
 	layout->addWidget(_title, 0, 1);
 
 	Ui::Description *cycle =
-		new Ui::Description(QString("今日锅次: %1").arg(_device->cycleToday));
+		new Ui::Description(QString("今日锅次: %1").arg(_device->cycleCount));
 	layout->addWidget(cycle, 1, 1);
 
 	_comboBox = new ProgramComboBox(_device->id);
@@ -73,7 +73,7 @@ WasherItem::WasherItem(Device *device, QWidget *parent)
 	connect(_button, SIGNAL(clicked()), this, SLOT(stop()));
 	layout->addWidget(_button, 4, 0, 1, 2);
 
-	if (_device->isIdle()) {
+	if (_device->status == Rt::DeviceStatus::Idle) {
 		_button->hide();
 	}
 	else {
@@ -88,7 +88,7 @@ int WasherItem::programId() const {
 }
 
 bool WasherItem::isRunning() const {
-	return _device->state == Device::Running;
+	return _device->status == Rt::DeviceStatus::Running;
 }
 
 void WasherItem::setSelected(bool b) {
@@ -103,11 +103,11 @@ void WasherItem::setIdle() {
 	_icon->setPixmap(QPixmap(":/res/washer.png"));
 	_comboBox->show();
 	_button->hide();
-	_device->state = Device::Idle;
+	_device->status = Rt::DeviceStatus::Idle;
 }
 
 void WasherItem::setRunning() {
-	_device->state = Device::Running;
+	_device->status = Rt::DeviceStatus::Running;
 }
 
 void WasherItem::stop() {
@@ -149,7 +149,48 @@ void DeviceArea::load(itrac::DeviceType type, bool isHigh)
 	_items.clear();
 
 	_isHigh = isHigh;
+	DeviceDao dao;
+	if (type == Rt::DeviceCategory::Washer)
+	{
+		QList<Washer> washers;
+		result_t resp = dao.getWasherList(&washers);
+		if (resp.isOk())
+		{
+			for (int i = 0; i < washers.size(); i++)
+			{
+				addDeviceItem(new WasherItem(&washers[i]));
+			}
+			
+			updateGeometry();
+		}
+		else
+		{
+			XNotifier::warn(QString("无法获取设备列表: ").append(resp.msg()));
+			return;
+		}
+	}
 
+	if (type == Rt::DeviceCategory::Sterilizer)
+	{
+		QList<Sterilizer> sterilizers;
+		result_t resp = dao.getSterilizerList(&sterilizers);
+		if (resp.isOk())
+		{
+			for (Sterilizer &device : sterilizers) {
+				if (_isHigh && device.sterilizeType != Rt::SterilizeType::HighTemperature)
+					continue;
+				addDeviceItem(new WasherItem(&device));
+			}
+			updateGeometry();
+		}
+		else
+		{
+			XNotifier::warn(QString("无法获取设备列表: ").append(resp.msg()));
+			return;
+		}
+	}
+	
+	/*
 	QString data = QString("{\"device_type\":\"000%1\"}").arg((itrac::DeviceType::Washer == type) ? 1 : 2);
 
 	post(url(PATH_DEVICE_SEARCH), QByteArray().append(data), [this](QNetworkReply *reply) {
@@ -162,10 +203,10 @@ void DeviceArea::load(itrac::DeviceType type, bool isHigh)
 		QList<QVariant> devices = resp.getAsList("devices");
 		for (auto &device : devices) {
 			QVariantMap map = device.toMap();
-			int state = Device::tranlateState(map["is_forbidden"].toString());
-			if (state == Device::Disabled) continue;
+			int state = dumpDevice::tranlateState(map["is_forbidden"].toString());
+			if (state == dumpDevice::Disabled) continue;
 
-			Device *d = new Device;
+			dumpDevice *d = new dumpDevice;
 			d->name = map["device_name"].toString();
 			d->id = map["device_id"].toInt();
 			d->cycleToday = map["cycle"].toInt();
@@ -181,6 +222,7 @@ void DeviceArea::load(itrac::DeviceType type, bool isHigh)
 		// otherwise the layout doesn't know the minimumSizeHint has changed.
 		updateGeometry();
 	});
+	*/
 }
 
 QSize DeviceArea::minimumSizeHint() const {

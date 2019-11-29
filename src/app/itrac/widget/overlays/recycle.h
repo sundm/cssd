@@ -13,6 +13,7 @@ class UnusualInstrumentView;
 class PackageInfoView;
 class PackageDetailView;
 class QStandardItemModel;
+struct Package;
 
 class NoBCRecyclePanel : public CssdOverlayPanel, public JsonHttpClient
 {
@@ -58,20 +59,26 @@ protected:
 
 private slots:
 	void commit();
+	void reset();
+
 	void onTransponderReceviced(const QString& code);
 	void onBarcodeReceviced(const QString& code);
+	
+	void onScanned(const QString& code);
+	void onUnusual(const QString& code);
+	void loadInstrumentImg(const QString& udi);
 
 private:
-	void reset();
+	
+	void loadPackageImg(const QString& udi);
 
 	PackageInfoView * _pkgView;
 	PackageDetailView * _detailView;
 	UnusualInstrumentView * _unusualView;
 
-	QHash<QString, QString> * _codeMap;
 	QStringList * _scannedCodes;
 	QStringList * _unusualCodes;
-
+	Package * _package;
 	XPicture * _pkgImg;
 	XPicture * _insImg;
 	int _row;

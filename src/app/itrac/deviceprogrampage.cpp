@@ -5,6 +5,7 @@
 #include "ui/buttons.h"
 #include "ui/views.h"
 #include "dialog/programdialog.h"
+#include "rdao/dao/devicedao.h"
 #include <QtWidgets/QtWidgets>
 
 DeviceProgramPage::DeviceProgramPage(QWidget *parent)
@@ -97,7 +98,30 @@ void DeviceProgramPage::initProgramView()
 void DeviceProgramPage::updateProgramView(const QString& programType /*= QString()*/)
 {
 	_programModel->removeRows(0, _programModel->rowCount());
+	DeviceDao dao;
+	QList<Program> programs;
+	result_t resp = dao.getAllPrograms(&programs);
+	if (resp.isOk())
+	{
+		for (auto &program : programs) {
+			int typeValue = program.category;
+			QStandardItem *typeItem = new QStandardItem(literal_program_type(typeValue));
+			typeItem->setData(typeValue);
 
+			QList<QStandardItem *> rowItems;
+			rowItems.append(new QStandardItem(QString::number(program.id)));
+			rowItems.append(typeItem);
+			rowItems.append(new QStandardItem(program.name));
+			rowItems.append(new QStandardItem(program.remark));
+			_programModel->appendRow(rowItems);
+		}
+	}
+	else
+	{
+		XNotifier::warn(QString("无法获取设备程序列表: ").append(resp.msg()));
+		return;
+	}
+	/*
 	QByteArray data;
 	if (programType.isEmpty())
 		data.append("{}");
@@ -126,4 +150,5 @@ void DeviceProgramPage::updateProgramView(const QString& programType /*= QString
 			_programModel->appendRow(rowItems);
 		}
 	});
+	*/
 }
