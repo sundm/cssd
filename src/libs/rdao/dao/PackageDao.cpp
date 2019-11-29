@@ -144,7 +144,7 @@ result_t PackageDao::getPackage(
 	const QString &udi, Package* pkg, bool withInstruments /*= false*/)
 {
 	QSqlQuery q;
-	q.prepare("SELECT a.name, a.photo, a.type_id, a.cycle,"
+	q.prepare("SELECT a.name, a.photo, a.type_id, a.cycle, a.status,"
 		" b.category, b.sterilize_type, b.pack_type_id, b.dept_id, c.name, d.name"
 		" FROM t_package a"
 		" LEFT JOIN t_package_type b ON a.type_id = b.id"
@@ -165,12 +165,13 @@ result_t PackageDao::getPackage(
 		pkg->photo = q.value(1).toString();
 		pkg->typeId = q.value(2).toInt();
 		pkg->cycle = q.value(3).toInt();
-		pkg->category = static_cast<Rt::PackageCategory>(q.value(4).toInt());
-		pkg->sterType = static_cast<Rt::SterilizeType>(q.value(5).toInt());
-		pkg->packType.id = q.value(6).toInt();
-		pkg->dept.id = q.value(7).toInt();
-		pkg->packType.name = q.value(8).toString();
-		pkg->dept.name = q.value(9).toString();
+		pkg->status = static_cast<Rt::FlowStatus>(q.value(4).toInt());
+		pkg->category = static_cast<Rt::PackageCategory>(q.value(5).toInt());
+		pkg->sterType = static_cast<Rt::SterilizeType>(q.value(6).toInt());
+		pkg->packType.id = q.value(7).toInt();
+		pkg->dept.id = q.value(8).toInt();
+		pkg->packType.name = q.value(9).toString();
+		pkg->dept.name = q.value(10).toString();
 	}
 
 	if (!withInstruments)
@@ -204,7 +205,7 @@ result_t PackageDao::getPackageList(
 	QList<Package> *pkgs, int page/* = 1*/, int count/* = -1*/)
 {
 	QSqlQuery q;
-	QString sql = "SELECT a.udi, a.name, a.photo, a.type_id, a.cycle,"
+	QString sql = "SELECT a.udi, a.name, a.photo, a.type_id, a.cycle, a.status,"
 		" b.category, b.sterilize_type, b.pack_type_id, b.dept_id, c.name, d.name"
 		" FROM t_package a"
 		" LEFT JOIN t_package_type b ON a.type_id = b.id"
@@ -228,12 +229,13 @@ result_t PackageDao::getPackageList(
 			pkg.photo = q.value(2).toString();
 			pkg.typeId = q.value(3).toInt();
 			pkg.cycle = q.value(4).toInt();
-			pkg.category = static_cast<Rt::PackageCategory>(q.value(5).toInt());
-			pkg.sterType = static_cast<Rt::SterilizeType>(q.value(6).toInt());
-			pkg.packType.id = q.value(7).toInt();
-			pkg.dept.id = q.value(8).toInt();
-			pkg.packType.name = q.value(9).toString();
-			pkg.dept.name = q.value(10).toString();
+			pkg.status = static_cast<Rt::FlowStatus>(q.value(5).toInt());
+			pkg.category = static_cast<Rt::PackageCategory>(q.value(6).toInt());
+			pkg.sterType = static_cast<Rt::SterilizeType>(q.value(7).toInt());
+			pkg.packType.id = q.value(8).toInt();
+			pkg.dept.id = q.value(9).toInt();
+			pkg.packType.name = q.value(10).toString();
+			pkg.dept.name = q.value(11).toString();
 			pkgs->append(pkg);
 		}
 	}

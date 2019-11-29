@@ -32,9 +32,9 @@ namespace Rt
 	enum Role {
 		Admin = 1,
 		HeadNurse,
+		CssdUser,
 		OrUser,
 		ClinicUser,
-		CssdUser,
 		UnknownRole
 	};
 
@@ -56,6 +56,22 @@ namespace Rt
 		Washer,
 		Sterilizer,
 		UnknownDeviceCategory
+	};
+
+	enum FlowStatus {
+		UnknownFlowStatus,
+		Washed,
+		WashChecked,
+		Packed,
+		Sterilized,
+		SterilizeFailed,
+		SterilizePassed,
+		Dispatched,
+		Received,
+		SurgeryPreChecked,
+		SurgeryPostChecked,
+		Recycled,
+		Recalled = 99
 	};
 
 }

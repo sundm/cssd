@@ -49,7 +49,8 @@ struct Package : public PackageType
 {
 	QString udi;
 	int cycle;
+	Rt::FlowStatus status;
 	QList<Instrument> instruments;
 	
-	Package() : cycle(0) {}
+	Package() : cycle(0), status(Rt::UnknownFlowStatus) {}
 };

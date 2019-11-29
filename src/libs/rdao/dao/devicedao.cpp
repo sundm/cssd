@@ -57,7 +57,7 @@ result_t DeviceDao::getProgramsForDevice(int deviceId, QList<Program> *programs)
 {
 	QSqlQuery q;
 	q.prepare("SELECT b.id, b.category, b.name, b.remark FROM"
-		" device_programs a"
+		" t_device_programs a"
 		" LEFT JOIN t_program b ON a.program_id = b.id"
 		" WHERE a.device_id = ?");
 	q.addBindValue(deviceId);
