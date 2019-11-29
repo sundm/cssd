@@ -17,6 +17,12 @@ namespace Rt
 		Deleted
 	};
 
+	enum DeviceStatus {
+		Idle,
+		Running,
+		Forbidden
+	};
+
 	enum Gender {
 		Male,
 		Female,

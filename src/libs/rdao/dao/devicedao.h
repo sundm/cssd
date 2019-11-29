@@ -12,22 +12,22 @@ public:
 	/**
 	 * Fetch washer devices.
 	 * @param washers: out param
-	 * @param onlyAvailable: if true, those frozen are not returned, otherwise return all
+	 * @param excludeForbidden: if true, those forbidden are not returned, otherwise return all
 	 * @return a result_t object
 	 */
 	result_t getWasherList(
 		QList<Washer> *washers,
-		bool onlyAvailable = true
+		bool excludeForbidden = true
 	);
 
 	result_t getSterilizerList(
 		QList<Sterilizer> *sterilizers,
-		bool onlyAvailable = true
+		bool excludeForbidden = true
 	);
 
 	result_t getAllDeivces(
 		QList<Device> *devices,
-		bool onlyAvailable = true
+		bool excludeForbidden = true
 	);
 
 	result_t getProgramsForDevice(int deviceId, QList<Program> *programs);
@@ -40,7 +40,7 @@ private:
 	result_t getDeviceList(
 		Rt::DeviceCategory cat,
 		QList<Device> *devices,
-		bool onlyAvailable = true
+		bool excludeForbidden = true
 	);
 
 	result_t getProgramList(

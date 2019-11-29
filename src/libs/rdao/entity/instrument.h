@@ -22,8 +22,9 @@ struct InstrumentType
 struct Instrument : public InstrumentType
 {
 	QString udi;
+	int cycle;
 	QString packageUdi;
 	int price;
 
-	Instrument() : price(-1) {}
+	Instrument() : cycle(0), price(-1) {}
 };

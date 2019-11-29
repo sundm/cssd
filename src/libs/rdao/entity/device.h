@@ -17,7 +17,7 @@ struct Device{
 	int id;
 	QString name;
 	Rt::DeviceCategory category;
-	Rt::Status status;
+	Rt::DeviceStatus status;
 	int cycleCount;
 	int cycleTotal;
 	Rt::SterilizeType sterilizeType;
@@ -30,7 +30,7 @@ struct Device{
 	Device() :
 		id(-1),
 		category(Rt::UnknownDeviceCategory),
-		status(Rt::Normal),
+		status(Rt::Idle),
 		cycleCount(-1),
 		cycleTotal(-1),
 		sterilizeType(Rt::UnknownSterilizeType),

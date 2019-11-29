@@ -144,7 +144,8 @@ result_t PackageDao::getPackage(
 	const QString &udi, Package* pkg, bool withInstruments /*= false*/)
 {
 	QSqlQuery q;
-	q.prepare("SELECT a.name, a.photo, a.type_id, b.category, b.sterilize_type, b.pack_type_id, b.dept_id, c.name, d.name"
+	q.prepare("SELECT a.name, a.photo, a.type_id, a.cycle,"
+		" b.category, b.sterilize_type, b.pack_type_id, b.dept_id, c.name, d.name"
 		" FROM t_package a"
 		" LEFT JOIN t_package_type b ON a.type_id = b.id"
 		" LEFT JOIN t_pack_type c ON b.pack_type_id = c.id"
@@ -163,21 +164,23 @@ result_t PackageDao::getPackage(
 		pkg->name = q.value(0).toString();
 		pkg->photo = q.value(1).toString();
 		pkg->typeId = q.value(2).toInt();
-		pkg->category = static_cast<Rt::PackageCategory>(q.value(3).toInt());
-		pkg->sterType = static_cast<Rt::SterilizeType>(q.value(4).toInt());
-		pkg->packType.id = q.value(5).toInt();
-		pkg->dept.id = q.value(6).toInt();
-		pkg->packType.name = q.value(7).toString();
-		pkg->dept.name = q.value(8).toString();
+		pkg->cycle = q.value(3).toInt();
+		pkg->category = static_cast<Rt::PackageCategory>(q.value(4).toInt());
+		pkg->sterType = static_cast<Rt::SterilizeType>(q.value(5).toInt());
+		pkg->packType.id = q.value(6).toInt();
+		pkg->dept.id = q.value(7).toInt();
+		pkg->packType.name = q.value(8).toString();
+		pkg->dept.name = q.value(9).toString();
 	}
 
 	if (!withInstruments)
 		return 0;
 
-	q.prepare("SELECT a.udi, a.type_id, a.name, a.photo, a.price, b.category, b.is_vip"
-		" FROM t_instrument a"
-		" LEFT JOIN t_instrument_type b ON a.type_id=b.id"
-		" WHERE package_udi = ?");
+	q.prepare("SELECT a.ins_udi, b.type_id, b.name, b.photo, b.price, c.category, c.is_vip"
+		" FROM t_package_detail a"
+		" LEFT JOIN t_instrument b ON a.ins_udi = b.udi"
+		" LEFT JOIN t_instrument_type c ON b.type_id = c.id"
+		" WHERE a.pkg_udi = ? AND a.status = 1");
 	q.addBindValue(udi);
 	if (!q.exec())
 		return kErrorDbUnreachable;
@@ -201,7 +204,8 @@ result_t PackageDao::getPackageList(
 	QList<Package> *pkgs, int page/* = 1*/, int count/* = -1*/)
 {
 	QSqlQuery q;
-	QString sql = "SELECT a.udi, a.name, a.photo, a.type_id, b.category, b.sterilize_type, b.pack_type_id, b.dept_id, c.name, d.name"
+	QString sql = "SELECT a.udi, a.name, a.photo, a.type_id, a.cycle,"
+		" b.category, b.sterilize_type, b.pack_type_id, b.dept_id, c.name, d.name"
 		" FROM t_package a"
 		" LEFT JOIN t_package_type b ON a.type_id = b.id"
 		" LEFT JOIN t_pack_type c ON b.pack_type_id = c.id"
@@ -219,22 +223,24 @@ result_t PackageDao::getPackageList(
 	if (pkgs) {
 		Package pkg;
 		while (q.next()) {
-			pkg.udi = q.value(0).toString();;
+			pkg.udi = q.value(0).toString();
 			pkg.name = q.value(1).toString();
 			pkg.photo = q.value(2).toString();
 			pkg.typeId = q.value(3).toInt();
-			pkg.category = static_cast<Rt::PackageCategory>(q.value(4).toInt());
-			pkg.sterType = static_cast<Rt::SterilizeType>(q.value(5).toInt());
-			pkg.packType.id = q.value(6).toInt();
-			pkg.dept.id = q.value(7).toInt();
-			pkg.packType.name = q.value(8).toString();
-			pkg.dept.name = q.value(9).toString();
+			pkg.cycle = q.value(4).toInt();
+			pkg.category = static_cast<Rt::PackageCategory>(q.value(5).toInt());
+			pkg.sterType = static_cast<Rt::SterilizeType>(q.value(6).toInt());
+			pkg.packType.id = q.value(7).toInt();
+			pkg.dept.id = q.value(8).toInt();
+			pkg.packType.name = q.value(9).toString();
+			pkg.dept.name = q.value(10).toString();
 			pkgs->append(pkg);
 		}
 	}
 	return 0;
 }
 
+// TODO: use transactions
 result_t PackageDao::addPackage(const Package &pkg)
 {
 	QSqlQuery q;
@@ -257,17 +263,30 @@ result_t PackageDao::addPackage(const Package &pkg)
 
 	// add instruments
 	if (pkg.instruments.isEmpty()) {
-		qWarning("You are trying to add a new package without instruments bound!");
+		qWarning("You are trying to add a new package without instruments!");
 		return 0;
 	}
 
-	QStringList insUdis;
+	//QString sql = QString("UPDATE t_instrument SET package_udi=%1"
+	//	" WHERE udi IN (%2)").arg(pkg.udi, insUdis.join(','));
+	QString sql = "INSERT INTO t_package_detail"
+		" (ins_udi, ins_cycle_stamp, pkg_udi, pkg_cycle_stamp, bound_tm) VALUES";
+	int validCount = 0;
 	for each(const Instrument &ins in pkg.instruments) {
-		if (ins.packageUdi.isEmpty())
-			insUdis << ins.udi;
+		if (ins.packageUdi.isEmpty()) {
+			validCount++;
+			QString values = QString(" ('%1', %3, '%2', %4, now()),").
+				arg(ins.udi, pkg.udi).arg(ins.cycle).arg(pkg.cycle);
+			sql.append(values);
+		}
 	}
-	QString sql = QString("UPDATE t_instrument SET package_udi=%1"
-		" WHERE udi IN (%2)").arg(pkg.udi, insUdis.join(','));
+
+	if (0 == validCount) {
+		qWarning("You are trying to add a new package with bound instruments!");
+		return 0;
+	}
+
+	sql.chop(1);		
 	if (!q.exec(sql))
 		return q.lastError().text();
 

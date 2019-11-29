@@ -4,12 +4,6 @@
 #include "devicedao.h"
 #include "errors.h"
 
-result_t DeviceDao :: getWasherList(
-	QList<Washer> *washers, bool onlyAvailable/* = true*/)
-{
-	return getDeviceList(Rt::Washer, washers, onlyAvailable);
-}
-
 result_t DeviceDao::getDevice(int id, Device *d, bool withPrograms/* = false*/)
 {
 	QSqlQuery q;
@@ -27,7 +21,7 @@ result_t DeviceDao::getDevice(int id, Device *d, bool withPrograms/* = false*/)
 		d->id = id;
 		d->name = q.value(0).toString();
 		d->category = static_cast<Rt::DeviceCategory>(q.value(1).toInt());
-		d->status = static_cast<Rt::Status>(q.value(2).toInt());
+		d->status = static_cast<Rt::DeviceStatus>(q.value(2).toInt());
 		d->cycleCount = q.value(3).toInt();
 		d->cycleDate = q.value(4).toDate();
 		d->cycleTotal = q.value(5).toInt();
@@ -43,14 +37,20 @@ result_t DeviceDao::getDevice(int id, Device *d, bool withPrograms/* = false*/)
 	return 0;
 }
 
-result_t DeviceDao::getSterilizerList(QList<Sterilizer> *sterilizers, bool onlyAvailable/* = true*/)
+result_t DeviceDao :: getWasherList(
+	QList<Washer> *washers, bool excludeForbidden/* = true*/)
 {
-	return getDeviceList(Rt::Sterilizer, sterilizers, onlyAvailable);
+	return getDeviceList(Rt::Washer, washers, excludeForbidden);
 }
 
-result_t DeviceDao::getAllDeivces(QList<Device> *devices, bool onlyAvailable /*= true */)
+result_t DeviceDao::getSterilizerList(QList<Sterilizer> *sterilizers, bool excludeForbidden/* = true*/)
 {
-	return getDeviceList(Rt::UnknownDeviceCategory, devices, onlyAvailable);
+	return getDeviceList(Rt::Sterilizer, sterilizers, excludeForbidden);
+}
+
+result_t DeviceDao::getAllDeivces(QList<Device> *devices, bool excludeForbidden /*= true */)
+{
+	return getDeviceList(Rt::UnknownDeviceCategory, devices, excludeForbidden);
 }
 
 result_t DeviceDao::getProgramsForDevice(int deviceId, QList<Program> *programs)
@@ -96,7 +96,7 @@ result_t DeviceDao::getAllPrograms(QList<Program> *programs)
 result_t DeviceDao::getDeviceList(
 	Rt::DeviceCategory cat,
 	QList<Device> *devices,
-	bool onlyAvailable/* = true*/)
+	bool excludeForbidden/* = true*/)
 {
 	QString sql = "SELECT id, name, category, status, cycle_count, cycle_date,"
 		" cycle_total, production_time, last_maintain_time, maintain_cycle, sterilize_type"
@@ -107,9 +107,9 @@ result_t DeviceDao::getDeviceList(
 		sql.append(QString(" WHERE category = %1").arg(cat));
 		hasWhere = true;
 	}
-	if (onlyAvailable) {
+	if (excludeForbidden) {
 		sql.append(hasWhere ? " AND " : " WHERE ");
-		sql.append(QString("status = %1").arg(Rt::Status::Normal));
+		sql.append(QString("status <> %1").arg(Rt::DeviceStatus::Forbidden));
 	}
 
 	QSqlQuery q;
@@ -122,7 +122,7 @@ result_t DeviceDao::getDeviceList(
 			d.id = q.value(0).toInt();
 			d.name = q.value(1).toString();
 			d.category = static_cast<Rt::DeviceCategory>(q.value(2).toInt());
-			d.status = static_cast<Rt::Status>(q.value(3).toInt());
+			d.status = static_cast<Rt::DeviceStatus>(q.value(3).toInt());
 			d.cycleCount = q.value(4).toInt();
 			d.cycleDate = q.value(5).toDate();
 			d.cycleTotal = q.value(6).toInt();

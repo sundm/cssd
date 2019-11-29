@@ -38,11 +38,18 @@ struct PackageType
 	Department dept;
 	QList<DetailItem> detail;
 
-	PackageType() : typeId(-1), category(Rt::UnknownPackage) {}
+	PackageType() :
+		typeId(-1),
+		category(Rt::UnknownPackage),
+		sterType(Rt::UnknownSterilizeType)
+	{}
 };
 
 struct Package : public PackageType
 {
 	QString udi;
+	int cycle;
 	QList<Instrument> instruments;
+	
+	Package() : cycle(0) {}
 };

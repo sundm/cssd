@@ -97,9 +97,10 @@ result_t InstrumentDao::addInstrumentType(const InstrumentType &it)
 result_t InstrumentDao::getInstrument(const QString& udi, Instrument* ins)
 {
 	QSqlQuery q;
-	q.prepare("SELECT a.type_id, a.name, a.photo, a.package_udi, a.price, b.category, b.is_vip"
+	q.prepare("SELECT a.type_id, a.name, a.photo, a.price, b.category, b.is_vip, c.pkg_udi"
 		" FROM t_instrument a"
-		" LEFT JOIN t_instrument_type b ON a.type_id=b.id"
+		" LEFT JOIN t_instrument_type b ON a.type_id = b.id"
+		" LEFT JOIN t_package_detail c ON a.udi = c.ins_udi AND c.status = 1"
 		" WHERE a.udi = ?");
 	q.addBindValue(udi);
 
@@ -114,10 +115,10 @@ result_t InstrumentDao::getInstrument(const QString& udi, Instrument* ins)
 		ins->typeId = q.value(0).toInt();
 		ins->name = q.value(1).toString();
 		ins->photo = q.value(2).toString();
-		ins->packageUdi = q.value(3).toInt();
-		ins->price = q.value(4).toInt();
+		ins->price = q.value(3).toInt();
+		ins->category = static_cast<Rt::InstrumentCategory>(q.value(4).toInt());
 		ins->isVip = q.value(5).toBool();
-		ins->category = static_cast<Rt::InstrumentCategory>(q.value(6).toInt());
+		ins->packageUdi = q.value(6).toInt();
 	}
 
 	return 0;
@@ -127,9 +128,10 @@ result_t InstrumentDao::getInstrumentList(
 	QList<Instrument> *instruments, int page/* = 1*/, int count/* = -1*/)
 {
 	QSqlQuery q;
-	QString sql = "SELECT a.udi, a.type_id, a.name, a.photo, a.package_udi, a.price, b.category, b.is_vip"
+	QString sql = "SELECT a.udi, a.type_id, a.name, a.photo, a.price, b.category, b.is_vip, c.package_udi"
 		" FROM t_instrument a"
-		" LEFT JOIN t_instrument_type b ON a.type_id=b.id";
+		" LEFT JOIN t_instrument_type b ON a.type_id=b.id"
+		" LEFT JOIN t_package_detail c ON a.udi=c.ins_udi AND c.status=1";
 
 	if (-1 != count) { // do pagination
 		count = qMax(10, count);
@@ -147,10 +149,10 @@ result_t InstrumentDao::getInstrumentList(
 			ins.typeId = q.value(1).toInt();
 			ins.name = q.value(2).toString();
 			ins.photo = q.value(3).toString();
-			ins.packageUdi = q.value(4).toInt();
-			ins.price = q.value(5).toInt();
+			ins.price = q.value(4).toInt();
+			ins.category = static_cast<Rt::InstrumentCategory>(q.value(5).toInt());
 			ins.isVip = q.value(6).toBool();
-			ins.category = static_cast<Rt::InstrumentCategory>(q.value(7).toInt());
+			ins.packageUdi = q.value(7).toInt();
 			instruments->append(ins);
 		}
 	}
