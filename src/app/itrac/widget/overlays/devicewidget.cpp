@@ -158,7 +158,8 @@ void DeviceArea::load(itrac::DeviceType type, bool isHigh)
 		{
 			for (int i = 0; i < washers.size(); i++)
 			{
-				addDeviceItem(new WasherItem(&washers[i]));
+				Device *device = new Device(washers[i]);
+				addDeviceItem(new WasherItem(device));
 			}
 			
 			updateGeometry();
@@ -176,10 +177,12 @@ void DeviceArea::load(itrac::DeviceType type, bool isHigh)
 		result_t resp = dao.getSterilizerList(&sterilizers);
 		if (resp.isOk())
 		{
-			for (Sterilizer &device : sterilizers) {
-				if (_isHigh && device.sterilizeType != Rt::SterilizeType::HighTemperature)
+			for (int i = 0; i < sterilizers.size(); i++)
+			{
+				Device *device = new Device(sterilizers[i]);
+				if (_isHigh && device->sterilizeType != Rt::SterilizeType::HighTemperature)
 					continue;
-				addDeviceItem(new WasherItem(&device));
+				addDeviceItem(new WasherItem(device));
 			}
 			updateGeometry();
 		}

@@ -3,8 +3,10 @@
 #include "ui/views.h"
 #include <QTreeView>
 #include "core/net/jsonhttpclient.h"
+#include "rdao/entity/package.h"
 
 class QStandardItemModel;
+
 class PlateView : public TableView
 {
 	Q_OBJECT
@@ -12,13 +14,15 @@ class PlateView : public TableView
 public:
 	PlateView(QWidget *parent = nullptr);
 	bool hasPlate(int) const;
-	void addPlate(int);
+	void addPlate(const QString& udi);
 	QVariantList plates() const;
 	void clear();
 
 private:
 	QStandardItemModel * _model;
 	JsonHttpClient _http;
+
+	QList<Package *> _pkgList;
 };
 
 

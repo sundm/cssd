@@ -14,7 +14,9 @@
 #include "importextdialog.h"
 #include "model/spinboxdelegate.h"
 #include "rdao/dao/PackageDao.h"
+#include "rdao/entity/operator.h"
 #include "rdao/dao/instrumentdao.h"
+#include "rdao/dao/flowdao.h"
 #include "xnotifier.h"
 #include <xui/images.h>
 #include <xui/imageviewer.h>
@@ -289,7 +291,6 @@ OrRecyclePanel::OrRecyclePanel(QWidget *parent /*= nullptr*/)
 	: CssdOverlayPanel(parent)
 	, _pkgView(new PackageInfoView)
 	, _detailView(new PackageDetailView)
-	, _package(new Package)
 	, _unusualView(new UnusualInstrumentView)
 	, _unusualCodes(new QStringList)
 	, _scannedCodes(new QStringList)
@@ -350,11 +351,11 @@ void OrRecyclePanel::onTransponderReceviced(const QString& code)
 
 		PackageDao dao;
 		
-		result_t resp = dao.getPackage(code, _package, true);
+		result_t resp = dao.getPackage(code, &_package, true);
 		if (resp.isOk())
 		{
-			_pkgView->updatePackageInfo(code, _package->name, _package->instruments.size());
-			_detailView->loadDetail(&_package->instruments);
+			_pkgView->updatePackageInfo(code, _package.name, _package.instruments.size());
+			_detailView->loadDetail(&_package.instruments);
 			loadPackageImg(code);
 			_step = 1;
 		}
@@ -411,6 +412,34 @@ void OrRecyclePanel::handleBarcode(const QString &code) {
 }
 
 void OrRecyclePanel::commit() {
+	if (_package.udi.isEmpty())
+	{
+		XNotifier::warn("请先添加需要回收的包");
+		return;
+	}
+
+	if (_pkgView->isScanFinished())
+	{
+		XNotifier::warn("尚未完成器械检查，或存在异常器械");
+		return;
+	}
+
+	FlowDao dao;
+	Operator op;
+	op.id = 110001;
+	op.name = "刘向惠";
+
+	result_t resp = dao.addRecycle(_package, op);
+	if (resp.isOk())
+	{
+		XNotifier::warn("回收成功!");
+		reset();
+	}
+	else
+	{
+		XNotifier::warn(QString("回收登记失败: ").append(resp.msg()));
+	}
+	/*
 	QVariantList packageIds;// = _pkgView->packageIds();
 	QVariantList cardIds;// = _pkgView->cardIds();
 	if (packageIds.isEmpty()) {
@@ -445,6 +474,7 @@ void OrRecyclePanel::commit() {
 			reset();
 		}
 	});
+	*/
 }
 
 void OrRecyclePanel::reset()
@@ -460,9 +490,6 @@ void OrRecyclePanel::reset()
 	QString fileName = QString("./photo/timg.png");
 	_pkgImg->setImage(fileName);
 	_insImg->setImage(fileName);
-
-	delete _package;
-	_package = new Package();
 }
 
 void OrRecyclePanel::loadPackageImg(const QString& udi)

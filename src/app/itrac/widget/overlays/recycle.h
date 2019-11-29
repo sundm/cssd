@@ -2,6 +2,7 @@
 
 #include "cssd_overlay.h"
 #include "core/net/jsonhttpclient.h"
+#include "rdao/entity/package.h"
 #include <QHash>
 
 class DeptEdit;
@@ -13,7 +14,6 @@ class UnusualInstrumentView;
 class PackageInfoView;
 class PackageDetailView;
 class QStandardItemModel;
-struct Package;
 
 class NoBCRecyclePanel : public CssdOverlayPanel, public JsonHttpClient
 {
@@ -78,7 +78,7 @@ private:
 
 	QStringList * _scannedCodes;
 	QStringList * _unusualCodes;
-	Package * _package;
+	Package _package;
 	XPicture * _pkgImg;
 	XPicture * _insImg;
 	int _row;

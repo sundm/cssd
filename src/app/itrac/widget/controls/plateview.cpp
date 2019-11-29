@@ -3,17 +3,21 @@
 #include "inliner.h"
 #include "xnotifier.h"
 #include "util/printermanager.h"
+#include "rdao/dao/PackageDao.h"
 #include <printer/labelprinter.h>
 #include <QStandardItemModel>
 #include <QHeaderView>
 
 PlateView::PlateView(QWidget *parent)
-	: TableView(parent), _model(new QStandardItemModel(0, 2, this))
+	: TableView(parent)
+	, _model(new QStandardItemModel(0, 2, this))
 {
-	_model->setHeaderData(0, Qt::Horizontal, "托盘编号");
-	_model->setHeaderData(1, Qt::Horizontal, "物品数量");
+	_model->setHeaderData(0, Qt::Horizontal, "器械包UDID");
+	_model->setHeaderData(1, Qt::Horizontal, "包内器械数量");
 	setModel(_model);
 	setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+	_pkgList.clear();
 }
 
 bool PlateView::hasPlate(int id) const
@@ -22,7 +26,35 @@ bool PlateView::hasPlate(int id) const
 	return !matches.isEmpty();
 }
 
-void PlateView::addPlate(int id) {
+void PlateView::addPlate(const QString& udi) {
+	PackageDao dao;
+	Package pkg;
+	result_t resp = dao.getPackage(udi, &pkg, true);
+	if (resp.isOk())
+	{
+		//clear();
+		if (_pkgList.contains(&pkg))
+		{
+			XNotifier::warn(QString("该器械包已经添加:").append(udi), -1);
+		}
+		else
+		{
+			_pkgList.append(&pkg);
+
+			QList<QStandardItem *> rowItems;
+			QStandardItem *plateItem = new QStandardItem(udi);
+			plateItem->setData(udi);
+			QStandardItem *numberItem = new QStandardItem(QString::number(pkg.instruments.size()));
+			rowItems << plateItem << numberItem;
+			_model->appendRow(rowItems);
+		}
+		
+	}
+	else
+	{
+		XNotifier::warn(QString("无法获取器械包数据:").append(resp.msg()), -1);
+	}
+	/*
 	QByteArray data("{\"plate_id\":");
 	data.append(QString::number(id)).append('}');
 
@@ -55,6 +87,7 @@ void PlateView::addPlate(int id) {
 		}
 		_model->appendRow(plateItem);
 	});
+	*/
 }
 
 QVariantList PlateView::plates() const {
@@ -69,6 +102,7 @@ QVariantList PlateView::plates() const {
 
 void PlateView::clear() {
 	_model->removeRows(0, _model->rowCount());
+	_pkgList.clear();
 }
 
 PackPlateView::PackPlateView(QWidget *parent)

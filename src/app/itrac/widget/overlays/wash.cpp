@@ -49,6 +49,12 @@ WashPanel::WashPanel(QWidget *parent)
 void WashPanel::onTransponderReceviced(const QString& code)
 {
 	qDebug() << code;
+	TranspondCode tc(code);
+	if (tc.type() == TranspondCode::Package)
+	{
+		_plateView->addPlate(code);
+	}
+
 }
 
 void WashPanel::onBarcodeReceviced(const QString& code)
@@ -57,22 +63,22 @@ void WashPanel::onBarcodeReceviced(const QString& code)
 }
 
 void WashPanel::handleBarcode(const QString &code) {
-	Barcode bc(code);
-	if (bc.type() == Barcode::Plate) {
-		int id = bc.intValue();
-		if (!_plateView->hasPlate(id)) {
+	//Barcode bc(code);
+	//if (bc.type() == Barcode::Plate) {
+	//	int id = bc.intValue();
+	//	if (!_plateView->hasPlate(id)) {
 
-			_plateView->addPlate(id);
-		}
-	}
-	else if (bc.type() == Barcode::Device)
-	{
-		//todo
-		_deviceArea->scanDevice(bc.intValue());
-	}
-	else if (bc.type() == Barcode::Action && code == "910108") {
-		commit();
-	}
+	//		_plateView->addPlate(id);
+	//	}
+	//}
+	//else if (bc.type() == Barcode::Device)
+	//{
+	//	//todo
+	//	_deviceArea->scanDevice(bc.intValue());
+	//}
+	//else if (bc.type() == Barcode::Action && code == "910108") {
+	//	commit();
+	//}
 }
 
 void WashPanel::commit() {
