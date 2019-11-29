@@ -4,6 +4,7 @@
 #include "core/net/url.h"
 #include "ui/buttons.h"
 #include "dialog/addinstrumentIddialog.h"
+#include "rdao/dao/InstrumentDao.h"
 #include <QtWidgets/QtWidgets>
 
 InstrumentIdPage::InstrumentIdPage(QWidget *parent)
@@ -40,19 +41,19 @@ void InstrumentIdPage::refresh() {
 
 void InstrumentIdPage::add() {
 	AddInstrumentIdDialog d(this);
-	d.exec();
+	if (d.exec() == QDialog::Accepted)
+	{
+		_view->load();
+	}
 }
 
 void InstrumentIdPage::slotRowDoubleClicked(const QModelIndex &index)
 {
 	int row = index.row();
-
-	QString name = _view->model()->data(_view->model()->index(row, Internal::InstrumentIdAssetView::Name)).toString();
 	QString id = _view->model()->data(_view->model()->index(row, Internal::InstrumentIdAssetView::Id)).toString();
-	QString basics = _view->model()->data(_view->model()->index(row, Internal::InstrumentIdAssetView::Basics)).toString();
 
 	AddInstrumentIdDialog d(this);
-	d.setInfo(id, name, basics);
+	d.setInfo(id);
 	if (d.exec() == QDialog::Accepted)
 		_view->load();
 }
@@ -61,13 +62,10 @@ void InstrumentIdPage::modify() {
 	QModelIndexList indexes = _view->selectionModel()->selectedRows();
 	if (indexes.count() == 0) return;
 	int row = indexes[0].row();
-
-	QString name = _view->model()->data(_view->model()->index(row, Internal::InstrumentIdAssetView::Name)).toString();
 	QString id = _view->model()->data(_view->model()->index(row, Internal::InstrumentIdAssetView::Id)).toString();
-	QString basics = _view->model()->data(_view->model()->index(row, Internal::InstrumentIdAssetView::Basics)).toString();
 
 	AddInstrumentIdDialog d(this);
-	d.setInfo(id, name, basics);
+	d.setInfo(id);
 	if (d.exec() == QDialog::Accepted)
 		_view->load();
 }
@@ -86,21 +84,27 @@ namespace Internal {
 
 	void InstrumentIdAssetView::load(int page /*= 0*/, int count /*= 10*/)
 	{
-		_http.post(url(PATH_INSTRUMENT_SEARCH), "{}", [=](QNetworkReply *reply) {
-			JsonHttpResponse resp(reply);
-			if (!resp.success()) {
-				XNotifier::warn(QString("获取器械列表失败: ").append(resp.errorString()));
-				return;
+		InstrumentDao dao;
+		QList<Instrument> ins;
+		result_t res = dao.getInstrumentList(&ins);
+		if (res.isOk())
+		{
+			clear();
+			_model->insertRows(0, ins.count());
+			for (int i = 0; i != ins.count(); ++i) {
+				Instrument it = ins[i];
+				_model->setData(_model->index(i, Name), it.name);
+				_model->setData(_model->index(i, Id), it.udi);
+				InstrumentType ity;
+				dao.getInstrumentType(it.typeId, &ity);
+				_model->setData(_model->index(i, Basics), ity.name);
+				_model->setData(_model->index(i, Basics), it.typeId, Qt::UserRole + 1);
 			}
-
-			clear(); // when succeeded
-
-			QList<QVariant> pkgs = resp.getAsList("instrument_list");
-			_model->insertRows(0, pkgs.count());
-			for (int i = 0; i != pkgs.count(); ++i) {
-				QVariantMap map = pkgs[i].toMap();
-				_model->setData(_model->index(i, Name), map["instrument_name"]);
-			}
-		});
+		}
+		else
+		{
+			XNotifier::warn(QString("获取器械列表失败: ").append(res.msg()));
+			return;
+		}
 	}
 }

@@ -7,7 +7,7 @@
 #include "dialog/modifypackagedialog.h"
 #include "dialog/addpkgcodedialog.h"
 #include <xui/searchedit.h>
-
+#include "rdao/dao/PackageDao.h"
 #include <QtWidgets/QtWidgets>
 
 namespace Internal {
@@ -24,27 +24,29 @@ namespace Internal {
 
 	void PackageIdAssetView::load(const QString &kw, int page, int count)
 	{
-		QVariantMap data;
-		if (!kw.isEmpty()) {
-			QRegExp re("[a-zA-Z]+");
-			data.insert(re.exactMatch(kw) ? "pinyin_code" : "package_type_name", kw);
-		}
-		_http.post(url(PATH_PKGTPYE_SEARCH), data, [=](QNetworkReply *reply) {
-			JsonHttpResponse resp(reply);
-			if (!resp.success()) {
-				XNotifier::warn(QString("获取包列表失败: ").append(resp.errorString()));
-				return;
-			}
-
+		PackageDao dao;
+		QList<Package> pkgs;
+		result_t resp = dao.getPackageList(&pkgs);
+		if (resp.isOk())
+		{
 			clear(); // when succeeded
 
-			QList<QVariant> pkgs = resp.getAsList("package_types");
 			_model->insertRows(0, pkgs.count());
 			for (int i = 0; i != pkgs.count(); ++i) {
-				QVariantMap map = pkgs[i].toMap();
-				_model->setData(_model->index(i, Name), map["package_name"]);
+				Package pk = pkgs[i];
+				_model->setData(_model->index(i, Name), pk.name);
+				_model->setData(_model->index(i, Id), pk.udi);
+				PackageType pkt;
+				dao.getPackageType(pk.typeId, &pkt);
+				_model->setData(_model->index(i, Basics), pkt.name);
+				_model->setData(_model->index(i, Basics), pkt.typeId, Qt::UserRole + 1);
 			}
-		});
+		}
+		else
+		{
+			XNotifier::warn(QString("获取包列表失败: ").append(resp.msg()));
+			return;
+		}
 	}
 }
 

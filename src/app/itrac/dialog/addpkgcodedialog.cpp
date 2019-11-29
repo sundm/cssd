@@ -12,6 +12,7 @@
 #include "ui/views.h"
 #include "model/spinboxdelegate.h"
 #include "ui/composite/waitingspinner.h"
+#include "rdao/dao/instrumentdao.h"
 #include <thirdparty/qjson/src/parser.h>
 #include <xui/images.h>
 #include <xui/imageviewer.h>
@@ -108,9 +109,12 @@ AddpkgcodeDialog::AddpkgcodeDialog(QWidget *parent)
 
 	connect(_listener, SIGNAL(onTransponder(const QString&)), this, SLOT(onTransponderReceviced(const QString&)));
 	connect(_listener, SIGNAL(onBarcode(const QString&)), this, SLOT(onBarcodeReceviced(const QString&)));
+	connect(_pkgEdit, SIGNAL(changed(int)), this, SLOT(onPackageTypeChange(int)));
 
-	QTimer::singleShot(1000, this, &AddpkgcodeDialog::initData);
+	//QTimer::singleShot(1000, this, &AddpkgcodeDialog::loadPackageInfo);
 	QTimer::singleShot(500, [this] {_pkgEdit->loadForDepartment(0);});
+
+	reset();
 }
 
 void AddpkgcodeDialog::initInstrumentView() {
@@ -138,11 +142,125 @@ void AddpkgcodeDialog::initInstrumentView() {
 void AddpkgcodeDialog::onTransponderReceviced(const QString& code)
 {
 	qDebug() << code;
+	TranspondCode tc(code);
+	if (tc.type() == TranspondCode::Package && 0 == _step)
+	{
+		_pkgCodeEdit->setText(code);
+		_step = 1;
+	}
+
+	if (tc.type() == TranspondCode::Instrument && 1 == _step)
+	{
+		if (_codeScanedList.contains(code))
+			return;
+
+		_codeScanedList.append(code);
+
+		InstrumentDao dao;
+		Instrument ins;
+		result_t resp = dao.getInstrument(code, &ins);
+		if (resp.isOk())
+		{
+			bool insert = false;
+			QString pkg_id = ins.packageUdi;
+			if (pkg_id.isEmpty() || pkg_id.compare(_pkgCodeEdit->text()) == 0) {
+				for (size_t i = 0; i < _model->rowCount(); i++)
+				{
+					int typeId = _model->data(_model->index(i, 0), Qt::UserRole + 1).toInt();
+					QString udi = _model->data(_model->index(i, 1)).toString();
+					if (udi.isEmpty() && ins.typeId == typeId)
+					{
+						_model->setData(_model->index(i, 0), ins.name);
+						_model->setData(_model->index(i, 1), ins.udi);
+						insert = true;
+						break;
+					}
+				}
+			}
+			
+			if (!insert)
+			{
+				if (_codeUnusualList.contains(code)) return;
+
+				_codeUnusualList.append(code);
+				_unmodel->insertRows(0, 1);
+				_unmodel->setData(_unmodel->index(0, 0), ins.name);
+				_unmodel->setData(_unmodel->index(0, 1), ins.udi);
+			}
+		}
+	}
 }
 
 void AddpkgcodeDialog::onBarcodeReceviced(const QString& code)
 {
 	qDebug() << code;
+}
+
+void AddpkgcodeDialog::onPackageTypeChange(int id)
+{
+	loadInstrumentType(id);
+}
+
+void AddpkgcodeDialog::loadPackageInfo()
+{
+	if (_package_id.isEmpty()) return;
+
+	PackageDao dao;
+	Package pk;
+	result_t resp = dao.getPackage(_package_id, &pk, true);
+	if (resp.isOk())
+	{
+		_pkgNameEdit->setText(pk.name);
+		_pkgCodeEdit->setText(pk.udi);
+		PackageType pkt;
+		dao.getPackageType(pk.typeId, &pkt);
+		_pkgEdit->setCurrentIdPicked(pkt.typeId, pkt.name);
+
+		_model->removeRows(0, _model->rowCount());
+		_model->insertRows(0, pk.instruments.count());
+		int i = 0;
+		for each (auto &item in pk.instruments)
+		{
+			_model->setData(_model->index(i, 0), item.name);
+			_model->setData(_model->index(i, 0), item.typeId, Qt::UserRole + 1);
+			_model->setData(_model->index(i, 1), item.udi);
+			i++;
+		}
+
+		QString imgPath = QString("./photo/package/%1.png").arg(_package_id);
+		QFile file(imgPath);
+		if (file.exists()) {
+			_imgLabel->setImage(imgPath);
+			_imgLabel->setHidden(false);
+		}
+	}
+	else
+		XNotifier::warn(QString("添加包信息失败: ").append(resp.msg()));
+}
+
+bool AddpkgcodeDialog::loadInstrumentType(int packageTypeId)
+{
+	PackageDao dao;
+	PackageType pkt;
+	result_t resp = dao.getPackageType(packageTypeId, &pkt, true);
+	if (resp.isOk())
+	{
+		_model->removeRows(0, _model->rowCount());
+		for each (auto &item in pkt.detail)
+		{
+			_model->insertRows(0, item.insNum);
+			for (size_t i = 0; i < item.insNum; i++)
+			{
+				_model->setData(_model->index(i, 0), item.insName);
+				_model->setData(_model->index(i, 0), item.insTypeId, Qt::UserRole + 1);
+			}
+		}
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 void AddpkgcodeDialog::loadImg() {
@@ -164,7 +282,13 @@ void AddpkgcodeDialog::loadImg() {
 	_imgLabel->setHidden(false);
 }
 
-void AddpkgcodeDialog::uploadImg(int instrument_id) {
+void AddpkgcodeDialog::uploadImg(const QString& instrument_id) {
+	QString newFileName = QString("./photo/package/%1.png").arg(instrument_id);
+	if (!copyFileToPath(_imgFilePath, newFileName, true)) {
+		XNotifier::warn(QString("包信息添加成功，拷贝本地包图片失败!"));
+		return;
+	}
+	/*
 	_multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 
 	QHttpPart imagePart;
@@ -200,7 +324,7 @@ void AddpkgcodeDialog::uploadImg(int instrument_id) {
 			}
 
 		}
-	}
+	}*/
 }
 
 bool AddpkgcodeDialog::copyFileToPath(QString sourceDir, QString toDir, bool coverFileIfExist)
@@ -226,86 +350,33 @@ bool AddpkgcodeDialog::copyFileToPath(QString sourceDir, QString toDir, bool cov
 	return QFile::copy(sourceDir, toDir);
 }
 
-void AddpkgcodeDialog::initData() {
-	if (_package_id.isEmpty()) return;
-
-	QByteArray data("{\"pkg_type_id\":");
-	data.append(_package_id).append('}');
-	//post(url(PATH_CARD_SEARCH), QByteArray().append(data), [=](QNetworkReply *reply) {
-	//	JsonHttpResponse resp(reply);
-	//	if (!resp.success()) {
-	//		XNotifier::warn(QString("无法获取包内器械列表信息: ").append(resp.errorString()));
-	//		return;
-	//	}
-
-	//	QList<QVariant> orders = resp.getAsList("card_info");
-
-	//	for (auto &order : orders) {
-	//		QVariantMap map = order.toMap();
-	//		int code = map["card_id"].toInt();
-
-	//		QList<QStandardItem *> items;
-	//		QStandardItem *insItem = new QStandardItem(QString::number(code));
-	//		insItem->setData(code);
-	//		items << insItem;
-	//		_model->appendRow(items);
-	//	}
-	//});
-}
-
-//void AddpkgcodeDialog::addEntry() {
-//	Barcode bc(_pkgCodeEdit->text());
-//	if (bc.type() == Barcode::PkgCode) {
-//		_code = bc.intValue();
-//		int existRow = findRow(_code);
-//		if (-1 == existRow) {
-//			QVariantList codes;
-//			
-//			QVariantMap code_map;
-//			code_map.insert("card_id", _code);
-//			code_map.insert("card_name", "");//todo
-//			codes << code_map;
-//			
-//
-//			QVariantMap data;
-//			data.insert("pkg_type_id", _package_type_id);
-//			data.insert("cards", codes);
-//
-//			post(url(PATH_CARD_ADD), data, [this](QNetworkReply *reply) {
-//				JsonHttpResponse resp(reply);
-//				if (!resp.success()) {
-//					XNotifier::warn(QString("添加包内器械表失败: ").append(resp.errorString()));
-//					return;
-//				}
-//
-//				QList<QStandardItem *> items;
-//				QStandardItem *insItem = new QStandardItem(QString::number(_code));
-//				insItem->setData(_code);
-//				items << insItem;
-//				_model->appendRow(items);
-//			});
-//
-//
-//			
-//		}
-//		else {
-//			XNotifier::warn(QString("输入的编号已存在!"));
-//			return;
-//		}
-//		_pkgCodeEdit->clear();
-//	}
-//}
-//
-//void AddpkgcodeDialog::removeEntry() {
-//	QItemSelectionModel *selModel = _view->selectionModel();
-//	QModelIndexList indexes = selModel->selectedRows();
-//	int countRow = indexes.count();
-//	for (int i = countRow; i > 0; i--)
-//		_model->removeRow(indexes.at(i - 1).row());
-//}
-
 void AddpkgcodeDialog::accept() {
 	
+	PackageDao dao;
+	Package pk;
+
+	pk.name = _pkgNameEdit->text();
+	if (pk.name.isEmpty())
+	{
+		_pkgNameEdit->setFocus();
+		return;
+	}
+
+	pk.udi = _pkgCodeEdit->text();
+	if (pk.udi.isEmpty())
+	{
+		_pkgCodeEdit->setFocus();
+		return;
+	}
+
+	pk.typeId = _pkgEdit->currentId();
+	if (pk.typeId <= 0)
+	{
+		_pkgEdit->setFocus();
+		return;
+	}
+
+	pk.instruments = getInstruments();
 
 	if (_isModify)
 	{
@@ -313,13 +384,44 @@ void AddpkgcodeDialog::accept() {
 	}
 	else {
 		//todo
+		result_t resp = dao.addPackage(pk);
+		if (!resp.isOk())
+		{
+			XNotifier::warn(QString("添加包信息失败: ").append(resp.msg()));
+			return;
+		}
 	}
 	return QDialog::accept();
+}
+
+const QList<Instrument> AddpkgcodeDialog::getInstruments()
+{
+	_insList.clear();
+
+	for (size_t i = 0; i < _model->rowCount(); i++)
+	{
+		Instrument it;
+		it.udi = _model->data(_model->index(i, 1)).toString();
+		_insList.append(it);
+	}
+	return _insList;
 }
 
 void AddpkgcodeDialog::reset()
 {
 	//todo
+	_step = 0;
+	_model->removeRows(0, _model->rowCount());
+	_unmodel->removeRows(0, _model->rowCount());
+
+	_codeScanedList.clear();
+	_codeUnusualList.clear();
+	_insList.clear();
+
+	_pkgNameEdit->clear();
+	_pkgCodeEdit->clear();
+	_pkgEdit->clear();
+
 }
 
 void AddpkgcodeDialog::setPackageId(const QString &pkgId)
@@ -327,7 +429,7 @@ void AddpkgcodeDialog::setPackageId(const QString &pkgId)
 	_package_id = pkgId;
 	_isModify = true;
 
-	QTimer::singleShot(1000, this, &AddpkgcodeDialog::initData);
+	QTimer::singleShot(1000, this, &AddpkgcodeDialog::loadPackageInfo);
 }
 
 int AddpkgcodeDialog::findRow(int code) {

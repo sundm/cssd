@@ -19,7 +19,7 @@ class AddInstrumentDialog : public QDialog, public JsonHttpClient
 
 public:
 	AddInstrumentDialog(QWidget *parent = Q_NULLPTR);
-	void setInfo(const QString &id, const QString &name, const bool isVIP, const bool isImplant);
+	void setInfo(const QString &id);
 protected:
 	void accept() override;
 

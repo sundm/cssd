@@ -6,6 +6,7 @@
 #include "dialog/addpackagedialog.h"
 #include "dialog/modifypackagedialog.h"
 #include "dialog/addpkgcodedialog.h"
+#include "rdao/dao/PackageDao.h"
 #include <xui/searchedit.h>
 
 #include <QtWidgets/QtWidgets>
@@ -26,51 +27,48 @@ namespace Internal {
 
 	void PackageAssetView::load(const QString &kw, int page, int count)
 	{
-		QVariantMap data;
-		if (!kw.isEmpty()) {
-			QRegExp re("[a-zA-Z]+");
-			data.insert(re.exactMatch(kw) ? "pinyin_code" : "package_type_name", kw);
-		}
-		_http.post(url(PATH_PKGTPYE_SEARCH), data, [=](QNetworkReply *reply) {
-			JsonHttpResponse resp(reply);
-			if (!resp.success()) {
-				XNotifier::warn(QString("获取包列表失败: ").append(resp.errorString()));
-				return;
-			}
+		PackageDao dao;
+		QList<PackageType> pts;
 
+		result_t resp = dao.getPackageTypeList(&pts);
+		if (resp.isOk())
+		{
 			clear(); // when succeeded
 
-			QList<QVariant> pkgs = resp.getAsList("package_types");
-			_model->insertRows(0, pkgs.count());
-			for (int i = 0; i != pkgs.count(); ++i) {
-				QVariantMap map = pkgs[i].toMap();
-				_model->setData(_model->index(i, Name), map["package_name"]);
-				_model->setData(_model->index(i, Name), map["package_type_id"], 257);
-				_model->setData(_model->index(i, Pinyin), map["pinyin_code"]);
-				_model->setData(_model->index(i, PackType), map["pack_type"]);
-				_model->setData(_model->index(i, PackType), map["package_category"], 257);
-				int steType = map["sterilize_type"].toInt();
-				_model->setData(_model->index(i, SteType), Internal::literalSteType(steType));
-				_model->setData(_model->index(i, SteType), Internal::brushForSteType(steType), Qt::BackgroundRole);
-				_model->setData(_model->index(i, SteType), map["sterilize_type"], 257);
-				_model->setData(_model->index(i, Department), map["department_name"]);
-				_model->setData(_model->index(i, Department), map["department_id"], 257);
+			_model->insertRows(0, pts.count());
+			for (int i = 0; i != pts.count(); ++i) {
+				PackageType pt = pts[i];
+				_model->setData(_model->index(i, Name), pt.name);
+				_model->setData(_model->index(i, Name), pt.typeId, 257);
+				_model->setData(_model->index(i, Pinyin), pt.pinyin);
+				_model->setData(_model->index(i, PackType), pt.packType.name);
+				_model->setData(_model->index(i, PackType), pt.packType.id, 257);
+				_model->setData(_model->index(i, SteType), Internal::literalSteType(pt.sterType));
+				_model->setData(_model->index(i, SteType), Internal::brushForSteType(pt.sterType), Qt::BackgroundRole);
+				_model->setData(_model->index(i, SteType), pt.sterType, 257);
+				_model->setData(_model->index(i, Department), pt.dept.name);
+				_model->setData(_model->index(i, Department), pt.dept.id, 257);
 			}
-		});
+		}
+		else
+		{
+			XNotifier::warn(QString("获取包列表失败: ").append(resp.msg()));
+			return;
+		}
 	}
 
 	QString literalSteType(int type) {
 		switch (type) {
-		case 1: return "高温";
-		case 2: return "低温";
+		case 1: return "低温";
+		case 2: return "高温";
 		default: return "通用";
 		}
 	}
 
 	QBrush brushForSteType(int type) {
 		switch (type) {
-		case 1: return QBrush(QColor(255, 160, 122)); //lightsalmon
-		case 2: return QBrush(QColor(173, 216, 230)); //lightblue #ADD8E6
+		case 1: return QBrush(QColor(173, 216, 230)); //lightsalmon
+		case 2: return QBrush(QColor(255, 160, 122)); //lightblue #ADD8E6
 		default: return QBrush();
 		}
 	}

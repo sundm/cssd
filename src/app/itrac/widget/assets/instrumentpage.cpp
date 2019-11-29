@@ -4,8 +4,16 @@
 #include "core/net/url.h"
 #include "ui/buttons.h"
 #include "dialog/addinstrumentdialog.h"
-
+#include "rdao/dao/InstrumentDao.h"
 #include <QtWidgets/QtWidgets>
+
+QString getVipLiteral(const bool &isVip) {
+	return isVip ? "是" : "否";
+}
+
+QString getImportLiteral(const Rt::InstrumentCategory &import) {
+	return Rt::InstrumentCategory::ImplantedInstrument == import ? "是" : "否";
+}
 
 InstrumentPage::InstrumentPage(QWidget *parent)
 	: QWidget(parent), _view(new Internal::InstrumentAssetView)
@@ -47,9 +55,8 @@ void InstrumentPage::add() {
 void InstrumentPage::slotRowDoubleClicked(const QModelIndex &index)
 {
 	int row = index.row();
-
-	QString name = _view->model()->data(_view->model()->index(row, Internal::InstrumentAssetView::Name)).toString();
-	//QString id = _view->model()->data(_view->model()->index(row, Internal::InstrumentAssetView::Id)).toString();
+	QString id = _view->model()->data(_view->model()->index(row, Internal::InstrumentAssetView::Name), Qt::UserRole + 1).toString();
+	/*QString name = _view->model()->data(_view->model()->index(row, Internal::InstrumentAssetView::Name)).toString();
 	QString pinyin = _view->model()->data(_view->model()->index(row, Internal::InstrumentAssetView::Pinyin)).toString();
 	QString vip = _view->model()->data(_view->model()->index(row, Internal::InstrumentAssetView::Vip)).toString();
 	QString implant = _view->model()->data(_view->model()->index(row, Internal::InstrumentAssetView::Implant)).toString();
@@ -61,9 +68,9 @@ void InstrumentPage::slotRowDoubleClicked(const QModelIndex &index)
 	bool isImplant = false;
 	if (0 == implant.compare("是"))
 		isImplant = true;
-
+*/
 	AddInstrumentDialog d(this);
-	d.setInfo(pinyin, name, isVIP, isImplant);
+	d.setInfo(id);
 	if (d.exec() == QDialog::Accepted)
 		_view->load();
 }
@@ -72,7 +79,8 @@ void InstrumentPage::modify() {
 	QModelIndexList indexes = _view->selectionModel()->selectedRows();
 	if (indexes.count() == 0) return;
 	int row = indexes[0].row();
-
+	QString id = _view->model()->data(_view->model()->index(row, Internal::InstrumentAssetView::Name), Qt::UserRole + 1).toString();
+	/*
 	QString name = _view->model()->data(_view->model()->index(row, Internal::InstrumentAssetView::Name)).toString();
 	//QString id = _view->model()->data(_view->model()->index(row, Internal::InstrumentAssetView::Id)).toString();
 	QString vip = _view->model()->data(_view->model()->index(row, Internal::InstrumentAssetView::Vip)).toString();
@@ -86,9 +94,9 @@ void InstrumentPage::modify() {
 	bool isImplant = false;
 	if (0 == implant.compare("是"))
 		isImplant = true;
-
+	*/
 	AddInstrumentDialog d(this);
-	d.setInfo(pinyin, name, isVIP, isImplant);
+	d.setInfo(id);
 	if (d.exec() == QDialog::Accepted)
 		_view->load();
 }
@@ -108,32 +116,46 @@ namespace Internal {
 
 	void InstrumentAssetView::load(int page /*= 0*/, int count /*= 10*/)
 	{
-		_http.post(url(PATH_INSTRUMENT_SEARCH), "{}", [=](QNetworkReply *reply) {
-			JsonHttpResponse resp(reply);
-			if (!resp.success()) {
-				XNotifier::warn(QString("获取器械列表失败: ").append(resp.errorString()));
-				return;
+		InstrumentDao dao;
+		QList<InstrumentType> ins;
+		result_t res = dao.getInstrumentTypeList(&ins);
+		if (res.isOk())
+		{
+			clear();
+			_model->insertRows(0, ins.count());
+			for (int i = 0; i != ins.count(); ++i) {
+				InstrumentType inst = ins[i];
+				_model->setData(_model->index(i, Name), inst.name);
+				_model->setData(_model->index(i, Name), inst.typeId, Qt::UserRole + 1);
+				_model->setData(_model->index(i, Pinyin), inst.pinyin);
+				_model->setData(_model->index(i, Vip), getVipLiteral(inst.isVip));
+				_model->setData(_model->index(i, Implant), getImportLiteral(inst.category));
 			}
+		}
+		else {
+			XNotifier::warn(QString("获取器械列表失败: ").append(res.msg()));
+			return;
+		}
+		//_http.post(url(PATH_INSTRUMENT_SEARCH), "{}", [=](QNetworkReply *reply) {
+		//	JsonHttpResponse resp(reply);
+		//	if (!resp.success()) {
+		//		XNotifier::warn(QString("获取器械列表失败: ").append(resp.errorString()));
+		//		return;
+		//	}
 
-			clear(); // when succeeded
+		//	clear(); // when succeeded
 
-			QList<QVariant> pkgs = resp.getAsList("instrument_list");
-			_model->insertRows(0, pkgs.count());
-			for (int i = 0; i != pkgs.count(); ++i) {
-				QVariantMap map = pkgs[i].toMap();
-				_model->setData(_model->index(i, Name), map["instrument_name"]);
-				_model->setData(_model->index(i, Pinyin), map["pinyin_code"]);
-				_model->setData(_model->index(i, Vip), Internal::getVipLiteral(map["is_vip_instrument"].toString()));
-				_model->setData(_model->index(i, Implant), Internal::getImportLiteral(map["instrument_type"].toString()));
-			}
-		});
+		//	QList<QVariant> pkgs = resp.getAsList("instrument_list");
+		//	_model->insertRows(0, pkgs.count());
+		//	for (int i = 0; i != pkgs.count(); ++i) {
+		//		QVariantMap map = pkgs[i].toMap();
+		//		_model->setData(_model->index(i, Name), map["instrument_name"]);
+		//		_model->setData(_model->index(i, Pinyin), map["pinyin_code"]);
+		//		_model->setData(_model->index(i, Vip), Internal::getVipLiteral(map["is_vip_instrument"].toString()));
+		//		_model->setData(_model->index(i, Implant), Internal::getImportLiteral(map["instrument_type"].toString()));
+		//	}
+		//});
 	}
 
-	QString getVipLiteral(const QString &vip) {
-		return "0" == vip ? "否" : "是";
-	}
 
-	QString getImportLiteral(const QString &import) {
-		return "1" == import ? "是" : "否";
-	}
 }

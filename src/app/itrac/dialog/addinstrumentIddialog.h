@@ -20,7 +20,7 @@ class AddInstrumentIdDialog : public QDialog, public JsonHttpClient
 
 public:
 	AddInstrumentIdDialog(QWidget *parent = Q_NULLPTR);
-	void setInfo(const QString &id, const QString &name, const QString &basics);
+	void setInfo(const QString &id);
 protected:
 	void accept() override;
 
@@ -44,5 +44,5 @@ private:
 	QFile *_imgFile;
 
 	bool copyFileToPath(QString sourceDir, QString toDir, bool coverFileIfExist);
-	void uploadImg(int instrument_id);
+	void uploadImg(const QString&);
 };

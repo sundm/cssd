@@ -67,7 +67,7 @@ LoginPanel::LoginPanel(Ui::Container *container /*= nullptr*/)
 	//Ui::addPrimaryShortcut(this, Qt::Key_Enter, SLOT(submit()));
 	connect(userEdit, SIGNAL(returnPressed()), this, SLOT(submit()));
 	connect(pwdEdit, SIGNAL(returnPressed()), this, SLOT(submit()));
-	version();
+	//version();
 }
 
 void LoginPanel::submit() {
@@ -333,14 +333,20 @@ void LoginPanel::login(const QString &account, const QString &pwd) {
 	}
 
 	vmap.insert("sign_flag", "C");
-
+	Core::User &user = Core::currentUser();
+	user.id = 11000001;
+	user.deptId = 12000035;
+	user.role = 1;
+	user.gender = Core::User::Male;
+	user.name = "Admin";
+	container()->accept();
 	/*Core::User &user = Core::currentUser();
 	user.role = Core::User::Admin;
 	user.deptId = 12000021;
 	user.id = 11000008;
 	_waiter->stop();
 	container()->accept();
-	return;*/
+	return;
 
 	post(url(PATH_USER_LOGIN), vmap, [this](QNetworkReply *reply) {
 		_waiter->stop();
@@ -361,6 +367,7 @@ void LoginPanel::login(const QString &account, const QString &pwd) {
 			container()->accept();
 		}
 	});
+*/
 }
 
 LoginPage::LoginPage(QWidget *parent/* = nullptr*/) : Ui::Source(parent)

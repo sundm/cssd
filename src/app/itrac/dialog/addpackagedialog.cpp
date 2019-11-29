@@ -81,34 +81,32 @@ AddPackageDialog::AddPackageDialog(QWidget *parent)
 }
 
 void AddPackageDialog::initData() {
-	_pkgtypeBox->addItem(QString("手术包"), 0);
-	_pkgtypeBox->addItem(QString("临床包"), 1);
-	_pkgtypeBox->addItem(QString("外来包"), 2);
-	_pkgtypeBox->addItem(QString("敷料包"), 3);
-	_pkgtypeBox->addItem(QString("通用包"), 4);
+	_pkgtypeBox->addItem(QString("手术包"), Rt::PackageCategory::SurgicalPackage);
+	_pkgtypeBox->addItem(QString("临床包"), Rt::PackageCategory::ClinicalPackage);
+	_pkgtypeBox->addItem(QString("外来包"), Rt::PackageCategory::ExternalPackage);
+	_pkgtypeBox->addItem(QString("敷料包"), Rt::PackageCategory::DressingPackage);
+	_pkgtypeBox->addItem(QString("通用包"), Rt::PackageCategory::UniversalPackage);
 
-	_stertypeBox->addItem(QString("通用"), 0);
-	_stertypeBox->addItem(QString("高温"), 1);
-	_stertypeBox->addItem(QString("低温"), 2);
+	_stertypeBox->addItem(QString("通用"), Rt::SterilizeType::BothTemperature);
+	_stertypeBox->addItem(QString("低温"), Rt::SterilizeType::LowTemperature);
+	_stertypeBox->addItem(QString("高温"), Rt::SterilizeType::HighTemperature);
 
 	_picktypeBox->clear();
 
-	QString data = QString("{}");
-
-	post(url(PATH_PACKTYPE_SEARCH), QByteArray().append(data), [this](QNetworkReply *reply) {
-		JsonHttpResponse resp(reply);
-		if (!resp.success()) {
-		}
-
+	PackageDao dao;
+	QList<PackType> packTypes;
+	result_t resp = dao.getPackTypeList(&packTypes);
+	if (resp.isOk())
+	{
 		_picktypeBox->addItem(QString("不限"), 0);
+		for (auto &pkt : packTypes) {
+			_picktypeBox->addItem(pkt.name, pkt.id);
+			}
+	}
+	else
+	{
 
-		QList<QVariant> devices = resp.getAsList("pack_types");
-		for (auto &device : devices) {
-			QVariantMap map = device.toMap();
-			_picktypeBox->addItem(map["pack_type_name"].toString(), map["pack_type_id"].toInt());
-		}
-
-	});
+	}
 
 	_deptEdit->load(DeptEdit::ALL);
 	_insEdit->load();
@@ -121,61 +119,73 @@ void AddPackageDialog::accept() {
 		return;
 	}
 		
-
 	QString pinyin_code = _pkgPYCodeEdit->text();
 	if (pinyin_code.isEmpty()) {
 		_pkgPYCodeEdit->setFocus();
 		return;
 	}
-		
 
-	QString package_category = _pkgtypeBox->currentData().toString();
+	Rt::PackageCategory package_category = (Rt::PackageCategory)_pkgtypeBox->currentData().toInt();
 
-	int pack_type_id = _picktypeBox->currentData().toInt();
-	if (0 == pack_type_id) {
-		_picktypeBox->showPopup();
-		return;
-	}
+	//int pack_type_id = _picktypeBox->currentData().toInt();
+	//if (0 == pack_type_id) {
+	//	_picktypeBox->showPopup();
+	//	return;
+	//}
 
-	int sterilize_type = _stertypeBox->currentData().toInt();
+	PackType pt;
+	pt.id = _picktypeBox->currentData().toInt();
+	pt.name = _picktypeBox->currentText();
 
-	int department_id = _deptEdit->currentId();
+	Rt::SterilizeType sterType = (Rt::SterilizeType)_stertypeBox->currentData().toInt();
+
+	Department dept;
+
+	dept.id = _deptEdit->currentId();
 	if (_deptEdit->currentName().isEmpty()) {
 		_deptEdit->setFocus();
 		return;
 	}
+	dept.name = _deptEdit->currentName();
 
-	QVariantMap data;
-	data.insert("package_type_name", package_type_name);
-	data.insert("package_category", package_category);
-	data.insert("pinyin_code", pinyin_code);
-	data.insert("pack_type_id", pack_type_id);
-	data.insert("department_id", department_id);
-	data.insert("sterilize_type", sterilize_type);
+	getOrders();
+	
+	PackageDao dao;
+	PackageType pkt;
+	pkt.name = package_type_name;
+	pkt.pinyin = pinyin_code;
+	pkt.packType = pt;
+	pkt.sterType = sterType;
+	pkt.category = package_category;
+	pkt.dept = dept;
+	pkt.detail = _orders;
+
 	if (_isModfy)
 	{
-		data.insert("package_type_id", _package_type_id);
-		post(url(PATH_PKGTPYE_MODIFY), data, [this](QNetworkReply *reply) {
-			JsonHttpResponse resp(reply);
-			if (!resp.success()) {
-				XNotifier::warn(QString("更新包记录失败: ").append(resp.errorString()));
-				return;
-			}
-
+		pkt.typeId = _package_type_id;
+		result_t resp = dao.addPackageType(pkt);
+		if (resp.isOk())
+		{
 			return QDialog::accept();
-		});
+		}
+		else
+		{
+			XNotifier::warn(QString("更新包失败: ").append(resp.msg()));
+			return;
+		}
 	}
 	else
 	{
-		post(url(PATH_PKGTPYE_ADD), data, [this](QNetworkReply *reply) {
-			JsonHttpResponse resp(reply);
-			if (!resp.success()) {
-				XNotifier::warn(QString("添加包记录失败: ").append(resp.errorString()));
-				return;
-			}
+		result_t resp = dao.addPackageType(pkt);
+		if (resp.isOk())
+		{
 			return QDialog::accept();
-
-		});
+		}
+		else
+		{
+			XNotifier::warn(QString("添加包失败: ").append(resp.msg()));
+			return;
+		}
 	}
 	
 }
@@ -189,49 +199,46 @@ void AddPackageDialog::setInfo(const QString& pkg_type_id) {
 
 void AddPackageDialog::initPackageInfo()
 {
-	QVariantMap data;
-	data.insert("package_type_id", _package_type_id);
+	PackageDao dao;
+	PackageType pkt;
+	result_t resp = dao.getPackageType(_package_type_id, &pkt, true);
+	if (resp.isOk())
+	{
+		QString package_name = pkt.name;
+		_pkgNameEdit->setText(package_name);
+		_pkgNameEdit->setReadOnly(true);
+		
+		QString pinyin_code = pkt.pinyin;
+		_pkgPYCodeEdit->setText(pinyin_code);
+		
+		int package_category = pkt.category;
+		_pkgtypeBox->setCurrentIndex(_pkgtypeBox->findData(package_category));
 
-	post(url(PATH_PKGTPYE_SEARCH), data, [=](QNetworkReply *reply) {
-		JsonHttpResponse resp(reply);
-		if (!resp.success()) {
-			XNotifier::warn(QString("获取包信息失败: ").append(resp.errorString()));
-			return;
+		QString pack_type = pkt.packType.name;
+		_picktypeBox->setCurrentText(pack_type);
+		
+		int sterilize_type = pkt.sterType;
+		_stertypeBox->setCurrentIndex(_stertypeBox->findData(sterilize_type));
+
+		int dep_id = pkt.dept.id;
+		QString dep_name = pkt.dept.name;
+		_deptEdit->setCurrentIdPicked(dep_id, dep_name);
+		
+		_orders = pkt.detail;
+		for (int i = 0; i != _orders.count(); ++i) {
+			PackageType::DetailItem it = _orders[i];
+			QList<QStandardItem *> items;
+			QStandardItem *insItem = new QStandardItem(it.insName);
+			insItem->setData(it.insTypeId);
+			items << insItem << new QStandardItem(QString::number(it.insNum));
+			_model->appendRow(items);
 		}
-
-		QList<QVariant> pkgs = resp.getAsList("package_types");
-		if (pkgs.count() != 1)
-		{
-			XNotifier::warn(QString("获取包信息失败。"));
-			return;
-		}
-
-		for (int i = 0; i != pkgs.count(); ++i) {
-			QVariantMap map = pkgs[i].toMap();
-
-			_package_type_id = map["package_type_id"].toInt();
-
-			QString package_name = map["package_name"].toString();
-			_pkgNameEdit->setText(package_name);
-			_pkgNameEdit->setReadOnly(true);
-
-			QString pinyin_code = map["pinyin_code"].toString();
-			_pkgPYCodeEdit->setText(pinyin_code);
-
-			int package_category = map["package_category"].toInt();
-			_pkgtypeBox->setCurrentIndex(_pkgtypeBox->findData(package_category));
-
-			QString pack_type = map["pack_type"].toString();
-			_picktypeBox->setCurrentText(pack_type);
-
-			int sterilize_type = map["sterilize_type"].toInt();
-			_stertypeBox->setCurrentIndex(_stertypeBox->findData(sterilize_type));
-
-			int dep_id = map["department_id"].toInt();
-			QString dep_name = map["department_name"].toString();
-			_deptEdit->setCurrentIdPicked(dep_id, dep_name);
-		}
-	});
+	}
+	else
+	{
+		XNotifier::warn(QString("获取包信息失败: ").append(resp.msg()));
+		return;
+	}
 }
 
 void AddPackageDialog::initInstrumentView() {
@@ -247,14 +254,19 @@ void AddPackageDialog::initInstrumentView() {
 	header->setStretchLastSection(true);
 	header->resizeSection(0, 150);
 	header->resizeSection(1, 50);
+}
 
-	for (int i = 0; i != _orders.count(); ++i) {
-		QVariantMap map = _orders[i].toMap();
-		QList<QStandardItem *> items;
-		QStandardItem *insItem = new QStandardItem(map["instrument_name"].toString());
-		insItem->setData(map["instrument_id"].toInt());
-		items << insItem << new QStandardItem(map["instrument_number"].toString());
-		_model->appendRow(items);
+void AddPackageDialog::getOrders()
+{
+	_orders.clear();
+
+	for (size_t i = 0; i < _model->rowCount(); i++)
+	{
+		Package::DetailItem pt;
+		pt.insName = _model->item(i, 0)->text();
+		pt.insTypeId = _model->item(i, 0)->data().toInt();
+		pt.insNum = _model->item(i, 1)->text().toInt();
+		_orders.append(pt);
 	}
 }
 
@@ -265,6 +277,7 @@ void AddPackageDialog::addEntry() {
 
 	int existRow = findRow(insId);
 	if (-1 == existRow) {
+		
 		QList<QStandardItem *> items;
 		QStandardItem *insItem = new QStandardItem(_insEdit->currentName());
 		insItem->setData(_insEdit->currentId());

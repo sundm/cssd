@@ -21,9 +21,6 @@ private:
 	JsonHttpClient _http;
 };
 
-QString getVipLiteral(const QString &vip);
-QString getImportLiteral(const QString &import);
-
 } //namespace Internal
 
 class InstrumentPage : public QWidget, public JsonHttpClient

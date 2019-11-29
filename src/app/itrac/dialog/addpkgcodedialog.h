@@ -3,6 +3,7 @@
 #include <QDialog>
 #include <qscanner/qscanner.h>
 #include "core/net/jsonhttpclient.h"
+#include "rdao/dao/PackageDao.h"
 
 namespace Ui {
 	class FlatEdit;
@@ -25,24 +26,27 @@ class AddpkgcodeDialog : public QDialog, public JsonHttpClient
 public:
 	AddpkgcodeDialog(QWidget *parent);
 	void setPackageId(const QString &pkgId);
+
 protected:
 	void accept() override;
-	//void handleBarcode(const QString &) override;
 
 private slots:
-	//void addEntry();
-	//void removeEntry();
+	void onPackageTypeChange(int);
 	void onTransponderReceviced(const QString& code);
 	void onBarcodeReceviced(const QString& code);
 	void loadImg();
 	void reset();
 private:
 	void initInstrumentView();
-	void initData();
 	
 	int findRow(int code);
 	bool copyFileToPath(QString sourceDir, QString toDir, bool coverFileIfExist);
-	void uploadImg(int instrument_id);
+	void uploadImg(const QString& instrument_id);
+
+	bool loadInstrumentType(int);
+	void loadPackageInfo();
+
+	const QList<Instrument> getInstruments();
 
 	Ui::FlatEdit * _pkgNameEdit;
 	Ui::FlatEdit * _pkgCodeEdit;
@@ -67,6 +71,12 @@ private:
 	QFile *_imgFile;
 
 	QString _package_id;
+
+	QStringList _codeScanedList;
+	QStringList _codeUnusualList;
+
+	QList<Instrument> _insList;
+	int _step;
 	int _code;
 	bool _isModify;
 };

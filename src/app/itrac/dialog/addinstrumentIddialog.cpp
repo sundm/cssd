@@ -4,9 +4,11 @@
 #include "ui/labels.h"
 #include "ui/inputfields.h"
 #include "xnotifier.h"
+#include "barcode.h"
 #include "widget/controls/idedit.h"
 #include "ui/ui_commons.h"
 #include "ui/composite/waitingspinner.h"
+#include "rdao/dao/InstrumentDao.h"
 #include <xui/images.h>
 #include <qhttpmultipart.h>
 #include <thirdparty/qjson/src/parser.h>
@@ -64,22 +66,38 @@ AddInstrumentIdDialog::AddInstrumentIdDialog(QWidget *parent)
 	_insEdit->load();
 }
 
-void AddInstrumentIdDialog::setInfo(const QString &id, const QString &name, const QString &basics)
+void AddInstrumentIdDialog::setInfo(const QString &id)
 {
 	setWindowTitle("修改器械");
 	_isModify = true;
 	_instrumentId = id;
 
-	_nameEdit->setText(name);
-	_idEdit->setText(_instrumentId);
-	_nameEdit->setReadOnly(_isModify);
+	InstrumentDao dao;
+	Instrument it;
+	InstrumentType ity;
+	result_t resp = dao.getInstrument(_instrumentId, &it);
+	dao.getInstrumentType(it.typeId, &ity);
 
-	QString imgPath = QString("./photo/instrument/%1.png").arg(_instrumentId);
-	QFile file(imgPath);
-	if (file.exists()) {
-		_imgLabel->setImage(imgPath);
-		_imgLabel->setHidden(false);
+	if (resp.isOk())
+	{
+		_nameEdit->setText(it.name);
+		_idEdit->setText(_instrumentId);
+		_idEdit->setReadOnly(_isModify);
+		//_nameEdit->setReadOnly(_isModify);
+		_insEdit->setCurrentIdPicked(ity.typeId, ity.name);
+
+		QString imgPath = QString("./photo/instrument/%1.png").arg(_instrumentId);
+		QFile file(imgPath);
+		if (file.exists()) {
+			_imgLabel->setImage(imgPath);
+			_imgLabel->setHidden(false);
+		}
 	}
+	else
+	{
+		XNotifier::warn(QString("查询器械失败: ").append(resp.msg()));
+	}
+	
 }
 
 void AddInstrumentIdDialog::loadImg() {
@@ -103,64 +121,71 @@ void AddInstrumentIdDialog::loadImg() {
 
 void AddInstrumentIdDialog::accept() {
 	QString name = _nameEdit->text();
-	QString pinyin = _idEdit->text().toUpper();
+	QString udi = _idEdit->text().toUpper();
+	int typeId = _insEdit->currentId();
+
 	if (name.isEmpty()) {
 		_nameEdit->setFocus();
 		return;
 	}
-	if (pinyin.isEmpty()) {
+	if (udi.isEmpty()) {
 		_idEdit->setFocus();
 		return;
 	}
+	if (typeId <= 0)
+	{
+		_insEdit->setFocus();
+		return;
+	}
 
-	QVariantMap vmap;
-	vmap.insert("instrument_name", name);
-	vmap.insert("pinyin_code", pinyin);
+	Instrument it;
+	it.name = name;
+	it.udi = udi;
+	it.typeId = typeId;
 
 	_waiter->start();
 	if (_isModify)
 	{
-		vmap.insert("instrument_id", _instrumentId);
-		post(url(PATH_INSTRUMENT_MODIFY), vmap, [this](QNetworkReply *reply) {
-			_waiter->stop();
-			JsonHttpResponse resp(reply);
-			if (!resp.success()) {
-				XNotifier::warn(QString("修改器械失败: ").append(resp.errorString()));
+		InstrumentDao dao;
+		result_t resp = dao.updateInstrument(it);
+		_waiter->stop();
+		if (resp.isOk())
+		{
+			if (!_imgFilePath.isEmpty())
+			{
+				uploadImg(udi);
+				return QDialog::accept();
 			}
 			else {
-				if (!_imgFilePath.isEmpty())
-				{
-					int instrument_id = _instrumentId.toInt();
-					if (0 != instrument_id) uploadImg(instrument_id);
-					return QDialog::accept();
-				}
-				else {
-					return QDialog::accept();
-				}
+				return QDialog::accept();
 			}
-		});
+		}
+		else
+		{
+			XNotifier::warn(QString("添加器械失败: ").append(resp.msg()));
+		}
+
 	}
 	else
 	{
-		post(url(PATH_INSTRUMENT_ADD), vmap, [this](QNetworkReply *reply) {
-			_waiter->stop();
-			JsonHttpResponse resp(reply);
-			if (!resp.success()) {
-				XNotifier::warn(QString("添加器械失败: ").append(resp.errorString()));
+		InstrumentDao dao;
+		result_t resp = dao.addInstrument(it);
+		_waiter->stop();
+		if (resp.isOk())
+		{
+			if (!_imgFilePath.isEmpty())
+			{
+				uploadImg(udi);
+				return QDialog::accept();
 			}
 			else {
-				if (!_imgFilePath.isEmpty())
-				{
-					int instrument_id = 0;
-					instrument_id = resp.getAsInt("instrument_id");
-					if (0 != instrument_id) uploadImg(instrument_id);
-					return QDialog::accept();
-				}
-				else {
-					return QDialog::accept();
-				}
+				return QDialog::accept();
 			}
-		});
+		}
+		else
+		{
+			XNotifier::warn(QString("添加器械失败: ").append(resp.msg()));
+		}
 	}
 	
 }
@@ -168,6 +193,13 @@ void AddInstrumentIdDialog::accept() {
 void AddInstrumentIdDialog::onTransponderReceviced(const QString& code)
 {
 	qDebug() << code;
+	TranspondCode tc(code);
+	
+	if (tc.type() == TranspondCode::Instrument)
+	{
+		_idEdit->setText(code);
+	}
+	
 }
 
 void AddInstrumentIdDialog::onBarcodeReceviced(const QString& code)
@@ -175,7 +207,14 @@ void AddInstrumentIdDialog::onBarcodeReceviced(const QString& code)
 	qDebug() << code;
 }
 
-void AddInstrumentIdDialog::uploadImg(int instrument_id) {
+void AddInstrumentIdDialog::uploadImg(const QString& instrument_id) {
+	QString newFileName = QString("./photo/instrument/%1.png").arg(instrument_id);
+	if (!copyFileToPath(_imgFilePath, newFileName, true)) {
+		XNotifier::warn(QString("器械信息添加成功，拷贝本地器械图片失败!"));
+		return;
+	}
+
+	/*
 	_multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 
 	QHttpPart imagePart;
@@ -212,6 +251,7 @@ void AddInstrumentIdDialog::uploadImg(int instrument_id) {
 
 		}
 	}
+	*/
 }
 
 bool AddInstrumentIdDialog::copyFileToPath(QString sourceDir, QString toDir, bool coverFileIfExist)

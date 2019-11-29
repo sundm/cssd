@@ -2,6 +2,7 @@
 
 #include <QDialog>
 #include "core/net/jsonhttpclient.h"
+#include "rdao/dao/PackageDao.h"
 
 namespace Ui {
 	class FlatEdit;
@@ -40,6 +41,7 @@ private:
 	void initPackageInfo();
 
 	void initInstrumentView();
+	void getOrders();
 	int findRow(int insId);
 
 	Ui::FlatEdit * _pkgNameEdit;
@@ -53,7 +55,7 @@ private:
 	TableView *_view;
 	QItemSelectionModel *_theSelectionModel;
 	QStandardItemModel *_model;
-	QList<QVariant> _orders;
+	QList<PackageType::DetailItem> _orders;
 
 	Ui::PrimaryButton *_commitButton;
 	bool _isModfy;
