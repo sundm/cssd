@@ -2,12 +2,14 @@
 #include <QSqlError>
 #include "debugsqlquery.h"
 #include "devicedao.h"
+#include "daoutil.h"
 #include "errors.h"
 
 result_t DeviceDao::getDevice(int id, Device *d, bool withPrograms/* = false*/)
 {
 	QSqlQuery q;
-	q.prepare("SELECT name, category, status, cycle_count, cycle_date,"
+	q.prepare("SELECT name, category, status,"
+		" if(TO_DAYS(NOW())=TO_DAYS(cycle_date), cycle_count, 0) AS cycle_today,"
 		" cycle_total, production_time, last_maintain_time, maintain_cycle, sterilize_type"
 		" FROM t_device"
 		" WHERE id = ?");
@@ -22,14 +24,14 @@ result_t DeviceDao::getDevice(int id, Device *d, bool withPrograms/* = false*/)
 		d->name = q.value(0).toString();
 		d->category = static_cast<Rt::DeviceCategory>(q.value(1).toInt());
 		d->status = static_cast<Rt::DeviceStatus>(q.value(2).toInt());
-		d->cycleCount = q.value(3).toInt();
-		d->cycleDate = q.value(4).toDate();
-		d->cycleTotal = q.value(5).toInt();
-		d->productionDate = q.value(6).toDate();
-		d->lastMaintainTime = q.value(7).toDateTime();
-		d->maintainCycle = q.value(8).toUInt();
-		d->sterilizeType = static_cast<Rt::SterilizeType>(q.value(9).toInt());
+		d->cycleToday = q.value(3).toInt();
+		d->cycleTotal = q.value(4).toInt();
+		d->productionDate = q.value(5).toDate();
+		d->lastMaintainTime = q.value(6).toDateTime();
+		d->maintainCycle = q.value(7).toUInt();
+		d->sterilizeType = static_cast<Rt::SterilizeType>(q.value(8).toInt());
 
+		d->programs.clear();
 		if (withPrograms) // get bound programs
 			return this->getProgramsForDevice(id, &d->programs);
 	}
@@ -98,7 +100,8 @@ result_t DeviceDao::getDeviceList(
 	QList<Device> *devices,
 	bool excludeForbidden/* = true*/)
 {
-	QString sql = "SELECT id, name, category, status, cycle_count, cycle_date,"
+	QString sql = "SELECT id, name, category, status,"
+		" if(TO_DAYS(NOW())=TO_DAYS(cycle_date), cycle_count, 0) AS cycle_today,"
 		" cycle_total, production_time, last_maintain_time, maintain_cycle, sterilize_type"
 		" FROM t_device";
 	bool hasWhere = false;
@@ -123,13 +126,12 @@ result_t DeviceDao::getDeviceList(
 			d.name = q.value(1).toString();
 			d.category = static_cast<Rt::DeviceCategory>(q.value(2).toInt());
 			d.status = static_cast<Rt::DeviceStatus>(q.value(3).toInt());
-			d.cycleCount = q.value(4).toInt();
-			d.cycleDate = q.value(5).toDate();
-			d.cycleTotal = q.value(6).toInt();
-			d.productionDate = q.value(7).toDate();
-			d.lastMaintainTime = q.value(8).toDateTime();
-			d.maintainCycle = q.value(9).toUInt();
-			d.sterilizeType = static_cast<Rt::SterilizeType>(q.value(10).toInt());
+			d.cycleToday = q.value(4).toInt();
+			d.cycleTotal = q.value(5).toInt();
+			d.productionDate = q.value(6).toDate();
+			d.lastMaintainTime = q.value(7).toDateTime();
+			d.maintainCycle = q.value(8).toUInt();
+			d.sterilizeType = static_cast<Rt::SterilizeType>(q.value(9).toInt());
 			devices->append(d);
 		}
 	}
@@ -161,3 +163,19 @@ result_t DeviceDao::getProgramList(Rt::DeviceCategory cat, QList<Program> *progr
 	return 0;
 }
 
+result_t DeviceDao::startDevice(int id)
+{
+	QSqlQuery q;
+	q.prepare("UPDATE t_device"
+		" SET status=?, cycle_count=if(TO_DAYS(NOW())=TO_DAYS(DATE), cycle_count+1, 1),"
+		" cycle_date=NOW(), cycle_total=cycle_total+1"
+		" WHERE id = ?");
+	q.addBindValue(Rt::Running);
+	q.addBindValue(id);
+	if (!q.exec())
+		return q.lastError().text();
+	if (1 != q.numRowsAffected())
+		qWarning("Internal error: update t_device in startDevice()");
+
+	return 0;
+}

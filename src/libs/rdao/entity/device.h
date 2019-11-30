@@ -18,10 +18,9 @@ struct Device{
 	QString name;
 	Rt::DeviceCategory category;
 	Rt::DeviceStatus status;
-	int cycleCount;
+	int cycleToday;
 	int cycleTotal;
 	Rt::SterilizeType sterilizeType;
-	QDate cycleDate;
 	QDate productionDate;
 	QDateTime lastMaintainTime;
 	unsigned int maintainCycle;
@@ -31,7 +30,7 @@ struct Device{
 		id(-1),
 		category(Rt::UnknownDeviceCategory),
 		status(Rt::Idle),
-		cycleCount(-1),
+		cycleToday(-1),
 		cycleTotal(-1),
 		sterilizeType(Rt::UnknownSterilizeType),
 		maintainCycle(0)

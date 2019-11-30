@@ -21,7 +21,9 @@ result_t PackageDao::getPackageType(
 	if (!q.first())
 		return "没有找到对应包的信息";
 
+	// reset package type infos
 	if (pt) {
+		pt->detail.clear();
 		pt->typeId = typeId;
 		pt->category = static_cast<Rt::PackageCategory>(q.value(0).toInt());
 		pt->name = q.value(1).toString();
@@ -159,7 +161,10 @@ result_t PackageDao::getPackage(
 	if (!q.first())
 		return "没有找到对应包的信息";
 
+	// reset package infos
 	if (pkg) {
+		pkg->detail.clear();
+		pkg->instruments.clear();
 		pkg->udi = udi;
 		pkg->name = q.value(0).toString();
 		pkg->photo = q.value(1).toString();

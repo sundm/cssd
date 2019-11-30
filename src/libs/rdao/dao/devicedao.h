@@ -37,6 +37,8 @@ public:
 	result_t getAllPrograms(QList<Program> *programs);
 
 private:
+	friend class FlowDao;
+
 	result_t getDeviceList(
 		Rt::DeviceCategory cat,
 		QList<Device> *devices,
@@ -47,5 +49,7 @@ private:
 		Rt::DeviceCategory cat,
 		QList<Program> *programs
 	);
+
+	result_t startDevice(int id);
 };
 

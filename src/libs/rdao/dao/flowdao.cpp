@@ -3,6 +3,8 @@
 #include "debugsqlquery.h"
 #include "flowdao.h"
 #include "errors.h"
+#include "daoutil.h"
+#include "devicedao.h"
 #include "../entity/package.h"
 #include "../entity/operator.h"
 #include "../entity/device.h"
@@ -44,15 +46,16 @@ result_t FlowDao::addRecycle(const Package &pkg, const Operator& op)
 
 	if (!q.exec())
 		return q.lastError().text();
-	return 0;
 
-	// update package status
 	// update r_package
-	sql = QString("UPDATE r_package SET status=%1").arg(Rt::Recycled) + whereClause;
-	if (!q.exec(sql))
-		return q.lastError().text();
-	if (1 != q.numRowsAffected())
-		qWarning("Internal db error: update r_package.status in addRecycle()");
+	if (Rt::UnknownFlowStatus != pkg.status) { 
+		// the package is in a flow, update status
+		sql = QString("UPDATE r_package SET status=%1").arg(Rt::Recycled) + whereClause;
+		if (!q.exec(sql))
+			return q.lastError().text();
+		if (1 != q.numRowsAffected())
+			qWarning("Internal db error: update r_package.status in addRecycle()");
+	}
 
 	// update t_package
 	q.prepare("UPDATE t_package SET status=? WHERE udi=?");
@@ -65,14 +68,66 @@ result_t FlowDao::addRecycle(const Package &pkg, const Operator& op)
 	return 0;
 }
 
-result_t FlowDao::addWash(const QList<Package> &pkgs,
-	const Device &device,
+result_t FlowDao::addWash(
+	int deviceId,
 	const Program &program,
+	const QList<Package> &pkgs,
 	const Operator &op)
 {
 	if (pkgs.isEmpty()) return 0;
 
 	// TODO: check package status is Recycled?
 
+	// start the device
+	DeviceDao dao;
+	result_t res = dao.startDevice(deviceId);
+	if (!res.isOk()) {
+		return res;
+	}
+
+	Device device;
+	res = dao.getDevice(deviceId, &device);
+	if (!res.isOk()) {
+		return res;
+	}
+
+	// insert a wash batch
+	QSqlQuery q;
+	q.prepare("INSERT INTO r_wash_batch (batch_id, device_id, device_name, program_id,"
+		" program_name, cycle_count, total_count, start_time, op_id, op_name) VALUES"
+		" (?, ?, ?, ?, ?, ?, ?, now(), ?, ?");
+	q.addBindValue(DaoUtil::deviceBatchId(device.id, device.cycleTotal));
+	q.addBindValue(device.id);
+	q.addBindValue(device.name);
+	q.addBindValue(program.id);
+	q.addBindValue(program.name);
+	q.addBindValue(device.cycleToday);
+	q.addBindValue(device.cycleTotal);
+	q.addBindValue(op.id);
+	q.addBindValue(op.name);
+
+	if (!q.exec())
+		return q.lastError().text();
+	if (1 != q.numRowsAffected())
+		qWarning("Internal error: insert t_device in addWash()");
+
+	// insert a new record for each package in r_package, since a loop always starts with washing.
+	QString sql = "INSERT INTO r_package"
+		" (pkg_udi, pkg_name, pkg_type_name, dept_name, pkg_cycle, pkg_type_id, dept_id) VALUES";
+	QStringList values;
+	for each (const Package &pkg in pkgs) {
+		QString value = QString(" ('%1', '%2', '%3', '%4', %5, %6, %7)").
+			arg(pkg.udi, pkg.name, pkg.name, pkg.dept.name).  // TODO, Package has no typename
+			arg(pkg.cycle + 1).arg(pkg.typeId).arg(pkg.dept.id);
+		values << value;
+	}
+	sql.append(values.join(','));
+		
+	if (!q.exec(sql))
+		return q.lastError().text();
+	if (1 != q.numRowsAffected())
+		qWarning("Internal db error: update r_package.status in addRecycle()");
+
 	return 0;
 }
+

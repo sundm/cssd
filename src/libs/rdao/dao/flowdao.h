@@ -15,10 +15,11 @@ public:
 	result_t addRecycle(const Package &pkg, const Operator& op);
 
 	result_t addWash(
-		const QList<Package> &pkgs,
-		const Device &device,
+		int deviceId,
 		const Program &program,
+		const QList<Package> &pkgs,
 		const Operator &op);
 	
+private:
 };
 

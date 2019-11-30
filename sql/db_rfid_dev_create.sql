@@ -31,8 +31,8 @@ CREATE TABLE IF NOT EXISTS `t_device` (
   `name` varchar(32) NOT NULL,
   `category` tinyint NOT NULL, -- 0:wash 1:sterilize
   `status` tinyint NOT NULL DEFAULT 0, -- 0:idle 1:running 2:forbidden
-  `cycle_count` smallint NOT NULL DEFAULT 0,
-  `cycle_date` datetime NOT NULL,
+  `cycle_count` smallint NOT NULL DEFAULT 0, -- cycle count for the most recent running
+  `cycle_date` datetime NOT NULL, -- the last time at when it started
   `cycle_total` int NOT NULL,
   `sterilize_type` tinyint NOT NULL DEFAULT 0, -- 0:both 1:low 2:high -1:N/A
   `production_time` datetime NOT NULL,
@@ -142,7 +142,7 @@ CREATE TABLE IF NOT EXISTS `r_package` (
   `pkg_udi` varchar(32) NOT NULL,
   `pkg_cycle` int unsigned NOT NULL,
   `pkg_name` varchar(32) NOT NULL,
-  `pkg_type_id` int NOT NULL DEFAULT '0',
+  `pkg_type_id` int NOT NULL,
   `pkg_type_name` varchar(32) NOT NULL,
   `dept_id` int NOT NULL, -- dept it belongs to
   `dept_name` varchar(32) NOT NULL,
