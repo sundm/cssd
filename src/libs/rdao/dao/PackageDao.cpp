@@ -147,7 +147,7 @@ result_t PackageDao::getPackage(
 {
 	QSqlQuery q;
 	q.prepare("SELECT a.name, a.photo, a.type_id, a.cycle, a.status,"
-		" b.category, b.sterilize_type, b.pack_type_id, b.dept_id, c.name, d.name"
+		" b.category, b.sterilize_type, b.pack_type_id, b.dept_id, c.name, c.valid_period, d.name"
 		" FROM t_package a"
 		" LEFT JOIN t_package_type b ON a.type_id = b.id"
 		" LEFT JOIN t_pack_type c ON b.pack_type_id = c.id"
@@ -176,7 +176,8 @@ result_t PackageDao::getPackage(
 		pkg->packType.id = q.value(7).toInt();
 		pkg->dept.id = q.value(8).toInt();
 		pkg->packType.name = q.value(9).toString();
-		pkg->dept.name = q.value(10).toString();
+		pkg->packType.validPeriod = q.value(10).toUInt();
+		pkg->dept.name = q.value(11).toString();
 	}
 
 	if (!withInstruments)
@@ -210,7 +211,7 @@ result_t PackageDao::getPackageList(
 {
 	QSqlQuery q;
 	QString sql = "SELECT a.udi, a.name, a.photo, a.type_id, a.cycle, a.status,"
-		" b.category, b.sterilize_type, b.pack_type_id, b.dept_id, c.name, d.name"
+		" b.category, b.sterilize_type, b.pack_type_id, b.dept_id, c.name, c.valid_period, d.name"
 		" FROM t_package a"
 		" LEFT JOIN t_package_type b ON a.type_id = b.id"
 		" LEFT JOIN t_pack_type c ON b.pack_type_id = c.id"
@@ -239,7 +240,8 @@ result_t PackageDao::getPackageList(
 			pkg.packType.id = q.value(8).toInt();
 			pkg.dept.id = q.value(9).toInt();
 			pkg.packType.name = q.value(10).toString();
-			pkg.dept.name = q.value(11).toString();
+			pkg.packType.validPeriod = q.value(11).toUInt();
+			pkg.dept.name = q.value(12).toString();
 			pkgs->append(pkg);
 		}
 	}
