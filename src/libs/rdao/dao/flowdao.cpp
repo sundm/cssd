@@ -155,8 +155,8 @@ result_t FlowDao::addPack(const Package &pkg, const Operator& op, const Operator
 	// add recycle
 	// TODO, label id use MySQL autoincrement
 	q.prepare(QString(
-		"INSERT INTO r_recycle (pkg_udi, pkg_cycle, pkg_name, dept_id,"
-		" dept_name, op_id, op_name, pack_type_id, pack_type_name, expire_time)"
+		"INSERT INTO r_pack (pkg_udi, pkg_cycle, pkg_name, dept_id,"
+		" dept_name, op_id, op_name, pack_type_id, pack_type_name, expire_time, check_op_id, check_op_name)"
 		" VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL %1 DAY), ?, ?)"
 		).arg(pkg.packType.validPeriod));
 	q.addBindValue(pkg.udi);
@@ -212,7 +212,7 @@ result_t FlowDao::updatePackageStatus(const Package &pkg, Rt::FlowStatus fs)
 
 	// update t_package
 	q.prepare("UPDATE t_package SET status=? WHERE udi=?");
-	q.addBindValue(Rt::Recycled);
+	q.addBindValue(fs);
 	q.addBindValue(pkg.udi);
 	if (!q.exec())
 		return q.lastError().text();

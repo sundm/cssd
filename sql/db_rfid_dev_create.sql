@@ -217,8 +217,7 @@ CREATE TABLE IF NOT EXISTS `r_pack` (
   `check_op_name` varchar(32) DEFAULT NULL,
   `check_time` datetime,
   -- `check_result` tinyint(1) DEFAULT 1,
-  KEY `idx_pkg_udi_cycle` (`pkg_udi`,`pkg_cycle`) USING BTREE,
-  KEY `idx_label_id` (`label_id`) USING BTREE
+  KEY `idx_pkg_udi_cycle` (`pkg_udi`,`pkg_cycle`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=310001 DEFAULT CHARSET=utf8;
 
 -- This table records sterilize batches rather than packages
