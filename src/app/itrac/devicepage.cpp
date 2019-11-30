@@ -150,7 +150,7 @@ void DevicePage::updateDeviceView(const QString& deviceType/* = QString()*/)
 			rowItems.append(idItem);
 			rowItems.append(new QStandardItem(device.name));
 			rowItems.append(new QStandardItem(QString::number(device.cycleTotal)));
-			rowItems.append(new QStandardItem(QString::number(device.cycleCount)));
+			rowItems.append(new QStandardItem(QString::number(device.cycleToday)));
 			rowItems.append(new QStandardItem(device.productionDate.toString("yyyy-MM-dd")));
 			rowItems.append(stateItem);
 

@@ -5,7 +5,6 @@
 
 class DeviceArea;
 class PlateView;
-struct Package;
 
 class WashPanel : public CssdOverlayPanel, public JsonHttpClient
 {
@@ -28,6 +27,4 @@ private:
 
 	DeviceArea * _deviceArea;
 	PlateView * _plateView;
-
-	QList<Package> _pkgList;
 };

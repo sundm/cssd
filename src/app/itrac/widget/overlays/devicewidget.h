@@ -25,6 +25,7 @@ public:
 	int cycle() const;
 	int sterilize_type() const;
 	virtual int programId() const = 0;
+	virtual const QString programName() = 0;
 	virtual bool isRunning() const = 0;
 	virtual void setSelected(bool) = 0;
 	virtual void setIdle() = 0;
@@ -48,6 +49,7 @@ class WasherItem : public DeviceItem
 public:
 	WasherItem(Device *device = nullptr, QWidget *parent = nullptr);
 	int programId() const override;
+	const QString programName() override;
 	void setSelected(bool) override;
 	void setIdle() override;
 	void setRunning() override;

@@ -4,6 +4,7 @@
 #include "core/barcode.h"
 #include "core/assets.h"
 #include "core/net/url.h"
+#include "core/user.h"
 #include "ui/buttons.h"
 #include "ui/views.h"
 #include "inliner.h"
@@ -346,14 +347,18 @@ void OrRecyclePanel::onTransponderReceviced(const QString& code)
 	TranspondCode tc(code);
 	if (tc.type() == TranspondCode::Package && 0 == _step)
 	{
-		_unusualCodes->clear();
-		_scannedCodes->clear();
-
 		PackageDao dao;
-		
 		result_t resp = dao.getPackage(code, &_package, true);
 		if (resp.isOk())
 		{
+			if (_package.status == Rt::Recycled) {
+				XNotifier::warn("该包已回收，请勿重复回收");
+				return;
+			}
+
+			_unusualCodes->clear();
+			_scannedCodes->clear();
+
 			_pkgView->updatePackageInfo(code, _package.name, _package.instruments.size());
 			_detailView->loadDetail(&_package.instruments);
 			loadPackageImg(code);
@@ -396,6 +401,10 @@ void OrRecyclePanel::onUnusual(const QString& code)
 void OrRecyclePanel::onBarcodeReceviced(const QString& code)
 {
 	qDebug() << code;
+	if (code.compare("910108") == 0)
+	{
+		commit();
+	}
 }
 
 void OrRecyclePanel::handleBarcode(const QString &code) {
@@ -418,7 +427,7 @@ void OrRecyclePanel::commit() {
 		return;
 	}
 
-	if (_pkgView->isScanFinished())
+	if (!_pkgView->isScanFinished())
 	{
 		XNotifier::warn("尚未完成器械检查，或存在异常器械");
 		return;
@@ -426,8 +435,8 @@ void OrRecyclePanel::commit() {
 
 	FlowDao dao;
 	Operator op;
-	op.id = 110001;
-	op.name = "刘向惠";
+	op.id = Core::currentUser().id;
+	op.name = Core::currentUser().name;
 
 	result_t resp = dao.addRecycle(_package, op);
 	if (resp.isOk())
