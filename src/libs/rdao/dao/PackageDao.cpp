@@ -182,11 +182,10 @@ result_t PackageDao::getPackage(
 	if (!withInstruments)
 		return 0;
 
-	q.prepare("SELECT a.ins_udi, b.type_id, b.name, b.photo, b.price, c.category, c.is_vip"
-		" FROM t_package_detail a"
-		" LEFT JOIN t_instrument b ON a.ins_udi = b.udi"
-		" LEFT JOIN t_instrument_type c ON b.type_id = c.id"
-		" WHERE a.pkg_udi = ? AND a.status = 1");
+	q.prepare("SELECT a.udi, a.type_id, a.name, a.photo, a.price, b.category, b.is_vip"
+		" FROM t_instrument a"
+		" LEFT JOIN t_instrument_type b ON a.type_id=b.id"
+		" WHERE a.pkg_udi = ?");
 	q.addBindValue(udi);
 	if (!q.exec())
 		return kErrorDbUnreachable;
@@ -274,10 +273,10 @@ result_t PackageDao::addPackage(const Package &pkg)
 		return 0;
 	}
 
-	//QString sql = QString("UPDATE t_instrument SET package_udi=%1"
-	//	" WHERE udi IN (%2)").arg(pkg.udi, insUdis.join(','));
+	// insert new bindings in t_package_detail
 	QString sql = "INSERT INTO t_package_detail"
 		" (ins_udi, ins_cycle_stamp, pkg_udi, pkg_cycle_stamp, bound_tm) VALUES";
+	QStringList insUdis;
 	int validCount = 0;
 	for each(const Instrument &ins in pkg.instruments) {
 		if (ins.packageUdi.isEmpty()) {
@@ -285,6 +284,7 @@ result_t PackageDao::addPackage(const Package &pkg)
 			QString values = QString(" ('%1', %3, '%2', %4, now()),").
 				arg(ins.udi, pkg.udi).arg(ins.cycle).arg(pkg.cycle);
 			sql.append(values);
+			insUdis << QString("'%1'").arg(ins.udi);
 		}
 	}
 
@@ -294,6 +294,12 @@ result_t PackageDao::addPackage(const Package &pkg)
 	}
 
 	sql.chop(1);		
+	if (!q.exec(sql))
+		return q.lastError().text();
+
+	// update the newest package udi for each instrument in t_instrument
+	sql = QString("UPDATE t_instrument"
+		" SET pkg_udi='%1' WHERE udi IN (%2)").arg(pkg.udi, insUdis.join(','));
 	if (!q.exec(sql))
 		return q.lastError().text();
 

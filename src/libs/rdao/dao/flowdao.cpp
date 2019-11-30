@@ -76,7 +76,7 @@ result_t FlowDao::addWash(
 {
 	if (pkgs.isEmpty()) return 0;
 
-	// TODO: check package status is Recycled?
+	// TODO: check package status is Recycled or leave it to the app?
 
 	// start the device
 	DeviceDao dao;
@@ -96,7 +96,8 @@ result_t FlowDao::addWash(
 	q.prepare("INSERT INTO r_wash_batch (batch_id, device_id, device_name, program_id,"
 		" program_name, cycle_count, total_count, start_time, op_id, op_name) VALUES"
 		" (?, ?, ?, ?, ?, ?, ?, now(), ?, ?");
-	q.addBindValue(DaoUtil::deviceBatchId(device.id, device.cycleTotal));
+	QString batchId = DaoUtil::deviceBatchId(device.id, device.cycleTotal);
+	q.addBindValue(batchId);
 	q.addBindValue(device.id);
 	q.addBindValue(device.name);
 	q.addBindValue(program.id);
@@ -111,10 +112,23 @@ result_t FlowDao::addWash(
 	if (1 != q.numRowsAffected())
 		qWarning("Internal error: insert t_device in addWash()");
 
-	// insert a new record for each package in r_package, since a loop always starts with washing.
-	QString sql = "INSERT INTO r_package"
-		" (pkg_udi, pkg_name, pkg_type_name, dept_name, pkg_cycle, pkg_type_id, dept_id) VALUES";
+	// insert r_wash_package
+	QString sql = "INSERT INTO r_wash_package"
+		" (batch_id, pkg_udi, pkg_name, pkg_cycle) VALUES";
 	QStringList values;
+	for each (const Package &pkg in pkgs) {
+		QString value = QString(" ('%1', '%2', '%3', %4)").
+			arg(batchId, pkg.udi, pkg.name).arg(pkg.cycle + 1);
+		values << value;
+	}
+	sql.append(values.join(','));
+	if (!q.exec(sql))
+		return q.lastError().text();
+
+	// insert a new record for each package in r_package, since a loop always starts with washing.
+	sql = "INSERT INTO r_package"
+		" (pkg_udi, pkg_name, pkg_type_name, dept_name, pkg_cycle, pkg_type_id, dept_id) VALUES";
+	values.clear();
 	for each (const Package &pkg in pkgs) {
 		QString value = QString(" ('%1', '%2', '%3', '%4', %5, %6, %7)").
 			arg(pkg.udi, pkg.name, pkg.name, pkg.dept.name).  // TODO, Package has no typename
@@ -122,11 +136,23 @@ result_t FlowDao::addWash(
 		values << value;
 	}
 	sql.append(values.join(','));
-		
 	if (!q.exec(sql))
 		return q.lastError().text();
-	if (1 != q.numRowsAffected())
-		qWarning("Internal db error: update r_package.status in addRecycle()");
+
+	// update cycle/status for each package
+	sql = "UPDATE t_package SET cycle=cycle+1, status=%1 WHERE udi IN (%2)";
+	values.clear();
+	for each (const Package &pkg in pkgs) {
+		values << QString("'%1'").arg(pkg.udi);
+	}
+	sql.arg(Rt::Washed).arg(values.join(','));
+	if (!q.exec(sql))
+		return q.lastError().text();
+
+	// update instruments' cycle for each package
+	sql = QString("UPDATE t_instrument SET cycle=cycle+1 WHERE pkg_udi IN (%1)").arg(values.join(','));
+	if (!q.exec(sql))
+		return q.lastError().text();
 
 	return 0;
 }

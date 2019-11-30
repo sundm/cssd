@@ -167,7 +167,7 @@ result_t DeviceDao::startDevice(int id)
 {
 	QSqlQuery q;
 	q.prepare("UPDATE t_device"
-		" SET status=?, cycle_count=if(TO_DAYS(NOW())=TO_DAYS(DATE), cycle_count+1, 1),"
+		" SET status=?, cycle_count=if(TO_DAYS(NOW())=TO_DAYS(cycle_date), cycle_count+1, 1),"
 		" cycle_date=NOW(), cycle_total=cycle_total+1"
 		" WHERE id = ?");
 	q.addBindValue(Rt::Running);

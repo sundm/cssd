@@ -106,9 +106,11 @@ CREATE TABLE IF NOT EXISTS `t_instrument` (
   `name` varchar(32) NOT NULL,
   `photo` varchar(128),
   `price` int,  -- in cents
+  `pkg_udi` varchar(32), -- always points to the most recent bound package
   `cycle` int unsigned NOT NULL DEFAULT 0, -- update after wash
   `is_del` tinyint NOT NULL DEFAULT 0,
-  KEY `idx_udi` (`udi`) USING BTREE
+  KEY `idx_udi` (`udi`) USING BTREE,
+  KEY `idx_pkg_udi` (`pkg_udi`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `t_package_type_detail` (
