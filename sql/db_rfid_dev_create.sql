@@ -97,7 +97,7 @@ CREATE TABLE IF NOT EXISTS `t_instrument_type` (
   `photo` varchar(128),
   `is_vip` tinyint NOT NULL DEFAULT 0,
   `is_del` tinyint NOT NULL DEFAULT 0
-) ENGINE=InnoDB  AUTO_INCREMENT=240001 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=240001 DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `t_instrument` (
   `id` int unsigned PRIMARY KEY AUTO_INCREMENT,
@@ -177,7 +177,7 @@ CREATE TABLE IF NOT EXISTS `r_wash_batch` (
   `program_id` int NOT NULL,
   `program_name` varchar(32) NOT NULL,
   `cycle_count` int(11) NOT NULL,
-  `total_count` int(11) NOT NULL,
+  `cycle_total` int(11) NOT NULL,
   `start_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `finish_time` datetime,
   `op_id` int NOT NULL,
@@ -201,11 +201,10 @@ CREATE TABLE IF NOT EXISTS `r_wash_package` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `r_pack` (
-  `id` int unsigned PRIMARY KEY AUTO_INCREMENT,
+  `id` int unsigned PRIMARY KEY AUTO_INCREMENT, -- label_id, maybe inappropriate
   `pkg_udi` varchar(32) NOT NULL,
   `pkg_cycle` int unsigned NOT NULL,
   `pkg_name` varchar(32) NOT NULL,
-  `label_id` varchar(32) NOT NULL,
   `dept_id` int NOT NULL,
   `dept_name` varchar(32) NOT NULL,
   `op_id` int NOT NULL,
@@ -220,7 +219,7 @@ CREATE TABLE IF NOT EXISTS `r_pack` (
   -- `check_result` tinyint(1) DEFAULT 1,
   KEY `idx_pkg_udi_cycle` (`pkg_udi`,`pkg_cycle`) USING BTREE,
   KEY `idx_label_id` (`label_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=310001 DEFAULT CHARSET=utf8;
 
 -- This table records sterilize batches rather than packages
 CREATE TABLE IF NOT EXISTS `r_ster_batch` (
@@ -231,7 +230,7 @@ CREATE TABLE IF NOT EXISTS `r_ster_batch` (
   `program_id` int NOT NULL,
   `program_name` varchar(32) NOT NULL,
   `cycle_count` int(11) NOT NULL,
-  `total_count` int(11) NOT NULL,
+  `cycle_total` int(11) NOT NULL,
   `start_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `finish_time` datetime,
   `op_id` int NOT NULL,

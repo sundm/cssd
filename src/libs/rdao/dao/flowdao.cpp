@@ -47,25 +47,8 @@ result_t FlowDao::addRecycle(const Package &pkg, const Operator& op)
 	if (!q.exec())
 		return q.lastError().text();
 
-	// update r_package
-	if (Rt::UnknownFlowStatus != pkg.status) { 
-		// the package is in a flow, update status
-		sql = QString("UPDATE r_package SET status=%1").arg(Rt::Recycled) + whereClause;
-		if (!q.exec(sql))
-			return q.lastError().text();
-		if (1 != q.numRowsAffected())
-			qWarning("Internal db error: update r_package.status in addRecycle()");
-	}
-
-	// update t_package
-	q.prepare("UPDATE t_package SET status=? WHERE udi=?");
-	q.addBindValue(Rt::Recycled);
-	q.addBindValue(pkg.udi);
-	if (!q.exec())
-		return q.lastError().text();
-	if (1 != q.numRowsAffected())
-		qWarning("Internal db error: update t_package.status in addRecycle()");
-	return 0;
+	// update package status
+	return updatePackageStatus(pkg, Rt::Recycled);
 }
 
 result_t FlowDao::addWash(
@@ -95,7 +78,7 @@ result_t FlowDao::addWash(
 	QSqlQuery q;
 	q.prepare("INSERT INTO r_wash_batch (batch_id, device_id, device_name, program_id,"
 		" program_name, cycle_count, total_count, start_time, op_id, op_name) VALUES"
-		" (?, ?, ?, ?, ?, ?, ?, now(), ?, ?");
+		" (?, ?, ?, ?, ?, ?, ?, now(), ?, ?)");
 	QString batchId = DaoUtil::deviceBatchId(device.id, device.cycleTotal);
 	q.addBindValue(batchId);
 	q.addBindValue(device.id);
@@ -140,12 +123,12 @@ result_t FlowDao::addWash(
 		return q.lastError().text();
 
 	// update cycle/status for each package
-	sql = "UPDATE t_package SET cycle=cycle+1, status=%1 WHERE udi IN (%2)";
 	values.clear();
 	for each (const Package &pkg in pkgs) {
 		values << QString("'%1'").arg(pkg.udi);
 	}
-	sql.arg(Rt::Washed).arg(values.join(','));
+	sql = QString("UPDATE t_package SET cycle=cycle+1, status=%1 WHERE udi IN (%2)").
+		arg(Rt::Washed).arg(values.join(','));
 	if (!q.exec(sql))
 		return q.lastError().text();
 
@@ -153,6 +136,88 @@ result_t FlowDao::addWash(
 	sql = QString("UPDATE t_instrument SET cycle=cycle+1 WHERE pkg_udi IN (%1)").arg(values.join(','));
 	if (!q.exec(sql))
 		return q.lastError().text();
+
+	return 0;
+}
+
+result_t FlowDao::addPack(const Package &pkg, const Operator& op, const Operator &checker, LabelInfo *li)
+{
+	QSqlQuery q;
+
+	// check the latest package flow status
+	if (Rt::Washed != pkg.status)
+		return "该包未进入待配包序列，请确认该包已完成清洗流程";
+
+	// update package status
+	result_t res = updatePackageStatus(pkg, Rt::Packed);
+	if (!res.isOk()) return res;
+
+	// add recycle
+	// TODO, label id use MySQL autoincrement
+	q.prepare(QString(
+		"INSERT INTO r_recycle (pkg_udi, pkg_cycle, pkg_name, dept_id,"
+		" dept_name, op_id, op_name, pack_type_id, pack_type_name, expire_time)"
+		" VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL %1 DAY), ?, ?)"
+		).arg(pkg.packType.validPeriod));
+	q.addBindValue(pkg.udi);
+	q.addBindValue(pkg.cycle);
+	q.addBindValue(pkg.name);
+	q.addBindValue(pkg.dept.id);
+	q.addBindValue(pkg.dept.name);
+	q.addBindValue(op.id);
+	q.addBindValue(op.name);
+	q.addBindValue(pkg.packType.id);
+	q.addBindValue(pkg.packType.name);
+	q.addBindValue(checker.id);
+	q.addBindValue(checker.name);
+	if (!q.exec())
+		return q.lastError().text();
+
+	// set label info
+	if (li) {
+		if (!q.exec("SELECT id, pack_time, expire_time FROM r_pack where id=LAST_INSERT_ID()"))
+			return q.lastError().text();
+		if (q.first()) {
+			li->labelId = q.value(0).toString();
+			li->packDate = q.value(1).toDate();
+			li->expireDate = q.value(1).toDate();
+		}
+	}
+
+	return 0;
+}
+
+result_t FlowDao::addSterilization(
+	int deviceId,
+	const Program &program,
+	const QList<Package> &pkgs,
+	const Operator &op)
+{
+	return 0;
+}
+
+result_t FlowDao::updatePackageStatus(const Package &pkg, Rt::FlowStatus fs)
+{
+	QSqlQuery q;
+
+	// update r_package
+	if (Rt::UnknownFlowStatus != pkg.status) { // a new package is not in flow control
+		QString sql = QString("UPDATE r_package SET status=%1"
+			" WHERE pkg_udi='%2' AND pkg_cycle=%3").arg(fs).arg(pkg.udi).arg(pkg.cycle);
+		if (!q.exec(sql))
+			return q.lastError().text();
+		if (1 != q.numRowsAffected())
+			qWarning("Internal db error: update r_package.status");
+	}
+
+	// update t_package
+	q.prepare("UPDATE t_package SET status=? WHERE udi=?");
+	q.addBindValue(Rt::Recycled);
+	q.addBindValue(pkg.udi);
+	if (!q.exec())
+		return q.lastError().text();
+	if (1 != q.numRowsAffected())
+		qWarning("Internal db error: update t_package.status");
 
 	return 0;
 }

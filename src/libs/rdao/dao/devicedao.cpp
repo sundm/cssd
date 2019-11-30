@@ -55,6 +55,33 @@ result_t DeviceDao::getAllDeivces(QList<Device> *devices, bool excludeForbidden 
 	return getDeviceList(Rt::UnknownDeviceCategory, devices, excludeForbidden);
 }
 
+result_t DeviceDao::stopDevice(int id)
+{
+	QSqlQuery q;
+	q.prepare("UPDATE t_device SET status=? WHERE id = ? AND status=?");
+	q.addBindValue(Rt::Idle);
+	q.addBindValue(id);
+	q.addBindValue(Rt::Running);
+	if (!q.exec())
+		return q.lastError().text();
+	if (1 != q.numRowsAffected()) {
+		qWarning("Internal error: update t_device in stopDevice()");
+		return 0;
+	}
+
+	// update r_wash_batch
+	q.prepare("UPDATE r_wash_batch a, t_device b"
+		" SET a.finish_time=NOW()"
+		" WHERE a.device_id = ? AND a.total_count=b.cycle_total"); // TODO: create a union KEY in DB?
+	q.addBindValue(id);
+	if (!q.exec())
+		return q.lastError().text();
+	if (1 != q.numRowsAffected())
+		qWarning("Internal error: update r_wash_batch in stopDevice()");
+
+	return 0;
+}
+
 result_t DeviceDao::getProgramsForDevice(int deviceId, QList<Program> *programs)
 {
 	QSqlQuery q;

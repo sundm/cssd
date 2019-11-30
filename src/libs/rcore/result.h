@@ -34,7 +34,7 @@ public:
 	result_t(result_t &&other) {
 		//std::swap(*this, other);
 		_msg = other._msg;
-		other._msg = nullptr;
+		other._msg = nullptr; // TODO: memleak?
 	}
 
 	result_t& operator=(result_t &&other) {

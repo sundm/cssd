@@ -30,6 +30,8 @@ public:
 		bool excludeForbidden = true
 	);
 
+	result_t stopDevice(int id);
+
 	result_t getProgramsForDevice(int deviceId, QList<Program> *programs);
 
 	result_t getWashPrograms(QList<Program> *programs);

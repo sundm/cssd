@@ -4,6 +4,7 @@
 #include "instrument.h"
 #include "department.h"
 #include <QList>
+#include <QDate>
 
 struct PackType {
 	int id;
@@ -53,4 +54,10 @@ struct Package : public PackageType
 	QList<Instrument> instruments;
 	
 	Package() : cycle(0), status(Rt::UnknownFlowStatus) {}
+};
+
+struct LabelInfo {
+	QString labelId;
+	QDate packDate;
+	QDate expireDate;
 };
