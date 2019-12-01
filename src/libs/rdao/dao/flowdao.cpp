@@ -216,6 +216,11 @@ result_t FlowDao::updateSterilizationResult(
 	return 0;
 }
 
+result_t FlowDao::getDeviceBatchInfoByPackage(const Package &pkg, DeviceBatchInfo *dbi)
+{
+	return 0;
+}
+
 /**
  * update status for a single package in table `r_package` and `t_package `
  */
@@ -254,7 +259,7 @@ result_t FlowDao::updatePackageStatus(const QList<Package> &pkgs, Rt::FlowStatus
 	QSqlQuery q;
 
 	// insert a new record for each package in `r_package`, since a loop always starts with washing.
-	QString sql = "UPDATE r_package SET status=%1 WHERE (pkg_udi, pkg_cycle) IN ";
+	QString sql = QString("UPDATE r_package SET status=%1 WHERE (pkg_udi, pkg_cycle) IN ").arg(fs);
 	QStringList values;
 	for each (const Package &pkg in pkgs) {
 		QString value = QString("('%1', %2)").arg(pkg.udi).arg(pkg.cycle);
@@ -300,7 +305,6 @@ result_t FlowDao::addDeviceBatch(
 	// TODO: check the device category passed in?
 	bool forWash = (Rt::DeviceCategory::Washer == device.category);
 	QString insertHeader("INSERT INTO ");
-	insertHeader.append(forWash ? "r_wash_batch" : "r_ster_batch");
 
 	// insert a batch
 	QSqlQuery q;

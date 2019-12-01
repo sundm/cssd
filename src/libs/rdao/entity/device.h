@@ -39,3 +39,10 @@ struct Device{
 
 typedef Device Washer;
 typedef Device Sterilizer;
+
+struct DeviceBatchInfo {
+	QString batchId;
+	QString deviceName;
+	QString programName;
+
+};

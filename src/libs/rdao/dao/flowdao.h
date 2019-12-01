@@ -9,6 +9,7 @@ struct Package;
 struct Device;
 struct Program;
 struct LabelInfo;
+struct DeviceBatchInfo;
 
 class RDAO_EXPORT FlowDao
 {
@@ -42,9 +43,10 @@ public:
 		Rt::SterilizeResult bioRes = Rt::Uninvolved
 	);
 
-	//result_t getDeviceBatchByPackage(
-	//	const Package &pkg,
-	//)
+	result_t getDeviceBatchInfoByPackage(
+		const Package &pkg,
+		DeviceBatchInfo *dbi
+		);
 	
 private:
 	result_t updatePackageStatus(const Package &pkg, Rt::FlowStatus fs);
