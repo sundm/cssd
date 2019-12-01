@@ -10,8 +10,8 @@ GenderComboBox::GenderComboBox(QWidget *parent /*= nullptr*/)
 	setCurrentIndex(-1);
 }
 
-ProgramComboBox::ProgramComboBox(int deviceId, QWidget *parent)
-	: QComboBox(parent), _deviceId(deviceId)
+ProgramComboBox::ProgramComboBox(int programId, QWidget *parent)
+	: QComboBox(parent), _programId(programId)
 {
 }
 
@@ -23,7 +23,7 @@ void ProgramComboBox::updateEntry(bool force)
 
 	DeviceDao dao;
 	QList<Program> programs;
-	result_t resp = dao.getProgramsForDevice(_deviceId, &programs);
+	result_t resp = dao.getProgramsForDevice(_programId, &programs);
 	if (resp.isOk())
 	{
 		for (auto &program : programs) {
@@ -52,6 +52,10 @@ void ProgramComboBox::updateEntry(bool force)
 
 int ProgramComboBox::currentProgramId() const {
 	return currentData().toInt();
+}
+
+const QString ProgramComboBox::currentProgramName() {
+	return currentText();
 }
 
 VendorComboBox::VendorComboBox(QWidget *parent /*= nullptr*/)

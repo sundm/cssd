@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cssd_overlay.h"
+#include "rdao/entity/package.h"
 
 class DeptEdit;
 class PackageEdit;
@@ -24,22 +25,28 @@ protected:
 
 private slots:
 	void commit();
-
 	void reprint();
 	void abnormal();
+	void reset();
+
+	void onScanned(const QString& code);
+	void onUnusual(const QString& code);
+	void loadInstrumentImg(const QString& udi);
 
 	void onTransponderReceviced(const QString& code);
 	void onBarcodeReceviced(const QString& code);
+
 private:
-	void reset();
+	void loadPackageImg(const QString& udi);
 
 	PackageInfoView * _pkgView;
 	PackageDetailView * _detailView;
 	UnusualInstrumentView * _unusualView;
 
-	QHash<QString, QString> * _codeMap;
 	QStringList * _scannedCodes;
 	QStringList * _unusualCodes;
+
+	Package _package;
 
 	XPicture * _pkgImg;
 	XPicture * _insImg;

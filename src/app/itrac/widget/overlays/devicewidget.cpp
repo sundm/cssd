@@ -29,7 +29,7 @@ int DeviceItem::id() const {
 }
 
 int DeviceItem::cycle() const {
-	return _device->cycleCount;
+	return _device->cycleToday;
 }
 int DeviceItem::sterilize_type() const {
 	return _device->sterilizeType;
@@ -63,7 +63,7 @@ WasherItem::WasherItem(Device *device, QWidget *parent)
 	layout->addWidget(_title, 0, 1);
 
 	Ui::Description *cycle =
-		new Ui::Description(QString("今日锅次: %1").arg(_device->cycleCount));
+		new Ui::Description(QString("今日锅次: %1").arg(_device->cycleToday));
 	layout->addWidget(cycle, 1, 1);
 
 	_comboBox = new ProgramComboBox(_device->id);
@@ -85,6 +85,10 @@ WasherItem::WasherItem(Device *device, QWidget *parent)
 
 int WasherItem::programId() const {
 	return _comboBox->currentProgramId();
+}
+
+const QString WasherItem::programName() {
+	return _comboBox->currentProgramName();
 }
 
 bool WasherItem::isRunning() const {
@@ -111,7 +115,19 @@ void WasherItem::setRunning() {
 }
 
 void WasherItem::stop() {
-	QByteArray data("{\"device_id\":");
+	//todo
+	DeviceDao dao;
+	result_t resp = dao.stopDevice(_device->id);
+	if (resp.isOk())
+	{
+		setIdle();
+	}
+	else
+	{
+		XNotifier::warn(QString("结束程序出错: ").append(resp.msg()));
+		return;
+	}
+	/*QByteArray data("{\"device_id\":");
 	data.append(QString::number(_device->id)).append('}');
 	_http.post(url(PATH_DEVICE_STOP), data, [this](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
@@ -120,7 +136,7 @@ void WasherItem::stop() {
 			return;
 		}
 		setIdle();
-	});
+	});*/
 }
 
 

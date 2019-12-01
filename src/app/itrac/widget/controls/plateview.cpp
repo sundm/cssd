@@ -4,6 +4,8 @@
 #include "xnotifier.h"
 #include "util/printermanager.h"
 #include "rdao/dao/PackageDao.h"
+#include "rdao/entity/operator.h"
+#include "rdao/entity/package.h"
 #include <printer/labelprinter.h>
 #include <QStandardItemModel>
 #include <QHeaderView>
@@ -20,35 +22,29 @@ PlateView::PlateView(QWidget *parent)
 	_pkgList.clear();
 }
 
-bool PlateView::hasPlate(int id) const
-{
-	QModelIndexList matches = _model->match(_model->index(0, 0), Qt::UserRole + 1, id, 1);
-	return !matches.isEmpty();
-}
+void PlateView::addPackage(const QString& udi) {
+	for each (Package pkg in _pkgList)
+	{
+		if (udi.compare(pkg.udi) == 0)
+		{
+			XNotifier::warn(QString("该器械包已经添加:").append(udi), -1);
+			return;
+		}
+	}
 
-void PlateView::addPlate(const QString& udi) {
 	PackageDao dao;
 	Package pkg;
 	result_t resp = dao.getPackage(udi, &pkg, true);
 	if (resp.isOk())
 	{
-		//clear();
-		if (_pkgList.contains(&pkg))
-		{
-			XNotifier::warn(QString("该器械包已经添加:").append(udi), -1);
-		}
-		else
-		{
-			_pkgList.append(&pkg);
+		_pkgList.append(pkg);
 
-			QList<QStandardItem *> rowItems;
-			QStandardItem *plateItem = new QStandardItem(udi);
-			plateItem->setData(udi);
-			QStandardItem *numberItem = new QStandardItem(QString::number(pkg.instruments.size()));
-			rowItems << plateItem << numberItem;
-			_model->appendRow(rowItems);
-		}
-		
+		QList<QStandardItem *> rowItems;
+		QStandardItem *plateItem = new QStandardItem(udi);
+		plateItem->setData(udi);
+		QStandardItem *numberItem = new QStandardItem(QString::number(pkg.instruments.size()));
+		rowItems << plateItem << numberItem;
+		_model->appendRow(rowItems);		
 	}
 	else
 	{
@@ -90,14 +86,8 @@ void PlateView::addPlate(const QString& udi) {
 	*/
 }
 
-QVariantList PlateView::plates() const {
-	QVariantList vec;
-	vec.reserve(2);
-	for (int i = 0; i != _model->rowCount(); i++) {
-		int plateId = _model->data(_model->index(i, 0), Qt::UserRole + 1).toInt();
-		vec.push_back(plateId);
-	}
-	return vec;
+const QList<Package> &PlateView::packages() const {
+	return _pkgList;
 }
 
 void PlateView::clear() {

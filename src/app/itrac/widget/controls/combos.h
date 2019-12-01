@@ -16,12 +16,12 @@ class ProgramComboBox : public QComboBox
 	Q_OBJECT
 
 public:
-	ProgramComboBox(int deviceId, QWidget *parent = nullptr);
+	ProgramComboBox(int programId, QWidget *parent = nullptr);
 	void updateEntry(bool force = false);
 	int currentProgramId() const;
-
+	const QString currentProgramName();
 private:
-	int _deviceId;
+	int _programId;
 	JsonHttpClient _http;
 };
 

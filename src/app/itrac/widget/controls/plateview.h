@@ -13,16 +13,15 @@ class PlateView : public TableView
 
 public:
 	PlateView(QWidget *parent = nullptr);
-	bool hasPlate(int) const;
-	void addPlate(const QString& udi);
-	QVariantList plates() const;
+	void addPackage(const QString& udi);
+	const QList<Package> & packages() const;
 	void clear();
 
 private:
 	QStandardItemModel * _model;
 	JsonHttpClient _http;
 
-	QList<Package *> _pkgList;
+	QList<Package> _pkgList;
 };
 
 

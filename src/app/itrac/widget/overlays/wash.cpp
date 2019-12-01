@@ -6,7 +6,11 @@
 #include "widget/controls/plateview.h"
 #include "dialog/regexpinputdialog.h"
 #include "core/net/url.h"
+#include "core/user.h"
 #include "rdao/dao/PackageDao.h"
+#include "rdao/dao/flowdao.h"
+#include "rdao/entity/device.h"
+#include "rdao/entity/operator.h"
 #include "dialog/operatorchooser.h"
 #include "xnotifier.h"
 #include "QtWidgets/QtWidgets"
@@ -42,7 +46,6 @@ WashPanel::WashPanel(QWidget *parent)
 	connect(_listener, SIGNAL(onTransponder(const QString&)), this, SLOT(onTransponderReceviced(const QString&)));
 	connect(_listener, SIGNAL(onBarcode(const QString&)), this, SLOT(onBarcodeReceviced(const QString&)));
 
-	_pkgList.clear();
 	QTimer::singleShot(200, [this] { _deviceArea->load(itrac::DeviceType::Washer); });
 }
 
@@ -52,7 +55,7 @@ void WashPanel::onTransponderReceviced(const QString& code)
 	TranspondCode tc(code);
 	if (tc.type() == TranspondCode::Package)
 	{
-		_plateView->addPlate(code);
+		_plateView->addPackage(code);
 	}
 
 }
@@ -60,6 +63,10 @@ void WashPanel::onTransponderReceviced(const QString& code)
 void WashPanel::onBarcodeReceviced(const QString& code)
 {
 	qDebug() << code;
+	if (code.compare("910108") == 0)
+	{
+		commit();
+	}
 }
 
 void WashPanel::handleBarcode(const QString &code) {
@@ -103,15 +110,36 @@ void WashPanel::commit() {
 		XNotifier::warn(QString("请选择清洗机程序"));
 		return;
 	}
+	
+	Program program;
+	program.id = programId;;
+	program.name = item->programName();
 
 	int deviceId = item->id();
 
-	QVariantList plates = _plateView->plates();
-	if (plates.isEmpty()) {
-		XNotifier::warn(QString("网篮为空，无法完成清洗登记"));
+	QList<Package> packages = _plateView->packages();
+	if (packages.size() == 0) {
+		XNotifier::warn(QString("器械包为空，无法完成清洗登记"));
 		return;
 	}
 
+	Operator op;
+	op.id = Core::currentUser().id;
+	op.name = Core::currentUser().name;
+
+	FlowDao dao;
+	result_t resp = dao.addWash(deviceId, program, packages, op);
+	if (resp.isOk())
+	{
+		XNotifier::warn("已完成清洗登记");
+		_deviceArea->currentItem()->setRunning();
+		reset();
+	}
+	else
+	{
+		XNotifier::warn(QString("清洗登记失败: ").append(resp.msg()));
+	}
+	/*
 	int opId = OperatorChooser::get(this, this);
 	if (0 == opId) {
 		XNotifier::warn(QString("请选择操作员"));
@@ -133,7 +161,7 @@ void WashPanel::commit() {
 			_deviceArea->currentItem()->setRunning();
 			reset();
 		}
-	});
+	});*/
 }
 
 void WashPanel::reset() {
