@@ -304,7 +304,8 @@ result_t FlowDao::addDeviceBatch(
 
 	// insert a batch
 	QSqlQuery q;
-	q.prepare(insertHeader + " (batch_id, device_id, device_name, program_id,"
+	q.prepare(insertHeader + (forWash ? "r_wash_batch" : "r_ster_batch") +
+		" (batch_id, device_id, device_name, program_id,"
 		" program_name, cycle_count, total_count, start_time, op_id, op_name) VALUES"
 		" (?, ?, ?, ?, ?, ?, ?, now(), ?, ?)");
 	QString batchId = DaoUtil::deviceBatchId(device.id, device.cycleTotal);
@@ -324,7 +325,8 @@ result_t FlowDao::addDeviceBatch(
 		qWarning("Internal error: insert t_device in addWash()");
 
 	// insert packages for this batch
-	QString sql = insertHeader + " (batch_id, pkg_udi, pkg_name, pkg_cycle) VALUES";
+	QString sql = insertHeader + (forWash ? "r_wash_package" : "r_ster_package") +
+		" (batch_id, pkg_udi, pkg_name, pkg_cycle) VALUES";
 	QStringList values;
 	for each (const Package &pkg in pkgs) {
 		QString value = QString(" ('%1', '%2', '%3', %4)").
