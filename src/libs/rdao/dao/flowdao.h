@@ -33,8 +33,28 @@ public:
 		const Program &program,
 		const QList<Package> &pkgs,
 		const Operator &op);
+
+	result_t updateSterilizationResult(
+		const QString &batchId,
+		const Operator &op,
+		Rt::SterilizeResult phyRes,
+		Rt::SterilizeResult cheRes,
+		Rt::SterilizeResult bioRes = Rt::Uninvolved
+	);
+
+	//result_t getDeviceBatchByPackage(
+	//	const Package &pkg,
+	//)
 	
 private:
 	result_t updatePackageStatus(const Package &pkg, Rt::FlowStatus fs);
+
+	result_t updatePackageStatus(const QList<Package> &pkgs, Rt::FlowStatus fs);
+
+	result_t addDeviceBatch(
+		int deviceId,
+		const Program &program,
+		const QList<Package> &pkgs,
+		const Operator &op);
 };
 

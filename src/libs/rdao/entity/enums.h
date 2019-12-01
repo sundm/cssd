@@ -74,4 +74,11 @@ namespace Rt
 		Recalled = 99
 	};
 
+	enum SterilizeResult{
+		Unchecked,
+		Qualified,
+		Unqualified,
+		Uninvolved
+	};
+
 }

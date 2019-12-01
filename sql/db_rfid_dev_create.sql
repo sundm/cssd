@@ -235,17 +235,17 @@ CREATE TABLE IF NOT EXISTS `r_ster_batch` (
   `op_id` int NOT NULL,
   `op_name` varchar(32) NOT NULL,
   `need_bio` tinyint NOT NULL DEFAULT 0, -- 0:no 1:yes
-  `phy_check_result` tinyint(1) DEFAULT 0, -- 0:unqualified 1:qualified
+  `phy_check_result` tinyint(1) DEFAULT 0, -- 0:unchecked 1:unqualified 2:qualified
   `phy_check_time` datetime,
   `phy_check_op_id` int DEFAULT 0,
   `phy_check_op_name` varchar(32),
   `phy_check_photo` varchar(128),
-  `che_check_result` tinyint(1) DEFAULT 0, -- 0:unqualified 1:qualified
+  `che_check_result` tinyint(1) DEFAULT 0, -- 0:unchecked 1:unqualified 2:qualified
   `che_check_time` datetime,
   `che_check_op_id` int DEFAULT 0,
   `che_check_op_name` varchar(32),
   `che_check_photo` varchar(128),
-  `bio_check_result` tinyint(1) DEFAULT 0, -- 0:unqualified 1:qualified
+  `bio_check_result` tinyint(1) DEFAULT 3, -- 0:unchecked 1:unqualified 2:qualified 3: uninvolved
   `bio_check_time` datetime,
   `bio_check_op_id` int DEFAULT 0,
   `bio_check_op_name` varchar(32),
