@@ -11,10 +11,6 @@
 
 result_t FlowDao::addRecycle(const Package &pkg, const Operator& op)
 {
-	QSqlQuery q;
-	QString sql;
-	QString whereClause = QString(" WHERE pkg_udi='%1' AND pkg_cycle=%2").arg(pkg.udi).arg(pkg.cycle);
-
 	// check the latest package flow status
 	if (Rt::Recycled == pkg.status) // already recycled
 		return "该包已回收，请勿重复操作";
@@ -23,7 +19,9 @@ result_t FlowDao::addRecycle(const Package &pkg, const Operator& op)
 	int deptId = 0;
 	QString deptName;
 	if (pkg.status >= Rt::Dispatched) { // FIXME: should be Rt::Received?
-		sql = "SELECT to_dept_id, to_dept_name FROM r_dispatch" + whereClause;
+		QString sql = QString("SELECT to_dept_id, to_dept_name FROM r_dispatch"
+			" WHERE pkg_udi='%1' AND pkg_cycle=%2").arg(pkg.udi).arg(pkg.cycle);
+		QSqlQuery q;
 		if (!q.exec(sql))
 			return q.lastError().text();
 		if (q.first()) {
@@ -32,7 +30,12 @@ result_t FlowDao::addRecycle(const Package &pkg, const Operator& op)
 		}
 	}
 
+	// start transaction
+	QSqlDatabase db = QSqlDatabase::database();
+	db.transaction();
+
 	// add recycle
+	QSqlQuery q;
 	q.prepare("INSERT INTO r_recycle (pkg_udi, pkg_cycle, pkg_name, from_dept_id,"
 		" from_dept_name, op_id, op_name)"
 		" VALUES (?, ?, ?, ?, ?, ?, ?)");
@@ -44,11 +47,20 @@ result_t FlowDao::addRecycle(const Package &pkg, const Operator& op)
 	q.addBindValue(op.id);
 	q.addBindValue(op.name);
 
-	if (!q.exec())
+	if (!q.exec()) {
+		db.rollback();
 		return q.lastError().text();
+	}
 
 	// update package status
-	return updatePackageStatus(pkg, Rt::Recycled);
+	result_t res = updatePackageStatus(pkg, Rt::Recycled);
+	if (!res.isOk()) {
+		db.rollback();
+	}
+	else {
+		db.commit();
+	}
+	return 0;
 }
 
 result_t FlowDao::addWash(
@@ -174,18 +186,15 @@ result_t FlowDao::addSterilization(
 result_t FlowDao::updateSterilizationResult(
 	const QString &batchId,
 	const Operator &op,
-	Rt::SterilizeResult phyRes,
-	Rt::SterilizeResult cheRes,
-	Rt::SterilizeResult bioRes/* = Rt::Uninvolved*/)
+	const SterilizeResult &result)
 {
-	if (Rt::Qualified != phyRes && Rt::Unqualified != phyRes)
-		return "无效的物理监测结果";
-	if (Rt::Qualified != cheRes && Rt::Unqualified != cheRes)
-		return "无效的化学监测结果";
-	if (Rt::Qualified > bioRes || Rt::Uninvolved < bioRes)
-		return "无效的生物监测结果";
+	bool commitPhy = result.isPhyVerdictValid();
+	bool commitChe = result.isCheVerdictValid();
+	bool commitBio = result.isBioVerdictValid();
+	if (!commitPhy && !commitChe && !commitBio)
+		return 0;
 
-	QString sql = "update r_ster_batch"
+	/*QString sql = "update r_ster_batch"
 		" (phy_check_result, phy_check_time, phy_check_op_id, phy_check_op_name,"
 		" che_check_result, che_check_time, che_check_op_id, che_check_op_name";
 	if (Rt::Uninvolved != bioRes) {
@@ -213,11 +222,49 @@ result_t FlowDao::updateSterilizationResult(
 	if (!q.exec())
 		return q.lastError().text();
 
-	return 0;
+	return 0;*/
 }
 
 result_t FlowDao::getDeviceBatchInfoByPackage(const Package &pkg, DeviceBatchInfo *dbi)
 {
+	QSqlQuery q;
+	q.prepare("SELECT batch_id, device_name, program_name, op_name, cycle_count, cycle_total,"
+		" start_time, finish_time, phy_check_result, che_check_result, bio_check_result"
+		" FROM r_ster_batch"
+		" WHERE batch_id = (SELECT batch_id FROM r_ster_package WHERE pkg_udi=? AND pkg_cycle=?)");
+	q.addBindValue(pkg.udi);
+	q.addBindValue(pkg.cycle);
+	if (!q.exec())
+		return q.lastError().text();
+	if (!q.first())
+		return "未找到该包对应的锅次信息";
+	if (dbi) {
+		dbi->batchId = q.value(0).toString();
+		dbi->deviceName = q.value(1).toString();
+		dbi->programName = q.value(2).toString(); 
+		dbi->opName = q.value(3).toString();
+		dbi->cycleCount = q.value(4).toUInt();
+		dbi->cycleTotal = q.value(5).toUInt();
+		dbi->startTime = q.value(6).toDateTime();
+		dbi->finishTime = q.value(7).toDateTime();
+		dbi->result.phyVerdict = static_cast<Rt::SterilizeVerdict>(q.value(8).toInt());
+		dbi->result.cheVerdict = static_cast<Rt::SterilizeVerdict>(q.value(9).toInt());
+		dbi->result.bioVerdict = static_cast<Rt::SterilizeVerdict>(q.value(10).toInt());
+	}
+
+	// get packages under the same batch
+	q.prepare("SELECT pkg_udi, pkg_cycle, pkg_name, wet_pack FROM r_ster_package WHERE batch_id = ?");
+	if (!q.exec())
+		return q.lastError().text();
+	while (q.next()) {
+		DeviceBatchInfo::BatchPackageItem item;
+		item.udi = q.value(0).toString();
+		item.name = q.value(1).toString();
+		item.cycle = q.value(2).toInt();
+		item.isWetPack = q.value(3).toBool();
+		dbi->packages.append(item);
+	}
+
 	return 0;
 }
 

@@ -10,6 +10,7 @@ struct Device;
 struct Program;
 struct LabelInfo;
 struct DeviceBatchInfo;
+struct SterilizeResult;
 
 class RDAO_EXPORT FlowDao
 {
@@ -35,13 +36,13 @@ public:
 		const QList<Package> &pkgs,
 		const Operator &op);
 
+	/**
+	 * `rdao` allows 3 results to be committed separately
+	 */
 	result_t updateSterilizationResult(
 		const QString &batchId,
 		const Operator &op,
-		Rt::SterilizeResult phyRes,
-		Rt::SterilizeResult cheRes,
-		Rt::SterilizeResult bioRes = Rt::Uninvolved
-	);
+		const SterilizeResult &result);
 
 	result_t getDeviceBatchInfoByPackage(
 		const Package &pkg,
