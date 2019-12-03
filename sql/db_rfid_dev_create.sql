@@ -299,8 +299,8 @@ CREATE TABLE IF NOT EXISTS `r_surgery` (
   `room` varchar(32) NOT NULL,
   `patient_id` int NOT NULL,
   `patient_name` varchar(32) NOT NULL,
-  `patient_age` tinyint,
-  `patient_gender` tinyint(1),  -- 0:male 1:female
+  `patient_age` tinyint DEFAULT 0,
+  `patient_gender` tinyint(1) DEFAULT 2,  -- 0:male 1:female 2:unknown
   -- `Diagnostic_id` varchar(32)
   `status` tinyint NOT NULL DEFAULT 0 -- 0:init 1:pre-checked 2:post-checked
 ) ENGINE=InnoDB AUTO_INCREMENT=810001 DEFAULT CHARSET=utf8;

@@ -380,6 +380,37 @@ result_t FlowDao::addSurgeryPostCheck(int surgeryId, const Operator &op)
 	return 0;
 }
 
+#include <QSqlDriver>
+void FlowDao::testRollback()
+{
+	QSqlQuery q;
+	if (!q.exec("SELECT phy_check_result, che_check_result, bio_check_result"
+		" FROM r_ster_batch WHERE batch_id='0001'")) {
+		return;
+	}
+
+	QSqlDatabase db = QSqlDatabase::database();
+	bool b = db.driver()->hasFeature(QSqlDriver::Transactions);
+	b = db.driver()->hasFeature(QSqlDriver::BatchOperations);
+	db.transaction();
+	QString sql = "UPDATE r_ster_package SET wet_pack=1 WHERE (pkg_udi, pkg_cycle) IN (('123456', 1))";
+
+	QSqlQuery tq;
+	if (!tq.exec(sql)) {
+		db.rollback();
+		return;
+	}
+		
+	tq.prepare("update r_ster_batch SET has_wet_pack=1, has_label_off=1 WHERE batchid=?");
+	tq.addBindValue("0001");
+	if (!tq.exec()) {
+		db.rollback();
+		return;
+	}
+
+	db.commit();
+}
+
 /**
  * update status for a single package in table `r_package` and `t_package `
  */

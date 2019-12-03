@@ -67,6 +67,8 @@ public:
 	result_t addSurgeryPostCheck(
 		int surgeryId,
 		const Operator &op);
+	
+	void testRollback();
 
 private:
 	result_t updatePackageStatus(const Package &pkg, Rt::FlowStatus fs);

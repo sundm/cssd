@@ -10,7 +10,8 @@ public:
 
 	result_t getSurgeryList(Rt::SurgeryStatus status, QList<Surgery> *surgeries);
 
-	result_t addSurgery(const Surgery &surgery);
+	result_t getSurgery(int surgeryId, Surgery *surgery, bool excludeBasicInfo = true);
 
+	result_t addSurgery(const Surgery &surgery);
 };
 
