@@ -20,7 +20,7 @@ struct Device{
 	Rt::DeviceStatus status;
 	int cycleToday;
 	int cycleTotal;
-	Rt::SterilizeType sterilizeType;
+	Rt::SterilizeMethod sterilizeMethod;
 	QDate productionDate;
 	QDateTime lastMaintainTime;
 	unsigned int maintainCycle;
@@ -32,7 +32,7 @@ struct Device{
 		status(Rt::Idle),
 		cycleToday(-1),
 		cycleTotal(-1),
-		sterilizeType(Rt::UnknownSterilizeType),
+		sterilizeMethod(Rt::UnknownSterilizeType),
 		maintainCycle(0)
 	{}
 };
@@ -41,10 +41,26 @@ typedef Device Washer;
 typedef Device Sterilizer;
 
 struct SterilizeResult {
+
+	// struct PackageItem indicates whether a package is wetpack or not
+	struct PackageItem {
+		QString udi;
+		int cycle;
+		bool isWetPack;
+		QString name;
+
+		PackageItem() : cycle(-1), isWetPack(false) {}
+		PackageItem(const QString &udi, int cycle, bool isWetPack=false, const QString &name=QString()) :
+			udi(udi), cycle(cycle), isWetPack(isWetPack), name(name)
+		{}
+	};
+
+	// members
 	Rt::SterilizeVerdict phyVerdict;
 	Rt::SterilizeVerdict cheVerdict;
 	Rt::SterilizeVerdict bioVerdict;
 	bool hasLabelOff;
+	QList<PackageItem> packages;
 
 	SterilizeResult() :
 		phyVerdict(Rt::Unchecked),
@@ -69,13 +85,6 @@ struct SterilizeResult {
 };
 
 struct DeviceBatchInfo {
-	struct BatchPackageItem {
-		QString udi;
-		QString name;
-		int cycle;
-		bool isWetPack;
-	};
-
 	QString batchId;
 	QString deviceName;
 	QString programName;
@@ -85,5 +94,4 @@ struct DeviceBatchInfo {
 	QDateTime startTime;
 	QDateTime finishTime;
 	SterilizeResult result;
-	QList<BatchPackageItem> packages;
 };

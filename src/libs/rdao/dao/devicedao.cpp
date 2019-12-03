@@ -29,7 +29,7 @@ result_t DeviceDao::getDevice(int id, Device *d, bool withPrograms/* = false*/)
 		d->productionDate = q.value(5).toDate();
 		d->lastMaintainTime = q.value(6).toDateTime();
 		d->maintainCycle = q.value(7).toUInt();
-		d->sterilizeType = static_cast<Rt::SterilizeType>(q.value(8).toInt());
+		d->sterilizeMethod = static_cast<Rt::SterilizeMethod>(q.value(8).toInt());
 
 		d->programs.clear();
 		if (withPrograms) // get bound programs
@@ -158,7 +158,7 @@ result_t DeviceDao::getDeviceList(
 			d.productionDate = q.value(6).toDate();
 			d.lastMaintainTime = q.value(7).toDateTime();
 			d.maintainCycle = q.value(8).toUInt();
-			d.sterilizeType = static_cast<Rt::SterilizeType>(q.value(9).toInt());
+			d.sterilizeMethod = static_cast<Rt::SterilizeMethod>(q.value(9).toInt());
 			devices->append(d);
 		}
 	}

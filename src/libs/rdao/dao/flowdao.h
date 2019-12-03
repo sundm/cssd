@@ -38,8 +38,8 @@ public:
 		const Operator &op);
 
 	/**
-	 * Chemical & Physical result should be always committed together,
-	 * bio result can committed separately.
+	 * Chemical verdict, physical result, label-off and wet-pack should be
+	 * always committed together, while bio result can be committed separately.
 	 */
 	result_t updateSterilizationResult(
 		const QString &batchId,

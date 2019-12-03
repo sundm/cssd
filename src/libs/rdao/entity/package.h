@@ -34,7 +34,7 @@ struct PackageType
 	QString name;
 	QString pinyin;
 	QString photo;
-	Rt::SterilizeType sterType;
+	Rt::SterilizeMethod sterMethod;
 	PackType packType;
 	Department dept;
 	QList<DetailItem> detail;
@@ -42,7 +42,7 @@ struct PackageType
 	PackageType() :
 		typeId(-1),
 		category(Rt::UnknownPackage),
-		sterType(Rt::UnknownSterilizeType)
+		sterMethod(Rt::UnknownSterilizeType)
 	{}
 };
 
@@ -54,6 +54,24 @@ struct Package : public PackageType
 	QList<Instrument> instruments;
 	
 	Package() : cycle(0), status(Rt::UnknownFlowStatus) {}
+};
+
+struct PackageQualityControl {
+	bool isExpired;
+	bool isWetPack;
+	bool isRecalled;
+	Rt::SterilizeVerdict phyResult;
+	Rt::SterilizeVerdict cheResult;
+	Rt::SterilizeVerdict bioResult;
+	QDate expireDate;
+	
+	PackageQualityControl() :
+		isExpired(false), isWetPack(false), isRecalled(false),
+		phyResult(Rt::Unchecked), cheResult(Rt::Unchecked), bioResult(Rt::Unchecked)
+	{}
+	
+	PackageQualityControl(const PackageQualityControl& other) = default;
+	PackageQualityControl& operator=(const PackageQualityControl& other) = default;
 };
 
 struct LabelInfo {

@@ -4,7 +4,7 @@
 
 namespace Rt
 {
-	enum SterilizeType {
+	enum SterilizeMethod {
 		BothTemperature,
 		LowTemperature,
 		HighTemperature,
@@ -64,8 +64,7 @@ namespace Rt
 		WashChecked,
 		Packed,
 		Sterilized,
-		SterilizeFailed,
-		SterilizePassed,
+		SterilizeResultChecked, // set even biological result is not committed
 		Dispatched,
 		Received,
 		SurgeryPreChecked,

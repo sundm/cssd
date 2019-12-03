@@ -29,7 +29,7 @@ result_t PackageDao::getPackageType(
 		pt->name = q.value(1).toString();
 		pt->pinyin = q.value(2).toString();
 		pt->photo = q.value(3).toString();
-		pt->sterType = static_cast<Rt::SterilizeType>(q.value(4).toInt());
+		pt->sterMethod = static_cast<Rt::SterilizeMethod>(q.value(4).toInt());
 		pt->packType.id = q.value(5).toInt();
 		pt->dept.id = q.value(6).toInt();
 		pt->packType.name = q.value(7).toString();
@@ -85,7 +85,7 @@ result_t PackageDao::getPackageTypeList(
 			pt.name = q.value(2).toString();
 			pt.pinyin = q.value(3).toString();
 			pt.photo = q.value(4).toString();
-			pt.sterType = static_cast<Rt::SterilizeType>(q.value(5).toInt());
+			pt.sterMethod = static_cast<Rt::SterilizeMethod>(q.value(5).toInt());
 			pt.packType.id = q.value(6).toInt();
 			pt.dept.id = q.value(7).toInt();
 			pt.packType.name = q.value(8).toString();
@@ -104,7 +104,7 @@ result_t PackageDao::addPackageType(const PackageType &pt)
 	q.addBindValue(pt.category);
 	q.addBindValue(pt.name);
 	q.addBindValue(pt.pinyin);
-	q.addBindValue(pt.sterType);
+	q.addBindValue(pt.sterMethod);
 	q.addBindValue(pt.packType.id);
 	q.addBindValue(pt.dept.id);
 
@@ -172,7 +172,7 @@ result_t PackageDao::getPackage(
 		pkg->cycle = q.value(3).toInt();
 		pkg->status = static_cast<Rt::FlowStatus>(q.value(4).toInt());
 		pkg->category = static_cast<Rt::PackageCategory>(q.value(5).toInt());
-		pkg->sterType = static_cast<Rt::SterilizeType>(q.value(6).toInt());
+		pkg->sterMethod = static_cast<Rt::SterilizeMethod>(q.value(6).toInt());
 		pkg->packType.id = q.value(7).toInt();
 		pkg->dept.id = q.value(8).toInt();
 		pkg->packType.name = q.value(9).toString();
@@ -236,7 +236,7 @@ result_t PackageDao::getPackageList(
 			pkg.cycle = q.value(4).toInt();
 			pkg.status = static_cast<Rt::FlowStatus>(q.value(5).toInt());
 			pkg.category = static_cast<Rt::PackageCategory>(q.value(6).toInt());
-			pkg.sterType = static_cast<Rt::SterilizeType>(q.value(7).toInt());
+			pkg.sterMethod = static_cast<Rt::SterilizeMethod>(q.value(7).toInt());
 			pkg.packType.id = q.value(8).toInt();
 			pkg.dept.id = q.value(9).toInt();
 			pkg.packType.name = q.value(10).toString();
@@ -338,5 +338,11 @@ result_t PackageDao::updatePackType(const PackType &packType)
 
 	if (!q.exec())
 		return q.lastError().text();
+	return 0;
+}
+
+result_t PackageDao::getPackageQualityControl(const Package &pkg, PackageQualityControl *pqc)
+{
+	//if (pkg.status)
 	return 0;
 }

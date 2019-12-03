@@ -56,10 +56,10 @@ result_t FlowDao::addRecycle(const Package &pkg, const Operator& op)
 	result_t res = updatePackageStatus(pkg, Rt::Recycled);
 	if (!res.isOk()) {
 		db.rollback();
+		return res.msg();
 	}
-	else {
-		db.commit();
-	}
+
+	db.commit();
 	return 0;
 }
 
@@ -218,7 +218,24 @@ result_t FlowDao::updateSterilizationResult(
 	QSqlDatabase db = QSqlDatabase::database();
 	db.transaction();
 
-	QString sql("update r_ster_batch SET");
+	QSqlQuery tq;
+	// update wet-pack info if any
+	QString sql = "UPDATE r_ster_package SET wet_pack=1 WHERE (pkg_udi, pkg_cycle) IN ";
+	QStringList values;
+	for each (auto &pkg in result.packages) {
+		QString value = QString("('%1', %2)").arg(pkg.udi).arg(pkg.cycle);
+		values << value;
+	}
+	if (!values.isEmpty()) {
+		sql.append("(").append(values.join(',')).append(")");
+		if (!tq.exec(sql)) {
+			db.rollback();
+			return tq.lastError().text();
+		}
+	}
+
+	// update verdicts
+	sql = "update r_ster_batch SET";
 	QString bioUpdate = " bio_check_result=?, bio_check_time=NOW(), bio_check_op_id=?, bio_check_op_name=?";
 	if (commitPhy) {
 		sql += " phy_check_result=?, phy_check_time=NOW(), phy_check_op_id=?, phy_check_op_name=?,"
@@ -230,9 +247,8 @@ result_t FlowDao::updateSterilizationResult(
 	else {
 		sql += bioUpdate;
 	}
-	sql += "WHERE batch_id = ?";
+	sql += ", has_wet_pack=?, has_label_off=? WHERE batch_id=?";
 
-	QSqlQuery tq;
 	tq.prepare(sql);
 	if (commitPhy) {
 		tq.addBindValue(result.phyVerdict);
@@ -247,6 +263,7 @@ result_t FlowDao::updateSterilizationResult(
 		tq.addBindValue(op.id);
 		tq.addBindValue(op.name);
 	}
+	tq.addBindValue(result.hasLabelOff);
 	tq.addBindValue(batchId);
 
 	if (!tq.exec()) {
@@ -255,11 +272,6 @@ result_t FlowDao::updateSterilizationResult(
 	}
 
 	// update package status
-	phyVerdict = commitPhy ? result.phyVerdict : phyVerdict;
-	cheVerdict = commitPhy ? result.cheVerdict : cheVerdict;
-	bioVerdict = commitBio ? result.bioVerdict : bioVerdict;
-	int finalVerdict = SterilizeResult::determineVerdict(phyVerdict, cheVerdict, bioVerdict);
-
 	QList<Package> pkgs;
 	result_t res = this->getPackagesInBatch(batchId, &pkgs);
 	if (res.isOk()) {
@@ -267,8 +279,7 @@ result_t FlowDao::updateSterilizationResult(
 		return res.msg();
 	}
 	
-	res = updatePackageStatus(pkgs,
-		Rt::Qualified == finalVerdict ? Rt::SterilizePassed : Rt::SterilizeFailed);
+	res = updatePackageStatus(pkgs, Rt::SterilizeResultChecked);
 	if (res.isOk()) {
 		db.rollback();
 		return res.msg();
@@ -306,16 +317,17 @@ result_t FlowDao::getDeviceBatchInfoByPackage(const Package &pkg, DeviceBatchInf
 	}
 
 	// get packages under the same batch
-	q.prepare("SELECT pkg_udi, pkg_cycle, pkg_name, wet_pack FROM r_ster_package WHERE batch_id = ?");
+	q.prepare("SELECT pkg_udi, pkg_cycle, wet_pack, pkg_name FROM r_ster_package WHERE batch_id = ?");
+	q.addBindValue(dbi->batchId);
 	if (!q.exec())
 		return q.lastError().text();
 	while (q.next()) {
-		DeviceBatchInfo::BatchPackageItem item;
-		item.udi = q.value(0).toString();
-		item.name = q.value(1).toString();
-		item.cycle = q.value(2).toInt();
-		item.isWetPack = q.value(3).toBool();
-		dbi->packages.append(item);
+		dbi->result.packages.append(SterilizeResult::PackageItem(
+			q.value(0).toString(), // udi
+			q.value(1).toInt(), // cycle
+			q.value(2).toBool(), // wetpack
+			q.value(3).toString() // name
+		));
 	}
 
 	return 0;
@@ -323,6 +335,35 @@ result_t FlowDao::getDeviceBatchInfoByPackage(const Package &pkg, DeviceBatchInf
 
 result_t FlowDao::addDispatch(const QList<Package> &pkgs, const Department &dept, const Operator &op)
 {
+	// start transaction
+	QSqlDatabase db = QSqlDatabase::database();
+	db.transaction();
+
+	// add dispatch
+	QSqlQuery q;
+	QString sql = "INSERT INTO r_dispatch (pkg_udi, pkg_name, to_dept_name, op_name,"
+		" pkg_cycle, to_dept_id, op_id) VALUES";
+	QStringList values;
+	for each (const Package &pkg in pkgs) {
+		QString value = QString(" ('%1', '%2', '%3', '%4', %5, %6, %7)").
+			arg(pkg.udi, pkg.name, dept.name, op.name).
+			arg(pkg.cycle).arg(dept.id).arg(op.id);
+		values << value;
+	}
+	sql.append(values.join(','));
+	if (!q.exec(sql)) {
+		db.rollback();
+		return q.lastError().text();
+	}
+
+	// update package status
+	result_t res = updatePackageStatus(pkgs, Rt::Dispatched);
+	if (!res.isOk()) {
+		db.rollback();
+		return res.msg();
+	}
+
+	db.commit();
 	return 0;
 }
 

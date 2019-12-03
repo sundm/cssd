@@ -62,5 +62,7 @@ public:
 	 * NOTE: only valid period is allowed to be updated, other fields are ignored.
 	 */
 	result_t updatePackType(const PackType &packType);
+
+	result_t getPackageQualityControl(const Package &pkg, PackageQualityControl *pqc);
 };
 
