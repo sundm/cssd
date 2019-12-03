@@ -304,11 +304,11 @@ CREATE TABLE IF NOT EXISTS `r_surgery` (
   -- `Diagnostic_id` varchar(32)
   `status` tinyint NOT NULL DEFAULT 0, -- 0:init 1:pre-checked 2:post-checked
   `pre_check_time` datetime,
-  `pre_check_op_id` int NOT NULL,
-  `pre_check_op_name` varchar(32) NOT NULL,
+  `pre_check_op_id` int,
+  `pre_check_op_name` varchar(32),
   `post_check_time` datetime,
-  `post_check_op_id` int NOT NULL,
-  `post_check_op_name` varchar(32) NOT NULL
+  `post_check_op_id` int,
+  `post_check_op_name` varchar(32)
 ) ENGINE=InnoDB AUTO_INCREMENT=810001 DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `r_surgery_detail` (
