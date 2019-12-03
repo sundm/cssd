@@ -30,4 +30,11 @@ struct Surgery {
 
 	QList<DetailItem> detail;
 	QList<Package> packages;
+
+	Surgery() :
+		id(0),
+		patientId(0),
+		patientAge(0),
+		patientGender(Rt::UnknownGender)
+	{}
 };
