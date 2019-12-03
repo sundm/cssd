@@ -12,6 +12,7 @@ struct Department;
 struct LabelInfo;
 struct DeviceBatchInfo;
 struct SterilizeResult;
+struct Surgery;
 
 class RDAO_EXPORT FlowDao
 {
@@ -58,7 +59,15 @@ public:
 		const QList<Package> &pkgs,
 		const Department &dept,
 		const Operator &op);
+
+	result_t addSurgeryPreCheck(
+		const Surgery &surgery,
+		const Operator &op);
 	
+	result_t addSurgeryPostCheck(
+		int surgeryId,
+		const Operator &op);
+
 private:
 	result_t updatePackageStatus(const Package &pkg, Rt::FlowStatus fs);
 
@@ -71,5 +80,6 @@ private:
 		const Operator &op);
 
 	result_t getPackagesInBatch(const QString &batchId, QList<Package> *pkgs);
+
 };
 

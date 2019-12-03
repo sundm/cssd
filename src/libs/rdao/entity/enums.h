@@ -79,4 +79,10 @@ namespace Rt
 		Unqualified,
 		Uninvolved
 	};
+
+	enum SurgeryStatus {
+		WaitingForCheck,
+		PreChecked,
+		PostChecked
+	};
 }

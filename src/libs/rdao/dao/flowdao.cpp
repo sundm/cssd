@@ -370,6 +370,16 @@ result_t FlowDao::addDispatch(const QList<Package> &pkgs, const Department &dept
 	return 0;
 }
 
+result_t FlowDao::addSurgeryPreCheck(const Surgery &surgery, const Operator &op)
+{
+	return 0;
+}
+
+result_t FlowDao::addSurgeryPostCheck(int surgeryId, const Operator &op)
+{
+	return 0;
+}
+
 /**
  * update status for a single package in table `r_package` and `t_package `
  */

@@ -111,6 +111,7 @@
     <ClInclude Include="dao\packagedao.h" />
     <ClInclude Include="dao\flowdao.h" />
     <ClInclude Include="dao\daoutil.h" />
+    <ClInclude Include="dao\surgerydao.h" />
     <ClInclude Include="dbconnection.h" />
     <ClInclude Include="debugsqlquery.h" />
     <ClInclude Include="entity\department.h" />
@@ -119,6 +120,7 @@
     <ClInclude Include="entity\instrument.h" />
     <ClInclude Include="entity\operator.h" />
     <ClInclude Include="entity\package.h" />
+    <ClInclude Include="entity\surgery.h" />
     <ClInclude Include="errors.h" />
     <ClInclude Include="rdao_global.h" />
   </ItemGroup>
@@ -130,6 +132,7 @@
     <ClCompile Include="dao\packagedao.cpp" />
     <ClCompile Include="dao\flowdao.cpp" />
     <ClCompile Include="dao\daoutil.cpp" />
+    <ClCompile Include="dao\surgerydao.cpp" />
     <ClCompile Include="dbconnection.cpp" />
     <ClCompile Include="debugsqlquery.cpp" />
   </ItemGroup>

@@ -305,6 +305,14 @@ CREATE TABLE IF NOT EXISTS `r_surgery` (
   `status` tinyint NOT NULL DEFAULT 0 -- 0:init 1:pre-checked 2:post-checked
 ) ENGINE=InnoDB AUTO_INCREMENT=810001 DEFAULT CHARSET=utf8;
 
+CREATE TABLE IF NOT EXISTS `r_surgery_package_type` (
+  `id` int unsigned PRIMARY KEY AUTO_INCREMENT,
+  `surgery_id` int NOT NULL,
+  `pkg_type_id` int NOT NULL,
+  `num` smallint NOT NULL,
+  KEY `idx_surgery_id` (`surgery_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `r_surgery_package` (
   `id` int unsigned PRIMARY KEY AUTO_INCREMENT,
   `surgery_id` int NOT NULL,
