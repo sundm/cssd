@@ -37,12 +37,14 @@ struct PackageType
 	Rt::SterilizeMethod sterMethod;
 	PackType packType;
 	Department dept;
+	bool hasImplanted;
 	QList<DetailItem> detail;
 
 	PackageType() :
 		typeId(-1),
 		category(Rt::UnknownPackage),
-		sterMethod(Rt::UnknownSterilizeType)
+		sterMethod(Rt::UnknownSterilizeType),
+		hasImplanted(false)
 	{}
 };
 

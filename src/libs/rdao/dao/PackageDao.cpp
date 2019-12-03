@@ -7,6 +7,8 @@
 result_t PackageDao::getPackageType(
 	int typeId, PackageType* pt, bool withInstrumentTypes /*= false*/)
 {
+	if (!pt) return 0;
+
 	QSqlQuery q;
 	q.prepare("SELECT a.category, a.name, a.pinyin, a.photo, a.sterilize_type, a.pack_type_id, a.dept_id, b.name, c.name"
 		" FROM t_package_type a"
@@ -22,24 +24,36 @@ result_t PackageDao::getPackageType(
 		return "没有找到对应包的信息";
 
 	// reset package type infos
-	if (pt) {
-		pt->detail.clear();
-		pt->typeId = typeId;
-		pt->category = static_cast<Rt::PackageCategory>(q.value(0).toInt());
-		pt->name = q.value(1).toString();
-		pt->pinyin = q.value(2).toString();
-		pt->photo = q.value(3).toString();
-		pt->sterMethod = static_cast<Rt::SterilizeMethod>(q.value(4).toInt());
-		pt->packType.id = q.value(5).toInt();
-		pt->dept.id = q.value(6).toInt();
-		pt->packType.name = q.value(7).toString();
-		pt->dept.name = q.value(8).toString();
+	pt->detail.clear();
+	pt->typeId = typeId;
+	pt->category = static_cast<Rt::PackageCategory>(q.value(0).toInt());
+	pt->name = q.value(1).toString();
+	pt->pinyin = q.value(2).toString();
+	pt->photo = q.value(3).toString();
+	pt->sterMethod = static_cast<Rt::SterilizeMethod>(q.value(4).toInt());
+	pt->packType.id = q.value(5).toInt();
+	pt->dept.id = q.value(6).toInt();
+	pt->packType.name = q.value(7).toString();
+	pt->dept.name = q.value(8).toString();
+
+	if (!withInstrumentTypes) {
+		// get implanted info
+		// TODO: maybe we should add `has_implanted` in `t_package_type`
+		q.prepare("SELECT 1"
+			" FROM t_package_type_detail a"
+			" LEFT JOIN t_instrument_type b ON a.ins_type_id = b.id"
+			" WHERE a.pkg_type_id = ? AND b.category=?");
+		q.addBindValue(typeId);
+		q.addBindValue(Rt::ImplantedInstrument);
+		if (!q.exec())
+			return q.lastError().text();
+		pt->hasImplanted = q.first();
+
+		return 0;
 	}
 
-	if (!withInstrumentTypes)
-		return 0;
-
-	q.prepare("SELECT a.ins_type_id, a.num, b.name"
+	// else we fetch the instrument types
+	q.prepare("SELECT a.ins_type_id, a.num, b.name, b.category"
 		" FROM t_package_type_detail a"
 		" LEFT JOIN t_instrument_type b ON a.ins_type_id = b.id"
 		" WHERE pkg_type_id = ?");
@@ -50,9 +64,11 @@ result_t PackageDao::getPackageType(
 	PackageType::DetailItem item;
 	while (q.next())
 	{
-		item.insName = q.value(2).toString();
-		item.insNum = q.value(1).toInt();
 		item.insTypeId = q.value(0).toInt();
+		item.insNum = q.value(1).toInt();
+		item.insName = q.value(2).toString();
+		if (!pt->hasImplanted && Rt::ImplantedInstrument == q.value(3).toInt())
+			pt->hasImplanted = true;
 		pt->detail.append(item);
 	}
 
@@ -145,6 +161,8 @@ result_t PackageDao::addPackageType(const PackageType &pt)
 result_t PackageDao::getPackage(
 	const QString &udi, Package* pkg, bool withInstruments /*= false*/)
 {
+	if (!pkg) return 0;
+
 	QSqlQuery q;
 	q.prepare("SELECT a.name, a.photo, a.type_id, a.cycle, a.status,"
 		" b.category, b.sterilize_type, b.pack_type_id, b.dept_id, c.name, c.valid_period, d.name"
@@ -157,31 +175,39 @@ result_t PackageDao::getPackage(
 
 	if (!q.exec())
 		return kErrorDbUnreachable;
-
 	if (!q.first())
 		return "没有找到对应包的信息";
 
 	// reset package infos
-	if (pkg) {
-		pkg->detail.clear();
-		pkg->instruments.clear();
-		pkg->udi = udi;
-		pkg->name = q.value(0).toString();
-		pkg->photo = q.value(1).toString();
-		pkg->typeId = q.value(2).toInt();
-		pkg->cycle = q.value(3).toInt();
-		pkg->status = static_cast<Rt::FlowStatus>(q.value(4).toInt());
-		pkg->category = static_cast<Rt::PackageCategory>(q.value(5).toInt());
-		pkg->sterMethod = static_cast<Rt::SterilizeMethod>(q.value(6).toInt());
-		pkg->packType.id = q.value(7).toInt();
-		pkg->dept.id = q.value(8).toInt();
-		pkg->packType.name = q.value(9).toString();
-		pkg->packType.validPeriod = q.value(10).toUInt();
-		pkg->dept.name = q.value(11).toString();
-	}
+	pkg->detail.clear();
+	pkg->instruments.clear();
+	pkg->udi = udi;
+	pkg->name = q.value(0).toString();
+	pkg->photo = q.value(1).toString();
+	pkg->typeId = q.value(2).toInt();
+	pkg->cycle = q.value(3).toInt();
+	pkg->status = static_cast<Rt::FlowStatus>(q.value(4).toInt());
+	pkg->category = static_cast<Rt::PackageCategory>(q.value(5).toInt());
+	pkg->sterMethod = static_cast<Rt::SterilizeMethod>(q.value(6).toInt());
+	pkg->packType.id = q.value(7).toInt();
+	pkg->dept.id = q.value(8).toInt();
+	pkg->packType.name = q.value(9).toString();
+	pkg->packType.validPeriod = q.value(10).toUInt();
+	pkg->dept.name = q.value(11).toString();
 
-	if (!withInstruments)
+	if (!withInstruments) {
+		// get implanted info
+		q.prepare("SELECT 1"
+			" FROM t_instrument a"
+			" LEFT JOIN t_instrument_type b ON a.type_id=b.id"
+			" WHERE a.pkg_udi = ? AND b.category = ?");
+		q.addBindValue(udi);
+		q.addBindValue(Rt::ImplantedInstrument);
+		if (!q.exec())
+			return q.lastError().text();
+		pkg->hasImplanted = q.first();
 		return 0;
+	}
 
 	q.prepare("SELECT a.udi, a.type_id, a.name, a.photo, a.price, b.category, b.is_vip"
 		" FROM t_instrument a"
@@ -199,6 +225,8 @@ result_t PackageDao::getPackage(
 		ins.typeId = q.value(1).toInt();
 		ins.name = q.value(2).toString();
 		ins.category = static_cast<Rt::InstrumentCategory>(q.value(5).toInt());
+		if (Rt::ImplantedInstrument == ins.category)
+			pkg->hasImplanted = true;
 		ins.isVip = q.value(6).toBool();
 		pkg->instruments.append(ins);
 	}

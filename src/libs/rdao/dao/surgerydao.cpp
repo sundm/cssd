@@ -37,6 +37,8 @@ result_t SurgeryDao::getSurgery(int surgeryId, Surgery *surgery, bool excludeBas
 {
 	if (!surgery) return 0;
 	surgery->id = surgeryId;
+	surgery->detail.clear();
+	surgery->packages.clear();
 
 	QSqlQuery q;
 	if (!excludeBasicInfo) {
@@ -61,8 +63,8 @@ result_t SurgeryDao::getSurgery(int surgeryId, Surgery *surgery, bool excludeBas
 
 	// get detail
 	q.prepare("SELECT a.pkg_type_id, a.num, b.name"
-		" FROM r_surgery_detail"
-		" LEFT JOIN t_package_type ON a.pkg_type_id=b.id"
+		" FROM r_surgery_detail a"
+		" LEFT JOIN t_package_type b ON a.pkg_type_id=b.id"
 		" WHERE a.surgery_id = ?");
 	q.addBindValue(surgeryId);
 	if (!q.exec())
@@ -133,7 +135,7 @@ result_t SurgeryDao::addSurgery(const Surgery &surgery)
 		return 0;
 	}
 
-	// insert new bindings in r_surgery_detail
+	// insert detail into r_surgery_detail
 	QString sql = "INSERT INTO r_surgery_detail (surgery_id, pkg_type_id, num) VALUES";
 	QStringList values;
 	for each(auto &pt in surgery.detail) {
