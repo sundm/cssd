@@ -8,6 +8,7 @@ struct Operator;
 struct Package;
 struct Device;
 struct Program;
+struct Department;
 struct LabelInfo;
 struct DeviceBatchInfo;
 struct SterilizeResult;
@@ -37,7 +38,8 @@ public:
 		const Operator &op);
 
 	/**
-	 * `rdao` allows 3 results to be committed separately
+	 * Chemical & Physical result should be always committed together,
+	 * bio result can committed separately.
 	 */
 	result_t updateSterilizationResult(
 		const QString &batchId,
@@ -46,8 +48,16 @@ public:
 
 	result_t getDeviceBatchInfoByPackage(
 		const Package &pkg,
-		DeviceBatchInfo *dbi
-		);
+		DeviceBatchInfo *dbi);
+
+	/**
+	 * When add a dispatch, we do not check if the package is valid(expired, wet-pack, recalled,
+	 * sterilize-unqualified, etc.), the App should do these checks.
+	 */
+	result_t addDispatch(
+		const QList<Package> &pkgs,
+		const Department &dept,
+		const Operator &op);
 	
 private:
 	result_t updatePackageStatus(const Package &pkg, Rt::FlowStatus fs);
@@ -59,5 +69,7 @@ private:
 		const Program &program,
 		const QList<Package> &pkgs,
 		const Operator &op);
+
+	result_t getPackagesInBatch(const QString &batchId, QList<Package> *pkgs);
 };
 

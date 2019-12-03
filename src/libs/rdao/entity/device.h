@@ -44,20 +44,28 @@ struct SterilizeResult {
 	Rt::SterilizeVerdict phyVerdict;
 	Rt::SterilizeVerdict cheVerdict;
 	Rt::SterilizeVerdict bioVerdict;
-	bool hasWetPack;
 	bool hasLabelOff;
 
 	SterilizeResult() :
 		phyVerdict(Rt::Unchecked),
 		cheVerdict(Rt::Unchecked),
 		bioVerdict(Rt::Unchecked),
-		hasWetPack(false),
 		hasLabelOff(false)
 	{}
 
 	bool isPhyVerdictValid() const { return Rt::Qualified == phyVerdict || Rt::Unqualified == phyVerdict; }
 	bool isCheVerdictValid() const { return Rt::Qualified == cheVerdict || Rt::Unqualified == cheVerdict; }
 	bool isBioVerdictValid() const { return Rt::Unchecked < bioVerdict && Rt::Uninvolved >= bioVerdict; }
+
+	static Rt::SterilizeVerdict determineVerdict(
+		Rt::SterilizeVerdict phyVerdict,
+		Rt::SterilizeVerdict cheVerdict,
+		Rt::SterilizeVerdict bioVerdict) {
+		if (Rt::Qualified == phyVerdict && Rt::Qualified == cheVerdict &&
+			(Rt::Qualified == bioVerdict || Rt::Uninvolved == bioVerdict))
+			return Rt::Qualified;
+		return Rt::Unqualified;
+	}
 };
 
 struct DeviceBatchInfo {

@@ -191,38 +191,91 @@ result_t FlowDao::updateSterilizationResult(
 	bool commitPhy = result.isPhyVerdictValid();
 	bool commitChe = result.isCheVerdictValid();
 	bool commitBio = result.isBioVerdictValid();
-	if (!commitPhy && !commitChe && !commitBio)
+
+	if (commitPhy != commitChe)
+		return "物理和化学监测结果必须同时提交";
+	if (!commitPhy && !commitBio) // update nothing
 		return 0;
 
-	/*QString sql = "update r_ster_batch"
-		" (phy_check_result, phy_check_time, phy_check_op_id, phy_check_op_name,"
-		" che_check_result, che_check_time, che_check_op_id, che_check_op_name";
-	if (Rt::Uninvolved != bioRes) {
-		sql += ", bio_check_result, bio_check_time, bio_check_op_id, bio_check_op_name)"
-			" VALUES (?, NOW(), ?, ?, ?, NOW(), ?, ?, ?, NOW(), ?, ?, )";
+	QSqlQuery q;
+	if (!q.exec(QString("SELECT phy_check_result, che_check_result, bio_check_result"
+		" FROM r_ster_batch WHERE batch_id=").append(batchId))) {
+		return q.lastError().text();
+	}
+	if (!q.first()) {
+		return "没有找到对应的灭菌批次信息";
+	}
+	Rt::SterilizeVerdict phyVerdict = static_cast<Rt::SterilizeVerdict>(q.value(0).toInt());
+	Rt::SterilizeVerdict cheVerdict = static_cast<Rt::SterilizeVerdict>(q.value(1).toInt());
+	Rt::SterilizeVerdict bioVerdict = static_cast<Rt::SterilizeVerdict>(q.value(2).toInt());
+	bool phyChecked = (phyVerdict != Rt::Unchecked);
+	bool bioChecked = (bioVerdict != Rt::Unchecked);
+	if ((commitPhy && phyChecked) || (commitBio && bioChecked)) {
+		return "请勿重复提交监测结果";
+	}
+
+	// start transaction
+	QSqlDatabase db = QSqlDatabase::database();
+	db.transaction();
+
+	QString sql("update r_ster_batch SET");
+	QString bioUpdate = " bio_check_result=?, bio_check_time=NOW(), bio_check_op_id=?, bio_check_op_name=?";
+	if (commitPhy) {
+		sql += " phy_check_result=?, phy_check_time=NOW(), phy_check_op_id=?, phy_check_op_name=?,"
+			" che_check_result=?, che_check_time=NOW(), che_check_op_id=?, che_check_op_name=?";
+		if (commitBio) {
+			sql += "," + bioUpdate;
+		}
 	}
 	else {
-		sql += ") VALUES (?, NOW(), ?, ?, ?, NOW(), ?, ?)";
+		sql += bioUpdate;
 	}
- 
-	QSqlQuery q;
-	q.prepare(sql);
-	q.addBindValue(phyRes);
-	q.addBindValue(op.id);
-	q.addBindValue(op.name);
-	q.addBindValue(cheRes);
-	q.addBindValue(op.id);
-	q.addBindValue(op.name);
-	if (Rt::Uninvolved != bioRes) {
-		q.addBindValue(bioRes);
-		q.addBindValue(op.id);
-		q.addBindValue(op.name);
+	sql += "WHERE batch_id = ?";
+
+	QSqlQuery tq;
+	tq.prepare(sql);
+	if (commitPhy) {
+		tq.addBindValue(result.phyVerdict);
+		tq.addBindValue(op.id);
+		tq.addBindValue(op.name);
+		tq.addBindValue(result.cheVerdict);
+		tq.addBindValue(op.id);
+		tq.addBindValue(op.name);
+	}
+	if (commitBio) {
+		tq.addBindValue(result.bioVerdict);
+		tq.addBindValue(op.id);
+		tq.addBindValue(op.name);
+	}
+	tq.addBindValue(batchId);
+
+	if (!tq.exec()) {
+		db.rollback();
+		return tq.lastError().text();
 	}
 
-	if (!q.exec())
-		return q.lastError().text();
+	// update package status
+	phyVerdict = commitPhy ? result.phyVerdict : phyVerdict;
+	cheVerdict = commitPhy ? result.cheVerdict : cheVerdict;
+	bioVerdict = commitBio ? result.bioVerdict : bioVerdict;
+	int finalVerdict = SterilizeResult::determineVerdict(phyVerdict, cheVerdict, bioVerdict);
 
-	return 0;*/
+	QList<Package> pkgs;
+	result_t res = this->getPackagesInBatch(batchId, &pkgs);
+	if (res.isOk()) {
+		db.rollback();
+		return res.msg();
+	}
+	
+	res = updatePackageStatus(pkgs,
+		Rt::Qualified == finalVerdict ? Rt::SterilizePassed : Rt::SterilizeFailed);
+	if (res.isOk()) {
+		db.rollback();
+		return res.msg();
+	}
+
+	db.commit();
+	return 0;
 }
 
 result_t FlowDao::getDeviceBatchInfoByPackage(const Package &pkg, DeviceBatchInfo *dbi)
@@ -268,6 +321,11 @@ result_t FlowDao::getDeviceBatchInfoByPackage(const Package &pkg, DeviceBatchInf
 	return 0;
 }
 
+result_t FlowDao::addDispatch(const QList<Package> &pkgs, const Department &dept, const Operator &op)
+{
+	return 0;
+}
+
 /**
  * update status for a single package in table `r_package` and `t_package `
  */
@@ -305,7 +363,7 @@ result_t FlowDao::updatePackageStatus(const QList<Package> &pkgs, Rt::FlowStatus
 {
 	QSqlQuery q;
 
-	// insert a new record for each package in `r_package`, since a loop always starts with washing.
+	// update status in `r_package`
 	QString sql = QString("UPDATE r_package SET status=%1 WHERE (pkg_udi, pkg_cycle) IN ").arg(fs);
 	QStringList values;
 	for each (const Package &pkg in pkgs) {
@@ -388,6 +446,26 @@ result_t FlowDao::addDeviceBatch(
 	if (!q.exec(sql))
 		return q.lastError().text();
 
+	return 0;
+}
+
+result_t FlowDao::getPackagesInBatch(const QString &batchId, QList<Package> *pkgs)
+{
+	QSqlQuery q;
+	q.prepare("SELECT pkg_udi, pkg_cycle FROM r_ster_package WHERE batch_id=?");
+	q.addBindValue(batchId);
+	if (!q.exec()) {
+		return q.lastError().text();
+	}
+
+	if (pkgs) {
+		Package pkg;
+		while (q.next()) {
+			pkg.udi = q.value(0).toString();
+			pkg.cycle = q.value(1).toInt();
+			pkgs->append(pkg);
+		}
+	}
 	return 0;
 }
 
