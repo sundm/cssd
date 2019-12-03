@@ -292,10 +292,10 @@ CREATE TABLE IF NOT EXISTS `r_receive` (
   KEY `idx_pkg_udi_cycle` (`pkg_udi`,`pkg_cycle`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `r_surgical` (
+CREATE TABLE IF NOT EXISTS `r_surgery` (
   `id` int unsigned PRIMARY KEY AUTO_INCREMENT,
-  `surgical_name` varchar(32) NOT NULL,
-  `surgical_time` datetime NOT NULL,
+  `surgery_name` varchar(32) NOT NULL,
+  `surgery_time` datetime NOT NULL,
   `room` varchar(32) NOT NULL,
   `patient_id` int NOT NULL,
   `patient_name` varchar(32) NOT NULL,
@@ -305,12 +305,12 @@ CREATE TABLE IF NOT EXISTS `r_surgical` (
   `status` tinyint NOT NULL DEFAULT 0 -- 0:init 1:pre-checked 2:post-checked
 ) ENGINE=InnoDB AUTO_INCREMENT=810001 DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `r_surgical_package` (
+CREATE TABLE IF NOT EXISTS `r_surgery_package` (
   `id` int unsigned PRIMARY KEY AUTO_INCREMENT,
-  `surgical_id` int NOT NULL,
+  `surgery_id` int NOT NULL,
   `pkg_udi` varchar(32) NOT NULL,
   `pkg_cycle` int unsigned NOT NULL,
   `pkg_name` varchar(32) NOT NULL,
-  KEY `idx_surgical_id` (`surgical_id`) USING BTREE,
+  KEY `idx_surgery_id` (`surgery_id`) USING BTREE,
   KEY `idx_pkg_udi_cycle` (`pkg_udi`,`pkg_cycle`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

@@ -343,6 +343,48 @@ result_t PackageDao::updatePackType(const PackType &packType)
 
 result_t PackageDao::getPackageQualityControl(const Package &pkg, PackageQualityControl *pqc)
 {
-	//if (pkg.status)
+	const char *kNotFoundErr = "未找到该包对应的质控信息";
+	if(pqc) *pqc = PackageQualityControl(); // reset
+	
+	QSqlQuery q;
+	if (Rt::WashChecked < pkg.status) {
+		// packed, fetch expiration time as well as the recall information
+		q.prepare("SELECT a.recalled, b.expire_time, TO_DAYS(NOW())>TO_DAYS(b.expire_time) as expired"
+			" FROM r_package a"
+			" LEFT JOIN r_pack b ON a.pkg_udi = b.pkg_udi AND a.pkg_cycle = b.pkg_cycle"
+			" WHERE a.pkg_udi=? AND a.pkg_cycle=?");
+		q.addBindValue(pkg.udi);
+		q.addBindValue(pkg.cycle);
+		if (!q.exec())
+			return q.lastError().text();
+		if (!q.first())
+			return kNotFoundErr;
+		if (pqc) {
+			pqc->isRecalled = q.value(0).toBool();
+			pqc->expireDate = q.value(1).toDate();
+			pqc->isExpired = q.value(2).toBool();
+		}
+	}
+
+	if (Rt::Sterilized < pkg.status) {
+		// sterilization result checked, fetch the results 
+		q.prepare("SELECT a.wet_pack, b.phy_check_result, b.che_check_result, b.bio_check_result"
+			" FROM r_ster_package a"
+			" LEFT JOIN r_ster_batch b ON a.batch_id = b.batch_id"
+			" WHERE a.pkg_udi=? AND a.pkg_cycle=?");
+		q.addBindValue(pkg.udi);
+		q.addBindValue(pkg.cycle);
+		if (!q.exec())
+			return q.lastError().text();
+		if (!q.first())
+			return kNotFoundErr;
+		if (pqc) {
+			pqc->isWetPack = q.value(0).toBool();
+			pqc->phyResult = static_cast<Rt::SterilizeVerdict>(q.value(1).toInt());
+			pqc->cheResult = static_cast<Rt::SterilizeVerdict>(q.value(2).toInt());
+			pqc->bioResult = static_cast<Rt::SterilizeVerdict>(q.value(3).toInt());
+		}
+	}
+
 	return 0;
 }

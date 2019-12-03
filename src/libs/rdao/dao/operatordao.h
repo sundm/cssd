@@ -1,7 +1,7 @@
 #ifndef OPERATORDAO_H
 #define OPERATORDAO_H
 
-#include "rdao_global.h"
+#include "../rdao_global.h"
 #include <rcore/result.h>
 
 class Operator;

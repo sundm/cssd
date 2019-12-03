@@ -221,13 +221,15 @@ result_t FlowDao::updateSterilizationResult(
 	QSqlQuery tq;
 	// update wet-pack info if any
 	QString sql = "UPDATE r_ster_package SET wet_pack=1 WHERE (pkg_udi, pkg_cycle) IN ";
-	QStringList values;
+	QStringList wetPacks;
 	for each (auto &pkg in result.packages) {
-		QString value = QString("('%1', %2)").arg(pkg.udi).arg(pkg.cycle);
-		values << value;
+		if (pkg.isWetPack) {
+			QString value = QString("('%1', %2)").arg(pkg.udi).arg(pkg.cycle);
+			wetPacks << value;
+		}
 	}
-	if (!values.isEmpty()) {
-		sql.append("(").append(values.join(',')).append(")");
+	if (!wetPacks.isEmpty()) {
+		sql.append("(").append(wetPacks.join(',')).append(")");
 		if (!tq.exec(sql)) {
 			db.rollback();
 			return tq.lastError().text();
@@ -263,6 +265,7 @@ result_t FlowDao::updateSterilizationResult(
 		tq.addBindValue(op.id);
 		tq.addBindValue(op.name);
 	}
+	tq.addBindValue(!wetPacks.isEmpty());
 	tq.addBindValue(result.hasLabelOff);
 	tq.addBindValue(batchId);
 
