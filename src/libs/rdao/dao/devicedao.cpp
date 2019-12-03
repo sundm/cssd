@@ -72,7 +72,7 @@ result_t DeviceDao::stopDevice(int id)
 	// update r_wash_batch
 	q.prepare("UPDATE r_wash_batch a, t_device b"
 		" SET a.finish_time=NOW()"
-		" WHERE a.device_id = ? AND a.total_count=b.cycle_total"); // TODO: create a union KEY in DB?
+		" WHERE a.device_id = ? AND a.cycle_total=b.cycle_total"); // TODO: create a union KEY in DB?
 	q.addBindValue(id);
 	if (!q.exec())
 		return q.lastError().text();

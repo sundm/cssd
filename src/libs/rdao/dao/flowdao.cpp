@@ -549,7 +549,7 @@ result_t FlowDao::addDeviceBatch(
 	QSqlQuery q;
 	q.prepare(insertHeader + (forWash ? "r_wash_batch" : "r_ster_batch") +
 		" (batch_id, device_id, device_name, program_id,"
-		" program_name, cycle_count, total_count, start_time, op_id, op_name) VALUES"
+		" program_name, cycle_count, cycle_total, start_time, op_id, op_name) VALUES"
 		" (?, ?, ?, ?, ?, ?, ?, now(), ?, ?)");
 	QString batchId = DaoUtil::deviceBatchId(device.id, device.cycleTotal);
 	q.addBindValue(batchId);
