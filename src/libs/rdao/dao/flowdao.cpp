@@ -8,6 +8,7 @@
 #include "../entity/package.h"
 #include "../entity/operator.h"
 #include "../entity/device.h"
+#include "../entity/surgery.h"
 
 result_t FlowDao::addRecycle(const Package &pkg, const Operator& op)
 {
@@ -372,11 +373,59 @@ result_t FlowDao::addDispatch(const QList<Package> &pkgs, const Department &dept
 
 result_t FlowDao::addSurgeryPreCheck(const Surgery &surgery, const Operator &op)
 {
+	if (surgery.packages.isEmpty())
+		return "术前检查必须绑定指定的包";
+
+	// TODO: ensure package types and numbers matches
+
+	QSqlDatabase db = QSqlDatabase::database();
+	db.transaction();
+
+	// insert bound packages into `r_surgery_packages`
+	QString sql = "INSERT INTO r_surgery_packages (surgery_id, pkg_cycle, pkg_udi,pkg_name) VALUES";
+	QStringList values;
+	for each(auto &pkg in surgery.packages) {
+		QString value = QString(" (%1, %2, '%3', '%4')").
+			arg(surgery.id).arg(pkg.cycle).arg(pkg.udi, pkg.name);
+		values << value;
+	}
+	sql += values.join(',');
+	QSqlQuery q;
+	if (!q.exec(sql)) {
+		db.rollback();
+		return q.lastError().text();
+	}
+
+	// update surgery status
+	q.prepare("UPDATE r_surgery SET status=?, pre_check_time=NOW(),"
+		" pre_check_op_id=?, pre_check_op_name=? WHERE id=?");
+	q.addBindValue(Rt::PreChecked);
+	q.addBindValue(op.id);
+	q.addBindValue(op.name);
+	q.addBindValue(surgery.id);
+	if (!q.exec()) {
+		db.rollback();
+		return q.lastError().text();
+	}
+
+	db.commit();
 	return 0;
 }
 
 result_t FlowDao::addSurgeryPostCheck(int surgeryId, const Operator &op)
 {
+	// update surgery status
+	QSqlQuery q;
+	q.prepare("UPDATE r_surgery SET status=?, pre_check_time=NOW(),"
+		" pre_check_op_id=?, pre_check_op_name=? WHERE id=?");
+	q.addBindValue(Rt::PostChecked);
+	q.addBindValue(op.id);
+	q.addBindValue(op.name);
+	q.addBindValue(surgeryId);
+	if (!q.exec()) {
+		return q.lastError().text();
+	}
+
 	return 0;
 }
 
