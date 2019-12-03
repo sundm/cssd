@@ -303,9 +303,15 @@ CREATE TABLE IF NOT EXISTS `r_surgery` (
   `patient_gender` tinyint(1) DEFAULT 2,  -- 0:male 1:female 2:unknown
   -- `Diagnostic_id` varchar(32)
   `status` tinyint NOT NULL DEFAULT 0 -- 0:init 1:pre-checked 2:post-checked
+  `pre_check_time` datetime,
+  `pre_check_op_id` int NOT NULL,
+  `pre_check_op_name` varchar(32) NOT NULL
+  `post_check_time` datetime,
+  `post_check_op_id` int NOT NULL,
+  `post_check_op_name` varchar(32) NOT NULL
 ) ENGINE=InnoDB AUTO_INCREMENT=810001 DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `r_surgery_package_type` (
+CREATE TABLE IF NOT EXISTS `r_surgery_detail` (
   `id` int unsigned PRIMARY KEY AUTO_INCREMENT,
   `surgery_id` int NOT NULL,
   `pkg_type_id` int NOT NULL,
