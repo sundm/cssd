@@ -17,7 +17,7 @@ namespace {
 result_t OperatorDao::login(int id, const QString &pwd, Operator *op/* = Q_NULLPTR*/)
 {
 	QSqlQuery query;
-	query.prepare("select * from t_operator where id = ? and psw = ?");
+	query.prepare("select * from t_operator where id = ? and pwd = ?");
 	query.addBindValue(id);
 	query.addBindValue(encodePwd(pwd));
 	if (!query.exec())
@@ -33,6 +33,7 @@ result_t OperatorDao::login(int id, const QString &pwd, Operator *op/* = Q_NULLP
 		op->gender = static_cast<Rt::Gender>(query.value(4).toInt());
 		op->status = static_cast<Rt::Status>(query.value(5).toInt());
 		op->role = static_cast<Rt::Role>(query.value(6).toInt());
+		op->dept.id = query.value(7).toInt();
 		op->isOnline = query.value(8).toBool();
 		op->lastLoginTime = query.value(9).toDateTime(); // TODO
 	}
