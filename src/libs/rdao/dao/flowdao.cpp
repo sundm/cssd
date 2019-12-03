@@ -154,7 +154,7 @@ result_t FlowDao::addPack(const Package &pkg, const Operator& op, const Operator
 		if (q.first()) {
 			li->labelId = q.value(0).toString();
 			li->packDate = q.value(1).toDate();
-			li->expireDate = q.value(1).toDate();
+			li->expireDate = q.value(2).toDate();
 		}
 	}
 
@@ -297,7 +297,7 @@ result_t FlowDao::getDeviceBatchInfoByPackage(const Package &pkg, DeviceBatchInf
 {
 	QSqlQuery q;
 	q.prepare("SELECT batch_id, device_name, program_name, op_name, cycle_count, cycle_total,"
-		" start_time, finish_time, phy_check_result, che_check_result, bio_check_result"
+		" start_time, finish_time, phy_check_result, che_check_result, bio_check_result, has_label_off"
 		" FROM r_ster_batch"
 		" WHERE batch_id = (SELECT batch_id FROM r_ster_package WHERE pkg_udi=? AND pkg_cycle=?)");
 	q.addBindValue(pkg.udi);
@@ -318,6 +318,7 @@ result_t FlowDao::getDeviceBatchInfoByPackage(const Package &pkg, DeviceBatchInf
 		dbi->result.phyVerdict = static_cast<Rt::SterilizeVerdict>(q.value(8).toInt());
 		dbi->result.cheVerdict = static_cast<Rt::SterilizeVerdict>(q.value(9).toInt());
 		dbi->result.bioVerdict = static_cast<Rt::SterilizeVerdict>(q.value(10).toInt());
+		dbi->result.hasLabelOff = q.value(11).toBool();
 	}
 
 	// get packages under the same batch
