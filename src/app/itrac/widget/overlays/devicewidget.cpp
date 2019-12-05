@@ -32,7 +32,7 @@ int DeviceItem::cycle() const {
 	return _device->cycleToday;
 }
 int DeviceItem::sterilize_type() const {
-	return _device->sterilizeType;
+	return _device->sterilizeMethod;
 }
 
 QString DeviceItem::name() const {
@@ -196,7 +196,7 @@ void DeviceArea::load(itrac::DeviceType type, bool isHigh)
 			for (int i = 0; i < sterilizers.size(); i++)
 			{
 				Device *device = new Device(sterilizers[i]);
-				if (_isHigh && device->sterilizeType != Rt::SterilizeType::HighTemperature)
+				if (_isHigh && device->sterilizeMethod != Rt::SterilizeMethod::HighTemperature)
 					continue;
 				addDeviceItem(new WasherItem(device));
 			}

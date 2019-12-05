@@ -5,7 +5,7 @@
 #include "core/net/url.h"
 #include "ui/buttons.h"
 #include "ui/views.h"
-#include "model/spinboxdelegate.h"
+#include "model/itemdelegate.h"
 #include "widget/overlays/tips.h"
 #include "widget/controls/idedit.h"
 #include "widget/mainwindow.h"

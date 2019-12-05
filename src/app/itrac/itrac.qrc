@@ -53,5 +53,6 @@
         <file>res/filter-24.png</file>
         <file>res/more-20.png</file>
         <file>res/dept-64.png</file>
+        <file>res/close.png</file>
     </qresource>
 </RCC>

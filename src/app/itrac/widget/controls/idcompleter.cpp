@@ -36,7 +36,14 @@ void DeptCompleter::load(const int deptTypeId) {
 	{
 		_model->clear(); // when succeeded
 		for (auto &dep : depts) {
-			if (deptTypeId == 0 || dep.isSurgical)
+			if (deptTypeId == 0)
+			{
+				QStandardItem *depItem = new QStandardItem(dep.name);
+				depItem->setData(dep.id, Constant::IdRole);
+				depItem->setData(dep.pinyin, Constant::PinyinRole);
+				_model->appendRow(depItem);
+			}
+			if (deptTypeId == 3 && dep.isSurgical)
 			{
 				QStandardItem *depItem = new QStandardItem(dep.name);
 				depItem->setData(dep.id, Constant::IdRole);

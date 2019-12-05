@@ -1,18 +1,17 @@
 #pragma once
 
 #include <QString>
+#include "rdao/entity/enums.h"
 
 namespace Sterile {
 
 struct Result {
 	Result();
 
-	int physics;
-	int chemistry;
-	int bio;
-	int wet;
-	int lost;
-	static QString toString(int);
+	Rt::SterilizeVerdict physics;
+	Rt::SterilizeVerdict chemistry;
+	Rt::SterilizeVerdict bio;
+	Rt::SterilizeVerdict lost;
 };
 
 
@@ -21,7 +20,7 @@ struct TestInfo {
 	QString device;
 	int cycle;
 	QString startTimeStamp;
-	Result result;
+	//Result result;
 
 	TestInfo();
 };

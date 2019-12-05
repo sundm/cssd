@@ -32,19 +32,19 @@ SterileInfoGroup::SterileInfoGroup(QWidget *parent)
 	layout->setWidget(3, QFormLayout::FieldRole, _startTimeEdit);
 };
 
-void SterileInfoGroup::updateInfo(const Sterile::TestInfo &testInfo)
+void SterileInfoGroup::updateInfo(const DeviceBatchInfo &result)
 {
-	_bcEdit->setText(testInfo.testId);
-	_deviceEdit->setText(testInfo.device);
-	_cycleEdit->setText(QString::number(testInfo.cycle));
-	_startTimeEdit->setText(testInfo.startTimeStamp);
+	_bcEdit->setText(result.batchId);
+	_deviceEdit->setText(result.deviceName);
+	_cycleEdit->setText(QString::number(result.cycleCount));
+	_startTimeEdit->setText(result.startTime.toString("yyyy-MM-dd HH:mm:ss"));
 }
 
 QString SterileInfoGroup::testId() const {
 	return _bcEdit->text();
 }
 
-CheckItem::CheckItem(const QString &title, int verdict, QWidget *parent /*= nullptr*/)
+CheckItem::CheckItem(const QString &title, Rt::SterilizeVerdict verdict, bool involved, QWidget *parent /*= nullptr*/)
 	:QGroupBox(parent)
 {
 	QVBoxLayout  *layout = new QVBoxLayout(this);
@@ -52,10 +52,10 @@ CheckItem::CheckItem(const QString &title, int verdict, QWidget *parent /*= null
 	titleLabel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
 	layout->addWidget(titleLabel);
 	setMinimumHeight(120);
-	reset(verdict);
+	reset(verdict, involved);
 }
 
-void CheckItem::reset(int verdict) {
+void CheckItem::reset(Rt::SterilizeVerdict verdict, bool involved) {
 	_verdict = verdict;
 
 	QLayout *layout = this->layout();
@@ -69,22 +69,28 @@ void CheckItem::reset(int verdict) {
 
 	_disabled = true;
 	switch (verdict) {
-	case itrac::NotInvolved:
+	case Rt::Uninvolved:
 		layout->addWidget(new QLabel("未涉及"));
 		break;
-	case itrac::Success:
+	case Rt::Qualified:
 		layout->addWidget(new QLabel("已审(合格)"));
 		break;
-	case itrac::Failed:
+	case Rt::Unqualified:
 		layout->addWidget(new QLabel("已审(不合格)"));
 		break;
-	case itrac::NotChecked:
+	case Rt::Unchecked:
 		QRadioButton * qualifiedButton = new QRadioButton("合格");
 		QRadioButton * unQualifiedButton = new QRadioButton("不合格");
-		connect(qualifiedButton, &QRadioButton::clicked, this, [this] {_verdict = itrac::Success; });
-		connect(unQualifiedButton, &QRadioButton::clicked, this, [this] {_verdict = itrac::Failed; });
+		connect(qualifiedButton, &QRadioButton::clicked, this, [this] {_verdict = Rt::Qualified; });
+		connect(unQualifiedButton, &QRadioButton::clicked, this, [this] {_verdict = Rt::Unqualified; });
 		layout->addWidget(qualifiedButton);
 		layout->addWidget(unQualifiedButton);
+		if (involved)
+		{
+			QRadioButton * involvedButton = new QRadioButton("未涉及");
+			connect(involvedButton, &QRadioButton::clicked, this, [this] {_verdict = Rt::Uninvolved; });
+			layout->addWidget(involvedButton);
+		}
 		_disabled = false;
 		break;
 	}
@@ -98,7 +104,7 @@ void SterileInfoGroup::reset() {
 	_startTimeEdit->clear();
 }
 
-int CheckItem::verdict() const {
+Rt::SterilizeVerdict CheckItem::verdict() const {
 	return _verdict;
 }
 
@@ -106,23 +112,23 @@ SterileCheckGroup::SterileCheckGroup(QWidget *parent /*= nullptr*/)
 {
 	QGridLayout *layout = new QGridLayout(this);
 
-	_phyItem = new CheckItem("物理监测审核", itrac::NotChecked);
+	_phyItem = new CheckItem("物理监测审核", Rt::Unchecked);
 	layout->addWidget(_phyItem, 0, 0);
 
-	_chemItem = new CheckItem("化学监测审核", itrac::NotChecked);
+	_chemItem = new CheckItem("化学监测审核", Rt::Unchecked);
 	layout->addWidget(_chemItem, 0, 1);
 
-	_bioItem = new CheckItem("生物监测审核", itrac::NotChecked);
+	_bioItem = new CheckItem("生物监测审核", Rt::Unchecked, true);
 	layout->addWidget(_bioItem, 0, 2);
 
 	QPushButton *commonButton = new QPushButton("常见异常");
 	layout->addWidget(commonButton, 1, 0);
 
-	_wetItem = new QCheckBox("湿包", this);
-	layout->addWidget(_wetItem, 2, 0);
+	//_wetItem = new QCheckBox("湿包", this);
+	//layout->addWidget(_wetItem, 2, 0);
 
 	_lostLabelItem = new QCheckBox("飞标", this);
-	layout->addWidget(_lostLabelItem, 2, 1);
+	layout->addWidget(_lostLabelItem, 2, 0);
 
 	QPushButton *reasonButton = new QPushButton("其他异常描述");
 	layout->addWidget(reasonButton, 3, 0);
@@ -134,39 +140,44 @@ SterileCheckGroup::SterileCheckGroup(QWidget *parent /*= nullptr*/)
 Sterile::Result SterileCheckGroup::verdicts() const
 {
 	Sterile::Result result;
-	result.physics = _phyItem->disabled()? -1 : _phyItem->verdict();
-	result.chemistry = _chemItem->disabled()? -1 : _chemItem->verdict();
-	result.bio = _bioItem->disabled()? -1 : _bioItem->verdict();
-	result.wet = _wetItem->isEnabled()? !_wetItem->isChecked() : -1;
-	result.lost = _lostLabelItem->isEnabled()? !_lostLabelItem->isChecked() : -1;
+
+	if (_first) {
+		result.physics =  _phyItem->verdict();
+		result.chemistry = _chemItem->verdict();
+		result.lost = _lostLabelItem->isChecked() ? Rt::Unqualified : Rt::Qualified;
+	}
+
+	if (!_bioItem->disabled())
+	{
+		result.bio =  _bioItem->verdict();
+	}
+
 	return result;
 }
 
-void SterileCheckGroup::updateInfo(const Sterile::Result &resultInfo)
+bool SterileCheckGroup::isFirst()
 {
-	_phyItem->reset(resultInfo.physics);
-	_chemItem->reset(resultInfo.chemistry);
-	_bioItem->reset(resultInfo.bio);
+	return _first;
+}
 
-	if (resultInfo.wet != 2)
-	{
-		_wetItem->setChecked(!resultInfo.wet);
-		_wetItem->setEnabled(false);
-	}
+void SterileCheckGroup::updateInfo(const SterilizeResult &resultInfo)
+{
+	_phyItem->reset(resultInfo.phyVerdict, false);
+	_chemItem->reset(resultInfo.cheVerdict, false);
+	_bioItem->reset(resultInfo.bioVerdict, true);
+	_lostLabelItem->setChecked(resultInfo.hasLabelOff);
 
-	if (resultInfo.lost != 2)
-	{
-		_lostLabelItem->setChecked(!resultInfo.lost);
-		_lostLabelItem->setEnabled(false);
-	}
+	_first = resultInfo.phyVerdict == Rt::SterilizeVerdict::Unchecked;
+	_lostLabelItem->setEnabled(_first);
+	
 }
 
 void SterileCheckGroup::reset() {
-	_phyItem->reset(itrac::NotChecked);
-	_chemItem->reset(itrac::NotChecked);
-	_bioItem->reset(itrac::NotChecked);
-	_wetItem->setChecked(false);
+	_phyItem->reset(Rt::Unchecked, false);
+	_chemItem->reset(Rt::Unchecked, false);
+	_bioItem->reset(Rt::Unchecked, true);
+	//_wetItem->setChecked(false);
 	_lostLabelItem->setChecked(false);
-	_wetItem->setEnabled(true);
+	//_wetItem->setEnabled(true);
 	_lostLabelItem->setEnabled(true);
 }

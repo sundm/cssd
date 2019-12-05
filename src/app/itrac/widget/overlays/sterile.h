@@ -20,6 +20,8 @@ private slots:
 	void addEntry();
 	void removeEntry();
 
+	void onTransponderReceviced(const QString& code);
+	void onBarcodeReceviced(const QString& code);
 private:
 	DeviceArea * _deviceArea;
 	SterilePackageView * _pkgView;

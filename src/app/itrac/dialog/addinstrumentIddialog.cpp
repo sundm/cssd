@@ -45,7 +45,7 @@ AddInstrumentIdDialog::AddInstrumentIdDialog(QWidget *parent)
 	QGridLayout *mainLayout = new QGridLayout(this);
 	mainLayout->setVerticalSpacing(15);
 	mainLayout->addWidget(new QLabel("器械名"), 0, 0);
-	mainLayout->addWidget(new QLabel("器械UID"), 1, 0);
+	mainLayout->addWidget(new QLabel("器械UDI"), 1, 0);
 	mainLayout->addWidget(new QLabel("所属基础器械"), 2, 0);
 	
 	mainLayout->addWidget(_nameEdit, 0, 1);
@@ -63,7 +63,14 @@ AddInstrumentIdDialog::AddInstrumentIdDialog(QWidget *parent)
 	connect(_listener, SIGNAL(onTransponder(const QString&)), this, SLOT(onTransponderReceviced(const QString&)));
 	connect(_listener, SIGNAL(onBarcode(const QString&)), this, SLOT(onBarcodeReceviced(const QString&)));
 
+	connect(_insEdit, SIGNAL(changed(int)), this, SLOT(onDeptChanged(int)));
 	_insEdit->load();
+}
+
+void AddInstrumentIdDialog::onDeptChanged(int)
+{
+	QString name = _insEdit->currentName().append("#");
+	_nameEdit->setText(name);
 }
 
 void AddInstrumentIdDialog::setInfo(const QString &id)

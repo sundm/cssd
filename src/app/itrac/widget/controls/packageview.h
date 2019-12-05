@@ -2,13 +2,15 @@
 
 #include "ui/views.h"
 #include "core/net/jsonhttpclient.h"
+#include "rdao/entity/package.h"
+#include "rdao/entity/device.h"
+#include "rdao/entity/surgery.h"
 #include <QHash>
 
 class QStandardItemModel;
 class XPicture;
 class QLabel;
 struct Instrument;
-
 namespace Ui {
 	class FlatEdit;
 }
@@ -52,7 +54,10 @@ public:
 	SterilePackageView(QWidget *parent = nullptr);
 	void addPackage(const QString &) override;
 	bool matchType(int type) const;
+	const QList<Package> & packages() const;
+	void clear();
 private:
+	QList<Package> _pkgList;
 	enum { Barcode, Name, PackType, Department, ExpireDate, SterType, Implant};
 };
 
@@ -62,11 +67,16 @@ class SterileCheckPackageView : public TableView
 
 public:
 	SterileCheckPackageView(QWidget *parent = nullptr);
-	void addPackage(const QString &, const QString &, const bool &);
+	void addPackages(const QList<SterilizeResult::PackageItem> &packages, const bool readOnly = false);
+	const QList<SterilizeResult::PackageItem> & getPackages();
+
+private slots:
+	void itemChecked(const QModelIndex &, const bool);
 
 private:
-	enum {Barcode, Name, Implant};
+	enum {Barcode, Name, Implant, Wet};
 	QStandardItemModel *_model;
+	QList<SterilizeResult::PackageItem> _packages;
 };
 
 class DispatchPackageView : public AbstractPackageView
@@ -76,8 +86,10 @@ class DispatchPackageView : public AbstractPackageView
 public:
 	DispatchPackageView(QWidget *parent = nullptr);
 	void addPackage(const QString &) override;
-	
+	const QList<Package> & packages() const;
+	void clear();
 private:
+	QList<Package> _pkgList;
 	enum { Barcode, Name, PackType, Department, ExpireDate, Implant};
 };
 
@@ -87,18 +99,18 @@ class OperationInfoTabelView : public TableView
 
 public:
 	OperationInfoTabelView(QWidget *parent = nullptr);
-	void loadOperations();
+	void loadSurgeries();
 
 signals:
-	void operationClicked(const QString &operationId);
+	void operationClicked(const int);
 
 private slots:
 	void slotRowDoubleClicked(const QModelIndex &);
 
 private:
-	enum { OperationID, OperationRoom, OperationTime, OperationName, PatientName };
+	enum { OperationID, OperationRoom, OperationTime, OperationName, PatientId, PatientName };
 	QStandardItemModel * _model;
-	JsonHttpClient _http;
+	QList<Surgery> _surgeries;
 };
 
 class OperationInfoView : public QWidget
@@ -107,9 +119,9 @@ class OperationInfoView : public QWidget
 
 public:
 	OperationInfoView(QWidget *parent = nullptr);
-
+	void loadSurgeries();
 signals:
-	void operation(const QString &operationId);
+	void operation(const int);
 
 private slots:
 	void addOperation();
@@ -118,6 +130,7 @@ private slots:
 
 private:
 	OperationInfoTabelView * _view;
+	
 };
 
 class OperationPackageView : public TableView
@@ -126,12 +139,21 @@ class OperationPackageView : public TableView
 
 public:
 	OperationPackageView(QWidget *parent = nullptr);
-	void loadPackages(const QString& operationId);
+	bool isFinished();
+	bool addPackage(const Package &pkg);
+signals:
+	void packageClicked(const Package&pkg);
 
+private slots:
+	void slotRowDoubleClicked(const QModelIndex &);
+
+public slots:
+	void loadPackages(const int);
 private:
 	enum { PackageType, PackageID, PackageName, State};
 	QStandardItemModel * _model;
-	JsonHttpClient _http;
+	Surgery _surgery;
+	QList<Package> _packages;
 };
 
 class PackageSimpleInfoView : public QWidget

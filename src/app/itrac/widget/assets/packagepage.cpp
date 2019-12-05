@@ -43,9 +43,9 @@ namespace Internal {
 				_model->setData(_model->index(i, Pinyin), pt.pinyin);
 				_model->setData(_model->index(i, PackType), pt.packType.name);
 				_model->setData(_model->index(i, PackType), pt.packType.id, 257);
-				_model->setData(_model->index(i, SteType), Internal::literalSteType(pt.sterType));
-				_model->setData(_model->index(i, SteType), Internal::brushForSteType(pt.sterType), Qt::BackgroundRole);
-				_model->setData(_model->index(i, SteType), pt.sterType, 257);
+				_model->setData(_model->index(i, SteType), Internal::literalSteType(pt.sterMethod));
+				_model->setData(_model->index(i, SteType), Internal::brushForSteType(pt.sterMethod), Qt::BackgroundRole);
+				_model->setData(_model->index(i, SteType), pt.sterMethod, 257);
 				_model->setData(_model->index(i, Department), pt.dept.name);
 				_model->setData(_model->index(i, Department), pt.dept.id, 257);
 			}

@@ -10,7 +10,7 @@
 #include "widget/controls/combos.h"
 #include "widget/controls/idedit.h"
 #include "ui/views.h"
-#include "model/spinboxdelegate.h"
+#include "model/itemdelegate.h"
 #include "ui/composite/waitingspinner.h"
 #include "rdao/dao/instrumentdao.h"
 #include <thirdparty/qjson/src/parser.h>
@@ -42,7 +42,7 @@ AddpkgcodeDialog::AddpkgcodeDialog(QWidget *parent)
 	//_pkgNameEdit->setReadOnly(true);
 	FormGroup * pkgGroup = new FormGroup(this);
 	pkgGroup->addRow("包名称:", _pkgNameEdit);
-	pkgGroup->addRow("包UID:", _pkgCodeEdit);
+	pkgGroup->addRow("包UDI:", _pkgCodeEdit);
 	pkgGroup->addRow("包类型:", _pkgEdit);
 	//_package_type_id = pkg_id;
 
@@ -119,9 +119,11 @@ AddpkgcodeDialog::AddpkgcodeDialog(QWidget *parent)
 
 void AddpkgcodeDialog::initInstrumentView() {
 	_model->setHeaderData(0, Qt::Horizontal, "器械类型");
-	_model->setHeaderData(1, Qt::Horizontal, "器械UID");
+	_model->setHeaderData(1, Qt::Horizontal, "器械UDI");
+
 	_view->setModel(_model);
 	_view->setMinimumHeight(500);
+	_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
 	QHeaderView *header = _view->horizontalHeader();
 	header->setStretchLastSection(true);
@@ -129,9 +131,10 @@ void AddpkgcodeDialog::initInstrumentView() {
 	header->resizeSection(1, 50);
 
 	_unmodel->setHeaderData(0, Qt::Horizontal, "器械类型");
-	_unmodel->setHeaderData(1, Qt::Horizontal, "器械UID");
+	_unmodel->setHeaderData(1, Qt::Horizontal, "器械UDI");
 	_unview->setModel(_unmodel);
 	_unview->setMinimumHeight(200);
+	_unview->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
 	QHeaderView *unheader = _unview->horizontalHeader();
 	unheader->setStretchLastSection(true);
@@ -194,11 +197,23 @@ void AddpkgcodeDialog::onTransponderReceviced(const QString& code)
 void AddpkgcodeDialog::onBarcodeReceviced(const QString& code)
 {
 	qDebug() << code;
+	Barcode bc(code);
+
+	if (bc.type() == Barcode::Commit) {
+		accept();
+	}
+
+	if (bc.type() == Barcode::Reset) {
+		reset();
+	}
+	
 }
 
 void AddpkgcodeDialog::onPackageTypeChange(int id)
 {
 	loadInstrumentType(id);
+	QString name = _pkgEdit->currentName().append("#");
+	_pkgNameEdit->setText(name);
 }
 
 void AddpkgcodeDialog::loadPackageInfo()
@@ -288,43 +303,6 @@ void AddpkgcodeDialog::uploadImg(const QString& instrument_id) {
 		XNotifier::warn(QString("包信息添加成功，拷贝本地包图片失败!"));
 		return;
 	}
-	/*
-	_multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
-
-	QHttpPart imagePart;
-	imagePart.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("image/png"));
-	QString head = QString("form-data; name=\"file\"; filename=\"%1.png\"").arg(instrument_id);
-	imagePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant(head));
-	_imgFile = new QFile(_imgFilePath);
-	_imgFile->open(QIODevice::ReadOnly);
-	imagePart.setBodyDevice(_imgFile);
-	_imgFile->setParent(_multiPart);
-	_multiPart->append(imagePart);
-
-	const QByteArray resp = post(url(PATH_INSTRUMENT_UPLOAD_IMG), _multiPart);
-
-	QJson::Parser parser;
-	bool ok;
-	QVariantMap vmap = parser.parse(resp, &ok).toMap();
-	if (!ok) {
-		XNotifier::warn(QString("上传器械图片失败"));
-		return;
-	}
-	else {
-		QString code = vmap.value("code").toString();
-		if ("9000" != code) {
-			XNotifier::warn(QString("上传器械图片失败:").append(code));
-			return;
-		}
-		else {
-			QString newFileName = QString("./photo/instrument/%1.png").arg(instrument_id);
-			if (!copyFileToPath(_imgFilePath, newFileName, true)) {
-				XNotifier::warn(QString("器械信息添加成功，拷贝本地器械图片失败!"));
-				return;
-			}
-
-		}
-	}*/
 }
 
 bool AddpkgcodeDialog::copyFileToPath(QString sourceDir, QString toDir, bool coverFileIfExist)
@@ -412,7 +390,7 @@ void AddpkgcodeDialog::reset()
 	//todo
 	_step = 0;
 	_model->removeRows(0, _model->rowCount());
-	_unmodel->removeRows(0, _model->rowCount());
+	_unmodel->removeRows(0, _unmodel->rowCount());
 
 	_codeScanedList.clear();
 	_codeUnusualList.clear();

@@ -159,9 +159,6 @@
     <ClCompile Include="widget\overlays\tips.cpp">
       <Filter>Source Files\widget\overlays</Filter>
     </ClCompile>
-    <ClCompile Include="model\spinboxdelegate.cpp">
-      <Filter>Source Files\model</Filter>
-    </ClCompile>
     <ClCompile Include="core\barcode.cpp">
       <Filter>Source Files\core</Filter>
     </ClCompile>
@@ -414,6 +411,9 @@
     <ClCompile Include="dialog\addoperationdialog.cpp">
       <Filter>Source Files\dialog</Filter>
     </ClCompile>
+    <ClCompile Include="model\itemdelegate.cpp">
+      <Filter>Source Files\model</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="devicepage.h">
@@ -475,9 +475,6 @@
     </QtMoc>
     <QtMoc Include="widget\overlays\tips.h">
       <Filter>Source Files\widget\overlays</Filter>
-    </QtMoc>
-    <QtMoc Include="model\spinboxdelegate.h">
-      <Filter>Source Files\model</Filter>
     </QtMoc>
     <QtMoc Include="widget\overlays\wash.h">
       <Filter>Source Files\widget\overlays</Filter>
@@ -706,6 +703,9 @@
     </QtMoc>
     <QtMoc Include="dialog\addoperationdialog.h">
       <Filter>Source Files\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="model\itemdelegate.h">
+      <Filter>Source Files\model</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

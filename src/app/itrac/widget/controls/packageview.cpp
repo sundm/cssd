@@ -4,11 +4,15 @@
 #include "core/net/url.h"
 #include "ui/inputfields.h"
 #include "xnotifier.h"
+#include "model/itemdelegate.h"
 #include "inliner.h"
 #include "core/constants.h"
 #include "dialog/registerinstrumentdialog.h"
 #include "dialog/addoperationdialog.h"
 #include "rdao/dao/PackageDao.h"
+#include "rdao/dao/surgerydao.h"
+#include "rdao/entity/surgery.h"
+#include "rdao/entity/operator.h"
 #include "rdao/dao/instrumentdao.h"
 #include <xui/images.h>
 #include <xui/imageviewer.h>
@@ -70,6 +74,7 @@ QVariantList AbstractPackageView::cardIds() const {
 
 SterilePackageView::SterilePackageView(QWidget *parent /*= nullptr*/)
 	: AbstractPackageView(parent) {
+	_pkgList.clear();
 	_model->setColumnCount(Implant + 1);
 	_model->setHeaderData(Barcode, Qt::Horizontal, "包条码");
 	_model->setHeaderData(Name, Qt::Horizontal, "包名");
@@ -78,6 +83,9 @@ SterilePackageView::SterilePackageView(QWidget *parent /*= nullptr*/)
 	_model->setHeaderData(ExpireDate, Qt::Horizontal, "失效日期");
 	_model->setHeaderData(SterType, Qt::Horizontal, "灭菌类型");
 	_model->setHeaderData(Implant, Qt::Horizontal, "是否含有植入物");
+	
+	horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
+	setColumnWidth(0, 400);
 }
 
 bool SterilePackageView::matchType(int type) const
@@ -93,7 +101,63 @@ bool SterilePackageView::matchType(int type) const
 	return b;
 }
 
+const QList<Package> &SterilePackageView::packages() const {
+	return _pkgList;
+}
+
+void SterilePackageView::clear() {
+	_model->removeRows(0, _model->rowCount());
+	_pkgList.clear();
+}
+
 void SterilePackageView::addPackage(const QString &id) {
+	for each (Package pkg in _pkgList)
+	{
+		if (id.compare(pkg.udi) == 0)
+		{
+			//XNotifier::warn(QString("该器械包已经添加:").append(id), -1);
+			return;
+		}
+	}
+
+	PackageDao dao;
+	Package pkg;
+
+	result_t resp = dao.getPackage(id, &pkg);
+	if (resp.isOk())
+	{
+		if (pkg.status == Rt::FlowStatus::Sterilized)
+		{
+			XNotifier::warn(QString("包 [%1] 已进行过灭菌，请勿重复登记").arg(id));
+			return;
+		}
+
+		_pkgList.append(pkg);
+
+		QList<QStandardItem *> rowItems;
+		QStandardItem *idItem = new QStandardItem(pkg.udi);
+		//idItem->setData(resp.getAsBool("ins_count"));
+		rowItems << idItem;
+		rowItems << new QStandardItem(pkg.name);
+		rowItems << new QStandardItem(pkg.packType.name);
+		rowItems << new QStandardItem(pkg.dept.name);
+		rowItems << new QStandardItem();//todo 
+
+		QStandardItem *typeItem = new QStandardItem(literal_sterile_type(pkg.sterMethod));
+		typeItem->setData(pkg.sterMethod);
+		rowItems << typeItem;
+
+		QStandardItem *insItem = new QStandardItem(false ? "是" : "否");
+		insItem->setData(brushForImport(false), Qt::BackgroundRole);
+		rowItems << insItem;
+		_model->appendRow(rowItems);
+	}
+	else
+	{
+		XNotifier::warn(QString("无法获取包信息: ").append(resp.msg()));
+		return;
+	}
+	/*
 	QString data = QString("{\"package_id\":\"%1\"}").arg(id);
 	_http.post(url(PATH_PKG_INFO), QByteArray().append(data), [=](QNetworkReply *reply) {
 		JsonHttpResponse resp(reply);
@@ -125,28 +189,54 @@ void SterilePackageView::addPackage(const QString &id) {
 		_model->appendRow(rowItems);
 		
 	});
+	*/
 }
 
 SterileCheckPackageView::SterileCheckPackageView(QWidget *parent /*= nullptr*/)
-	: TableView(parent), _model(new QStandardItemModel(0, Implant+1, this)) {
+	: TableView(parent), _model(new QStandardItemModel(0, Wet + 1, this)) {
 	_model->setHeaderData(Barcode, Qt::Horizontal, "包条码");
 	_model->setHeaderData(Name, Qt::Horizontal, "包名");
 	_model->setHeaderData(Implant, Qt::Horizontal, "是否含有植入物");
+	_model->setHeaderData(Wet, Qt::Horizontal, "是否发生湿包");
 	setModel(_model);
 	setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+	horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
+	setColumnWidth(0, 400);
 }
 
-void SterileCheckPackageView::addPackage(const QString &id, const QString &name, const bool &implant) {
-	QList<QStandardItem*> row;
-	row << new QStandardItem(id) << new QStandardItem(name);
-	QStandardItem *insItem = new QStandardItem(implant ? "是" : "否");
-	insItem->setData(brushForImport(implant), Qt::BackgroundRole);
-	row << insItem;
-	_model->appendRow(row);
+const QList<SterilizeResult::PackageItem> & SterileCheckPackageView::getPackages()
+{
+	return _packages;
+}
+
+void SterileCheckPackageView::itemChecked(const QModelIndex & index, const bool checked)
+{
+	SterilizeResult::PackageItem item = _packages.at(index.row());
+	item.isWetPack = checked;
+	_packages.replace(index.row(), item);
+}
+
+void SterileCheckPackageView::addPackages(const QList<SterilizeResult::PackageItem>& pkgs, const bool readOnly) {
+	_packages = pkgs;
+	_model->removeRows(0, _model->rowCount());
+	_model->insertRows(0, pkgs.count());
+	for (int i = 0; i != pkgs.count(); ++i) {
+		SterilizeResult::PackageItem item = pkgs[i];
+		_model->setData(_model->index(i, 0), item.udi);
+		_model->setData(_model->index(i, 1), item.name);
+		_model->setData(_model->index(i, 2), "");//todo
+		CheckBoxDelegate *checkBox = new CheckBoxDelegate;
+		connect(checkBox, SIGNAL(setChecked(const QModelIndex &, const bool)), this, SLOT(itemChecked(const QModelIndex &, const bool)));
+		checkBox->setColumn(3, readOnly);
+		setItemDelegateForColumn(3, checkBox);
+		_model->setData(_model->index(i, 3), item.isWetPack, Qt::DisplayRole);
+	}
 }
 
 DispatchPackageView::DispatchPackageView(QWidget *parent /*= nullptr*/)
 	: AbstractPackageView(parent) {
+	_pkgList.clear();
 	_model->setColumnCount(Implant + 1);
 	_model->setHeaderData(Barcode, Qt::Horizontal, "包条码");
 	_model->setHeaderData(Name, Qt::Horizontal, "包名");
@@ -154,50 +244,62 @@ DispatchPackageView::DispatchPackageView(QWidget *parent /*= nullptr*/)
 	_model->setHeaderData(Department, Qt::Horizontal, "所属科室");
 	_model->setHeaderData(ExpireDate, Qt::Horizontal, "失效日期");
 	_model->setHeaderData(Implant, Qt::Horizontal, "是否含有植入物");
+
+	horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
+	setColumnWidth(0, 400);
+}
+
+const QList<Package> &DispatchPackageView::packages() const {
+	return _pkgList;
+}
+
+void DispatchPackageView::clear() {
+	_model->removeRows(0, _model->rowCount());
+	_pkgList.clear();
 }
 
 void DispatchPackageView::addPackage(const QString &id) {
-	QString data = QString("{\"package_id\":\"%1\"}").arg(id);
-	_http.post(url(PATH_PKG_INFO), QByteArray().append(data), [=](QNetworkReply *reply) {
-		JsonHttpResponse resp(reply);
-		if (!resp.success()) {
-			XNotifier::warn(QString("无法获取包信息: ").append(resp.errorString()));
+	for each (Package pkg in _pkgList)
+	{
+		if (id.compare(pkg.udi) == 0)
+		{
+			//XNotifier::warn(QString("该器械包已经添加:").append(id), -1);
 			return;
 		}
+	}
 
-		if (resp.getAsString("state") != "ST") {
-			XNotifier::warn(QString("包 [%1] 尚未完成灭菌审核，或者已发放").arg(id));
+	PackageDao dao;
+	Package pkg;
+
+	result_t resp = dao.getPackage(id, &pkg);
+	if (resp.isOk())
+	{
+		if (pkg.status == Rt::FlowStatus::Dispatched)
+		{
+			XNotifier::warn(QString("包 [%1] 已进行过发放，请勿重复登记").arg(id));
 			return;
 		}
-		else if (!resp.getAsBool("sterilize_qualified")) {
-			XNotifier::warn(QString("包 [%1] 灭菌不合格，不能对其发放").arg(id));
-			return;
-		}
-		/*
-		if (resp.getAsString("state") == "SBT") {
-			XNotifier::warn(QString("包 [%1] 尚未完成生物灭菌审核，发放注意风险").arg(id));
-			return;
-		}
-		*/
-		if (!(resp.getAsInt("department_id") == Constant::OperatingRoomId || 
-			resp.getAsInt("department_id") == Constant::CSSDDeptId)) {
-			XNotifier::warn(QString("此包非手术室包，不能对其发放"));
-			return;
-		}
+		_pkgList.append(pkg);
 
 		QList<QStandardItem *> rowItems;
-		QStandardItem *idItem = new QStandardItem(id);
-		idItem->setData(resp.getAsBool("ins_count"));
+		QStandardItem *idItem = new QStandardItem(pkg.udi);
+		//idItem->setData(resp.getAsBool("ins_count"));
 		rowItems << idItem;
-		rowItems << new QStandardItem(resp.getAsString("package_type_name"));
-		rowItems << new QStandardItem(resp.getAsString("pack_type_name"));
-		rowItems << new QStandardItem(resp.getAsString("department_name"));
-		rowItems << new QStandardItem(resp.getAsString("valid_date"));
-		QStandardItem *insItem = new QStandardItem(resp.getAsBool("ins_count") ? "是" : "否");
-		insItem->setData(brushForImport(resp.getAsBool("ins_count")), Qt::BackgroundRole);
+		rowItems << new QStandardItem(pkg.name);
+		rowItems << new QStandardItem(pkg.packType.name);
+		rowItems << new QStandardItem(pkg.dept.name);
+		rowItems << new QStandardItem();//todo 
+
+		QStandardItem *insItem = new QStandardItem(false ? "是" : "否");
+		insItem->setData(brushForImport(false), Qt::BackgroundRole);
 		rowItems << insItem;
 		_model->appendRow(rowItems);
-	});
+	}
+	else
+	{
+		XNotifier::warn(QString("无法获取包信息: ").append(resp.msg()));
+		return;
+	}
 }
 
 OrRecyclePackageView::OrRecyclePackageView(QWidget *parent /*= nullptr*/)
@@ -531,6 +633,7 @@ OperationInfoTabelView::OperationInfoTabelView(QWidget *parent /*= nullptr*/)
 	_model->setHeaderData(OperationRoom, Qt::Horizontal, "手术室");
 	_model->setHeaderData(OperationTime, Qt::Horizontal, "手术时间");
 	_model->setHeaderData(OperationName, Qt::Horizontal, "手术名称");
+	_model->setHeaderData(PatientId, Qt::Horizontal, "病人ID");
 	_model->setHeaderData(PatientName, Qt::Horizontal, "病人姓名");
 
 	setModel(_model);
@@ -543,28 +646,44 @@ OperationInfoTabelView::OperationInfoTabelView(QWidget *parent /*= nullptr*/)
 void OperationInfoTabelView::slotRowDoubleClicked(const QModelIndex &index)
 {
 	int row = index.row();
-	QString operationId = _model->item(row, OperationID)->text();
-	emit operationClicked(operationId);
+	Surgery surgery = _surgeries.at(row);
+	emit operationClicked(surgery.id);
 }
 
-void OperationInfoTabelView::loadOperations()
+void OperationInfoTabelView::loadSurgeries()
 {
-	_model->removeRows(0, _model->rowCount());
+	SurgeryDao dao;
 
-	QList<QStandardItem *> rowItems;
-	rowItems << new QStandardItem("201911260159");
-	rowItems << new QStandardItem("2#手术室");
-	rowItems << new QStandardItem("2019-11-22 12:30:00");
-	rowItems << new QStandardItem("阑尾手术");
-	rowItems << new QStandardItem("王阳");
-
-	for each (QStandardItem * item in rowItems)
+	result_t resp = dao.getSurgeryList(Rt::SurgeryStatus::WaitingForCheck, &_surgeries);
+	if (resp.isOk())
 	{
-		item->setTextAlignment(Qt::AlignCenter);
-	}
-	_model->appendRow(rowItems);
-}
+		_model->removeRows(0, _model->rowCount());
 
+		for each (Surgery item in _surgeries)
+		{
+			QList<QStandardItem *> rowItems;
+			rowItems << new QStandardItem(QString::number(item.id));
+			rowItems << new QStandardItem(item.surgeryRoom);
+			rowItems << new QStandardItem(item.surgeryTime.toString("yyyy-MM-dd HH:mm:ss"));
+			rowItems << new QStandardItem(item.surgeryName);
+			rowItems << new QStandardItem(QString::number(item.patientId));
+			rowItems << new QStandardItem(item.patientName);
+
+			for each (QStandardItem * item in rowItems)
+			{
+				item->setTextAlignment(Qt::AlignCenter);
+			}
+			_model->appendRow(rowItems);
+		}
+	}
+	else
+	{
+		XNotifier::warn(QString("获取手术列表失败: ").append(resp.msg()));
+	}
+
+	
+
+}
 
 OperationInfoView::OperationInfoView(QWidget *parent /*= nullptr*/)
 	: QWidget(parent), _view(new OperationInfoTabelView(this))
@@ -597,7 +716,12 @@ OperationInfoView::OperationInfoView(QWidget *parent /*= nullptr*/)
 	vLayout->addLayout(hLayout);
 	vLayout->addWidget(_view);
 
-	connect(_view, SIGNAL(operationClicked(const QString &)), this, SIGNAL(operation(const QString &)));
+	connect(_view, SIGNAL(operationClicked(const int)), this, SIGNAL(operation(const int)));
+}
+
+void OperationInfoView::loadSurgeries()
+{
+	_view->loadSurgeries();
 }
 
 void OperationInfoView::addOperation()
@@ -605,7 +729,7 @@ void OperationInfoView::addOperation()
 	AddOperatinDialog d(this);
 	if (d.exec() == QDialog::Accepted)
 	{
-		//todo
+		refresh();
 	}
 }
 
@@ -616,10 +740,8 @@ void OperationInfoView::delOperation()
 
 void OperationInfoView::refresh()
 {
-
+	_view->loadSurgeries();
 }
-
-
 
 OperationPackageView::OperationPackageView(QWidget *parent /*= nullptr*/)
 	: TableView(parent), _model(new QStandardItemModel(this))
@@ -633,40 +755,97 @@ OperationPackageView::OperationPackageView(QWidget *parent /*= nullptr*/)
 	setModel(_model);
 	setSelectionMode(QAbstractItemView::SingleSelection);
 	setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+	connect(this, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(slotRowDoubleClicked(const QModelIndex &)));
+
 }
 
-void OperationPackageView::loadPackages(const QString& operationId)
+void OperationPackageView::slotRowDoubleClicked(const QModelIndex &index)
 {
-	QList<QStandardItem *> rowItems;
-	rowItems << new QStandardItem(operationId);
-	rowItems << new QStandardItem("测试器械04");
-	rowItems << new QStandardItem("E2009A9050048AF000000213");
-	rowItems << new QStandardItem("RFID测试器械包02");
-
-	for each (QStandardItem * item in rowItems)
+	if (_model->rowCount() != _packages.count())
 	{
-		item->setTextAlignment(Qt::AlignCenter);
+		return;
 	}
-	_model->appendRow(rowItems);
-	/*
-	QByteArray data("{\"package_type_id\":");
-	data.append(",\"card_id\":").append(instrumentID).append('}');
-	_http.post(url(PATH_PKGDETAIL_SEARCH), QByteArray().append(data), [=](QNetworkReply *reply) {
-		JsonHttpResponse resp(reply);
-		if (!resp.success()) {
-			XNotifier::warn(QString("无法获取包信息: ").append(resp.errorString()));
-			return;
+
+	int row = index.row();
+	bool isExisted = _model->item(row, 0)->data(Qt::UserRole + 2).toBool();
+	if (isExisted)
+	{
+		QString pkgUdi = _model->item(row, 1)->data(Qt::DisplayRole).toString();
+
+		for each (Package pkg in _packages)
+		{
+			if (pkg.udi.compare(pkgUdi) == 0)
+			{
+				emit packageClicked(pkg);
+			}
 		}
-		int row = _model->rowCount();
-		//todo
-		QList<QVariant> orders = resp.getAsList("instruments");
-		_model->insertRows(0, orders.count());
-		for (int i = 0; i != orders.count(); ++i) {
-			QVariantMap map = orders[i].toMap();
-			_model->setData(_model->index(i, 0), map["instrument_name"]);
+	}
+}
+
+bool OperationPackageView::isFinished()
+{
+	return true;
+}
+
+bool OperationPackageView::addPackage(const Package &pkg)
+{
+	for each (Package p in _packages)
+	{
+		if (p.udi == pkg.udi) return false;
+	}
+
+	for (int i = 0; i < _model->rowCount(); i++)
+	{
+		int pkg_type_id = _model->item(i, 0)->data(Qt::UserRole + 1).toInt();
+		bool isExisted = _model->item(i, 0)->data(Qt::UserRole + 2).toBool();
+
+		if (isExisted) continue;
+
+		if (pkg_type_id == pkg.typeId)
+		{
+			_model->setData(_model->index(i, 0), true, Qt::UserRole + 2);
+			_model->setData(_model->index(i, 1), pkg.udi, Qt::DisplayRole);
+			_model->setData(_model->index(i, 2), pkg.name, Qt::DisplayRole);
+			_model->setData(_model->index(i, 3), QString("已绑定"), Qt::DisplayRole);
+			_packages.append(pkg);
+			return true;
 		}
-	});
-	*/
+	}
+
+	return false;
+}
+
+void OperationPackageView::loadPackages(const int surgeryId)
+{
+	_packages.clear();
+
+	SurgeryDao dao;
+	result_t resp = dao.getSurgery(surgeryId, &_surgery);
+	if (resp.isOk())
+	{
+		_model->removeRows(0, _model->rowCount());
+		QList<Surgery::DetailItem> details = _surgery.detail;
+		for each (Surgery::DetailItem item in details)
+		{
+			for (int i = 0; i < item.pkgNum; i++)
+			{
+				QList<QStandardItem *> rowItems;
+				QStandardItem *typeItem = new QStandardItem(item.pkgTypeName);
+				typeItem->setData(item.pkgTypeId, Qt::UserRole + 1);
+				typeItem->setData(false, Qt::UserRole + 2);
+				rowItems << typeItem;
+				_model->appendRow(rowItems);
+			}
+
+		}
+	}
+	else
+	{
+		XNotifier::warn(QString("编号[%1]的手术无法获取器械包列表").arg(surgeryId));
+		return;
+	}
+	
 }
 
 UnusualInstrumentView::UnusualInstrumentView(QWidget *parent /*= nullptr*/)
@@ -724,12 +903,12 @@ PackageDetailView::PackageDetailView(QWidget *parent /*= nullptr*/)
 
 	setModel(_model);
 
-	horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
-	horizontalHeader()->setSectionResizeMode(1, QHeaderView::Fixed);
-	horizontalHeader()->setSectionResizeMode(2, QHeaderView::Fixed);
-	setColumnWidth(0, 300);
-	setColumnWidth(1, 500);
-	setColumnWidth(2, 500);
+	//horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
+	//horizontalHeader()->setSectionResizeMode(1, QHeaderView::Fixed);
+	//horizontalHeader()->setSectionResizeMode(2, QHeaderView::Fixed);
+	//setColumnWidth(0, 200);
+	//setColumnWidth(1, 300);
+	//setColumnWidth(2, 300);
 
 	setSelectionMode(QAbstractItemView::SingleSelection);
 	setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -778,7 +957,7 @@ void PackageDetailView::loadDetail(const QList<Instrument> * instruments) {
 		QList<QStandardItem *> rowItems;
 		rowItems << new QStandardItem(k->name);
 		rowItems << new QStandardItem(k->udi);
-		rowItems << new QStandardItem();
+		rowItems << new QStandardItem("");
 		for each (QStandardItem * item in rowItems)
 		{
 			item->setTextAlignment(Qt::AlignCenter);

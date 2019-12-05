@@ -27,7 +27,7 @@ void PlateView::addPackage(const QString& udi) {
 	{
 		if (udi.compare(pkg.udi) == 0)
 		{
-			XNotifier::warn(QString("该器械包已经添加:").append(udi), -1);
+			//XNotifier::warn(QString("该器械包已经添加:").append(udi), -1);
 			return;
 		}
 	}

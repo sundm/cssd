@@ -13,11 +13,11 @@
 namespace Internal {
 	PackageIdAssetView::PackageIdAssetView(QWidget *parent /*= nullptr*/)
 		: TableView(parent)
-		, _model(new QStandardItemModel(0, Basics + 1, this))
+		, _model(new QStandardItemModel(0, Id + 1, this))
 	{
 		_model->setHeaderData(Name, Qt::Horizontal, "包名");
-		_model->setHeaderData(Id, Qt::Horizontal, "包UID");
-		_model->setHeaderData(Basics, Qt::Horizontal, "所属基础包");
+		_model->setHeaderData(Id, Qt::Horizontal, "包UDI");
+		//_model->setHeaderData(Nums, Qt::Horizontal, "器械数量");
 		setModel(_model);
 		setEditTriggers(QAbstractItemView::NoEditTriggers);
 	}
@@ -27,6 +27,7 @@ namespace Internal {
 		PackageDao dao;
 		QList<Package> pkgs;
 		result_t resp = dao.getPackageList(&pkgs);
+
 		if (resp.isOk())
 		{
 			clear(); // when succeeded
@@ -35,11 +36,12 @@ namespace Internal {
 			for (int i = 0; i != pkgs.count(); ++i) {
 				Package pk = pkgs[i];
 				_model->setData(_model->index(i, Name), pk.name);
+				_model->setData(_model->index(i, Name), pk.typeId, Qt::UserRole + 1);
 				_model->setData(_model->index(i, Id), pk.udi);
-				PackageType pkt;
-				dao.getPackageType(pk.typeId, &pkt);
-				_model->setData(_model->index(i, Basics), pkt.name);
-				_model->setData(_model->index(i, Basics), pkt.typeId, Qt::UserRole + 1);
+				//PackageType pkt;
+				//dao.getPackageType(pk.typeId, &pkt);
+				//_model->setData(_model->index(i, Basics), pkt.name);
+				//_model->setData(_model->index(i, Basics), pkt.typeId, Qt::UserRole + 1);
 			}
 		}
 		else

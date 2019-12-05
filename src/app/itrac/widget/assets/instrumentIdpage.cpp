@@ -73,11 +73,11 @@ void InstrumentIdPage::modify() {
 namespace Internal {
 	InstrumentIdAssetView::InstrumentIdAssetView(QWidget *parent /*= nullptr*/)
 		: TableView(parent)
-		, _model(new QStandardItemModel(0, Basics + 1, this))
+		, _model(new QStandardItemModel(0, Id + 1, this))
 	{
 		_model->setHeaderData(Name, Qt::Horizontal, "器械名");
-		_model->setHeaderData(Id, Qt::Horizontal, "器械UID");
-		_model->setHeaderData(Basics, Qt::Horizontal, "所属基础器械名");
+		_model->setHeaderData(Id, Qt::Horizontal, "器械UDI");
+		//_model->setHeaderData(Basics, Qt::Horizontal, "所属基础器械名");
 		setModel(_model);
 		setEditTriggers(QAbstractItemView::NoEditTriggers);
 	}
@@ -94,11 +94,12 @@ namespace Internal {
 			for (int i = 0; i != ins.count(); ++i) {
 				Instrument it = ins[i];
 				_model->setData(_model->index(i, Name), it.name);
+				_model->setData(_model->index(i, Name), it.typeId, Qt::UserRole + 1);
 				_model->setData(_model->index(i, Id), it.udi);
-				InstrumentType ity;
-				dao.getInstrumentType(it.typeId, &ity);
-				_model->setData(_model->index(i, Basics), ity.name);
-				_model->setData(_model->index(i, Basics), it.typeId, Qt::UserRole + 1);
+				//InstrumentType ity;
+				//dao.getInstrumentType(it.typeId, &ity);
+				//_model->setData(_model->index(i, Basics), ity.name);
+				//_model->setData(_model->index(i, Basics), it.typeId, Qt::UserRole + 1);
 			}
 		}
 		else

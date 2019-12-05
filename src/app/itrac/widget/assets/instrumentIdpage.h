@@ -12,7 +12,7 @@ class InstrumentIdAssetView : public TableView
 	Q_OBJECT
 
 public:
-	enum Column {Name, Id, Basics};
+	enum Column {Name, Id};
 	InstrumentIdAssetView(QWidget *parent = nullptr);
 	void load(int page = 0, int count = 10);
 

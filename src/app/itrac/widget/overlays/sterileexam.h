@@ -24,6 +24,9 @@ protected:
 
 private slots:
 	void commit();
+	void onTransponderReceviced(const QString& code);
+	void onBarcodeReceviced(const QString& code);
+
 private:
 	void updateSterileInfo(const QString &);
 	void reset();
@@ -31,7 +34,5 @@ private:
 	SterileInfoGroup* _infoGroup;
 	SterileCheckGroup *_checkGroup;
 	SterileCheckPackageView *_view;
-	std::unique_ptr<Sterile::TestInfo> _testInfo;
-	std::unique_ptr<Sterile::Result> _resultInfo;
 	bool _needBio;
 };

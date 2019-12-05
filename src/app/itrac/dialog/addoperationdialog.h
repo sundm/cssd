@@ -48,7 +48,8 @@ private:
 	Ui::FlatEdit * _operRoomEdit;
 	QDateTimeEdit * _operTimeEdit;
 	Ui::FlatEdit * _operNameEdit;
-	Ui::FlatEdit * _patNameEdit;
+	Ui::FlatEdit * _patientIdEdit;
+	Ui::FlatEdit * _patientNameEdit;
 	PackageEdit * _packageEdit;
 
 	TableView *_view;

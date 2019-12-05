@@ -81,7 +81,7 @@ void ConfigRfidReaderDialog::onClickConnectBtn() {
 
 	if (port.isEmpty())
 	{
-		XNotifier::warn(QString("串口号为空"));
+		XNotifier::warn(QString("串口号为空"), -1, this);
 		return;
 	}
 
@@ -92,11 +92,11 @@ void ConfigRfidReaderDialog::onClickConnectBtn() {
 	}
 	
 	if (_reader->connect()) {
-		XNotifier::warn(QString("%1连接成功！").arg(name));
+		XNotifier::warn(QString("%1连接成功！").arg(name), -1, this);
 	}
 	else
 	{
-		XNotifier::warn(QString("%1连接失败！").arg(name));
+		XNotifier::warn(QString("%1连接失败！").arg(name), -1, this);
 	}
 
 	setItemEnabled();

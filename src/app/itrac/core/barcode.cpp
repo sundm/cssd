@@ -14,11 +14,13 @@ int Barcode::type() const
 
 	int len = _bc.length();
 	QString indicator = _bc.left(2);
-	if ("91" == indicator && 6 == len)
-		return Action;
+	if (_bc.compare(commitStr) == 0 )
+		return Commit;
+	if (_bc.compare(resetStr) == 0)
+		return Reset;
 	if ("10" == indicator && len>=16)
 		return Package;
-	if ("11" == indicator && 8 == len)
+	if ("11" == indicator && 6 == len)
 		return User;
 	if ("12" == indicator && 8 == len)
 		return Department;

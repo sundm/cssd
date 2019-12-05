@@ -2,11 +2,16 @@
 
 #include <QString>
 
+const QString commitStr = "910108";
+const QString resetStr = "910201";
+
 class Barcode
 {
 public:
 	enum Type {
 		Action,			// 91
+		Commit,
+		Reset,
 		Package,		// 10
 		User,			// 11
 		Department,		// 12

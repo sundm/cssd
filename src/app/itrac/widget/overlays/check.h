@@ -2,6 +2,7 @@
 
 #include "cssd_overlay.h"
 #include "core/net/jsonhttpclient.h"
+#include "rdao/entity/surgery.h"
 #include <QHash>
 
 class DeptEdit;
@@ -34,6 +35,10 @@ private slots:
 	void onTransponderReceviced(const QString& code);
 	void onBarcodeReceviced(const QString& code);
 
+	void onScanned(const QString& code);
+	void onUnusual(const QString& code);
+	void loadPackage(const int);
+	void loadInsturment(const Package& pkg);
 private:
 	void initOperationView();
 	
@@ -44,7 +49,6 @@ private:
 	PackageDetailView * _detailView;
 	UnusualInstrumentView * _unusualView;
 
-	QHash<QString, QString> * _codeMap;
 	QStringList * _scannedCodes;
 	QStringList * _unusualCodes;
 

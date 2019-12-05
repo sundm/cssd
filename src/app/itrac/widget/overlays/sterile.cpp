@@ -3,14 +3,16 @@
 #include "tips.h"
 #include "xnotifier.h"
 #include "barcode.h"
-
+#include "core/user.h"
 #include "core/net/url.h"
 #include "ui/buttons.h"
 #include "ui/inputfields.h"
 #include "widget/controls/packageview.h"
 #include "dialog/operatorchooser.h"
 #include "dialog/regexpinputdialog.h"
-
+#include "rdao/entity/operator.h"
+#include "rdao/entity/device.h"
+#include "rdao/dao/flowdao.h"
 #include "util/printermanager.h"
 #include <printer/labelprinter.h>
 #include <QtWidgets/QtWidgets>
@@ -50,8 +52,36 @@ SterilePanel::SterilePanel(QWidget *parent)
 	layout->addWidget(tip, 0, 1, 3, 1);
 	layout->setRowStretch(2, 1);
 
+	connect(_listener, SIGNAL(onTransponder(const QString&)), this, SLOT(onTransponderReceviced(const QString&)));
+	connect(_listener, SIGNAL(onBarcode(const QString&)), this, SLOT(onBarcodeReceviced(const QString&)));
+
+
 	//_deviceArea->load();
 	QTimer::singleShot(200, [this] { _deviceArea->load(itrac::DeviceType::Sterilizer); });
+}
+
+void SterilePanel::onTransponderReceviced(const QString& code)
+{
+	qDebug() << code;
+	TranspondCode tc(code);
+	if (tc.type() == TranspondCode::Package)
+	{
+		_pkgView->addPackage(code);
+	}
+
+}
+
+void SterilePanel::onBarcodeReceviced(const QString& code)
+{
+	qDebug() << code;
+	Barcode bc(code);
+	if (bc.type() == Barcode::Commit) {
+		commit();
+	}
+
+	if (bc.type() == Barcode::Reset) {
+		reset();
+	}
 }
 
 void SterilePanel::addEntry() {
@@ -110,23 +140,21 @@ void SterilePanel::commit() {
 		return;
 	}
 
-	int deviceId = item->id();
+	Program program;
+	program.id = programId;;
+	program.name = item->programName();
 
-	QVariantList packages = _pkgView->packageIds();
-	if (packages.isEmpty()) {
-		XNotifier::warn(QString("请添加包条码"));
-		return;
-	}
+	int deviceId = item->id();
 
 	if (!_pkgView->matchType(item->sterilize_type()))
 	{
 		QString type;
 		switch (item->sterilize_type())
 		{
-		case 1:
+		case Rt::SterilizeMethod::HighTemperature:
 			type = QString("高温");
 			break;
-		case 2:
+		case Rt::SterilizeMethod::LowTemperature:
 			type = QString("低温");
 			break;
 		}
@@ -141,7 +169,31 @@ void SterilePanel::commit() {
 		XNotifier::warn(QString("请注意：含有植入物器械包，需做生物监测！"));
 	}
 
-	int opId = OperatorChooser::get(this, this);
+	QList<Package> packages = _pkgView->packages();
+	if (packages.size() == 0) {
+		XNotifier::warn(QString("器械包为空，无法完成清洗登记"));
+		return;
+	}
+
+	Operator op;
+	op.id = Core::currentUser().id;
+	op.name = Core::currentUser().name;
+
+	FlowDao dao;
+	result_t resp = dao.addSterilization(deviceId, program, packages, op);
+	if (resp.isOk())
+	{
+		XNotifier::warn("已完成灭菌登记");
+		_deviceArea->currentItem()->setRunning();
+		reset();
+	}
+	else
+	{
+		XNotifier::warn(QString("提交灭菌登记失败: ").append(resp.msg()));
+		return;
+	}
+
+	/*int opId = OperatorChooser::get(this, this);
 	if (0 == opId) {
 		XNotifier::warn(QString("请选择操作员"));
 		return;
@@ -195,6 +247,7 @@ void SterilePanel::commit() {
 		_deviceArea->currentItem()->setRunning();
 		reset();
 	});
+	*/
 }
 
 void SterilePanel::reset() {

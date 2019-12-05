@@ -57,11 +57,11 @@ extern inline QString sterile_type(int type) {
 }
 
 extern inline QString literal_sterile_type(int type) {
-	if (0 == type)
+	if (Rt::SterilizeMethod::BothTemperature == type)
 		return "通用";
-	if (1 == type)
+	if (Rt::SterilizeMethod::HighTemperature == type)
 		return "高温";
-	if (2 == type)
+	if (Rt::SterilizeMethod::LowTemperature == type)
 		return "低温";
 	return "未知类型";
 }

@@ -13,7 +13,7 @@ class PackageIdAssetView : public TableView
 	Q_OBJECT
 
 public:
-	enum Column {Name, Id, Basics};
+	enum Column {Name, Id};
 	PackageIdAssetView(QWidget *parent = nullptr);
 	void load(const QString &kw = QString(), int page = 0, int count = 10);
 

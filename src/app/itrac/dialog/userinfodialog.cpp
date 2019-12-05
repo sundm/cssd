@@ -31,7 +31,11 @@ UserInfoDialog::UserInfoDialog(QWidget *parent)
 
 	Ui::Description *account = new Ui::Description(
 		QString("工号 %1, %2权限").arg(user.id).arg(descrip));
+	
 	Ui::Description *loginTime = new Ui::Description("登录于 " + user.loginTime);
+	QToolButton *closeButton = new QToolButton();
+	closeButton->setIcon(QIcon(":/res/close.png"));
+	connect(closeButton, &QPushButton::clicked, this, &UserInfoDialog::reject);
 
 	QWidget *pwdGroup = new QWidget;
 	_oldPwdEdit->setInputValidator(Ui::InputValitor::LetterAndNumber);
@@ -44,6 +48,7 @@ UserInfoDialog::UserInfoDialog(QWidget *parent)
 	submitPwdButton->setIcon(QIcon(":/res/write-24.png"));
 	submitPwdButton->setDefault(true);
 	connect(submitPwdButton, &QPushButton::clicked, this, &UserInfoDialog::changePwd);
+
 
 	QGridLayout *gridLayout = new QGridLayout(pwdGroup);
 	gridLayout->setVerticalSpacing(15);
@@ -61,11 +66,22 @@ UserInfoDialog::UserInfoDialog(QWidget *parent)
 	mainLayout->addWidget(title);
 	mainLayout->addWidget(account);
 	mainLayout->addWidget(loginTime);
+	mainLayout->addWidget(closeButton, 0, Qt::AlignHCenter);
 	mainLayout->addWidget(Ui::createSeperator(Qt::Horizontal));
 	mainLayout->addWidget(pwdGroup, 0, Qt::AlignHCenter);
 
 	setFixedHeight(sizeHint().height());
 	resize(parent ? parent->width() / 2 : 360, height());
+}
+
+void UserInfoDialog::reject()
+{
+	QMessageBox::StandardButton rb = QMessageBox::question(this, "退出", "真的要退出系统?", QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+	if (rb == QMessageBox::Yes)
+	{
+		qApp->quit();
+	}
+	
 }
 
 void UserInfoDialog::changePwd() {

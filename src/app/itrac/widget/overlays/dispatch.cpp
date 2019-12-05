@@ -2,7 +2,9 @@
 #include "tips.h"
 #include "xnotifier.h"
 #include "barcode.h"
-
+#include "rdao/entity/operator.h"
+#include "rdao/dao/flowdao.h"
+#include "core/user.h"
 #include "core/net/url.h"
 #include "core/constants.h"
 #include "ui/buttons.h"
@@ -49,7 +51,35 @@ OrDispatchPanel::OrDispatchPanel(QWidget *parent)
 	layout->addWidget(_pkgView, 1, 0);
 	layout->addWidget(tip, 0, 1, 2, 1);
 
+	connect(_listener, SIGNAL(onTransponder(const QString&)), this, SLOT(onTransponderReceviced(const QString&)));
+	connect(_listener, SIGNAL(onBarcode(const QString&)), this, SLOT(onBarcodeReceviced(const QString&)));
+
+
 	QTimer::singleShot(500, [this] { _deptEdit->load(DeptEdit::OPERATING_ROOM); });
+}
+
+void OrDispatchPanel::onTransponderReceviced(const QString& code)
+{
+	qDebug() << code;
+	TranspondCode tc(code);
+	if (tc.type() == TranspondCode::Package)
+	{
+		_pkgView->addPackage(code);
+	}
+
+}
+
+void OrDispatchPanel::onBarcodeReceviced(const QString& code)
+{
+	qDebug() << code;
+	Barcode bc(code);
+	if (bc.type() == Barcode::Commit) {
+		commit();
+	}
+
+	if (bc.type() == Barcode::Reset) {
+		reset();
+	}
 }
 
 void OrDispatchPanel::addEntry() {
@@ -120,8 +150,11 @@ void OrDispatchPanel::commit() {
 		XNotifier::warn(QString("请选择科室"));
 		return;
 	}
+	Department dept;
+	dept.id = deptId;
+	dept.name = _deptEdit->currentName();
 
-	QVariantList packages = _pkgView->packageIds();
+	QList<Package> packages = _pkgView->packages();
 	if (packages.isEmpty()) {
 		XNotifier::warn(QString("发放内容为空"));
 		return;
@@ -131,9 +164,23 @@ void OrDispatchPanel::commit() {
 		XNotifier::warn(QString("请注意：含有植入物器械包，需关注生物监测结果。"));
 	}
 
-	int opId = OperatorChooser::get(this, this);
-	if (0 == opId) return;
+	Operator op;
+	op.id = Core::currentUser().id;
+	op.name = Core::currentUser().name;
 
+	FlowDao dao;
+	result_t resp = dao.addDispatch(packages, dept, op);
+	if (resp.isOk())
+	{
+		XNotifier::warn("发放成功!");
+		reset();
+	}
+	else
+	{
+		XNotifier::warn(QString("提交发放失败: ").append(resp.msg()));
+	}
+
+	/*
 	QVariantMap vmap;
 	vmap.insert("department_id", deptId);
 	vmap.insert("operator_id", opId);
@@ -149,6 +196,7 @@ void OrDispatchPanel::commit() {
 			reset();
 		}
 	});
+	*/
 }
 
 void OrDispatchPanel::reset() {

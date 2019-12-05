@@ -22,12 +22,16 @@ class LoginPanel : public Ui::Inner, public Scanable, public JsonHttpClient
 public:
 	LoginPanel(Ui::Container *container = nullptr);
 	void submit() override;
+	
 
 protected:
 	void handleBarcode(const QString &) override;
 
+private slots:
+	void showRfidConfiger();
+	void onBarcodeReceviced(const QString& code);
 private:
-	void login(const QString &, const QString &);
+	void login(const int, const QString &);
 	void version();
 
 	const QString getFileMd5(QString filePath);

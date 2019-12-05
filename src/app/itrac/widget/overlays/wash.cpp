@@ -63,9 +63,14 @@ void WashPanel::onTransponderReceviced(const QString& code)
 void WashPanel::onBarcodeReceviced(const QString& code)
 {
 	qDebug() << code;
-	if (code.compare("910108") == 0)
-	{
+
+	Barcode bc(code);
+	if (bc.type() == Barcode::Commit) {
 		commit();
+	}
+
+	if (bc.type() == Barcode::Reset) {
+		reset();
 	}
 }
 

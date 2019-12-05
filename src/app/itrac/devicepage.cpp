@@ -154,7 +154,7 @@ void DevicePage::updateDeviceView(const QString& deviceType/* = QString()*/)
 			rowItems.append(new QStandardItem(device.productionDate.toString("yyyy-MM-dd")));
 			rowItems.append(stateItem);
 
-			int st = device.sterilizeType;
+			int st = device.sterilizeMethod;
 			QStandardItem *stItem = new QStandardItem(sterile_type(st));
 			stItem->setData(st);
 			rowItems.append(stItem);

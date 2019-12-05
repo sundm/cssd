@@ -32,13 +32,13 @@ AssetPage::AssetPage(QWidget *parent)
 	vLayout->addWidget(programButton);
 	QPushButton *pkgButton = new QPushButton("基础包");
 	vLayout->addWidget(pkgButton);
-	QPushButton *pkgIdButton = new QPushButton("包UID");
+	QPushButton *pkgIdButton = new QPushButton("包UDI");
 	vLayout->addWidget(pkgIdButton);
 	QPushButton *pkgTypeButton = new QPushButton("打包类型");
 	vLayout->addWidget(pkgTypeButton);
 	QPushButton *instrumentButton = new QPushButton("基础器械");
 	vLayout->addWidget(instrumentButton);
-	QPushButton *instrumentIdButton = new QPushButton("器械UID");
+	QPushButton *instrumentIdButton = new QPushButton("器械UDI");
 	vLayout->addWidget(instrumentIdButton);
 	QPushButton *deptButton = new QPushButton("科室");
 	vLayout->addWidget(deptButton);
@@ -90,7 +90,7 @@ void AssetPage::showPage(int id)
 			break;
 		case itrac::PACKAGEID:
 			page = new PackageIdPage;
-			_tabWidget->addTab(page, "包UID管理");
+			_tabWidget->addTab(page, "包UDI管理");
 			break;
 		case itrac::PACKTYPE:
 			page = new PacktypePage;
@@ -102,7 +102,7 @@ void AssetPage::showPage(int id)
 			break;
 		case itrac::INSTRUMENTID:
 			page = new InstrumentIdPage;
-			_tabWidget->addTab(page, "器械UID管理");
+			_tabWidget->addTab(page, "器械UDI管理");
 			break;
 		case itrac::DEPT:
 			page = new DepartmentPage;

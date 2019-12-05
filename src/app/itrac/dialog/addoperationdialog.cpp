@@ -9,7 +9,8 @@
 #include "widget/controls/combos.h"
 #include "widget/controls/idedit.h"
 #include "ui/views.h"
-#include "model/spinboxdelegate.h"
+#include "model/itemdelegate.h"
+#include "rdao/dao/surgerydao.h"
 #include <thirdparty/qjson/src/parser.h>
 #include <xui/images.h>
 #include <xui/imageviewer.h>
@@ -28,7 +29,8 @@ AddOperatinDialog::AddOperatinDialog(QWidget *parent)
 	, _operRoomEdit(new Ui::FlatEdit)
 	, _operTimeEdit(new QDateTimeEdit(QDate::currentDate()))
 	, _operNameEdit(new Ui::FlatEdit)
-	, _patNameEdit(new Ui::FlatEdit)
+	, _patientIdEdit(new Ui::FlatEdit)
+	, _patientNameEdit(new Ui::FlatEdit)
 	, _packageEdit(new PackageEdit)
 	, _view(new TableView(this))
 	, _model(new QStandardItemModel(0, 2, _view))
@@ -52,14 +54,26 @@ AddOperatinDialog::AddOperatinDialog(QWidget *parent)
 	_operTimeEdit->setMaximumDate(QDate::currentDate().addDays(365));
 	_operTimeEdit->setDisplayFormat("yyyy-MM-dd HH:mm:ss");
 	_operTimeEdit->setCalendarPopup(true);
+	_operTimeEdit->setDateTime(QDateTime::currentDateTime());
+
+	QRegExp regx("^\\d{8}$");
+	QValidator *validator = new QRegExpValidator(regx);
+	_operIdEdit->setValidator(validator);
+	_patientIdEdit->setValidator(validator);
+
+	_operIdEdit->setText("12345678");
+	_operRoomEdit->setText("1#手术间");
+	_operNameEdit->setText("测试手术");
+	_patientIdEdit->setText("12345678");
+	_patientNameEdit->setText("张三");
 
 	FormGroup * pkgGroup = new FormGroup(this);
 	pkgGroup->addRow("手术ID (*)", _operIdEdit);
 	pkgGroup->addRow("手术室 (*)", _operRoomEdit);
 	pkgGroup->addRow("手术时间 (*)", _operTimeEdit);
 	pkgGroup->addRow("手术名称 (*)", _operNameEdit);
-	pkgGroup->addRow("病人姓名 (*)", _patNameEdit);
-	//pkgGroup->addRow("使用包信息 (*)", _packageEdit);
+	pkgGroup->addRow("病人ID号 (*)", _patientIdEdit);
+	pkgGroup->addRow("病人姓名 (*)", _patientNameEdit);
 
 	QHBoxLayout *hLayout = new QHBoxLayout;
 	hLayout->setContentsMargins(0, 0, 0, 0);
@@ -108,67 +122,71 @@ void AddOperatinDialog::initData() {
 }
 
 void AddOperatinDialog::accept() {
+	Surgery surgery;
+
 	QString operId = _operIdEdit->text();
 	if (operId.isEmpty()) {
 		_operIdEdit->setFocus();
 		return;
 	}
+	surgery.id = operId.toInt();
 		
 	QString operRoom = _operRoomEdit->text();
 	if (operRoom.isEmpty()) {
 		_operRoomEdit->setFocus();
 		return;
 	}
+	surgery.surgeryRoom = operRoom;
+
 	QDateTime dateTime = _operTimeEdit->dateTime();
 	QString operName = dateTime.toString("yyyy-MM-dd HH:mm:ss");
+	surgery.surgeryTime = dateTime;
 
-	/*int pack_type_id = _picktypeBox->currentData().toInt();
-	if (0 == pack_type_id) {
-		_picktypeBox->showPopup();
+	QString surgeryName = _operNameEdit->text();
+	if (surgeryName.isEmpty()) {
+		_operNameEdit->setFocus();
 		return;
 	}
+	surgery.surgeryName = surgeryName;
 
-	int sterilize_type = _stertypeBox->currentData().toInt();
-
-	int department_id = _deptEdit->currentId();
-	if (_deptEdit->currentName().isEmpty()) {
-		_deptEdit->setFocus();
+	if (_patientIdEdit->text().isEmpty()) {
+		_patientIdEdit->setFocus();
 		return;
 	}
+	int patientId = _patientIdEdit->text().toInt();
+	surgery.patientId = patientId;
 
-	QVariantMap data;
-	data.insert("package_type_name", package_type_name);
-	data.insert("package_category", package_category);
-	data.insert("pinyin_code", pinyin_code);
-	data.insert("pack_type_id", pack_type_id);
-	data.insert("department_id", department_id);
-	data.insert("sterilize_type", sterilize_type);
-	if (_isModfy)
+	if (_patientNameEdit->text().isEmpty()) {
+		_patientNameEdit->setFocus();
+		return;
+	}
+	QString patientName = _patientNameEdit->text();
+	surgery.patientName = patientName;
+	
+	for (int i = 0; i < _model->rowCount(); i++)
 	{
-		data.insert("package_type_id", _package_type_id);
-		post(url(PATH_PKGTPYE_MODIFY), data, [this](QNetworkReply *reply) {
-			JsonHttpResponse resp(reply);
-			if (!resp.success()) {
-				XNotifier::warn(QString("更新包记录失败: ").append(resp.errorString()));
-				return;
-			}
+		Surgery::DetailItem item;
 
-			return QDialog::accept();
-		});
+		item.pkgTypeId = _model->data(_model->index(i, 0), Qt::UserRole + 1).toInt();
+		item.pkgTypeName = _model->data(_model->index(i, 0), Qt::DisplayRole).toString();
+		item.pkgNum = _model->data(_model->index(i, 1), Qt::DisplayRole).toInt();
+
+		surgery.detail.append(item);
+	}
+
+	SurgeryDao dao;
+	
+	result_t resp = dao.addSurgery(surgery);
+
+	if (resp.isOk())
+	{
+		return QDialog::accept();
 	}
 	else
 	{
-		post(url(PATH_PKGTPYE_ADD), data, [this](QNetworkReply *reply) {
-			JsonHttpResponse resp(reply);
-			if (!resp.success()) {
-				XNotifier::warn(QString("添加包记录失败: ").append(resp.errorString()));
-				return;
-			}
-			return QDialog::accept();
+		XNotifier::warn(QString("添加手术登记失败: ").append(resp.msg()));
+	}
 
-		});
-	}*/
-	
 }
 
 void AddOperatinDialog::setInfo(const QString& operationId) {

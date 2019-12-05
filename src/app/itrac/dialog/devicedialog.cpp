@@ -171,8 +171,8 @@ ModifyDeviceDialog::ModifyDeviceDialog(Device *device, QWidget *parent /*= Q_NUL
 	_typeCombo->addItem("通用灭菌器", 0);
 	_typeCombo->addItem("高温灭菌器", 1);
 	_typeCombo->addItem("低温灭菌器", 2);
-	_typeCombo->setCurrentIndex(device->sterilizeType);
-	type = device->sterilizeType;
+	_typeCombo->setCurrentIndex(device->sterilizeMethod);
+	type = device->sterilizeMethod;
 
 	initProgramView();
 	loadPrograms();

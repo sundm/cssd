@@ -19,6 +19,10 @@ private slots:
 	void commit();
 	void addEntry();
 	void removeEntry();
+
+	void onTransponderReceviced(const QString& code);
+	void onBarcodeReceviced(const QString& code);
+
 private:
 	void reset();
 	void updateDept(const QString &);

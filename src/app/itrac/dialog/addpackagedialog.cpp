@@ -9,7 +9,7 @@
 #include "widget/controls/combos.h"
 #include "widget/controls/idedit.h"
 #include "ui/views.h"
-#include "model/spinboxdelegate.h"
+#include "model/itemdelegate.h"
 #include <thirdparty/qjson/src/parser.h>
 #include <xui/images.h>
 #include <xui/imageviewer.h>
@@ -87,9 +87,9 @@ void AddPackageDialog::initData() {
 	_pkgtypeBox->addItem(QString("敷料包"), Rt::PackageCategory::DressingPackage);
 	_pkgtypeBox->addItem(QString("通用包"), Rt::PackageCategory::UniversalPackage);
 
-	_stertypeBox->addItem(QString("通用"), Rt::SterilizeType::BothTemperature);
-	_stertypeBox->addItem(QString("低温"), Rt::SterilizeType::LowTemperature);
-	_stertypeBox->addItem(QString("高温"), Rt::SterilizeType::HighTemperature);
+	_stertypeBox->addItem(QString("通用"), Rt::SterilizeMethod::BothTemperature);
+	_stertypeBox->addItem(QString("低温"), Rt::SterilizeMethod::LowTemperature);
+	_stertypeBox->addItem(QString("高温"), Rt::SterilizeMethod::HighTemperature);
 
 	_picktypeBox->clear();
 
@@ -137,7 +137,7 @@ void AddPackageDialog::accept() {
 	pt.id = _picktypeBox->currentData().toInt();
 	pt.name = _picktypeBox->currentText();
 
-	Rt::SterilizeType sterType = (Rt::SterilizeType)_stertypeBox->currentData().toInt();
+	Rt::SterilizeMethod sterType = (Rt::SterilizeMethod)_stertypeBox->currentData().toInt();
 
 	Department dept;
 
@@ -155,7 +155,7 @@ void AddPackageDialog::accept() {
 	pkt.name = package_type_name;
 	pkt.pinyin = pinyin_code;
 	pkt.packType = pt;
-	pkt.sterType = sterType;
+	pkt.sterMethod = sterType;
 	pkt.category = package_category;
 	pkt.dept = dept;
 	pkt.detail = _orders;
@@ -217,7 +217,7 @@ void AddPackageDialog::initPackageInfo()
 		QString pack_type = pkt.packType.name;
 		_picktypeBox->setCurrentText(pack_type);
 		
-		int sterilize_type = pkt.sterType;
+		int sterilize_type = pkt.sterMethod;
 		_stertypeBox->setCurrentIndex(_stertypeBox->findData(sterilize_type));
 
 		int dep_id = pkt.dept.id;

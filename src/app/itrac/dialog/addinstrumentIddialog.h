@@ -28,7 +28,7 @@ private slots:
 	void loadImg();
 	void onTransponderReceviced(const QString& code);
 	void onBarcodeReceviced(const QString& code);
-
+	void onDeptChanged(int);
 private:
 	Ui::FlatEdit *_nameEdit;
 	Ui::FlatEdit *_idEdit;

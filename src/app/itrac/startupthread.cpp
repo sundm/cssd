@@ -33,6 +33,7 @@ bool StartupThread::openDatabase()
 
 	provider = "MYSQL";
 	hostName = "120.76.128.123";
+	//hostName = "127.0.0.1";
 	port = 3306;
 	dbName = "rfid_dev";
 	user = "cssd";

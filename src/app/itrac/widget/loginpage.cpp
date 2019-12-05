@@ -13,6 +13,10 @@
 #include "core/application.h"
 #include "core/barcode.h"
 #include "../libs/rfidreader/rfidreader.h"
+#include "dialog/rfidreaderconfigerdialog.h"
+#include "dialog/rfidconfigerdialog.h"
+#include "rdao/dao/operatordao.h"
+#include "rdao/entity/operator.h"
 #include <QVBoxLayout>
 #include <QProgressBar>
 #include <QAction>
@@ -61,13 +65,34 @@ LoginPanel::LoginPanel(Ui::Container *container /*= nullptr*/)
 	connect(button, &QAbstractButton::clicked, this, &Inner::submit);
 	layout->addWidget(button);
 
+	Ui::PrimaryButton *settingsButton = new Ui::PrimaryButton("配置RFID扫描枪", Ui::BtnSize::Small);
+	connect(settingsButton, SIGNAL(clicked()), this, SLOT(showRfidConfiger()));
+	layout->addWidget(settingsButton);
 	layout->setSpacing(15);
 
 	//Ui::addPrimaryShortcut(this, Qt::Key_Return, SLOT(submit()));
 	//Ui::addPrimaryShortcut(this, Qt::Key_Enter, SLOT(submit()));
 	connect(userEdit, SIGNAL(returnPressed()), this, SLOT(submit()));
 	connect(pwdEdit, SIGNAL(returnPressed()), this, SLOT(submit()));
+	connect(_listener, SIGNAL(onBarcode(const QString&)), this, SLOT(onBarcodeReceviced(const QString&)));
+
+	TSL1128Readers[0]->connect();
 	//version();
+}
+
+void LoginPanel::showRfidConfiger() {
+	ConfigRfidDialog d(this);
+	d.exec();
+}
+
+void LoginPanel::onBarcodeReceviced(const QString& code)
+{
+	qDebug() << code;
+	
+	Barcode bc(code);
+	if (bc.type() == Barcode::User) {
+		login(bc.intValue(), "123456"); //todo
+	}
 }
 
 void LoginPanel::submit() {
@@ -94,13 +119,13 @@ void LoginPanel::submit() {
 		error->shake(QString("RFID读卡器尚未连接，请登录后进行配置!"));
 	}
 	*/
-	login(user, pwd);
+	login(user.toInt(), pwd);
 }
 
 void LoginPanel::handleBarcode(const QString &code) {
 	Barcode bc(code);
 	if (bc.type() == Barcode::User) {
-		login(code, "");
+		login(bc.intValue(), "123456"); //todo
 	}
 }
 
@@ -319,8 +344,31 @@ const QString LoginPanel::getFileMd5(QString filePath)
 	return QString(ba.toHex().constData());
 }
 
-void LoginPanel::login(const QString &account, const QString &pwd) {
-	_waiter->start();
+void LoginPanel::login(const int account, const QString &pwd) {
+	OperatorDao dao;
+	Operator op;
+	result_t resp = dao.login(account, pwd, &op);
+	if (resp.isOk())
+	{
+		Core::User &user = Core::currentUser();
+		user.id = op.id;
+		user.name = op.name;
+		user.gender = op.gender == Rt::Gender::Female ? Core::User::Female : Core::User::Male;
+		user.deptId = op.dept.id;
+		user.deptName = op.dept.name;
+		user.role = op.role;
+		user.loginTime = op.lastLoginTime.toString("yyyy-MM-dd HH:mm:ss");
+		
+		container()->accept();
+	}
+	else
+	{
+		error->shake(resp.msg());
+		updateSize();
+	}
+	
+
+/*	_waiter->start();
 
 	QVariantMap vmap;
 	
@@ -340,7 +388,7 @@ void LoginPanel::login(const QString &account, const QString &pwd) {
 	user.gender = Core::User::Male;
 	user.name = "Admin";
 	container()->accept();
-	/*Core::User &user = Core::currentUser();
+	Core::User &user = Core::currentUser();
 	user.role = Core::User::Admin;
 	user.deptId = 12000021;
 	user.id = 11000008;

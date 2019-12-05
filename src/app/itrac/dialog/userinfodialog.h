@@ -18,7 +18,7 @@ public:
 
 private:
 	void changePwd();
-
+	void reject();
 	Ui::FlatEdit *_oldPwdEdit;
 	Ui::FlatEdit *_newPwdEdit;
 	Ui::FlatEdit *_newPwdConfirmEdit;

@@ -9,7 +9,7 @@
 #include "widget/controls/combos.h"
 #include "widget/controls/idedit.h"
 #include "ui/views.h"
-#include "model/spinboxdelegate.h"
+#include "model/itemdelegate.h"
 #include <thirdparty/qjson/src/parser.h>
 #include <xui/images.h>
 #include <xui/imageviewer.h>

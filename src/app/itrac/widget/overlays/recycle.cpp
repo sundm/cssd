@@ -13,7 +13,7 @@
 #include "dialog/operatorchooser.h"
 #include "dialog/regexpinputdialog.h"
 #include "importextdialog.h"
-#include "model/spinboxdelegate.h"
+#include "model/itemdelegate.h"
 #include "rdao/dao/PackageDao.h"
 #include "rdao/entity/operator.h"
 #include "rdao/dao/instrumentdao.h"
@@ -113,27 +113,7 @@ void NoBCRecyclePanel::updateDept(const QString &deptId) {
 		return;
 	}
 	_deptEdit->setCurrentIdPicked(deptId.toInt(), QString("手术室"));
-	/*QByteArray data("{\"department_id\":");
-	data.append(deptId).append('}');
-	post(url(PATH_DEPT_SEARCH), data, [deptId, this](QNetworkReply *reply) {
-		JsonHttpResponse resp(reply);
-		if (!resp.success()) {
-			XNotifier::warn(QString("无法获取科室信息"));
-			return;
-		}
 
-		QVariantList deptList = resp.getAsList("department_list");
-
-		if (deptList.count() != 1) {
-			XNotifier::warn("系统内部错误，无法生成对应数量的科室");
-			return;
-		}
-
-		const QVariantMap &pkg = deptList.at(0).toMap();
-
-		QString deptName = pkg["department_name"].toString();
-		_deptEdit->setCurrentIdPicked(deptId.toInt(), deptName);
-	});*/
 }
 
 void NoBCRecyclePanel::addPlate() {
@@ -303,8 +283,8 @@ OrRecyclePanel::OrRecyclePanel(QWidget *parent /*= nullptr*/)
 	Ui::PrimaryButton *commitButton = new Ui::PrimaryButton("确认回收");
 	Ui::PrimaryButton *resetButton = new Ui::PrimaryButton("重置");
 	tip->addQr();
-	tip->addButton(resetButton);
 	tip->addButton(commitButton);
+	tip->addButton(resetButton);
 	connect(resetButton, SIGNAL(clicked()), this, SLOT(reset()));
 	connect(commitButton, SIGNAL(clicked()), this, SLOT(commit()));
 
@@ -401,9 +381,13 @@ void OrRecyclePanel::onUnusual(const QString& code)
 void OrRecyclePanel::onBarcodeReceviced(const QString& code)
 {
 	qDebug() << code;
-	if (code.compare("910108") == 0)
-	{
+	Barcode bc(code);
+	if (bc.type() == Barcode::Commit) {
 		commit();
+	}
+
+	if (bc.type() == Barcode::Reset) {
+		reset();
 	}
 }
 
