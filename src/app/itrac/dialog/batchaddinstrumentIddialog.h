@@ -9,20 +9,24 @@ namespace Ui {
 
 class InstrumentEdit;
 class QCheckBox;
+class QSpinBox;
+class TableView;
+class QStandardItemModel;
+class QItemSelectionModel;
 class WaitingSpinner;
 class XPicture;
 class QHttpMultiPart;
 class QFile;
 
-class AddInstrumentIdDialog : public QDialog, public JsonHttpClient
+class BatchAddInstrumentIdDialog : public QDialog, public JsonHttpClient
 {
 	Q_OBJECT
 
 public:
-	AddInstrumentIdDialog(QWidget *parent = Q_NULLPTR);
-	void setInfo(const QString &id);
+	BatchAddInstrumentIdDialog(QWidget *parent = Q_NULLPTR);
 protected:
 	void accept() override;
+
 signals:
 	void reload();
 
@@ -32,20 +36,23 @@ private slots:
 	void onBarcodeReceviced(const QString& code);
 	void onDeptChanged(int);
 private:
-	void resetView();
-
-	Ui::FlatEdit *_nameEdit;
-	Ui::FlatEdit *_idEdit;
 	InstrumentEdit * _insEdit;
-	WaitingSpinner *_waiter;
+	QSpinBox *_beginBox;
 
-	bool _isModify;
-	QString _instrumentId;
+	TableView *_view;
+	QItemSelectionModel *_theSelectionModel;
+	QStandardItemModel *_model;
+
+	WaitingSpinner *_waiter;
 
 	QHttpMultiPart *_multiPart;
 	XPicture* _imgLabel;
 	QString _imgFilePath;
 	QFile *_imgFile;
+
+	QStringList _scannedList;
+	QString _preName;
+	int _numbers;
 
 	bool copyFileToPath(QString sourceDir, QString toDir, bool coverFileIfExist);
 	void uploadImg(const QString&);

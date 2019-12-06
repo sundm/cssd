@@ -4,6 +4,7 @@
 #include "core/net/url.h"
 #include "ui/buttons.h"
 #include "dialog/addinstrumentIddialog.h"
+#include "dialog/batchaddinstrumentIddialog.h"
 #include "rdao/dao/InstrumentDao.h"
 #include <QtWidgets/QtWidgets>
 
@@ -41,10 +42,8 @@ void InstrumentIdPage::refresh() {
 
 void InstrumentIdPage::add() {
 	AddInstrumentIdDialog d(this);
-	if (d.exec() == QDialog::Accepted)
-	{
-		_view->load();
-	}
+	connect(&d, SIGNAL(reload()), this, SLOT(refresh()));
+	d.exec();
 }
 
 void InstrumentIdPage::slotRowDoubleClicked(const QModelIndex &index)
@@ -59,7 +58,10 @@ void InstrumentIdPage::slotRowDoubleClicked(const QModelIndex &index)
 }
 
 void InstrumentIdPage::modify() {
-	QModelIndexList indexes = _view->selectionModel()->selectedRows();
+	BatchAddInstrumentIdDialog d(this);
+	connect(&d, SIGNAL(reload()), this, SLOT(refresh()));
+	d.exec();
+	/*QModelIndexList indexes = _view->selectionModel()->selectedRows();
 	if (indexes.count() == 0) return;
 	int row = indexes[0].row();
 	QString id = _view->model()->data(_view->model()->index(row, Internal::InstrumentIdAssetView::Id)).toString();
@@ -67,7 +69,7 @@ void InstrumentIdPage::modify() {
 	AddInstrumentIdDialog d(this);
 	d.setInfo(id);
 	if (d.exec() == QDialog::Accepted)
-		_view->load();
+		_view->load();*/
 }
 
 namespace Internal {

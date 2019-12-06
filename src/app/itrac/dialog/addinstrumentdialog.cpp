@@ -18,7 +18,7 @@ AddInstrumentDialog::AddInstrumentDialog(QWidget *parent)
 	, _nameEdit(new Ui::FlatEdit)
 	, _pinyinEdit(new Ui::FlatEdit)
 	, _checkVIPBox(new QCheckBox("贵重器械"))
-	, _checkImplantBox(new QCheckBox("植入器械"))
+	//, _checkImplantBox(new QCheckBox("植入器械"))
 	//, _imgLabel(new XPicture(this))
 	, _waiter(new WaitingSpinner(this))
 {
@@ -49,7 +49,7 @@ AddInstrumentDialog::AddInstrumentDialog(QWidget *parent)
 	mainLayout->addWidget(_nameEdit, 0, 1);
 	mainLayout->addWidget(_pinyinEdit, 1, 1);
 	mainLayout->addWidget(_checkVIPBox, 2, 0, 1, 1);
-	mainLayout->addWidget(_checkImplantBox, 2, 1, 1, 1);
+	//mainLayout->addWidget(_checkImplantBox, 2, 1, 1, 1);
 	mainLayout->addWidget(Ui::createSeperator(Qt::Horizontal), 3, 0, 1, 2);
 
 	mainLayout->addWidget(submitButton, 4, 0, 1, 2, Qt::AlignHCenter);
@@ -72,7 +72,7 @@ void AddInstrumentDialog::setInfo(const QString &id)
 	_nameEdit->setReadOnly(_isModify);
 
 	_checkVIPBox->setChecked(it.isVip);
-	_checkImplantBox->setChecked(it.category);
+	//_checkImplantBox->setChecked(it.category);
 
 }
 
@@ -91,9 +91,9 @@ void AddInstrumentDialog::accept() {
 	InstrumentDao dao;
 	InstrumentType it;
 	it.name = name;
-	it.category = _checkImplantBox->checkState() ? 
-		Rt::InstrumentCategory::ImplantedInstrument : 
-		Rt::InstrumentCategory::NormalInstrument;
+	//it.category = _checkImplantBox->checkState() ? 
+	//	Rt::InstrumentCategory::ImplantedInstrument : 
+	//	Rt::InstrumentCategory::NormalInstrument;
 	it.isVip = _checkVIPBox->checkState();
 	it.pinyin = pinyin;
 

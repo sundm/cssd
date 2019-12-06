@@ -414,6 +414,9 @@
     <ClCompile Include="model\itemdelegate.cpp">
       <Filter>Source Files\model</Filter>
     </ClCompile>
+    <ClCompile Include="dialog\batchaddinstrumentIddialog.cpp">
+      <Filter>Source Files\dialog</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="devicepage.h">
@@ -706,6 +709,9 @@
     </QtMoc>
     <QtMoc Include="model\itemdelegate.h">
       <Filter>Source Files\model</Filter>
+    </QtMoc>
+    <QtMoc Include="dialog\batchaddinstrumentIddialog.h">
+      <Filter>Source Files\dialog</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

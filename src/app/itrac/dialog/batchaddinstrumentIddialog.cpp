@@ -1,4 +1,4 @@
-#include "addinstrumentIddialog.h"
+#include "batchaddinstrumentIddialog.h"
 #include "core/application.h"
 #include "core/net/url.h"
 #include "ui/labels.h"
@@ -10,29 +10,41 @@
 #include "ui/composite/waitingspinner.h"
 #include "rdao/dao/InstrumentDao.h"
 #include <xui/images.h>
+#include "ui/views.h"
 #include <qhttpmultipart.h>
 #include <thirdparty/qjson/src/parser.h>
 #include <QNetworkreply>
 #include <QtWidgets/QtWidgets>
 
-AddInstrumentIdDialog::AddInstrumentIdDialog(QWidget *parent)
+BatchAddInstrumentIdDialog::BatchAddInstrumentIdDialog(QWidget *parent)
 	: QDialog(parent)
-	, _nameEdit(new Ui::FlatEdit)
-	, _idEdit(new Ui::FlatEdit)
 	, _insEdit(new InstrumentEdit)
+	, _beginBox(new QSpinBox())
+	, _view(new TableView(this))
+	, _model(new QStandardItemModel(0, 2, _view))
 	, _imgLabel(new XPicture(this))
 	, _waiter(new WaitingSpinner(this))
 {
-	setWindowTitle("添加新器械");
+	_model->setHeaderData(0, Qt::Horizontal, "器械名称");
+	_model->setHeaderData(1, Qt::Horizontal, "器械UDI");
 
-	_isModify = false;
+	_view->setModel(_model);
+	_view->setMinimumHeight(500);
+	_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-	_idEdit->setInputValidator(Ui::InputValitor::LetterAndNumber);
+	QHeaderView *header = _view->horizontalHeader();
+	header->setStretchLastSection(true);
+	header->resizeSection(0, 150);
+
+	_beginBox->setMinimum(1);
+	_numbers = 0;
+
+	setWindowTitle("批量添加新器械");
 
 	QPushButton *submitButton = new QPushButton("提交");
 	submitButton->setIcon(QIcon(":/res/check-24.png"));
 	submitButton->setDefault(true);
-	connect(submitButton, &QPushButton::clicked, this, &AddInstrumentIdDialog::accept);
+	connect(submitButton, &QPushButton::clicked, this, &BatchAddInstrumentIdDialog::accept);
 
 	_imgLabel->setFixedHeight(256);
 	_imgLabel->setBgColor(QColor(245, 246, 247));
@@ -45,12 +57,13 @@ AddInstrumentIdDialog::AddInstrumentIdDialog(QWidget *parent)
 	QGridLayout *mainLayout = new QGridLayout(this);
 	mainLayout->setVerticalSpacing(15);
 	mainLayout->addWidget(new QLabel("所属基础器械"), 0, 0);
-	mainLayout->addWidget(new QLabel("器械名"), 1, 0);
-	mainLayout->addWidget(new QLabel("器械UDI"), 2, 0);
+	mainLayout->addWidget(new QLabel("起始编号"), 1, 0);
+	mainLayout->addWidget(new QLabel("器械列表"), 2, 0);
 	
 	mainLayout->addWidget(_insEdit, 0, 1);
-	mainLayout->addWidget(_nameEdit, 1, 1);
-	mainLayout->addWidget(_idEdit, 2, 1);
+	mainLayout->addWidget(_beginBox, 1, 1);
+	mainLayout->addWidget(_view, 2, 1);
+	
 	
 	mainLayout->addWidget(Ui::createSeperator(Qt::Horizontal), 3, 0, 1, 2);
 	
@@ -68,48 +81,12 @@ AddInstrumentIdDialog::AddInstrumentIdDialog(QWidget *parent)
 	_insEdit->load();
 }
 
-void AddInstrumentIdDialog::onDeptChanged(int)
+void BatchAddInstrumentIdDialog::onDeptChanged(int)
 {
-	QString name = _insEdit->currentName().append("#");
-	_nameEdit->setText(name);
-	_nameEdit->setFocus();
+	_preName = _insEdit->currentName().append("#");
 }
 
-void AddInstrumentIdDialog::setInfo(const QString &id)
-{
-	setWindowTitle("修改器械");
-	_isModify = true;
-	_instrumentId = id;
-
-	InstrumentDao dao;
-	Instrument it;
-	InstrumentType ity;
-	result_t resp = dao.getInstrument(_instrumentId, &it);
-	dao.getInstrumentType(it.typeId, &ity);
-
-	if (resp.isOk())
-	{
-		_nameEdit->setText(it.name);
-		_idEdit->setText(_instrumentId);
-		_idEdit->setReadOnly(_isModify);
-		//_nameEdit->setReadOnly(_isModify);
-		_insEdit->setCurrentIdPicked(ity.typeId, ity.name);
-
-		QString imgPath = QString("./photo/instrument/%1.png").arg(_instrumentId);
-		QFile file(imgPath);
-		if (file.exists()) {
-			_imgLabel->setImage(imgPath);
-			_imgLabel->setHidden(false);
-		}
-	}
-	else
-	{
-		XNotifier::warn(QString("查询器械失败: ").append(resp.msg()));
-	}
-	
-}
-
-void AddInstrumentIdDialog::loadImg() {
+void BatchAddInstrumentIdDialog::loadImg() {
 	QFileDialog *fileDialog = new QFileDialog(this);
 	fileDialog->setWindowTitle(tr("打开图片"));
 	fileDialog->setDirectory(".");
@@ -128,113 +105,103 @@ void AddInstrumentIdDialog::loadImg() {
 	_imgLabel->setHidden(false);
 }
 
-void AddInstrumentIdDialog::accept() {
-	QString name = _nameEdit->text();
-	QString udi = _idEdit->text().toUpper();
+void BatchAddInstrumentIdDialog::accept() {
 	int typeId = _insEdit->currentId();
-
-	if (name.isEmpty()) {
-		_nameEdit->setFocus();
-		return;
-	}
-	if (udi.isEmpty()) {
-		_idEdit->setFocus();
-		return;
-	}
 	if (typeId <= 0)
 	{
 		_insEdit->setFocus();
 		return;
 	}
 
-	Instrument it;
-	it.name = name;
-	it.udi = udi;
-	it.typeId = typeId;
-
 	_waiter->start();
-	if (_isModify)
+	QMap<int, int> rowMap;
+	bool success = true;
+	for (size_t i = 0; i < _model->rowCount(); i++)
 	{
-		InstrumentDao dao;
-		result_t resp = dao.updateInstrument(it);
-		_waiter->stop();
-		if (resp.isOk())
-		{
-			if (!_imgFilePath.isEmpty())
-			{
-				uploadImg(udi);
-			}
+		Instrument it;
+		it.name = _model->data(_model->index(i, 0)).toString();
+		it.udi = _model->data(_model->index(i, 1)).toString();
+		it.typeId = typeId;
 
-			return QDialog::accept();
-		}
-		else
-		{
-			XNotifier::warn(QString("修改器械失败: ").append(resp.msg()));
-		}
-
-	}
-	else
-	{
 		InstrumentDao dao;
 		result_t resp = dao.addInstrument(it);
-		_waiter->stop();
+
 		if (resp.isOk())
 		{
 			if (!_imgFilePath.isEmpty())
 			{
-				uploadImg(udi);
+				uploadImg(it.udi);
 			}
 
-			resetView();
-
-			emit reload();
+			rowMap.insert(i, 0);
 		}
 		else
 		{
-			XNotifier::warn(QString("添加器械失败: ").append(resp.msg()));
+			success = false;
 		}
 	}
-	
-}
 
-void AddInstrumentIdDialog::resetView()
-{
-	_idEdit->clear();
-	QString name = _nameEdit->text();
-	if (name.isEmpty()) return;
-	
-	QStringList l = name.split("#");
-	if (l.count() == 2)
+	_waiter->stop();
+
+	if (!success)
 	{
-		bool isOK = false;
-		int num = l.at(1).toInt(&isOK);
-		if (isOK)
+		int rowToDel;
+		QMapIterator<int, int> rowMapIterator(rowMap);
+		rowMapIterator.toBack();
+		while (rowMapIterator.hasPrevious())
 		{
-			_nameEdit->setText(QString("%1#%2").arg(l.at(0)).arg(QString::number(num + 1)));
+			rowMapIterator.previous();
+			rowToDel = rowMapIterator.key();
+			_model->removeRow(rowToDel);
+			_scannedList.removeAt(rowToDel);
 		}
-	}
 
-	_nameEdit->setFocus();
+		XNotifier::warn(QString("以下器械添加失败!"));
+	}
+	
+	
+	emit reload();
 }
 
-void AddInstrumentIdDialog::onTransponderReceviced(const QString& code)
+void BatchAddInstrumentIdDialog::onTransponderReceviced(const QString& code)
 {
+	if (_preName.isEmpty())
+	{
+		_insEdit->setFocus();
+		return;
+	}
+
 	qDebug() << code;
 	TranspondCode tc(code);
 	
 	if (tc.type() == TranspondCode::Instrument)
 	{
-		_idEdit->setText(code);
+		if (_scannedList.contains(code))
+		{
+			return;
+		}
+
+		if (_numbers < _beginBox->value())
+			_numbers = _beginBox->value();
+
+		QString name = QString("%1%2").arg(_preName).arg(QString::number(_numbers));
+		int count = _model->rowCount();
+		_model->insertRows(count, 1);
+		_model->setData(_model->index(count, 0), name);
+		_model->setData(_model->index(count, 1), code);
+
+		_numbers++;
+		_scannedList.append(code);
 	}
 	
 }
 
-void AddInstrumentIdDialog::onBarcodeReceviced(const QString& code)
+void BatchAddInstrumentIdDialog::onBarcodeReceviced(const QString& code)
 {
 	qDebug() << code;
 }
 
-void AddInstrumentIdDialog::uploadImg(const QString& instrument_id) {
+void BatchAddInstrumentIdDialog::uploadImg(const QString& instrument_id) {
 	QString newFileName = QString("./photo/instrument/%1.png").arg(instrument_id);
 	if (!copyFileToPath(_imgFilePath, newFileName, true)) {
 		XNotifier::warn(QString("器械信息添加成功，拷贝本地器械图片失败!"));
@@ -281,7 +248,7 @@ void AddInstrumentIdDialog::uploadImg(const QString& instrument_id) {
 	*/
 }
 
-bool AddInstrumentIdDialog::copyFileToPath(QString sourceDir, QString toDir, bool coverFileIfExist)
+bool BatchAddInstrumentIdDialog::copyFileToPath(QString sourceDir, QString toDir, bool coverFileIfExist)
 {
 	toDir.replace("\\", "/");
 

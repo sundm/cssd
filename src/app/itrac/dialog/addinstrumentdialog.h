@@ -32,7 +32,7 @@ private:
 	Ui::FlatEdit *_nameEdit;
 	Ui::FlatEdit *_pinyinEdit;
 	QCheckBox *_checkVIPBox;
-	QCheckBox *_checkImplantBox;
+	//QCheckBox *_checkImplantBox;
 	WaitingSpinner *_waiter;
 
 	bool _isModify;
