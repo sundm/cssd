@@ -3,8 +3,10 @@
 #include "xnotifier.h"
 #include "core/net/url.h"
 #include "ui/buttons.h"
+#include "ui/composite/qpaginationwidget.h"
 #include "dialog/addinstrumentdialog.h"
 #include "rdao/dao/InstrumentDao.h"
+#include <xui/searchedit.h>
 #include <QtWidgets/QtWidgets>
 
 QString getVipLiteral(const bool &isVip) {
@@ -16,7 +18,10 @@ QString getImportLiteral(const Rt::InstrumentCategory &import) {
 }
 
 InstrumentPage::InstrumentPage(QWidget *parent)
-	: QWidget(parent), _view(new Internal::InstrumentAssetView)
+	: QWidget(parent)
+	, _view(new Internal::InstrumentAssetView)
+	, _searchBox(new SearchEdit)
+	, _paginator(new QPaginationWidget)
 {
 	Ui::IconButton *refreshButton = new Ui::IconButton(":/res/refresh-24.png", "刷新");
 	connect(refreshButton, &QToolButton::clicked, this, &InstrumentPage::refresh);
@@ -27,11 +32,18 @@ InstrumentPage::InstrumentPage(QWidget *parent)
 	Ui::IconButton *modifyButton = new Ui::IconButton(":/res/write-24.png", "修改");
 	connect(modifyButton, &QToolButton::clicked, this, &InstrumentPage::modify);
 
+	_searchBox->setPlaceholderText("输入器械名搜索");
+	connect(_searchBox, &SearchEdit::returnPressed, this, &InstrumentPage::search);
+
 	QHBoxLayout *hLayout = new QHBoxLayout;
 	hLayout->addWidget(refreshButton);
 	hLayout->addWidget(addButton);
-	hLayout->addWidget(modifyButton);
+	//hLayout->addWidget(modifyButton);
 	hLayout->addStretch(0);
+	hLayout->addWidget(_searchBox);
+
+	connect(_paginator, &QPaginationWidget::currentPageChanged, this, &InstrumentPage::doSearch);
+	hLayout->addWidget(_paginator);
 
 	QVBoxLayout *layout = new QVBoxLayout(this);
 	layout->setContentsMargins(0, 0, 0, 0);
@@ -44,12 +56,14 @@ InstrumentPage::InstrumentPage(QWidget *parent)
 }
 
 void InstrumentPage::refresh() {
-	_view->load();
+	_searchBox->clear();
+	doSearch(1);
 }
 
 void InstrumentPage::add() {
 	AddInstrumentDialog d(this);
-	d.exec();
+	if (d.exec() == QDialog::Accepted)
+		refresh();
 }
 
 void InstrumentPage::slotRowDoubleClicked(const QModelIndex &index)
@@ -72,7 +86,7 @@ void InstrumentPage::slotRowDoubleClicked(const QModelIndex &index)
 	AddInstrumentDialog d(this);
 	d.setInfo(id);
 	if (d.exec() == QDialog::Accepted)
-		_view->load();
+		refresh();
 }
 
 void InstrumentPage::modify() {
@@ -103,7 +117,7 @@ void InstrumentPage::modify() {
 
 namespace Internal {
 	InstrumentAssetView::InstrumentAssetView(QWidget *parent /*= nullptr*/)
-		: TableView(parent)
+		: PaginationView(parent)
 		, _model(new QStandardItemModel(0, Implant + 1, this))
 	{
 		_model->setHeaderData(Name, Qt::Horizontal, "器械名");
@@ -112,13 +126,14 @@ namespace Internal {
 		_model->setHeaderData(Implant, Qt::Horizontal, "是否为植入器械");
 		setModel(_model);
 		setEditTriggers(QAbstractItemView::NoEditTriggers);
+		setPageCount(30);
 	}
 
-	void InstrumentAssetView::load(int page /*= 0*/, int count /*= 10*/)
+	void InstrumentAssetView::load(const QString &kw, int page /*= 0*/)
 	{
 		InstrumentDao dao;
 		QList<InstrumentType> ins;
-		result_t res = dao.getInstrumentTypeList(&ins);
+		result_t res = dao.getInstrumentTypeList(&ins, page, _pageCount);
 		if (res.isOk())
 		{
 			clear();
@@ -130,6 +145,8 @@ namespace Internal {
 				_model->setData(_model->index(i, Pinyin), inst.pinyin);
 				_model->setData(_model->index(i, Vip), getVipLiteral(inst.isVip));
 				_model->setData(_model->index(i, Implant), getImportLiteral(inst.category));
+
+				_model->setHeaderData(i, Qt::Vertical, (page - 1)*_pageCount + 1 + i);
 			}
 		}
 		else {
@@ -156,6 +173,15 @@ namespace Internal {
 		//	}
 		//});
 	}
+}
 
+void InstrumentPage::doSearch(int page)
+{
+	_view->load(_searchBox->text(), page);
+}
 
+void InstrumentPage::search() {
+	_view->load(_searchBox->text(), 1);
+	//_paginator->setTotalPages(count / pageCount + (count % pageCount > 0));
+	_paginator->setTotalPages(1);//todo
 }

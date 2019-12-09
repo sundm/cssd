@@ -3,6 +3,7 @@
 #include "xnotifier.h"
 #include "core/net/url.h"
 #include "ui/buttons.h"
+#include "ui/composite/qpaginationwidget.h"
 #include "dialog/addpackagedialog.h"
 #include "dialog/modifypackagedialog.h"
 #include "dialog/addpkgcodedialog.h"
@@ -13,7 +14,7 @@
 
 namespace Internal {
 	PackageAssetView::PackageAssetView(QWidget *parent /*= nullptr*/)
-		: TableView(parent)
+		: PaginationView(parent)
 		, _model(new QStandardItemModel(0, Department + 1, this))
 	{
 		_model->setHeaderData(Name, Qt::Horizontal, "包名");
@@ -23,18 +24,19 @@ namespace Internal {
 		_model->setHeaderData(Department, Qt::Horizontal, "所属科室");
 		setModel(_model);
 		setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+		setPageCount(30);
 	}
 
-	void PackageAssetView::load(const QString &kw, int page, int count)
+	void PackageAssetView::load(const QString &kw, int page)
 	{
 		PackageDao dao;
 		QList<PackageType> pts;
 
-		result_t resp = dao.getPackageTypeList(&pts);
+		result_t resp = dao.getPackageTypeList(&pts, page, _pageCount);
 		if (resp.isOk())
 		{
 			clear(); // when succeeded
-
 			_model->insertRows(0, pts.count());
 			for (int i = 0; i != pts.count(); ++i) {
 				PackageType pt = pts[i];
@@ -48,6 +50,8 @@ namespace Internal {
 				_model->setData(_model->index(i, SteType), pt.sterMethod, 257);
 				_model->setData(_model->index(i, Department), pt.dept.name);
 				_model->setData(_model->index(i, Department), pt.dept.id, 257);
+
+				_model->setHeaderData(i, Qt::Vertical, (page - 1)*_pageCount + 1 + i);
 			}
 		}
 		else
@@ -79,6 +83,7 @@ PackagePage::PackagePage(QWidget *parent)
 	: QWidget(parent)
 	, _view(new Internal::PackageAssetView)
 	, _searchBox(new SearchEdit)
+	, _paginator(new QPaginationWidget)
 {
 	Ui::IconButton *refreshButton = new Ui::IconButton(":/res/refresh-24.png", "刷新");
 	connect(refreshButton, SIGNAL(clicked()), this, SLOT(reflash()));
@@ -99,13 +104,16 @@ PackagePage::PackagePage(QWidget *parent)
 	//hLayout->addWidget(modifyButton);
 	hLayout->addStretch(0);
 	hLayout->addWidget(_searchBox);
+	
+	connect(_paginator, &QPaginationWidget::currentPageChanged, this, &PackagePage::doSearch);
+	hLayout->addWidget(_paginator);
 
 	QVBoxLayout *layout = new QVBoxLayout(this);
 	layout->setContentsMargins(0, 15, 0, 0);
 	layout->addLayout(hLayout);
 	layout->addWidget(_view);
 
-	QTimer::singleShot(0, [this] {_view->load(); });
+	search();
 
 	connect(_view, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(slotRowDoubleClicked(const QModelIndex &)));
 
@@ -119,7 +127,8 @@ void PackagePage::slotRowDoubleClicked(const QModelIndex &index)
 
 void PackagePage::reflash()
 {
-	QTimer::singleShot(0, [this] {_view->load(); });
+	_searchBox->clear();
+	doSearch(1);
 }
 
 void PackagePage::addEntry()
@@ -193,6 +202,13 @@ void PackagePage::editRow(int row)
 	//});
 }
 
+void PackagePage::doSearch(int page)
+{
+	_view->load(_searchBox->text(), page);
+}
+
 void PackagePage::search() {
-	_view->load(_searchBox->text());
+	_view->load(_searchBox->text(), 1);
+	//_paginator->setTotalPages(count / pageCount + (count % pageCount > 0));
+	_paginator->setTotalPages(3);//todo
 }

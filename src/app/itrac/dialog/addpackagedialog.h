@@ -11,6 +11,7 @@ namespace Ui {
 }
 
 class TableView;
+class QCheckBox;
 class QSpinBox;
 class QComboBox;
 class DeptEdit;
@@ -35,7 +36,7 @@ protected:
 private slots:
 	void addEntry();
 	void removeEntry();
-
+	void typeBoxChanaged(int);
 private:
 	void initData();
 	void initPackageInfo();
@@ -48,6 +49,7 @@ private:
 	Ui::FlatEdit * _pkgPYCodeEdit;
 	QComboBox * _pkgtypeBox;
 	QComboBox * _picktypeBox;
+	QCheckBox * _importBox;
 	QComboBox * _stertypeBox;
 	DeptEdit * _deptEdit;
 	InstrumentEdit * _insEdit;

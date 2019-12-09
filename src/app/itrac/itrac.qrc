@@ -54,5 +54,6 @@
         <file>res/more-20.png</file>
         <file>res/dept-64.png</file>
         <file>res/close.png</file>
+        <file>res/datchadd.png</file>
     </qresource>
 </RCC>

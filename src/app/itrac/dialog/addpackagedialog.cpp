@@ -28,6 +28,7 @@ AddPackageDialog::AddPackageDialog(QWidget *parent)
 	, _pkgtypeBox(new QComboBox)
 	, _picktypeBox(new QComboBox)
 	, _stertypeBox(new QComboBox)
+	, _importBox(new QCheckBox)
 	, _deptEdit(new DeptEdit)
 	, _insEdit(new InstrumentEdit)
 	, _view(new TableView(this))
@@ -39,6 +40,7 @@ AddPackageDialog::AddPackageDialog(QWidget *parent)
 	pkgGroup->addRow("包名 (*)", _pkgNameEdit);
 	pkgGroup->addRow("拼音检索码 (*)", _pkgPYCodeEdit);
 	pkgGroup->addRow("包类型 (*)", _pkgtypeBox);
+	pkgGroup->addRow("是否用于植入性手术 (*)", _importBox);
 	pkgGroup->addRow("打包类型 (*)", _picktypeBox);
 	pkgGroup->addRow("高低温灭菌 (*)", _stertypeBox);
 	pkgGroup->addRow("所属科室 (*)", _deptEdit);
@@ -76,8 +78,37 @@ AddPackageDialog::AddPackageDialog(QWidget *parent)
 
 	initInstrumentView();
 
+	connect(_pkgtypeBox, SIGNAL(currentIndexChanged(int)), this, SLOT(typeBoxChanaged(int)));
 	QTimer::singleShot(0, this, &AddPackageDialog::initData);
 
+}
+
+void AddPackageDialog::typeBoxChanaged(int index)
+{
+	switch (index)
+	{
+	case Rt::PackageCategory::SurgicalPackage:
+		_importBox->setEnabled(true);
+		break;
+	case Rt::PackageCategory::ClinicalPackage:
+		_importBox->setChecked(false);
+		_importBox->setEnabled(false);
+		break;
+	case Rt::PackageCategory::ExternalPackage:
+		_importBox->setChecked(true);
+		_importBox->setEnabled(false);
+		break;
+	case Rt::PackageCategory::DressingPackage:
+		_importBox->setChecked(false);
+		_importBox->setEnabled(false);
+		break;
+	case Rt::PackageCategory::UniversalPackage:
+		_importBox->setChecked(false);
+		_importBox->setEnabled(false);
+		break;
+	default:
+		break;
+	}
 }
 
 void AddPackageDialog::initData() {

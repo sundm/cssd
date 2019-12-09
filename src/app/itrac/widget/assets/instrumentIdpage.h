@@ -4,17 +4,19 @@
 #include "core/net/jsonhttpclient.h"
 
 class QStandardItemModel;
+class SearchEdit;
+class QPaginationWidget;
 
 namespace Internal {
 
-class InstrumentIdAssetView : public TableView
+class InstrumentIdAssetView : public PaginationView
 {
 	Q_OBJECT
 
 public:
 	enum Column {Name, Id};
 	InstrumentIdAssetView(QWidget *parent = nullptr);
-	void load(int page = 0, int count = 10);
+	void load(const QString &kw = QString(), int page = 0);
 
 private:
 	QStandardItemModel * _model;
@@ -35,7 +37,10 @@ private slots:
 	void add();
 	void modify();
 	void slotRowDoubleClicked(const QModelIndex &);
-
+	void doSearch(int page = 1);
+	void search();
 private:
 	Internal::InstrumentIdAssetView *_view;
+	SearchEdit *_searchBox;
+	QPaginationWidget *_paginator;
 };
