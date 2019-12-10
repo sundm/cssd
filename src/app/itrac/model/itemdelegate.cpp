@@ -172,14 +172,22 @@ bool CheckBoxDelegate::editorEvent(QEvent *event,
 				emit setChecked(index, !checked);
 				return model->setData(index, data, Qt::EditRole);
 			}
-			
+			else
+			{
+				return false;
+			}
 		}
 		else if (event->type() == QEvent::KeyPress) {
 			if (static_cast<QKeyEvent*>(event)->key() != Qt::Key_Space &&
 				static_cast<QKeyEvent*>(event)->key() != Qt::Key_Select) {
 				return false;
 			}
+			else
+			{
+				return true;
+			}
 		}
+		return false;
 	}
 	else {
 		return QStyledItemDelegate::editorEvent(event, model, option, index);
