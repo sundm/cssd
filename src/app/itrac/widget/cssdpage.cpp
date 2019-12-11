@@ -164,6 +164,7 @@ void CssdAreaPanel::clickCallback(int id) {
 	case itrac::BDAction: panel = new BDPanel; break;
 	case itrac::OrDispatchAction: panel = new OrDispatchPanel; break;
 	case itrac::ClinicDispatchAction: panel = new ClinicDispatchPanel; break;
+	case itrac::PreBindAction: panel = new PreBindPanel; break;
 	case itrac::PreExamAction: panel = new PreExamPanel; break;
 	case itrac::PostExamAction: panel = new PostExamPanel; break;
 	default: return;
@@ -221,7 +222,8 @@ AsepsisAreaPanel::AsepsisAreaPanel(QWidget *parent) : CssdAreaPanel(parent) {
 }
 
 OperatingAreaPanel::OperatingAreaPanel(QWidget *parent) : CssdAreaPanel(parent) {
-	addButton(itrac::PreExamAction, ":/res/dept-64.png", "术前检查", "创建手术、绑定器械包");
+	addButton(itrac::PreBindAction, ":/res/dept-64.png", "术前绑定", "创建手术、绑定器械包");
+	addButton(itrac::PreExamAction, ":/res/dept-64.png", "术前检查", "手术前清点器械包");
 	addButton(itrac::PostExamAction, ":/res/dept-64.png", "术后清点", "手术后清点器械包");
 }
 

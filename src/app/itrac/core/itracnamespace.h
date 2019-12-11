@@ -18,6 +18,7 @@ namespace itrac {
 		OrDispatchAction,
 		ClinicDispatchAction,
 		BorrowDispatchAction,
+		PreBindAction,
 		PreExamAction,
 		PostExamAction
 	};

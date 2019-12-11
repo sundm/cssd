@@ -756,32 +756,32 @@ OperationPackageView::OperationPackageView(QWidget *parent /*= nullptr*/)
 	setSelectionMode(QAbstractItemView::SingleSelection);
 	setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-	connect(this, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(slotRowDoubleClicked(const QModelIndex &)));
+	//connect(this, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(slotRowDoubleClicked(const QModelIndex &)));
 
 }
 
-void OperationPackageView::slotRowDoubleClicked(const QModelIndex &index)
-{
-	if (_model->rowCount() != _packages.count())
-	{
-		return;
-	}
-
-	int row = index.row();
-	bool isExisted = _model->item(row, 0)->data(Qt::UserRole + 2).toBool();
-	if (isExisted)
-	{
-		QString pkgUdi = _model->item(row, 1)->data(Qt::DisplayRole).toString();
-
-		for each (Package pkg in _packages)
-		{
-			if (pkg.udi.compare(pkgUdi) == 0)
-			{
-				emit packageClicked(pkg);
-			}
-		}
-	}
-}
+//void OperationPackageView::slotRowDoubleClicked(const QModelIndex &index)
+//{
+//	if (_model->rowCount() != _packages.count())
+//	{
+//		return;
+//	}
+//
+//	int row = index.row();
+//	bool isExisted = _model->item(row, 0)->data(Qt::UserRole + 2).toBool();
+//	if (isExisted)
+//	{
+//		QString pkgUdi = _model->item(row, 1)->data(Qt::DisplayRole).toString();
+//
+//		for each (Package pkg in _packages)
+//		{
+//			if (pkg.udi.compare(pkgUdi) == 0)
+//			{
+//				emit packageClicked(pkg);
+//			}
+//		}
+//	}
+//}
 
 bool OperationPackageView::isFinished()
 {
@@ -838,6 +838,32 @@ void OperationPackageView::loadPackages(const int surgeryId)
 				_model->appendRow(rowItems);
 			}
 
+		}
+
+		QList<Package> pkgs = _surgery.packages;
+		for each (Package pkg in pkgs)
+		{
+			int typeId = pkg.typeId;
+			for (int i = 0; i < _model->rowCount(); i++)
+			{
+				bool isExisted = _model->item(i, 0)->data(Qt::UserRole + 2).toBool();
+				if (isExisted) continue;
+
+				if (_model->data(_model->index(i, 0), Qt::UserRole + 1).toInt() == typeId)
+				{
+					_model->setData(_model->index(i, 0), true, Qt::UserRole + 2);
+					_model->setData(_model->index(i, 1), pkg.udi, Qt::DisplayRole);
+					_model->setData(_model->index(i, 2), pkg.name, Qt::DisplayRole);
+					_model->setData(_model->index(i, 3), QString("已绑定-共%1把器械").arg(pkg.instruments.count()), Qt::DisplayRole);
+					_packages.append(pkg);
+					break;
+				}
+			}
+		}
+
+		if (_packages.count() == _model->rowCount())
+		{
+			emit packagesLoaded(_packages);
 		}
 	}
 	else

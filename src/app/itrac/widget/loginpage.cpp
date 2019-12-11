@@ -76,6 +76,7 @@ LoginPanel::LoginPanel(Ui::Container *container /*= nullptr*/)
 	connect(pwdEdit, SIGNAL(returnPressed()), this, SLOT(submit()));
 	connect(_listener, SIGNAL(onBarcode(const QString&)), this, SLOT(onBarcodeReceviced(const QString&)));
 
+	//todo
 	if (TSL1128Readers.count() > 0)
 	{
 		TSL1128Readers[0]->connect();

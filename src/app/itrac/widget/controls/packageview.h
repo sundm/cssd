@@ -142,10 +142,7 @@ public:
 	bool isFinished();
 	bool addPackage(const Package &pkg);
 signals:
-	void packageClicked(const Package&pkg);
-
-private slots:
-	void slotRowDoubleClicked(const QModelIndex &);
+	void packagesLoaded(const QList<Package>& pkg);
 
 public slots:
 	void loadPackages(const int);

@@ -19,7 +19,39 @@ class PackageInfoView;
 class PackageDetailView;
 class QStandardItemModel;
 
-class PreExamPanel : public CssdOverlayPanel, public JsonHttpClient
+class PreBindPanel : public CssdOverlayPanel
+{
+	Q_OBJECT
+
+public:
+	PreBindPanel(QWidget *parent = nullptr);
+
+protected:
+	void handleBarcode(const QString &) override;
+
+private slots:
+	void commit();
+	void reset();
+	void onTransponderReceviced(const QString& code);
+	void onBarcodeReceviced(const QString& code);
+
+	void onScanned(const QString& code);
+	void onUnusual(const QString& code);
+	void loadPackage(const int);
+private:
+	void initOperationView();
+
+	OperationInfoView * _operInfoView;
+	OperationPackageView * _operPackageView;
+
+	QStringList * _scannedCodes;
+	QStringList * _unusualCodes;
+
+	int _row;
+};
+
+
+class PreExamPanel : public CssdOverlayPanel
 {
 	Q_OBJECT
 
@@ -38,11 +70,11 @@ private slots:
 	void onScanned(const QString& code);
 	void onUnusual(const QString& code);
 	void loadPackage(const int);
-	void loadInsturment(const Package& pkg);
+	void loadInsturments(const QList<Package>& pkgs);
 private:
 	void initOperationView();
 	
-	OperationInfoView * _operInfoView;
+	OperationInfoTabelView * _operInfoView;
 	OperationPackageView * _operPackageView;
 
 	PackageSimpleInfoView * _pkgView;
@@ -56,7 +88,7 @@ private:
 	int _step;
 };
 
-class PostExamPanel : public CssdOverlayPanel, public JsonHttpClient
+class PostExamPanel : public CssdOverlayPanel
 {
 	Q_OBJECT
 

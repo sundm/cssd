@@ -17,14 +17,134 @@
 #include "rdao/dao/surgerydao.h"
 #include "rdao/dao/flowdao.h"
 #include "rdao/dao/PackageDao.h"
+#include "rdao/dao/flowDao.h"
 #include "rdao/dao/instrumentdao.h"
 #include <xui/images.h>
 #include <xui/imageviewer.h>
 #include <QtWidgets/QtWidgets>
 
-PreExamPanel::PreExamPanel(QWidget *parent /*= nullptr*/)
+PreBindPanel::PreBindPanel(QWidget *parent /*= nullptr*/)
 	: CssdOverlayPanel(parent)
 	, _operInfoView(new OperationInfoView)
+	, _operPackageView(new OperationPackageView)
+	, _unusualCodes(new QStringList)
+	, _scannedCodes(new QStringList)
+{
+	//const QString text = "1 扫描物品包ID\n2 扫描托盘内器械\n3 确认回收 \n说明\n灰色：实际数量\n绿色：通过数量\n黄色：剩余数量\n红色：异常数量";
+	Tip *tip = new Tip();
+	
+	Ui::PrimaryButton *commitButton = new Ui::PrimaryButton("完成绑定");
+	connect(commitButton, SIGNAL(clicked()), this, SLOT(commit()));
+	Ui::PrimaryButton *resetButton = new Ui::PrimaryButton("重置操作");
+	connect(resetButton, SIGNAL(clicked()), this, SLOT(reset()));
+
+	tip->addQr();
+	tip->addButton(commitButton);
+	tip->addButton(resetButton);
+
+	QVBoxLayout *aLayout = new QVBoxLayout;
+	aLayout->addWidget(_operInfoView);
+	aLayout->addWidget(_operPackageView);
+	aLayout->setStretch(1, 1);
+
+	QHBoxLayout *layout = new QHBoxLayout(this);
+	layout->addLayout(aLayout);
+	layout->addWidget(tip);
+
+	connect(_listener, SIGNAL(onTransponder(const QString&)), this, SLOT(onTransponderReceviced(const QString&)));
+	connect(_listener, SIGNAL(onBarcode(const QString&)), this, SLOT(onBarcodeReceviced(const QString&)));
+
+	connect(_operInfoView, SIGNAL(operation(const int)), this, SLOT(loadPackage(const int)));
+	connect(_operPackageView, SIGNAL(packageClicked(const Package&)), this, SLOT(loadInsturment(const Package&)));
+
+	initOperationView();
+}
+
+void PreBindPanel::loadPackage(const int surgeryId)
+{
+	_operPackageView->loadPackages(surgeryId);
+}
+
+void PreBindPanel::initOperationView() {
+	_operInfoView->loadSurgeries();
+}
+
+void PreBindPanel::onScanned(const QString& code)
+{
+	if (!_scannedCodes->contains(code))
+	{
+		_scannedCodes->append(code);
+	}
+}
+
+void PreBindPanel::onUnusual(const QString& code)
+{
+	if (!_unusualCodes->contains(code))
+	{
+		_unusualCodes->append(code);
+	}
+}
+
+void PreBindPanel::onTransponderReceviced(const QString& code)
+{
+	qDebug() << code;
+	TranspondCode tc(code);
+	if (tc.type() == TranspondCode::Package)
+	{
+		PackageDao dao;
+		Package pkg;
+		result_t resp = dao.getPackage(code, &pkg, true);
+		if (resp.isOk())
+		{
+			_operPackageView->addPackage(pkg);
+		}
+		else
+		{
+			XNotifier::warn(QString("获取包信息失败: ").append(resp.msg()));
+		}
+
+	}
+}
+
+void PreBindPanel::onBarcodeReceviced(const QString& code)
+{
+	qDebug() << code;
+	Barcode bc(code);
+
+	if (bc.type() == Barcode::Commit) {
+		commit();
+	}
+
+	if (bc.type() == Barcode::Reset) {
+		reset();
+	}
+}
+
+void PreBindPanel::handleBarcode(const QString &code) {
+	Barcode bc(code);
+	if ((bc.type() == Barcode::Package || bc.type() == Barcode::PkgCode)) {//&& !_pkgView->hasPackage(code)) {
+		//_pkgView->addPackage(code);
+	}
+	else if (bc.type() == Barcode::Plate) {
+		//updatePlate(code);
+	}
+	else if (bc.type() == Barcode::Action && code == "910108") {
+		commit();
+	}
+}
+
+void PreBindPanel::commit() {
+	//todo
+}
+
+void PreBindPanel::reset()
+{
+	//todo
+}
+
+PreExamPanel::PreExamPanel(QWidget *parent /*= nullptr*/)
+	: CssdOverlayPanel(parent)
+	, _operInfoView(new OperationInfoTabelView)
 	, _operPackageView(new OperationPackageView)
 	, _pkgView(new PackageSimpleInfoView)
 	, _detailView(new PackageDetailView)
@@ -63,10 +183,10 @@ PreExamPanel::PreExamPanel(QWidget *parent /*= nullptr*/)
 	connect(_listener, SIGNAL(onTransponder(const QString&)), this, SLOT(onTransponderReceviced(const QString&)));
 	connect(_listener, SIGNAL(onBarcode(const QString&)), this, SLOT(onBarcodeReceviced(const QString&)));
 	
-	connect(_operInfoView, SIGNAL(operation(const int)), this, SLOT(loadPackage(const int)));
+	connect(_operInfoView, SIGNAL(operationClicked(const int)), this, SLOT(loadPackage(const int)));
 	connect(_detailView, SIGNAL(scand(const QString&)), this, SLOT(onScanned(const QString&)));
 	connect(_detailView, SIGNAL(unusual(const QString&)), this, SLOT(onUnusual(const QString&)));
-	connect(_operPackageView, SIGNAL(packageClicked(const Package&)), this, SLOT(loadInsturment(const Package&)));
+	connect(_operPackageView, SIGNAL(packagesLoaded(const QList<Package>&)), this, SLOT(loadInsturment(const QList<Package>&)));
 
 	_step = -1;
 
@@ -79,10 +199,16 @@ void PreExamPanel::loadPackage(const int surgeryId)
 	_operPackageView->loadPackages(surgeryId);
 }
 
-void PreExamPanel::loadInsturment(const Package& pkg)
+void PreExamPanel::loadInsturments(const QList<Package>& pkgs)
 {
-	_pkgView->updatePackageInfo(pkg.instruments.count());
-	_detailView->loadDetail(&pkg.instruments);
+	QList<Instrument> insList;
+	for each (Package pkg in pkgs)
+	{
+		insList.append(pkg.instruments);
+	}
+
+	_pkgView->updatePackageInfo(insList.count());
+	_detailView->loadDetail(&insList);
 	_step = 1;
 }
 
@@ -115,17 +241,17 @@ void PreExamPanel::onTransponderReceviced(const QString& code)
 	TranspondCode tc(code);
 	if (tc.type() == TranspondCode::Package && 0 == _step)
 	{
-		PackageDao dao;
-		Package pkg;
-		result_t resp = dao.getPackage(code, &pkg, true);
-		if (resp.isOk())
-		{
-			_operPackageView->addPackage(pkg);
-		}
-		else
-		{
-			XNotifier::warn(QString("获取包信息失败: ").append(resp.msg()));
-		}
+		//PackageDao dao;
+		//Package pkg;
+		//result_t resp = dao.getPackage(code, &pkg, true);
+		//if (resp.isOk())
+		//{
+		//	_operPackageView->addPackage(pkg);
+		//}
+		//else
+		//{
+		//	XNotifier::warn(QString("获取包信息失败: ").append(resp.msg()));
+		//}
 		
 	}
 
