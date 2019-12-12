@@ -35,16 +35,16 @@ struct PackageType
 	QString pinyin;
 	QString photo;
 	Rt::SterilizeMethod sterMethod;
+	bool forImplants;
 	PackType packType;
 	Department dept;
-	bool hasImplanted;
 	QList<DetailItem> detail;
 
 	PackageType() :
 		typeId(-1),
 		category(Rt::UnknownPackage),
 		sterMethod(Rt::UnknownSterilizeType),
-		hasImplanted(false)
+		forImplants(false)
 	{}
 };
 

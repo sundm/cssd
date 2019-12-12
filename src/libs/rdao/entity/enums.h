@@ -47,10 +47,10 @@ namespace Rt
 		UnknownPackage
 	};
 
-	enum InstrumentCategory {
-		NormalInstrument,
-		ImplantedInstrument
-	};
+	//enum InstrumentCategory {
+	//	NormalInstrument,
+	//	ImplantedInstrument
+	//};
 
 	enum DeviceCategory {
 		Washer,

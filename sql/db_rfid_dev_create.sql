@@ -64,11 +64,12 @@ CREATE TABLE IF NOT EXISTS `t_pack_type` (
 
 CREATE TABLE IF NOT EXISTS `t_package_type` (
   `id` int unsigned PRIMARY KEY AUTO_INCREMENT,
-  `category` tinyint NOT NULL DEFAULT 0, -- For backward compatibility, 0:surgical 1:clinical 2:external 3:dressing 4:universal
+  `category` tinyint NOT NULL DEFAULT 0, -- For backward compatibility, 0:surgical 1:clinical 2:external 3:dressing 4:universal  
   `name` varchar(32) NOT NULL,
   `pinyin` varchar(32) NOT NULL,
   `photo` varchar(128),
   `sterilize_type` tinyint NOT NULL DEFAULT 0, -- 0:both 1:low 2:high
+  `for_implants` tinyint NOT NULL DEFAULT 0, -- 0:no 1:yes
   `pack_type_id` int NOT NULL,
   `dept_id` int NOT NULL,
   `is_del` tinyint NOT NULL DEFAULT 0
@@ -91,7 +92,7 @@ CREATE TABLE IF NOT EXISTS `t_package` (
 
 CREATE TABLE IF NOT EXISTS `t_instrument_type` (
   `id` int unsigned PRIMARY KEY AUTO_INCREMENT,
-  `category` tinyint NOT NULL DEFAULT 0, -- Reserved for future, 0:normal 1:implanted
+  `category` tinyint NOT NULL DEFAULT 0, -- Reserved for future, 0:normal 1:implanted(deprecated)
   `name` varchar(32) NOT NULL,
   `pinyin` varchar(32) NOT NULL,
   `photo` varchar(128),

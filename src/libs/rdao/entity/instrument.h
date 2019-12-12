@@ -6,7 +6,6 @@
 struct InstrumentType
 {
 	int typeId;
-	Rt::InstrumentCategory category;
 	QString name;
 	QString pinyin;
 	QString photo;
@@ -14,7 +13,6 @@ struct InstrumentType
 
 	InstrumentType() :
 		typeId(-1),
-		category(Rt::NormalInstrument),
 		isVip(false)
 	{ }
 };

@@ -7,7 +7,7 @@
 result_t InstrumentDao::getInstrumentType(int typeId, InstrumentType* insType)
 {
 	QSqlQuery q;
-	q.prepare("SELECT category, name, pinyin, photo, is_vip"
+	q.prepare("SELECT name, pinyin, photo, is_vip"
 		" FROM t_instrument_type"
 		" WHERE id = ?");
 	q.addBindValue(typeId);
@@ -20,11 +20,10 @@ result_t InstrumentDao::getInstrumentType(int typeId, InstrumentType* insType)
 
 	if (insType) {
 		insType->typeId = typeId;
-		insType->category = static_cast<Rt::InstrumentCategory>(q.value(0).toInt());
-		insType->name = q.value(1).toString();
-		insType->pinyin = q.value(2).toString();
-		insType->photo = q.value(3).toString();
-		insType->isVip = q.value(4).toBool();
+		insType->name = q.value(0).toString();
+		insType->pinyin = q.value(1).toString();
+		insType->photo = q.value(2).toString();
+		insType->isVip = q.value(3).toBool();
 	}
 
 	return 0;
@@ -34,7 +33,7 @@ result_t InstrumentDao::getInstrumentTypeList(
 	QList<InstrumentType> *insTypes, int page/* = 1*/, int count/* = -1*/)
 {
 	QSqlQuery q;
-	QString sql = "SELECT id, category, name, pinyin, photo, is_vip"
+	QString sql = "SELECT id, name, pinyin, photo, is_vip"
 		" FROM t_instrument_type";
 
 	if (-1 != count) { // do pagination
@@ -50,11 +49,10 @@ result_t InstrumentDao::getInstrumentTypeList(
 		InstrumentType it;
 		while (q.next()) {
 			it.typeId = q.value(0).toInt();
-			it.category = static_cast<Rt::InstrumentCategory>(q.value(1).toInt());
-			it.name = q.value(2).toString();
-			it.pinyin = q.value(3).toString();
-			it.photo = q.value(4).toString();
-			it.isVip = q.value(5).toBool();
+			it.name = q.value(1).toString();
+			it.pinyin = q.value(2).toString();
+			it.photo = q.value(3).toString();
+			it.isVip = q.value(4).toBool();
 			insTypes->append(it);
 		}
 	}
@@ -64,9 +62,8 @@ result_t InstrumentDao::getInstrumentTypeList(
 result_t InstrumentDao::updateInstrumentType(const InstrumentType &it)
 {
 	QSqlQuery query;
-	query.prepare("UPDATE t_instrument_type SET category = ?, name = ?, pinyin = ?, photo = ?, is_vip = ?"
+	query.prepare("UPDATE t_instrument_type SET name = ?, pinyin = ?, photo = ?, is_vip = ?"
 		" WHERE id = ?");
-	query.addBindValue(it.category);
 	query.addBindValue(it.name);
 	query.addBindValue(it.pinyin);
 	query.addBindValue(it.photo);
@@ -81,9 +78,8 @@ result_t InstrumentDao::updateInstrumentType(const InstrumentType &it)
 result_t InstrumentDao::addInstrumentType(const InstrumentType &it)
 {
 	QSqlQuery query;
-	query.prepare("INSERT INTO t_instrument_type (category, name, pinyin, photo, is_vip)"
-	" VALUES (?, ?, ?, ?, ?)");
-	query.addBindValue(it.category);
+	query.prepare("INSERT INTO t_instrument_type (name, pinyin, photo, is_vip)"
+	" VALUES (?, ?, ?, ?)");
 	query.addBindValue(it.name);
 	query.addBindValue(it.pinyin);
 	query.addBindValue(it.photo);
@@ -94,10 +90,10 @@ result_t InstrumentDao::addInstrumentType(const InstrumentType &it)
 	return 0;
 }
 
-result_t InstrumentDao::getInstrument(const QString& udi, Instrument* ins)
+result_t InstrumentDao::getInstrument(const QString &udi, Instrument *ins)
 {
 	QSqlQuery q;
-	q.prepare("SELECT a.type_id, a.name, a.photo, a.pkg_udi, a.price, b.category, b.is_vip"
+	q.prepare("SELECT a.type_id, a.name, a.photo, a.pkg_udi, a.price, b.is_vip"
 		" FROM t_instrument a"
 		" LEFT JOIN t_instrument_type b ON a.type_id = b.id"
 		" WHERE a.udi = ?");
@@ -116,8 +112,7 @@ result_t InstrumentDao::getInstrument(const QString& udi, Instrument* ins)
 		ins->photo = q.value(2).toString();
 		ins->packageUdi = q.value(3).toString();
 		ins->price = q.value(4).toInt();
-		ins->category = static_cast<Rt::InstrumentCategory>(q.value(5).toInt());
-		ins->isVip = q.value(6).toBool();
+		ins->isVip = q.value(5).toBool();
 	}
 
 	return 0;
@@ -127,7 +122,7 @@ result_t InstrumentDao::getInstrumentList(
 	QList<Instrument> *instruments, int page/* = 1*/, int count/* = -1*/)
 {
 	QSqlQuery q;
-	QString sql = "SELECT a.udi, a.type_id, a.name, a.photo, a.pkg_udi, a.price, b.category, b.is_vip"
+	QString sql = "SELECT a.udi, a.type_id, a.name, a.photo, a.pkg_udi, a.price, b.is_vip"
 		" FROM t_instrument a"
 		" LEFT JOIN t_instrument_type b ON a.type_id = b.id";
 
@@ -149,8 +144,7 @@ result_t InstrumentDao::getInstrumentList(
 			ins.photo = q.value(3).toString();
 			ins.packageUdi = q.value(4).toString();
 			ins.price = q.value(5).toInt();
-			ins.category = static_cast<Rt::InstrumentCategory>(q.value(6).toInt());
-			ins.isVip = q.value(7).toBool();
+			ins.isVip = q.value(6).toBool();
 			instruments->append(ins);
 		}
 	}

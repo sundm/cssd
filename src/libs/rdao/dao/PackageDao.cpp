@@ -10,7 +10,7 @@ result_t PackageDao::getPackageType(
 	if (!pt) return 0;
 
 	QSqlQuery q;
-	q.prepare("SELECT a.category, a.name, a.pinyin, a.photo, a.sterilize_type, a.pack_type_id, a.dept_id, b.name, c.name"
+	q.prepare("SELECT a.category, a.name, a.pinyin, a.photo, a.sterilize_type, a.for_implants, a.pack_type_id, a.dept_id, b.name, c.name"
 		" FROM t_package_type a"
 		" LEFT JOIN t_pack_type b ON a.pack_type_id = b.id"
 		" LEFT JOIN t_dept c ON a.dept_id = c.id"
@@ -31,29 +31,18 @@ result_t PackageDao::getPackageType(
 	pt->pinyin = q.value(2).toString();
 	pt->photo = q.value(3).toString();
 	pt->sterMethod = static_cast<Rt::SterilizeMethod>(q.value(4).toInt());
-	pt->packType.id = q.value(5).toInt();
-	pt->dept.id = q.value(6).toInt();
-	pt->packType.name = q.value(7).toString();
-	pt->dept.name = q.value(8).toString();
+	pt->forImplants = q.value(5).toBool();
+	pt->packType.id = q.value(6).toInt();
+	pt->dept.id = q.value(7).toInt();
+	pt->packType.name = q.value(8).toString();
+	pt->dept.name = q.value(9).toString();
 
 	if (!withInstrumentTypes) {
-		// get implanted info
-		// TODO: maybe we should add `has_implanted` in `t_package_type`
-		q.prepare("SELECT 1"
-			" FROM t_package_type_detail a"
-			" LEFT JOIN t_instrument_type b ON a.ins_type_id = b.id"
-			" WHERE a.pkg_type_id = ? AND b.category=?");
-		q.addBindValue(typeId);
-		q.addBindValue(Rt::ImplantedInstrument);
-		if (!q.exec())
-			return q.lastError().text();
-		pt->hasImplanted = q.first();
-
 		return 0;
 	}
 
 	// else we fetch the instrument types
-	q.prepare("SELECT a.ins_type_id, a.num, b.name, b.category"
+	q.prepare("SELECT a.ins_type_id, a.num, b.name"
 		" FROM t_package_type_detail a"
 		" LEFT JOIN t_instrument_type b ON a.ins_type_id = b.id"
 		" WHERE pkg_type_id = ?");
@@ -67,8 +56,6 @@ result_t PackageDao::getPackageType(
 		item.insTypeId = q.value(0).toInt();
 		item.insNum = q.value(1).toInt();
 		item.insName = q.value(2).toString();
-		if (!pt->hasImplanted && Rt::ImplantedInstrument == q.value(3).toInt())
-			pt->hasImplanted = true;
 		pt->detail.append(item);
 	}
 
@@ -115,12 +102,13 @@ result_t PackageDao::getPackageTypeList(
 result_t PackageDao::addPackageType(const PackageType &pt)
 {
 	QSqlQuery q;
-	q.prepare("INSERT INTO t_package_type (category, name, pinyin, sterilize_type, pack_type_id, dept_id)"
-	" VALUES (?, ?, ?, ?, ?, ?)");
+	q.prepare("INSERT INTO t_package_type (category, name, pinyin, sterilize_type, for_implants, pack_type_id, dept_id)"
+	" VALUES (?, ?, ?, ?, ?, ?, ?)");
 	q.addBindValue(pt.category);
 	q.addBindValue(pt.name);
 	q.addBindValue(pt.pinyin);
 	q.addBindValue(pt.sterMethod);
+	q.addBindValue(pt.forImplants);
 	q.addBindValue(pt.packType.id);
 	q.addBindValue(pt.dept.id);
 
@@ -165,7 +153,7 @@ result_t PackageDao::getPackage(
 
 	QSqlQuery q;
 	q.prepare("SELECT a.name, a.photo, a.type_id, a.cycle, a.status,"
-		" b.category, b.sterilize_type, b.pack_type_id, b.dept_id, c.name, c.valid_period, d.name"
+		" b.category, b.sterilize_type, b.for_implants, b.pack_type_id, b.dept_id, c.name, c.valid_period, d.name"
 		" FROM t_package a"
 		" LEFT JOIN t_package_type b ON a.type_id = b.id"
 		" LEFT JOIN t_pack_type c ON b.pack_type_id = c.id"
@@ -189,27 +177,18 @@ result_t PackageDao::getPackage(
 	pkg->status = static_cast<Rt::FlowStatus>(q.value(4).toInt());
 	pkg->category = static_cast<Rt::PackageCategory>(q.value(5).toInt());
 	pkg->sterMethod = static_cast<Rt::SterilizeMethod>(q.value(6).toInt());
-	pkg->packType.id = q.value(7).toInt();
-	pkg->dept.id = q.value(8).toInt();
-	pkg->packType.name = q.value(9).toString();
-	pkg->packType.validPeriod = q.value(10).toUInt();
-	pkg->dept.name = q.value(11).toString();
+	pkg->forImplants = q.value(7).toBool();
+	pkg->packType.id = q.value(8).toInt();
+	pkg->dept.id = q.value(9).toInt();
+	pkg->packType.name = q.value(10).toString();
+	pkg->packType.validPeriod = q.value(11).toUInt();
+	pkg->dept.name = q.value(12).toString();
 
 	if (!withInstruments) {
-		// get implanted info
-		q.prepare("SELECT 1"
-			" FROM t_instrument a"
-			" LEFT JOIN t_instrument_type b ON a.type_id=b.id"
-			" WHERE a.pkg_udi = ? AND b.category = ?");
-		q.addBindValue(udi);
-		q.addBindValue(Rt::ImplantedInstrument);
-		if (!q.exec())
-			return q.lastError().text();
-		pkg->hasImplanted = q.first();
 		return 0;
 	}
 
-	q.prepare("SELECT a.udi, a.type_id, a.name, a.photo, a.price, b.category, b.is_vip"
+	q.prepare("SELECT a.udi, a.type_id, a.name, a.photo, a.price, b.is_vip"
 		" FROM t_instrument a"
 		" LEFT JOIN t_instrument_type b ON a.type_id=b.id"
 		" WHERE a.pkg_udi = ?");
@@ -224,10 +203,8 @@ result_t PackageDao::getPackage(
 		ins.udi = q.value(0).toString();
 		ins.typeId = q.value(1).toInt();
 		ins.name = q.value(2).toString();
-		ins.category = static_cast<Rt::InstrumentCategory>(q.value(5).toInt());
-		if (Rt::ImplantedInstrument == ins.category)
-			pkg->hasImplanted = true;
-		ins.isVip = q.value(6).toBool();
+		// FIXME: 3,4 unneccesary?
+		ins.isVip = q.value(5).toBool();
 		pkg->instruments.append(ins);
 	}
 
