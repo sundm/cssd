@@ -63,39 +63,47 @@ result_t PackageDao::getPackageType(
 }
 
 result_t PackageDao::getPackageTypeList(
-	QList<PackageType> *pts, int page/* = 1*/, int count/* = -1*/)
+	QList<PackageType> *pts, int *total/* = nullptr*/, int page/* = 1*/, int count/* = 20*/)
 {
+	if (!pts) return 0;
+	bool paginated = nullptr != total;
+
 	QSqlQuery q;
 	QString sql = "SELECT a.id, a.category, a.name, a.pinyin, a.photo, a.sterilize_type, a.pack_type_id, a.dept_id, b.name, c.name"
 		" FROM t_package_type a"
 		" LEFT JOIN t_pack_type b ON a.pack_type_id = b.id"
 		" LEFT JOIN t_dept c ON a.dept_id = c.id";
 
-	if (-1 != count) { // do pagination
-		count = qMax(10, count);
+	if (paginated) { // do pagination
+		count = qMax(20, count);
 		page = qMax(1, page);
-		sql.append(QString(" LIMIT %1, %2").arg((page-1)*count).arg(count));
+		sql.append(QString(" LIMIT %1, %2;SELECT COUNT(id) FROM t_package_type").arg((page-1)*count).arg(count));
 	}
 
 	if (!q.exec(sql))
 		return q.lastError().text();
 
-	if (pts) {
-		while (q.next()) {
-			PackageType pt;
-			pt.typeId = q.value(0).toInt();
-			pt.category = static_cast<Rt::PackageCategory>(q.value(1).toInt());
-			pt.name = q.value(2).toString();
-			pt.pinyin = q.value(3).toString();
-			pt.photo = q.value(4).toString();
-			pt.sterMethod = static_cast<Rt::SterilizeMethod>(q.value(5).toInt());
-			pt.packType.id = q.value(6).toInt();
-			pt.dept.id = q.value(7).toInt();
-			pt.packType.name = q.value(8).toString();
-			pt.dept.name = q.value(9).toString();
-			pts->append(pt);
-		}
+	while (q.next()) {
+		PackageType pt;
+		pt.typeId = q.value(0).toInt();
+		pt.category = static_cast<Rt::PackageCategory>(q.value(1).toInt());
+		pt.name = q.value(2).toString();
+		pt.pinyin = q.value(3).toString();
+		pt.photo = q.value(4).toString();
+		pt.sterMethod = static_cast<Rt::SterilizeMethod>(q.value(5).toInt());
+		pt.packType.id = q.value(6).toInt();
+		pt.dept.id = q.value(7).toInt();
+		pt.packType.name = q.value(8).toString();
+		pt.dept.name = q.value(9).toString();
+		pts->append(pt);
 	}
+
+	if (paginated) {
+		if (!q.nextResult() || !q.first())
+			return "Could not determine the total number";
+		*total = q.value(0).toInt();
+	}
+
 	return 0;
 }
 
@@ -212,8 +220,11 @@ result_t PackageDao::getPackage(
 }
 
 result_t PackageDao::getPackageList(
-	QList<Package> *pkgs, int page/* = 1*/, int count/* = -1*/)
+	QList<Package> *pkgs, int *total/* = nullptr*/, int page/* = 1*/, int count/* = 20*/)
 {
+	if (!pkgs) return 0;
+	bool paginated = nullptr != total;
+
 	QSqlQuery q;
 	QString sql = "SELECT a.udi, a.name, a.photo, a.type_id, a.cycle, a.status,"
 		" b.category, b.sterilize_type, b.pack_type_id, b.dept_id, c.name, c.valid_period, d.name"
@@ -222,34 +233,39 @@ result_t PackageDao::getPackageList(
 		" LEFT JOIN t_pack_type c ON b.pack_type_id = c.id"
 		" LEFT JOIN t_dept d ON b.dept_id = d.id";
 
-	if (-1 != count) { // do pagination
-		count = qMax(10, count);
+	if (paginated) { // do pagination
+		count = qMax(20, count);
 		page = qMax(1, page);
-		sql.append(QString(" LIMIT %1, %2").arg((page - 1)*count).arg(count));
+		sql.append(QString(" LIMIT %1, %2;SELECT COUNT(id) FROM t_package").arg((page - 1)*count).arg(count));
 	}
 
 	if (!q.exec(sql))
 		return q.lastError().text();
 
-	if (pkgs) {
-		Package pkg;
-		while (q.next()) {
-			pkg.udi = q.value(0).toString();
-			pkg.name = q.value(1).toString();
-			pkg.photo = q.value(2).toString();
-			pkg.typeId = q.value(3).toInt();
-			pkg.cycle = q.value(4).toInt();
-			pkg.status = static_cast<Rt::FlowStatus>(q.value(5).toInt());
-			pkg.category = static_cast<Rt::PackageCategory>(q.value(6).toInt());
-			pkg.sterMethod = static_cast<Rt::SterilizeMethod>(q.value(7).toInt());
-			pkg.packType.id = q.value(8).toInt();
-			pkg.dept.id = q.value(9).toInt();
-			pkg.packType.name = q.value(10).toString();
-			pkg.packType.validPeriod = q.value(11).toUInt();
-			pkg.dept.name = q.value(12).toString();
-			pkgs->append(pkg);
-		}
+	Package pkg;
+	while (q.next()) {
+		pkg.udi = q.value(0).toString();
+		pkg.name = q.value(1).toString();
+		pkg.photo = q.value(2).toString();
+		pkg.typeId = q.value(3).toInt();
+		pkg.cycle = q.value(4).toInt();
+		pkg.status = static_cast<Rt::FlowStatus>(q.value(5).toInt());
+		pkg.category = static_cast<Rt::PackageCategory>(q.value(6).toInt());
+		pkg.sterMethod = static_cast<Rt::SterilizeMethod>(q.value(7).toInt());
+		pkg.packType.id = q.value(8).toInt();
+		pkg.dept.id = q.value(9).toInt();
+		pkg.packType.name = q.value(10).toString();
+		pkg.packType.validPeriod = q.value(11).toUInt();
+		pkg.dept.name = q.value(12).toString();
+		pkgs->append(pkg);
 	}
+
+	if (paginated) {
+		if (!q.nextResult() || !q.first())
+			return "Could not determine the total number";
+		*total = q.value(0).toInt();
+	}
+
 	return 0;
 }
 

@@ -60,8 +60,12 @@ public:
 		const Department &dept,
 		const Operator &op);
 
-	result_t addSurgeryPreCheck(
+	result_t addSurgeryBindPackages(
 		const Surgery &surgery,
+		const Operator &op);
+
+	result_t addSurgeryPreCheck(
+		int surgeryId,
 		const Operator &op);
 	
 	result_t addSurgeryPostCheck(

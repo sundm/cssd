@@ -81,7 +81,8 @@ namespace Rt
 	};
 
 	enum SurgeryStatus {
-		WaitingForCheck,
+		Initialized,
+		UdiPackageBound,
 		PreChecked,
 		PostChecked
 	};

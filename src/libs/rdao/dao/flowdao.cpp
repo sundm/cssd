@@ -372,10 +372,10 @@ result_t FlowDao::addDispatch(const QList<Package> &pkgs, const Department &dept
 	return 0;
 }
 
-result_t FlowDao::addSurgeryPreCheck(const Surgery &surgery, const Operator &op)
+result_t FlowDao::addSurgeryBindPackages(const Surgery &surgery, const Operator &op)
 {
 	if (surgery.packages.isEmpty())
-		return "术前检查必须绑定指定的包";
+		return "UDI包列表为空";
 
 	// TODO: ensure package types and numbers matches
 
@@ -398,9 +398,9 @@ result_t FlowDao::addSurgeryPreCheck(const Surgery &surgery, const Operator &op)
 	}
 
 	// update surgery status
-	q.prepare("UPDATE r_surgery SET status=?, pre_check_time=NOW(),"
-		" pre_check_op_id=?, pre_check_op_name=? WHERE id=?");
-	q.addBindValue(Rt::PreChecked);
+	q.prepare("UPDATE r_surgery SET status=?, bind_time=NOW(),"
+		" bind_op_id=?, bind_op_name=? WHERE id=?");
+	q.addBindValue(Rt::UdiPackageBound);
 	q.addBindValue(op.id);
 	q.addBindValue(op.name);
 	q.addBindValue(surgery.id);
@@ -413,12 +413,29 @@ result_t FlowDao::addSurgeryPreCheck(const Surgery &surgery, const Operator &op)
 	return 0;
 }
 
-result_t FlowDao::addSurgeryPostCheck(int surgeryId, const Operator &op)
+result_t FlowDao::addSurgeryPreCheck(int surgeryId, const Operator &op)
 {
 	// update surgery status
 	QSqlQuery q;
 	q.prepare("UPDATE r_surgery SET status=?, pre_check_time=NOW(),"
 		" pre_check_op_id=?, pre_check_op_name=? WHERE id=?");
+	q.addBindValue(Rt::PreChecked);
+	q.addBindValue(op.id);
+	q.addBindValue(op.name);
+	q.addBindValue(surgeryId);
+	if (!q.exec()) {
+		return q.lastError().text();
+	}
+
+	return 0;
+}
+
+result_t FlowDao::addSurgeryPostCheck(int surgeryId, const Operator &op)
+{
+	// update surgery status
+	QSqlQuery q;
+	q.prepare("UPDATE r_surgery SET status=?, post_check_time=NOW(),"
+		" post_check_op_id=?, post_check_op_name=? WHERE id=?");
 	q.addBindValue(Rt::PostChecked);
 	q.addBindValue(op.id);
 	q.addBindValue(op.name);

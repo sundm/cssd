@@ -122,6 +122,7 @@
     <ClInclude Include="entity\package.h" />
     <ClInclude Include="entity\surgery.h" />
     <ClInclude Include="errors.h" />
+    <ClInclude Include="filter\packagetypefilter.h" />
     <ClInclude Include="rdao_global.h" />
   </ItemGroup>
   <ItemGroup>
@@ -135,6 +136,7 @@
     <ClCompile Include="dao\surgerydao.cpp" />
     <ClCompile Include="dbconnection.cpp" />
     <ClCompile Include="debugsqlquery.cpp" />
+    <ClCompile Include="filter\packagetypefilter.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

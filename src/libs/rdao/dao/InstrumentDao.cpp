@@ -30,32 +30,39 @@ result_t InstrumentDao::getInstrumentType(int typeId, InstrumentType* insType)
 }
 
 result_t InstrumentDao::getInstrumentTypeList(
-	QList<InstrumentType> *insTypes, int page/* = 1*/, int count/* = -1*/)
+	QList<InstrumentType> *its, int *total/* = nullptr*/, int page/* = 1*/, int count/* = 20*/)
 {
-	QSqlQuery q;
-	QString sql = "SELECT id, name, pinyin, photo, is_vip"
-		" FROM t_instrument_type";
+	if (!its) return 0;
+	bool paginated = nullptr != total;
 
-	if (-1 != count) { // do pagination
-		count = qMax(10, count);
+	QSqlQuery q;
+	QString sql = "SELECT id, name, pinyin, photo, is_vip FROM t_instrument_type";
+
+	if (paginated) { // do pagination
+		count = qMax(20, count);
 		page = qMax(1, page);
-		sql.append(QString(" LIMIT %1, %2").arg((page-1)*count).arg(count));
+		sql.append(QString(" LIMIT %1, %2;SELECT COUNT(id) FROM t_instrument_type").arg((page-1)*count).arg(count));
 	}
 
 	if (!q.exec(sql))
 		return q.lastError().text();
 
-	if (insTypes) {
-		InstrumentType it;
-		while (q.next()) {
-			it.typeId = q.value(0).toInt();
-			it.name = q.value(1).toString();
-			it.pinyin = q.value(2).toString();
-			it.photo = q.value(3).toString();
-			it.isVip = q.value(4).toBool();
-			insTypes->append(it);
-		}
+	InstrumentType it;
+	while (q.next()) {
+		it.typeId = q.value(0).toInt();
+		it.name = q.value(1).toString();
+		it.pinyin = q.value(2).toString();
+		it.photo = q.value(3).toString();
+		it.isVip = q.value(4).toBool();
+		its->append(it);
 	}
+
+	if (paginated) {
+		if (!q.nextResult() || !q.first())
+			return "Could not determine the total number";
+		*total = q.value(0).toInt();
+	}
+
 	return 0;
 }
 
@@ -119,35 +126,43 @@ result_t InstrumentDao::getInstrument(const QString &udi, Instrument *ins)
 }
 
 result_t InstrumentDao::getInstrumentList(
-	QList<Instrument> *instruments, int page/* = 1*/, int count/* = -1*/)
+	QList<Instrument> *instruments, int *total/* = nullptr*/, int page/* = 1*/, int count/* = 20*/)
 {
+	if (!instruments) return 0;
+	bool paginated = nullptr != total;
+
 	QSqlQuery q;
 	QString sql = "SELECT a.udi, a.type_id, a.name, a.photo, a.pkg_udi, a.price, b.is_vip"
 		" FROM t_instrument a"
 		" LEFT JOIN t_instrument_type b ON a.type_id = b.id";
 
-	if (-1 != count) { // do pagination
-		count = qMax(10, count);
+	if (paginated) { // do pagination
+		count = qMax(20, count);
 		page = qMax(1, page);
-		sql.append(QString(" LIMIT %1, %2").arg((page - 1)*count).arg(count));
+		sql.append(QString(" LIMIT %1, %2;SELECT COUNT(id) FROM t_instrument").arg((page - 1)*count).arg(count));
 	}
 
 	if (!q.exec(sql))
 		return q.lastError().text();
 
-	if (instruments) {
-		Instrument ins;
-		while (q.next()) {
-			ins.udi = q.value(0).toString();;
-			ins.typeId = q.value(1).toInt();
-			ins.name = q.value(2).toString();
-			ins.photo = q.value(3).toString();
-			ins.packageUdi = q.value(4).toString();
-			ins.price = q.value(5).toInt();
-			ins.isVip = q.value(6).toBool();
-			instruments->append(ins);
-		}
+	Instrument ins;
+	while (q.next()) {
+		ins.udi = q.value(0).toString();;
+		ins.typeId = q.value(1).toInt();
+		ins.name = q.value(2).toString();
+		ins.photo = q.value(3).toString();
+		ins.packageUdi = q.value(4).toString();
+		ins.price = q.value(5).toInt();
+		ins.isVip = q.value(6).toBool();
+		instruments->append(ins);
 	}
+
+	if (paginated) {
+		if (!q.nextResult() || !q.first())
+			return "Could not determine the total number";
+		*total = q.value(0).toInt();
+	}
+
 	return 0;
 }
 

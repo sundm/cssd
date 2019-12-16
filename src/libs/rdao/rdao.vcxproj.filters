@@ -31,6 +31,9 @@
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
       <ParseFiles>true</ParseFiles>
     </Filter>
+    <Filter Include="Source Files\filter">
+      <UniqueIdentifier>{9956a8fa-fe5e-4e40-b6cb-caf6a08ffacb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="entity\operator.h">
@@ -90,6 +93,9 @@
     <ClInclude Include="dao\surgerydao.h">
       <Filter>Source Files\dao</Filter>
     </ClInclude>
+    <ClInclude Include="filter\packagetypefilter.h">
+      <Filter>Source Files\filter</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dbconnection.cpp">
@@ -121,6 +127,9 @@
     </ClCompile>
     <ClCompile Include="dao\surgerydao.cpp">
       <Filter>Source Files\dao</Filter>
+    </ClCompile>
+    <ClCompile Include="filter\packagetypefilter.cpp">
+      <Filter>Source Files\filter</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
