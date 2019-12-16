@@ -31,7 +31,7 @@ struct PackageType
 
 	int typeId;
 	Rt::PackageCategory category;
-	QString name;
+	QString typeName;
 	QString pinyin;
 	QString photo;
 	Rt::SterilizeMethod sterMethod;
@@ -51,6 +51,8 @@ struct PackageType
 struct Package : public PackageType
 {
 	QString udi;
+	QString name;
+	QString alias;
 	int cycle;
 	Rt::FlowStatus status;
 	QList<Instrument> instruments;

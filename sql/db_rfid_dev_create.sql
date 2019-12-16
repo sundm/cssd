@@ -80,7 +80,8 @@ CREATE TABLE IF NOT EXISTS `t_package` (
   `id` int unsigned PRIMARY KEY AUTO_INCREMENT,
   `udi` varchar(32) NOT NULL UNIQUE,
   `type_id` int NOT NULL,
-  `name` varchar(32) NOT NULL,
+  `sn` smallint unsigned NOT NULL,
+  `alias` varchar(32),
   `photo` varchar(128),
   `cycle` int unsigned NOT NULL DEFAULT 0, -- +1 after wash
   -- 0:unknown 1:washed 2:wash-checked 3:packed 4:sterilized 5:ster-checked-pass 6:ster-checked-failed
@@ -104,7 +105,8 @@ CREATE TABLE IF NOT EXISTS `t_instrument` (
   `id` int unsigned PRIMARY KEY AUTO_INCREMENT,
   `udi` varchar(32) NOT NULL UNIQUE,
   `type_id` int NOT NULL,
-  `name` varchar(32) NOT NULL,
+  `sn` smallint unsigned NOT NULL,
+  `alias` varchar(32),
   `photo` varchar(128),
   `price` int,  -- in cents
   `pkg_udi` varchar(32), -- always points to the most recent bound package
@@ -146,7 +148,6 @@ CREATE TABLE IF NOT EXISTS `r_package` (
   `pkg_cycle` int unsigned NOT NULL,
   `pkg_name` varchar(32) NOT NULL,
   `pkg_type_id` int NOT NULL,
-  `pkg_type_name` varchar(32) NOT NULL,
   `dept_id` int NOT NULL, -- dept it belongs to
   `dept_name` varchar(32) NOT NULL,
   -- 1:washed 2:wash-checked 3:packed 4:sterilized 5:ster-checked-pass 6:ster-checked-failed

@@ -20,3 +20,8 @@ QString DaoUtil::deviceBatchId(int deviceId, int cycleTotal)
 	// TODO: cycleTotal may be exceeds MAXINT
 	return QString("%1%2").arg(deviceId).arg(cycleTotal, 8, 10, QChar('0'));
 }
+
+QString DaoUtil::udiName(const QString &typeName, int sn)
+{
+	return typeName + '#' + QString::number(sn);
+}

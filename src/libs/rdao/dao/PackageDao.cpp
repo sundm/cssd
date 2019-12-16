@@ -2,6 +2,7 @@
 #include <QSqlError>
 #include "debugsqlquery.h"
 #include "packagedao.h"
+#include "daoutil.h"
 #include "errors.h"
 
 result_t PackageDao::getPackageType(
@@ -27,7 +28,7 @@ result_t PackageDao::getPackageType(
 	pt->detail.clear();
 	pt->typeId = typeId;
 	pt->category = static_cast<Rt::PackageCategory>(q.value(0).toInt());
-	pt->name = q.value(1).toString();
+	pt->typeName = q.value(1).toString();
 	pt->pinyin = q.value(2).toString();
 	pt->photo = q.value(3).toString();
 	pt->sterMethod = static_cast<Rt::SterilizeMethod>(q.value(4).toInt());
@@ -66,6 +67,7 @@ result_t PackageDao::getPackageTypeList(
 	QList<PackageType> *pts, int *total/* = nullptr*/, int page/* = 1*/, int count/* = 20*/)
 {
 	if (!pts) return 0;
+	pts->clear();
 	bool paginated = nullptr != total;
 
 	QSqlQuery q;
@@ -87,7 +89,7 @@ result_t PackageDao::getPackageTypeList(
 		PackageType pt;
 		pt.typeId = q.value(0).toInt();
 		pt.category = static_cast<Rt::PackageCategory>(q.value(1).toInt());
-		pt.name = q.value(2).toString();
+		pt.typeName = q.value(2).toString();
 		pt.pinyin = q.value(3).toString();
 		pt.photo = q.value(4).toString();
 		pt.sterMethod = static_cast<Rt::SterilizeMethod>(q.value(5).toInt());
@@ -113,7 +115,7 @@ result_t PackageDao::addPackageType(const PackageType &pt)
 	q.prepare("INSERT INTO t_package_type (category, name, pinyin, sterilize_type, for_implants, pack_type_id, dept_id)"
 	" VALUES (?, ?, ?, ?, ?, ?, ?)");
 	q.addBindValue(pt.category);
-	q.addBindValue(pt.name);
+	q.addBindValue(pt.typeName);
 	q.addBindValue(pt.pinyin);
 	q.addBindValue(pt.sterMethod);
 	q.addBindValue(pt.forImplants);
@@ -160,8 +162,8 @@ result_t PackageDao::getPackage(
 	if (!pkg) return 0;
 
 	QSqlQuery q;
-	q.prepare("SELECT a.name, a.photo, a.type_id, a.cycle, a.status,"
-		" b.category, b.sterilize_type, b.for_implants, b.pack_type_id, b.dept_id, c.name, c.valid_period, d.name"
+	q.prepare("SELECT a.sn, a.alias, a.photo, a.type_id, a.cycle, a.status,"
+		" b.name, b.category, b.sterilize_type, b.for_implants, b.pack_type_id, b.dept_id, c.name, c.valid_period, d.name"
 		" FROM t_package a"
 		" LEFT JOIN t_package_type b ON a.type_id = b.id"
 		" LEFT JOIN t_pack_type c ON b.pack_type_id = c.id"
@@ -178,25 +180,27 @@ result_t PackageDao::getPackage(
 	pkg->detail.clear();
 	pkg->instruments.clear();
 	pkg->udi = udi;
-	pkg->name = q.value(0).toString();
-	pkg->photo = q.value(1).toString();
-	pkg->typeId = q.value(2).toInt();
-	pkg->cycle = q.value(3).toInt();
-	pkg->status = static_cast<Rt::FlowStatus>(q.value(4).toInt());
-	pkg->category = static_cast<Rt::PackageCategory>(q.value(5).toInt());
-	pkg->sterMethod = static_cast<Rt::SterilizeMethod>(q.value(6).toInt());
-	pkg->forImplants = q.value(7).toBool();
-	pkg->packType.id = q.value(8).toInt();
-	pkg->dept.id = q.value(9).toInt();
-	pkg->packType.name = q.value(10).toString();
-	pkg->packType.validPeriod = q.value(11).toUInt();
-	pkg->dept.name = q.value(12).toString();
+	pkg->alias = q.value(1).toString();
+	pkg->photo = q.value(2).toString();
+	pkg->typeId = q.value(3).toInt();
+	pkg->cycle = q.value(4).toInt();
+	pkg->status = static_cast<Rt::FlowStatus>(q.value(5).toInt());
+	pkg->typeName = q.value(6).toString();
+	pkg->category = static_cast<Rt::PackageCategory>(q.value(7).toInt());
+	pkg->sterMethod = static_cast<Rt::SterilizeMethod>(q.value(8).toInt());
+	pkg->forImplants = q.value(9).toBool();
+	pkg->packType.id = q.value(10).toInt();
+	pkg->dept.id = q.value(11).toInt();
+	pkg->packType.name = q.value(12).toString();
+	pkg->packType.validPeriod = q.value(13).toUInt();
+	pkg->dept.name = q.value(14).toString();
+	pkg->name = DaoUtil::udiName(pkg->typeName, q.value(0).toInt());
 
 	if (!withInstruments) {
 		return 0;
 	}
 
-	q.prepare("SELECT a.udi, a.type_id, a.name, a.photo, a.price, b.is_vip"
+	q.prepare("SELECT a.udi, a.type_id, a.sn, a.alias, a.photo, a.price, b.name, b.is_vip"
 		" FROM t_instrument a"
 		" LEFT JOIN t_instrument_type b ON a.type_id=b.id"
 		" WHERE a.pkg_udi = ?");
@@ -210,9 +214,11 @@ result_t PackageDao::getPackage(
 		ins.packageUdi = udi;
 		ins.udi = q.value(0).toString();
 		ins.typeId = q.value(1).toInt();
-		ins.name = q.value(2).toString();
-		// FIXME: 3,4 unneccesary?
-		ins.isVip = q.value(5).toBool();
+		ins.alias = q.value(3).toString();
+		// FIXME: 4,5 unneccesary?
+		ins.typeName = q.value(6).toString();
+		ins.isVip = q.value(7).toBool();
+		ins.name = DaoUtil::udiName(ins.typeName, q.value(2).toInt());
 		pkg->instruments.append(ins);
 	}
 
@@ -223,11 +229,12 @@ result_t PackageDao::getPackageList(
 	QList<Package> *pkgs, int *total/* = nullptr*/, int page/* = 1*/, int count/* = 20*/)
 {
 	if (!pkgs) return 0;
+	pkgs->clear();
 	bool paginated = nullptr != total;
 
 	QSqlQuery q;
-	QString sql = "SELECT a.udi, a.name, a.photo, a.type_id, a.cycle, a.status,"
-		" b.category, b.sterilize_type, b.pack_type_id, b.dept_id, c.name, c.valid_period, d.name"
+	QString sql = "SELECT a.udi, a.sn, a.alias, a.photo, a.type_id, a.cycle, a.status,"
+		" b.name, b.category, b.sterilize_type, b.for_implants, b.pack_type_id, b.dept_id, c.name, c.valid_period, d.name"
 		" FROM t_package a"
 		" LEFT JOIN t_package_type b ON a.type_id = b.id"
 		" LEFT JOIN t_pack_type c ON b.pack_type_id = c.id"
@@ -245,18 +252,21 @@ result_t PackageDao::getPackageList(
 	Package pkg;
 	while (q.next()) {
 		pkg.udi = q.value(0).toString();
-		pkg.name = q.value(1).toString();
-		pkg.photo = q.value(2).toString();
-		pkg.typeId = q.value(3).toInt();
-		pkg.cycle = q.value(4).toInt();
-		pkg.status = static_cast<Rt::FlowStatus>(q.value(5).toInt());
-		pkg.category = static_cast<Rt::PackageCategory>(q.value(6).toInt());
-		pkg.sterMethod = static_cast<Rt::SterilizeMethod>(q.value(7).toInt());
-		pkg.packType.id = q.value(8).toInt();
-		pkg.dept.id = q.value(9).toInt();
-		pkg.packType.name = q.value(10).toString();
-		pkg.packType.validPeriod = q.value(11).toUInt();
-		pkg.dept.name = q.value(12).toString();
+		pkg.alias = q.value(2).toString();
+		pkg.photo = q.value(3).toString();
+		pkg.typeId = q.value(4).toInt();
+		pkg.cycle = q.value(5).toInt();
+		pkg.status = static_cast<Rt::FlowStatus>(q.value(6).toInt());
+		pkg.typeName = q.value(7).toString();
+		pkg.category = static_cast<Rt::PackageCategory>(q.value(8).toInt());
+		pkg.sterMethod = static_cast<Rt::SterilizeMethod>(q.value(9).toInt());
+		pkg.forImplants = q.value(10).toBool();
+		pkg.packType.id = q.value(11).toInt();
+		pkg.dept.id = q.value(12).toInt();
+		pkg.packType.name = q.value(13).toString();
+		pkg.packType.validPeriod = q.value(14).toUInt();
+		pkg.dept.name = q.value(15).toString();
+		pkg.name = DaoUtil::udiName(pkg.typeName, q.value(1).toInt());
 		pkgs->append(pkg);
 	}
 
@@ -280,12 +290,13 @@ result_t PackageDao::addPackage(const Package &pkg)
 	if (q.first())
 		return "该物品包已入库，请勿重复操作";
 
-	q.prepare("INSERT INTO t_package (udi, type_id, name, photo)"
-		" VALUES (?, ?, ?, ?)");
+	q.prepare("INSERT INTO t_package (udi, type_id, sn, alias, photo)"
+		" SELECT ?, ?, IFNULL(MAX(sn)+1, 1), ?, ? FROM t_package WHERE type_id=?");
 	q.addBindValue(pkg.udi);
 	q.addBindValue(pkg.typeId);
-	q.addBindValue(pkg.name);
+	q.addBindValue(pkg.alias);
 	q.addBindValue(pkg.photo);
+	q.addBindValue(pkg.typeId);
 
 	if (!q.exec())
 		return q.lastError().text();

@@ -67,6 +67,7 @@ namespace Rt
 		SterilizeResultChecked, // set even biological result is not committed
 		Dispatched,
 		Received,
+		SurgeryBound,
 		SurgeryPreChecked,
 		SurgeryPostChecked,
 		Recycled,

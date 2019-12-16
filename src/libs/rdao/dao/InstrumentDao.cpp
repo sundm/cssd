@@ -2,6 +2,7 @@
 #include <QSqlError>
 #include "debugsqlquery.h"
 #include "instrumentdao.h"
+#include "daoutil.h"
 #include "errors.h"
 
 result_t InstrumentDao::getInstrumentType(int typeId, InstrumentType* insType)
@@ -20,7 +21,7 @@ result_t InstrumentDao::getInstrumentType(int typeId, InstrumentType* insType)
 
 	if (insType) {
 		insType->typeId = typeId;
-		insType->name = q.value(0).toString();
+		insType->typeName = q.value(0).toString();
 		insType->pinyin = q.value(1).toString();
 		insType->photo = q.value(2).toString();
 		insType->isVip = q.value(3).toBool();
@@ -33,6 +34,7 @@ result_t InstrumentDao::getInstrumentTypeList(
 	QList<InstrumentType> *its, int *total/* = nullptr*/, int page/* = 1*/, int count/* = 20*/)
 {
 	if (!its) return 0;
+	its->clear();
 	bool paginated = nullptr != total;
 
 	QSqlQuery q;
@@ -50,7 +52,7 @@ result_t InstrumentDao::getInstrumentTypeList(
 	InstrumentType it;
 	while (q.next()) {
 		it.typeId = q.value(0).toInt();
-		it.name = q.value(1).toString();
+		it.typeName = q.value(1).toString();
 		it.pinyin = q.value(2).toString();
 		it.photo = q.value(3).toString();
 		it.isVip = q.value(4).toBool();
@@ -71,7 +73,7 @@ result_t InstrumentDao::updateInstrumentType(const InstrumentType &it)
 	QSqlQuery query;
 	query.prepare("UPDATE t_instrument_type SET name = ?, pinyin = ?, photo = ?, is_vip = ?"
 		" WHERE id = ?");
-	query.addBindValue(it.name);
+	query.addBindValue(it.typeName);
 	query.addBindValue(it.pinyin);
 	query.addBindValue(it.photo);
 	query.addBindValue(it.isVip);
@@ -87,7 +89,7 @@ result_t InstrumentDao::addInstrumentType(const InstrumentType &it)
 	QSqlQuery query;
 	query.prepare("INSERT INTO t_instrument_type (name, pinyin, photo, is_vip)"
 	" VALUES (?, ?, ?, ?)");
-	query.addBindValue(it.name);
+	query.addBindValue(it.typeName);
 	query.addBindValue(it.pinyin);
 	query.addBindValue(it.photo);
 	query.addBindValue(it.isVip);
@@ -100,9 +102,11 @@ result_t InstrumentDao::addInstrumentType(const InstrumentType &it)
 result_t InstrumentDao::getInstrument(const QString &udi, Instrument *ins)
 {
 	QSqlQuery q;
-	q.prepare("SELECT a.type_id, a.name, a.photo, a.pkg_udi, a.price, b.is_vip"
+	q.prepare("SELECT a.type_id, a.sn, a.alias, a.photo, a.pkg_udi, a.price, b.name, b.is_vip, c.sn, d.name"
 		" FROM t_instrument a"
 		" LEFT JOIN t_instrument_type b ON a.type_id = b.id"
+		" LEFT JOIN t_package c ON a.pkg_udi = c.udi"
+		" LEFT JOIN t_package_type d ON c.type_id = d.id"
 		" WHERE a.udi = ?");
 	q.addBindValue(udi);
 
@@ -115,11 +119,14 @@ result_t InstrumentDao::getInstrument(const QString &udi, Instrument *ins)
 	if (ins) {
 		ins->udi = udi;
 		ins->typeId = q.value(0).toInt();
-		ins->name = q.value(1).toString();
-		ins->photo = q.value(2).toString();
-		ins->packageUdi = q.value(3).toString();
-		ins->price = q.value(4).toInt();
-		ins->isVip = q.value(5).toBool();
+		ins->alias = q.value(2).toString();
+		ins->photo = q.value(3).toString();
+		ins->packageUdi = q.value(4).toString();
+		ins->price = q.value(5).toInt();
+		ins->typeName = q.value(6).toString();
+		ins->isVip = q.value(7).toBool();
+		ins->packageName = DaoUtil::udiName(q.value(9).toString(), q.value(8).toInt());
+		ins->name = DaoUtil::udiName(ins->typeName, q.value(1).toInt());
 	}
 
 	return 0;
@@ -129,12 +136,15 @@ result_t InstrumentDao::getInstrumentList(
 	QList<Instrument> *instruments, int *total/* = nullptr*/, int page/* = 1*/, int count/* = 20*/)
 {
 	if (!instruments) return 0;
+	instruments->clear();
 	bool paginated = nullptr != total;
 
 	QSqlQuery q;
-	QString sql = "SELECT a.udi, a.type_id, a.name, a.photo, a.pkg_udi, a.price, b.is_vip"
+	QString sql = "SELECT a.udi, a.type_id, a.sn, a.alias, a.photo, a.pkg_udi, a.price, b.name, b.is_vip, c.sn, d.name"
 		" FROM t_instrument a"
-		" LEFT JOIN t_instrument_type b ON a.type_id = b.id";
+		" LEFT JOIN t_instrument_type b ON a.type_id = b.id"
+		" LEFT JOIN t_package c ON a.pkg_udi = c.udi"
+		" LEFT JOIN t_package_type d ON c.type_id = d.id";
 
 	if (paginated) { // do pagination
 		count = qMax(20, count);
@@ -147,13 +157,16 @@ result_t InstrumentDao::getInstrumentList(
 
 	Instrument ins;
 	while (q.next()) {
-		ins.udi = q.value(0).toString();;
+		ins.udi = q.value(0).toString();
 		ins.typeId = q.value(1).toInt();
-		ins.name = q.value(2).toString();
-		ins.photo = q.value(3).toString();
-		ins.packageUdi = q.value(4).toString();
-		ins.price = q.value(5).toInt();
-		ins.isVip = q.value(6).toBool();
+		ins.alias = q.value(3).toString();
+		ins.photo = q.value(4).toString();
+		ins.packageUdi = q.value(5).toString();
+		ins.price = q.value(6).toInt();
+		ins.typeName = q.value(7).toString();
+		ins.isVip = q.value(8).toBool();
+		ins.packageName = DaoUtil::udiName(q.value(10).toString(), q.value(9).toInt());
+		ins.name = DaoUtil::udiName(ins.typeName, q.value(2).toInt());
 		instruments->append(ins);
 	}
 
@@ -176,14 +189,16 @@ result_t InstrumentDao::addInstrument(const Instrument &ins)
 	if (q.first())
 		return "该器械已入库，请勿重复操作";
 
-	// when we add a new instrument, we don't know its package udi  
-	q.prepare("INSERT INTO t_instrument (udi, type_id, name, photo, price)"
-		" VALUES (?, ?, ?, ?, ?)");
+	// when we add a new instrument, we don't know its package udi.
+	// FIXME: maybe we should lock the table or use a transaction when query the max sn.
+	q.prepare("INSERT INTO t_instrument (udi, type_id, sn, alias, photo, price)"
+		" SELECT ?, ?, IFNULL(MAX(sn)+1, 1), ?, ?, ? FROM t_instrument WHERE type_id=?");
 	q.addBindValue(ins.udi);
 	q.addBindValue(ins.typeId);
-	q.addBindValue(ins.name);
+	q.addBindValue(ins.alias);
 	q.addBindValue(ins.photo);
 	q.addBindValue(ins.price);
+	q.addBindValue(ins.typeId);
 
 	if (!q.exec())
 		return q.lastError().text();
@@ -193,9 +208,9 @@ result_t InstrumentDao::addInstrument(const Instrument &ins)
 result_t InstrumentDao::updateInstrument(const Instrument &it)
 {
 	QSqlQuery query;
-	query.prepare("UPDATE t_instrument SET name = ?, photo = ?, price = ?"
+	query.prepare("UPDATE t_instrument SET alias = ?, photo = ?, price = ?"
 		" WHERE id = ?");
-	query.addBindValue(it.name);
+	query.addBindValue(it.alias);
 	query.addBindValue(it.photo);
 	query.addBindValue(it.price);
 	query.addBindValue(it.udi);

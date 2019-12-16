@@ -4,6 +4,8 @@
 #include "../entity/package.h"
 #include <rcore/result.h>
 
+class PackageTypeFilter;
+
 class RDAO_EXPORT PackageDao
 {
 public:
@@ -33,6 +35,10 @@ public:
 		int *total = nullptr,
 		int page = 1,
 		int count = 20);
+
+	//result_t getPackageTypeList(
+	//	QList<PackageType> *pts,
+	//	const PackageTypeFilter &filter);
 
 	result_t addPackageType(const PackageType &packageType);
 

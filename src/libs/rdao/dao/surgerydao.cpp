@@ -6,6 +6,9 @@
 
 result_t SurgeryDao::getSurgeryList(Rt::SurgeryStatus status, QList<Surgery> *surgeries)
 {
+	if (!surgeries) return 0;
+	surgeries->clear();
+
 	QSqlQuery q;
 	q.prepare("SELECT id, surgery_name, surgery_time, room, patient_id,"
 		" patient_name, patient_age, patient_gender"

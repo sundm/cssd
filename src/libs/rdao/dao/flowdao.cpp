@@ -82,11 +82,11 @@ result_t FlowDao::addWash(
 
 	// insert a new record for each package in r_package, since a loop always starts with washing.
 	QString sql = "INSERT INTO r_package"
-		" (pkg_udi, pkg_name, pkg_type_name, dept_name, pkg_cycle, pkg_type_id, dept_id) VALUES";
+		" (pkg_udi, pkg_name, dept_name, pkg_cycle, pkg_type_id, dept_id) VALUES";
 	QStringList values;
 	for each (const Package &pkg in pkgs) {
-		QString value = QString(" ('%1', '%2', '%3', '%4', %5, %6, %7)").
-			arg(pkg.udi, pkg.name, pkg.name, pkg.dept.name).  // TODO, Package has no typename
+		QString value = QString(" ('%1', '%2', '%3', %4, %5, %6)").
+			arg(pkg.udi, pkg.name, pkg.dept.name).
 			arg(pkg.cycle + 1).arg(pkg.typeId).arg(pkg.dept.id);
 		values << value;
 	}
@@ -378,12 +378,13 @@ result_t FlowDao::addSurgeryBindPackages(const Surgery &surgery, const Operator 
 		return "UDI包列表为空";
 
 	// TODO: ensure package types and numbers matches
+	// TODO: ensure each package's status is Rt::FlowStatus::Dispatched
 
 	QSqlDatabase db = QSqlDatabase::database();
 	db.transaction();
 
 	// insert bound packages into `r_surgery_packages`
-	QString sql = "INSERT INTO r_surgery_packages (surgery_id, pkg_cycle, pkg_udi,pkg_name) VALUES";
+	QString sql = "INSERT INTO r_surgery_package (surgery_id, pkg_cycle, pkg_udi, pkg_name) VALUES";
 	QStringList values;
 	for each(auto &pkg in surgery.packages) {
 		QString value = QString(" (%1, %2, '%3', '%4')").
@@ -395,6 +396,13 @@ result_t FlowDao::addSurgeryBindPackages(const Surgery &surgery, const Operator 
 	if (!q.exec(sql)) {
 		db.rollback();
 		return q.lastError().text();
+	}
+
+	// update package status
+	result_t res = updatePackageStatus(surgery.packages, Rt::SurgeryBound);
+	if (!res.isOk()) {
+		db.rollback();
+		return res.msg();
 	}
 
 	// update surgery status
@@ -427,6 +435,8 @@ result_t FlowDao::addSurgeryPreCheck(int surgeryId, const Operator &op)
 		return q.lastError().text();
 	}
 
+	// TODO: update package status?
+
 	return 0;
 }
 
@@ -443,6 +453,8 @@ result_t FlowDao::addSurgeryPostCheck(int surgeryId, const Operator &op)
 	if (!q.exec()) {
 		return q.lastError().text();
 	}
+
+	// TODO: update package status?
 
 	return 0;
 }

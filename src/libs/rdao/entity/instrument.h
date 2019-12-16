@@ -6,7 +6,7 @@
 struct InstrumentType
 {
 	int typeId;
-	QString name;
+	QString typeName;
 	QString pinyin;
 	QString photo;
 	bool isVip;
@@ -20,8 +20,11 @@ struct InstrumentType
 struct Instrument : public InstrumentType
 {
 	QString udi;
-	int cycle;
+	QString name;
+	QString alias;
 	QString packageUdi;
+	QString packageName;
+	int cycle;
 	int price;
 
 	Instrument() : cycle(0), price(-1) {}
