@@ -103,7 +103,8 @@ namespace Internal {
 	{
 		InstrumentDao dao;
 		QList<Instrument> ins;
-		result_t res = dao.getInstrumentList(&ins, page, _pageCount);
+		_total = 0;
+		result_t res = dao.getInstrumentList(&ins, &_total, page, _pageCount);
 		if (res.isOk())
 		{
 			clear();
@@ -136,6 +137,6 @@ void InstrumentIdPage::doSearch(int page)
 
 void InstrumentIdPage::search() {
 	_view->load(_searchBox->text(), 1);
-	//_paginator->setTotalPages(count / pageCount + (count % pageCount > 0));
-	_paginator->setTotalPages(1);//todo
+	_paginator->setTotalPages(_view->totalCount() / _view->pageCount() + (_view->totalCount() % _view->pageCount() > 0));
+	//_paginator->setTotalPages(1);//todo
 }

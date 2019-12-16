@@ -32,8 +32,8 @@ namespace Internal {
 	{
 		PackageDao dao;
 		QList<PackageType> pts;
-
-		result_t resp = dao.getPackageTypeList(&pts, page, _pageCount);
+		_total = 0;
+		result_t resp = dao.getPackageTypeList(&pts, &_total, page, _pageCount);
 		if (resp.isOk())
 		{
 			clear(); // when succeeded
@@ -209,6 +209,6 @@ void PackagePage::doSearch(int page)
 
 void PackagePage::search() {
 	_view->load(_searchBox->text(), 1);
-	//_paginator->setTotalPages(count / pageCount + (count % pageCount > 0));
-	_paginator->setTotalPages(3);//todo
+	_paginator->setTotalPages(_view->totalCount() / _view->pageCount() + (_view->totalCount() % _view->pageCount() > 0));
+	//_paginator->setTotalPages(3);//todo
 }
