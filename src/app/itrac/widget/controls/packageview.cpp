@@ -467,6 +467,18 @@ PackageSimpleInfoView::PackageSimpleInfoView(QWidget *parent /*= nullptr*/)
 	hLayout->addStretch(0);
 }
 
+void PackageSimpleInfoView::reset()
+{
+	_totalNumLabel->setText("0");
+	_scannedNumLabel->setText("0");
+	_residueNumLabel->setText("0");
+	_unusualNumLabel->setText("0");
+
+	_totalNum = 0;
+	_scannedNum = 0;
+	_unusualNum = 0;
+}
+
 void PackageSimpleInfoView::updatePackageInfo(const int &insCount)
 {
 	_totalNum = insCount;
@@ -492,6 +504,14 @@ void PackageSimpleInfoView::unusualed()
 	//todo
 	_unusualNum++;
 	_unusualNumLabel->setText(QString::number(_unusualNum));
+}
+
+bool PackageSimpleInfoView::isScanFinished()
+{
+	if (_totalNum == _scannedNum && _unusualNum == 0)
+		return true;
+	else
+		return false;
 }
 
 PackageInfoView::PackageInfoView(QWidget *parent /*= nullptr*/)
@@ -650,11 +670,11 @@ void OperationInfoTabelView::slotRowDoubleClicked(const QModelIndex &index)
 	emit operationClicked(surgery.id);
 }
 
-void OperationInfoTabelView::loadSurgeries()
+void OperationInfoTabelView::loadSurgeries(Rt::SurgeryStatus status)
 {
 	SurgeryDao dao;
 
-	result_t resp = dao.getSurgeryList(Rt::SurgeryStatus::WaitingForCheck, &_surgeries);
+	result_t resp = dao.getSurgeryList(status, &_surgeries);
 	if (resp.isOk())
 	{
 		_model->removeRows(0, _model->rowCount());
@@ -721,7 +741,7 @@ OperationInfoView::OperationInfoView(QWidget *parent /*= nullptr*/)
 
 void OperationInfoView::loadSurgeries()
 {
-	_view->loadSurgeries();
+	_view->loadSurgeries(Rt::SurgeryStatus::Initialized);
 }
 
 void OperationInfoView::addOperation()
@@ -740,8 +760,88 @@ void OperationInfoView::delOperation()
 
 void OperationInfoView::refresh()
 {
-	_view->loadSurgeries();
+	_view->loadSurgeries(Rt::SurgeryStatus::Initialized);
 }
+
+OperationCheckPackageView::OperationCheckPackageView(QWidget *parent /*= nullptr*/)
+	: TableView(parent), _model(new QStandardItemModel(this))
+{
+	_model->setColumnCount(Info + 1);
+	_model->setHeaderData(PackageID, Qt::Horizontal, "包ID");
+	_model->setHeaderData(PackageName, Qt::Horizontal, "包名称");
+	_model->setHeaderData(State, Qt::Horizontal, "器械数量");
+	_model->setHeaderData(Info, Qt::Horizontal, "状态");
+
+	setModel(_model);
+	setSelectionMode(QAbstractItemView::SingleSelection);
+	setEditTriggers(QAbstractItemView::NoEditTriggers);
+}
+
+void OperationCheckPackageView::setScanned(const QString& udi)
+{
+	for (int i = 0; i < _model->rowCount(); i++)
+	{
+		if (_model->item(i, PackageID)->text().compare(udi) == 0)
+		{
+			int scanNum = _model->item(i, Info)->data(Qt::UserRole + 1).toInt() + 1;
+
+			QString info = QString("已扫描%1把").arg(QString::number(scanNum));
+			_model->item(i, Info)->setText(info);
+			_model->item(i, Info)->setData(scanNum, Qt::UserRole + 1);
+		}
+	}
+}
+
+void OperationCheckPackageView::loadPackages(const int surgeryId)
+{
+	_packages.clear();
+
+	SurgeryDao dao;
+	PackageDao pdao;
+	result_t resp = dao.getSurgery(surgeryId, &_surgery);
+	if (resp.isOk())
+	{
+		_model->removeRows(0, _model->rowCount());
+		QList<Package> packages = _surgery.packages;
+		for each (Package pkg in packages)
+		{
+			Package p;
+			resp = pdao.getPackage(pkg.udi, &p, true);
+			if (resp.isOk())
+			{
+				QList<QStandardItem *> rowItems;
+				QStandardItem *idItem = new QStandardItem(p.udi);
+				QStandardItem *nameItem = new QStandardItem(p.name);
+				QStandardItem *numItem = new QStandardItem(QString("共%1把").arg(QString::number(p.instruments.count())));
+				QStandardItem *statusItem = new QStandardItem("-");
+				statusItem->setData(0, Qt::UserRole + 1);
+
+				idItem->setTextAlignment(Qt::AlignCenter);
+				nameItem->setTextAlignment(Qt::AlignCenter);
+				numItem->setTextAlignment(Qt::AlignCenter);
+				statusItem->setTextAlignment(Qt::AlignCenter);
+
+				rowItems << idItem << nameItem << numItem << statusItem;
+				_model->appendRow(rowItems);
+				_packages.append(p);
+			}
+			else
+			{
+				XNotifier::warn(QString("编号[%1]的包无法获取器械列表").arg(pkg.udi));
+				return;
+			}
+		}
+
+		emit waitForScan(_packages);
+	}
+	else
+	{
+		XNotifier::warn(QString("编号[%1]的手术无法获取器械包列表").arg(surgeryId));
+		return;
+	}
+
+}
+
 
 OperationPackageView::OperationPackageView(QWidget *parent /*= nullptr*/)
 	: TableView(parent), _model(new QStandardItemModel(this))
@@ -785,7 +885,16 @@ OperationPackageView::OperationPackageView(QWidget *parent /*= nullptr*/)
 
 bool OperationPackageView::isFinished()
 {
-	return true;
+	if (_packages.count() == _model->rowCount())
+	{
+		_surgery.packages.clear();
+		_surgery.packages.append(_packages);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 bool OperationPackageView::addPackage(const Package &pkg)
@@ -807,7 +916,7 @@ bool OperationPackageView::addPackage(const Package &pkg)
 			_model->setData(_model->index(i, 0), true, Qt::UserRole + 2);
 			_model->setData(_model->index(i, 1), pkg.udi, Qt::DisplayRole);
 			_model->setData(_model->index(i, 2), pkg.name, Qt::DisplayRole);
-			_model->setData(_model->index(i, 3), QString("已绑定"), Qt::DisplayRole);
+			_model->setData(_model->index(i, 3), QString("完成绑定-共%1把器械").arg(pkg.instruments.count()), Qt::DisplayRole);
 			_packages.append(pkg);
 			return true;
 		}
@@ -861,10 +970,6 @@ void OperationPackageView::loadPackages(const int surgeryId)
 			}
 		}
 
-		if (_packages.count() == _model->rowCount())
-		{
-			emit packagesLoaded(_packages);
-		}
 	}
 	else
 	{

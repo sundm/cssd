@@ -99,7 +99,7 @@ class OperationInfoTabelView : public TableView
 
 public:
 	OperationInfoTabelView(QWidget *parent = nullptr);
-	void loadSurgeries();
+	void loadSurgeries(Rt::SurgeryStatus status);
 
 signals:
 	void operationClicked(const int);
@@ -123,14 +123,37 @@ public:
 signals:
 	void operation(const int);
 
+public slots:
+	void refresh();
+
 private slots:
 	void addOperation();
 	void delOperation();
-	void refresh();
+	
 
 private:
 	OperationInfoTabelView * _view;
 	
+};
+
+class OperationCheckPackageView : public TableView
+{
+	Q_OBJECT
+
+public:
+	OperationCheckPackageView(QWidget *parent = nullptr);
+	Surgery& getSurgery() { return _surgery; }
+	void setScanned(const QString& udi);
+signals:
+	void waitForScan(const QList<Package> &);
+
+public slots:
+	void loadPackages(const int);
+private:
+	enum {PackageID, PackageName, State, Info};
+	QStandardItemModel * _model;
+	Surgery _surgery;
+	QList<Package> _packages;
 };
 
 class OperationPackageView : public TableView
@@ -141,11 +164,10 @@ public:
 	OperationPackageView(QWidget *parent = nullptr);
 	bool isFinished();
 	bool addPackage(const Package &pkg);
-signals:
-	void packagesLoaded(const QList<Package>& pkg);
-
+	Surgery& getSurgery() { return _surgery; }
 public slots:
 	void loadPackages(const int);
+
 private:
 	enum { PackageType, PackageID, PackageName, State};
 	QStandardItemModel * _model;
@@ -158,9 +180,11 @@ class PackageSimpleInfoView : public QWidget
 	Q_OBJECT
 public:
 	PackageSimpleInfoView(QWidget *parent = nullptr);
+	void reset();
 	void updatePackageInfo(const int &insCount);
 	void scanned();
 	void unusualed();
+	bool isScanFinished();
 private:
 	QLabel * _totalNumLabel;
 	QLabel * _scannedNumLabel;
@@ -227,7 +251,6 @@ public:
 	void loadDetail(const QList<Instrument> *instruments);
 	void scanned(const QString & code);
 	void reset();
-
 signals:
 	void scand(const QString &);
 	void unusual(const QString &);

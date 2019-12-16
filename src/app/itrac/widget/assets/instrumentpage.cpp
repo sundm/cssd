@@ -13,10 +13,6 @@ QString getVipLiteral(const bool &isVip) {
 	return isVip ? "是" : "否";
 }
 
-QString getImportLiteral(const Rt::InstrumentCategory &import) {
-	return Rt::InstrumentCategory::ImplantedInstrument == import ? "是" : "否";
-}
-
 InstrumentPage::InstrumentPage(QWidget *parent)
 	: QWidget(parent)
 	, _view(new Internal::InstrumentAssetView)
@@ -118,12 +114,11 @@ void InstrumentPage::modify() {
 namespace Internal {
 	InstrumentAssetView::InstrumentAssetView(QWidget *parent /*= nullptr*/)
 		: PaginationView(parent)
-		, _model(new QStandardItemModel(0, Implant + 1, this))
+		, _model(new QStandardItemModel(0, Vip + 1, this))
 	{
 		_model->setHeaderData(Name, Qt::Horizontal, "器械名");
 		_model->setHeaderData(Pinyin, Qt::Horizontal, "拼音检索码");
 		_model->setHeaderData(Vip, Qt::Horizontal, "是否贵重器械");
-		_model->setHeaderData(Implant, Qt::Horizontal, "是否为植入器械");
 		setModel(_model);
 		setEditTriggers(QAbstractItemView::NoEditTriggers);
 		setPageCount(30);
@@ -133,7 +128,8 @@ namespace Internal {
 	{
 		InstrumentDao dao;
 		QList<InstrumentType> ins;
-		result_t res = dao.getInstrumentTypeList(&ins, page, _pageCount);
+		_total = 0;
+		result_t res = dao.getInstrumentTypeList(&ins, &_total, page, _pageCount);
 		if (res.isOk())
 		{
 			clear();
@@ -144,7 +140,6 @@ namespace Internal {
 				_model->setData(_model->index(i, Name), inst.typeId, Qt::UserRole + 1);
 				_model->setData(_model->index(i, Pinyin), inst.pinyin);
 				_model->setData(_model->index(i, Vip), getVipLiteral(inst.isVip));
-				_model->setData(_model->index(i, Implant), getImportLiteral(inst.category));
 
 				_model->setHeaderData(i, Qt::Vertical, (page - 1)*_pageCount + 1 + i);
 			}
@@ -182,6 +177,6 @@ void InstrumentPage::doSearch(int page)
 
 void InstrumentPage::search() {
 	_view->load(_searchBox->text(), 1);
-	//_paginator->setTotalPages(count / pageCount + (count % pageCount > 0));
-	_paginator->setTotalPages(1);//todo
+	_paginator->setTotalPages(_view->totalCount() / _view->pageCount()  + (_view->totalCount() % _view->pageCount() > 0));
+	//_paginator->setTotalPages(1);//todo
 }

@@ -6,6 +6,7 @@
 #include "core/net/url.h"
 #include "ui/buttons.h"
 #include "ui/views.h"
+#include "core/user.h"
 #include "inliner.h"
 #include "widget/controls/packageview.h"
 #include "widget/controls/idedit.h"
@@ -17,6 +18,7 @@
 #include "rdao/dao/surgerydao.h"
 #include "rdao/dao/flowdao.h"
 #include "rdao/dao/PackageDao.h"
+#include "rdao/entity/operator.h"
 #include "rdao/dao/flowDao.h"
 #include "rdao/dao/instrumentdao.h"
 #include <xui/images.h>
@@ -135,17 +137,45 @@ void PreBindPanel::handleBarcode(const QString &code) {
 
 void PreBindPanel::commit() {
 	//todo
+	
+	if (_operPackageView->isFinished())
+	{
+		Surgery surgery = _operPackageView->getSurgery();
+
+		Operator op;
+		op.id = Core::currentUser().id;
+		op.name = Core::currentUser().name;
+
+		FlowDao dao;
+		result_t resp = dao.addSurgeryBindPackages(surgery, op);
+
+		if (resp.isOk())
+		{
+			XNotifier::warn(QString("出库成功！"));
+			reset();
+		}
+		else
+		{
+			XNotifier::warn(QString("出库失败: ").append(resp.msg()));
+		}
+	}
+	else
+	{
+		XNotifier::warn(QString("尚未完成绑定，不能提交！"));
+	}
+	
 }
 
 void PreBindPanel::reset()
 {
-	//todo
+	_operInfoView->refresh();
+	_operPackageView->clear();
 }
 
 PreExamPanel::PreExamPanel(QWidget *parent /*= nullptr*/)
 	: CssdOverlayPanel(parent)
 	, _operInfoView(new OperationInfoTabelView)
-	, _operPackageView(new OperationPackageView)
+	, _operPackageView(new OperationCheckPackageView)
 	, _pkgView(new PackageSimpleInfoView)
 	, _detailView(new PackageDetailView)
 	, _unusualView(new UnusualInstrumentView)
@@ -186,7 +216,7 @@ PreExamPanel::PreExamPanel(QWidget *parent /*= nullptr*/)
 	connect(_operInfoView, SIGNAL(operationClicked(const int)), this, SLOT(loadPackage(const int)));
 	connect(_detailView, SIGNAL(scand(const QString&)), this, SLOT(onScanned(const QString&)));
 	connect(_detailView, SIGNAL(unusual(const QString&)), this, SLOT(onUnusual(const QString&)));
-	connect(_operPackageView, SIGNAL(packagesLoaded(const QList<Package>&)), this, SLOT(loadInsturment(const QList<Package>&)));
+	connect(_operPackageView, SIGNAL(waitForScan(const QList<Package> &)), this, SLOT(loadInsturments(const QList<Package> &)));
 
 	_step = -1;
 
@@ -202,7 +232,10 @@ void PreExamPanel::loadPackage(const int surgeryId)
 void PreExamPanel::loadInsturments(const QList<Package>& pkgs)
 {
 	QList<Instrument> insList;
-	for each (Package pkg in pkgs)
+	_packages.clear();
+	_packages.append(pkgs);
+
+	for each (Package pkg in _packages)
 	{
 		insList.append(pkg.instruments);
 	}
@@ -213,7 +246,7 @@ void PreExamPanel::loadInsturments(const QList<Package>& pkgs)
 }
 
 void PreExamPanel::initOperationView() {
-	_operInfoView->loadSurgeries();
+	_operInfoView->loadSurgeries(Rt::SurgeryStatus::UdiPackageBound);
 }
 
 void PreExamPanel::onScanned(const QString& code)
@@ -222,6 +255,17 @@ void PreExamPanel::onScanned(const QString& code)
 	{
 		_scannedCodes->append(code);
 		_pkgView->scanned();
+
+		for each (Package pkg in _packages)
+		{
+			for each (Instrument ins in pkg.instruments)
+			{
+				if (code.compare(ins.udi) == 0)
+				{
+					_operPackageView->setScanned(pkg.udi);
+				}
+			}
+		}
 	}
 }
 
@@ -239,21 +283,6 @@ void PreExamPanel::onTransponderReceviced(const QString& code)
 {
 	qDebug() << code;
 	TranspondCode tc(code);
-	if (tc.type() == TranspondCode::Package && 0 == _step)
-	{
-		//PackageDao dao;
-		//Package pkg;
-		//result_t resp = dao.getPackage(code, &pkg, true);
-		//if (resp.isOk())
-		//{
-		//	_operPackageView->addPackage(pkg);
-		//}
-		//else
-		//{
-		//	XNotifier::warn(QString("获取包信息失败: ").append(resp.msg()));
-		//}
-		
-	}
 
 	if (tc.type() == TranspondCode::Instrument && 1 == _step)
 	{
@@ -295,19 +324,50 @@ void PreExamPanel::handleBarcode(const QString &code) {
 }
 
 void PreExamPanel::commit() {
-	//todo
+	if (_pkgView->isScanFinished())
+	{
+		Surgery surgery = _operPackageView->getSurgery();
+
+		Operator op;
+		op.id = Core::currentUser().id;
+		op.name = Core::currentUser().name;
+
+		FlowDao dao;
+		result_t resp = dao.addSurgeryPreCheck(surgery.id, op);
+
+		if (resp.isOk())
+		{
+			XNotifier::warn(QString("术前检查登记成功"));
+			reset();
+		}
+		else
+		{
+			XNotifier::warn(QString("术前检查登记失败: ").append(resp.msg()));
+		}
+	}
+	else
+	{
+		XNotifier::warn(QString("尚未完成绑定，不能提交！"));
+	}
 }
 
 void PreExamPanel::reset()
 {
 	//todo
+	_scannedCodes->clear();
+	_unusualCodes->clear();
+	_operPackageView->clear();
+	_pkgView->reset();
+	_detailView->clear();
+	_unusualView->clear();
+	_step = 0;
 }
 
 
 PostExamPanel::PostExamPanel(QWidget *parent /*= nullptr*/)
 	: CssdOverlayPanel(parent)
 	, _operInfoTableView(new OperationInfoTabelView)
-	, _operPackageView(new OperationPackageView)
+	, _operPackageView(new OperationCheckPackageView)
 	, _pkgView(new PackageSimpleInfoView)
 	, _detailView(new PackageDetailView)
 	, _unusualView(new UnusualInstrumentView)
@@ -357,28 +417,6 @@ void PostExamPanel::onTransponderReceviced(const QString& code)
 {
 	qDebug() << code;
 	TranspondCode tc(code);
-	if (tc.type() == TranspondCode::Package && 0 == _step)
-	{
-		/*_codeMap->clear();
-		_unusualCodes->clear();
-		_scannedCodes->clear();
-		_codeMap->insert("E2009A8020020AF000006502", "测试器械01");
-		_codeMap->insert("E2009A8020020AF000005618", "测试器械01");
-		_codeMap->insert("E2009A8020020AF000006342", "测试器械01");
-
-		_codeMap->insert("E2009A8020020AF000006090", "测试器械02");
-		_codeMap->insert("E2009A8020020AF000004398", "测试器械02");
-		_codeMap->insert("E2009A8020020AF000006048", "测试器械02");
-		_codeMap->insert("E2009A8020020AF000003250", "测试器械02");
-		_codeMap->insert("E2009A8020020AF000005811", "测试器械02");
-
-		_codeMap->insert("E2009A8020020AF000005187", "测试器械03");
-
-		_pkgView->updatePackageInfo(_codeMap->size());
-		_detailView->loadDetail(_codeMap);*/
-
-		_step = 1;
-	}
 
 	if (tc.type() == TranspondCode::Instrument && 1 == _step)
 	{

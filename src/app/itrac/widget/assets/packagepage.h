@@ -17,10 +17,12 @@ public:
 	enum Column {Name, Pinyin, PackType, SteType, Department};
 	PackageAssetView(QWidget *parent = nullptr);
 	void load(const QString &kw = QString(), int page = 0);
-
+	int totalCount() { return _total; };
+	int pageCount() { return _pageCount; }
 private:
 	QStandardItemModel * _model;
 	JsonHttpClient _http;
+	int _total;
 };
 
 QString literalSteType(int type);

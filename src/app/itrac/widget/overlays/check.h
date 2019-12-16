@@ -13,6 +13,7 @@ class XPicture;
 class OperationInfoTabelView;
 class OperationInfoView;
 class OperationPackageView;
+class OperationCheckPackageView;
 class UnusualInstrumentView;
 class PackageSimpleInfoView;
 class PackageInfoView;
@@ -75,7 +76,7 @@ private:
 	void initOperationView();
 	
 	OperationInfoTabelView * _operInfoView;
-	OperationPackageView * _operPackageView;
+	OperationCheckPackageView * _operPackageView;
 
 	PackageSimpleInfoView * _pkgView;
 	PackageDetailView * _detailView;
@@ -83,7 +84,7 @@ private:
 
 	QStringList * _scannedCodes;
 	QStringList * _unusualCodes;
-
+	QList<Package> _packages;
 	int _row;
 	int _step;
 };
@@ -108,7 +109,7 @@ private:
 	void initOperationView();
 
 	OperationInfoTabelView * _operInfoTableView;
-	OperationPackageView * _operPackageView;
+	OperationCheckPackageView * _operPackageView;
 	PackageSimpleInfoView * _pkgView;
 	PackageDetailView * _detailView;
 	UnusualInstrumentView * _unusualView;
