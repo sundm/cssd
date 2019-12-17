@@ -30,12 +30,11 @@ private slots:
 	void loadImg();
 	void onTransponderReceviced(const QString& code);
 	void onBarcodeReceviced(const QString& code);
-	void onDeptChanged(int);
 private:
 	void resetView();
 
-	Ui::FlatEdit *_nameEdit;
 	Ui::FlatEdit *_idEdit;
+	Ui::FlatEdit *_aliasEdit;
 	InstrumentEdit * _insEdit;
 	WaitingSpinner *_waiter;
 

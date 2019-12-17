@@ -19,14 +19,12 @@
 BatchAddInstrumentIdDialog::BatchAddInstrumentIdDialog(QWidget *parent)
 	: QDialog(parent)
 	, _insEdit(new InstrumentEdit)
-	, _beginBox(new QSpinBox())
 	, _view(new TableView(this))
-	, _model(new QStandardItemModel(0, 2, _view))
+	, _model(new QStandardItemModel(0, 1, _view))
 	, _imgLabel(new XPicture(this))
 	, _waiter(new WaitingSpinner(this))
 {
-	_model->setHeaderData(0, Qt::Horizontal, "器械名称");
-	_model->setHeaderData(1, Qt::Horizontal, "器械UDI");
+	_model->setHeaderData(0, Qt::Horizontal, "器械UDI");
 
 	_view->setModel(_model);
 	_view->setMinimumHeight(500);
@@ -35,9 +33,6 @@ BatchAddInstrumentIdDialog::BatchAddInstrumentIdDialog(QWidget *parent)
 	QHeaderView *header = _view->horizontalHeader();
 	header->setStretchLastSection(true);
 	header->resizeSection(0, 150);
-
-	_beginBox->setMinimum(1);
-	_numbers = 0;
 
 	setWindowTitle("批量添加新器械");
 
@@ -57,33 +52,25 @@ BatchAddInstrumentIdDialog::BatchAddInstrumentIdDialog(QWidget *parent)
 	QGridLayout *mainLayout = new QGridLayout(this);
 	mainLayout->setVerticalSpacing(15);
 	mainLayout->addWidget(new QLabel("所属基础器械"), 0, 0);
-	mainLayout->addWidget(new QLabel("起始编号"), 1, 0);
-	mainLayout->addWidget(new QLabel("器械列表"), 2, 0);
+	mainLayout->addWidget(new QLabel("器械列表"), 1, 0);
 	
 	mainLayout->addWidget(_insEdit, 0, 1);
-	mainLayout->addWidget(_beginBox, 1, 1);
-	mainLayout->addWidget(_view, 2, 1);
+	mainLayout->addWidget(_view, 1, 1);
 	
 	
-	mainLayout->addWidget(Ui::createSeperator(Qt::Horizontal), 3, 0, 1, 2);
+	mainLayout->addWidget(Ui::createSeperator(Qt::Horizontal), 2, 0, 1, 2);
 	
-	mainLayout->addWidget(loadButton, 4, 0, 1, 2, Qt::AlignLeft);
-	mainLayout->addWidget(_imgLabel, 5, 0, 1, 2);
+	mainLayout->addWidget(loadButton, 3, 0, 1, 2, Qt::AlignLeft);
+	mainLayout->addWidget(_imgLabel, 4, 0, 1, 2);
 
-	mainLayout->addWidget(submitButton, 6, 0, 1, 2, Qt::AlignHCenter);
+	mainLayout->addWidget(submitButton, 5, 0, 1, 2, Qt::AlignHCenter);
 
 	resize(parent ? parent->width() / 3 : 360, sizeHint().height());
 
 	connect(_listener, SIGNAL(onTransponder(const QString&)), this, SLOT(onTransponderReceviced(const QString&)));
 	connect(_listener, SIGNAL(onBarcode(const QString&)), this, SLOT(onBarcodeReceviced(const QString&)));
 
-	connect(_insEdit, SIGNAL(changed(int)), this, SLOT(onDeptChanged(int)));
 	_insEdit->load();
-}
-
-void BatchAddInstrumentIdDialog::onDeptChanged(int)
-{
-	_preName = _insEdit->currentName().append("#");
 }
 
 void BatchAddInstrumentIdDialog::loadImg() {
@@ -119,8 +106,7 @@ void BatchAddInstrumentIdDialog::accept() {
 	for (size_t i = 0; i < _model->rowCount(); i++)
 	{
 		Instrument it;
-		it.name = _model->data(_model->index(i, 0)).toString();
-		it.udi = _model->data(_model->index(i, 1)).toString();
+		it.udi = _model->data(_model->index(i, 0)).toString();
 		it.typeId = typeId;
 
 		InstrumentDao dao;
@@ -156,7 +142,7 @@ void BatchAddInstrumentIdDialog::accept() {
 			_scannedList.removeAt(rowToDel);
 		}
 
-		XNotifier::warn(QString("以下器械添加失败!"));
+		XNotifier::warn(QString("以下器械UDI添加失败!"));
 	}
 	
 	
@@ -165,12 +151,6 @@ void BatchAddInstrumentIdDialog::accept() {
 
 void BatchAddInstrumentIdDialog::onTransponderReceviced(const QString& code)
 {
-	if (_preName.isEmpty())
-	{
-		_insEdit->setFocus();
-		return;
-	}
-
 	qDebug() << code;
 	TranspondCode tc(code);
 	
@@ -181,16 +161,9 @@ void BatchAddInstrumentIdDialog::onTransponderReceviced(const QString& code)
 			return;
 		}
 
-		if (_numbers < _beginBox->value())
-			_numbers = _beginBox->value();
-
-		QString name = QString("%1%2").arg(_preName).arg(QString::number(_numbers));
 		int count = _model->rowCount();
 		_model->insertRows(count, 1);
-		_model->setData(_model->index(count, 0), name);
-		_model->setData(_model->index(count, 1), code);
-
-		_numbers++;
+		_model->setData(_model->index(count, 0), code);
 		_scannedList.append(code);
 	}
 	

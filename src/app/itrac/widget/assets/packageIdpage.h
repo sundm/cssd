@@ -14,7 +14,7 @@ class PackageIdAssetView : public PaginationView
 	Q_OBJECT
 
 public:
-	enum Column {Name, Id};
+	enum Column {Name, Id, Alias, Basics, Cycle};
 	PackageIdAssetView(QWidget *parent = nullptr);
 	void load(const QString &kw = QString(), int page = 0);
 	int totalCount() { return _total; };

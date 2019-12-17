@@ -166,7 +166,7 @@ void SterilePanel::commit() {
 	bool bioInvolved = false;
 	if (_pkgView->hasImplantPackage()) {
 		bioInvolved = true;
-		XNotifier::warn(QString("请注意：含有植入物器械包，需做生物监测！"));
+		XNotifier::warn(QString("请注意：用于植入性手术的器械包，需做生物监测！"));
 	}
 
 	QList<Package> packages = _pkgView->packages();

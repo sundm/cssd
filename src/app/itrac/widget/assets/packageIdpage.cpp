@@ -14,11 +14,13 @@
 namespace Internal {
 	PackageIdAssetView::PackageIdAssetView(QWidget *parent /*= nullptr*/)
 		: PaginationView(parent)
-		, _model(new QStandardItemModel(0, Id + 1, this))
+		, _model(new QStandardItemModel(0, Cycle + 1, this))
 	{
-		_model->setHeaderData(Name, Qt::Horizontal, "包名");
+		_model->setHeaderData(Name, Qt::Horizontal, "包名称");
 		_model->setHeaderData(Id, Qt::Horizontal, "包UDI");
-		//_model->setHeaderData(Nums, Qt::Horizontal, "器械数量");
+		_model->setHeaderData(Alias, Qt::Horizontal, "包别名");
+		_model->setHeaderData(Basics, Qt::Horizontal, "所属包类型");
+		_model->setHeaderData(Cycle, Qt::Horizontal, "循环次数");
 		setModel(_model);
 		setEditTriggers(QAbstractItemView::NoEditTriggers);
 	}
@@ -40,11 +42,17 @@ namespace Internal {
 				_model->setData(_model->index(i, Name), pk.typeId, Qt::UserRole + 1);
 				_model->setData(_model->index(i, Id), pk.udi);
 
+				_model->setData(_model->index(i, Alias), pk.alias);
+
+				_model->setData(_model->index(i, Basics), pk.typeName);
+				_model->setData(_model->index(i, Basics), pk.typeId, Qt::UserRole + 1);
+
+				_model->setData(_model->index(i, Cycle), pk.cycle);
+
 				_model->setHeaderData(i, Qt::Vertical, (page - 1)*_pageCount + 1 + i);
 				//PackageType pkt;
 				//dao.getPackageType(pk.typeId, &pkt);
-				//_model->setData(_model->index(i, Basics), pkt.name);
-				//_model->setData(_model->index(i, Basics), pkt.typeId, Qt::UserRole + 1);
+				
 			}
 		}
 		else

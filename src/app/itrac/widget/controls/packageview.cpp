@@ -76,13 +76,12 @@ SterilePackageView::SterilePackageView(QWidget *parent /*= nullptr*/)
 	: AbstractPackageView(parent) {
 	_pkgList.clear();
 	_model->setColumnCount(Implant + 1);
-	_model->setHeaderData(Barcode, Qt::Horizontal, "包条码");
+	_model->setHeaderData(Barcode, Qt::Horizontal, "包UDI");
 	_model->setHeaderData(Name, Qt::Horizontal, "包名");
 	_model->setHeaderData(PackType, Qt::Horizontal, "包装类型");
 	_model->setHeaderData(Department, Qt::Horizontal, "所属科室");
-	_model->setHeaderData(ExpireDate, Qt::Horizontal, "失效日期");
 	_model->setHeaderData(SterType, Qt::Horizontal, "灭菌类型");
-	_model->setHeaderData(Implant, Qt::Horizontal, "是否含有植入物");
+	_model->setHeaderData(Implant, Qt::Horizontal, "是否用于植入性手术");
 	
 	horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
 	setColumnWidth(0, 400);
@@ -141,13 +140,12 @@ void SterilePackageView::addPackage(const QString &id) {
 		rowItems << new QStandardItem(pkg.name);
 		rowItems << new QStandardItem(pkg.packType.name);
 		rowItems << new QStandardItem(pkg.dept.name);
-		rowItems << new QStandardItem();//todo 
 
 		QStandardItem *typeItem = new QStandardItem(literal_sterile_type(pkg.sterMethod));
 		typeItem->setData(pkg.sterMethod);
 		rowItems << typeItem;
 
-		QStandardItem *insItem = new QStandardItem(false ? "是" : "否");
+		QStandardItem *insItem = new QStandardItem(pkg.forImplants ? "是" : "否");
 		insItem->setData(brushForImport(false), Qt::BackgroundRole);
 		rowItems << insItem;
 		_model->appendRow(rowItems);
@@ -194,9 +192,9 @@ void SterilePackageView::addPackage(const QString &id) {
 
 SterileCheckPackageView::SterileCheckPackageView(QWidget *parent /*= nullptr*/)
 	: TableView(parent), _model(new QStandardItemModel(0, Wet + 1, this)) {
-	_model->setHeaderData(Barcode, Qt::Horizontal, "包条码");
-	_model->setHeaderData(Name, Qt::Horizontal, "包名");
-	_model->setHeaderData(Implant, Qt::Horizontal, "是否含有植入物");
+	_model->setHeaderData(Barcode, Qt::Horizontal, "包UDI");
+	_model->setHeaderData(Name, Qt::Horizontal, "包名称");
+	_model->setHeaderData(Cycle, Qt::Horizontal, "循环次数");
 	_model->setHeaderData(Wet, Qt::Horizontal, "是否发生湿包");
 	setModel(_model);
 	setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -225,7 +223,7 @@ void SterileCheckPackageView::addPackages(const QList<SterilizeResult::PackageIt
 		SterilizeResult::PackageItem item = pkgs[i];
 		_model->setData(_model->index(i, 0), item.udi);
 		_model->setData(_model->index(i, 1), item.name);
-		_model->setData(_model->index(i, 2), "");//todo
+		_model->setData(_model->index(i, 2), item.cycle);//todo
 		CheckBoxDelegate *checkBox = new CheckBoxDelegate;
 		connect(checkBox, SIGNAL(setChecked(const QModelIndex &, const bool)), this, SLOT(itemChecked(const QModelIndex &, const bool)));
 		checkBox->setColumn(3, readOnly);
@@ -238,12 +236,12 @@ DispatchPackageView::DispatchPackageView(QWidget *parent /*= nullptr*/)
 	: AbstractPackageView(parent) {
 	_pkgList.clear();
 	_model->setColumnCount(Implant + 1);
-	_model->setHeaderData(Barcode, Qt::Horizontal, "包条码");
-	_model->setHeaderData(Name, Qt::Horizontal, "包名");
+	_model->setHeaderData(Barcode, Qt::Horizontal, "包UDI");
+	_model->setHeaderData(Name, Qt::Horizontal, "包名称");
 	_model->setHeaderData(PackType, Qt::Horizontal, "包装类型");
 	_model->setHeaderData(Department, Qt::Horizontal, "所属科室");
 	_model->setHeaderData(ExpireDate, Qt::Horizontal, "失效日期");
-	_model->setHeaderData(Implant, Qt::Horizontal, "是否含有植入物");
+	_model->setHeaderData(Implant, Qt::Horizontal, "是否用于植入性手术");
 
 	horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
 	setColumnWidth(0, 400);
@@ -279,21 +277,79 @@ void DispatchPackageView::addPackage(const QString &id) {
 			XNotifier::warn(QString("包 [%1] 已进行过发放，请勿重复登记").arg(id));
 			return;
 		}
-		_pkgList.append(pkg);
+		PackageQualityControl pkgqc;
+		resp = dao.getPackageQualityControl(pkg, &pkgqc);
+		if (resp.isOk())
+		{
+			if (pkgqc.phyResult == Rt::SterilizeVerdict::Unchecked || pkgqc.phyResult == Rt::SterilizeVerdict::Uninvolved)
+			{
+				XNotifier::warn(QString("该包物理监测结果未提交，不能进行发放操作。"));
+				return;
+			}
 
-		QList<QStandardItem *> rowItems;
-		QStandardItem *idItem = new QStandardItem(pkg.udi);
-		//idItem->setData(resp.getAsBool("ins_count"));
-		rowItems << idItem;
-		rowItems << new QStandardItem(pkg.name);
-		rowItems << new QStandardItem(pkg.packType.name);
-		rowItems << new QStandardItem(pkg.dept.name);
-		rowItems << new QStandardItem();//todo 
+			if (pkgqc.phyResult == Rt::SterilizeVerdict::Unqualified)
+			{
+				XNotifier::warn(QString("该包物理监测结果不合格，不能进行发放操作。"));
+				return;
+			}
 
-		QStandardItem *insItem = new QStandardItem(false ? "是" : "否");
-		insItem->setData(brushForImport(false), Qt::BackgroundRole);
-		rowItems << insItem;
-		_model->appendRow(rowItems);
+			if (pkgqc.cheResult == Rt::SterilizeVerdict::Unchecked || pkgqc.cheResult == Rt::SterilizeVerdict::Uninvolved)
+			{
+				XNotifier::warn(QString("该包化学监测结果未提交，不能进行发放操作。"));
+				return;
+			}
+
+			if (pkgqc.cheResult == Rt::SterilizeVerdict::Unqualified)
+			{
+				XNotifier::warn(QString("该包化学监测结果不合格，不能进行发放操作。"));
+				return;
+			}
+
+			if (pkgqc.bioResult == Rt::SterilizeVerdict::Unqualified)
+			{
+				XNotifier::warn(QString("该包生物监测结果不合格，不能进行发放操作。"));
+				return;
+			}
+
+			if (pkgqc.isExpired)
+			{
+				XNotifier::warn(QString("该包已失效，不能进行发放操作。"));
+				return;
+			}
+
+			if (pkgqc.isRecalled)
+			{
+				XNotifier::warn(QString("该包已被召回，不能进行发放操作。"));
+				return;
+			}
+
+			if (pkgqc.isWetPack)
+			{
+				XNotifier::warn(QString("该包发生湿包，不能进行发放操作。"));
+				return;
+			}
+
+			_pkgList.append(pkg);
+
+			QList<QStandardItem *> rowItems;
+			QStandardItem *idItem = new QStandardItem(pkg.udi);
+			//idItem->setData(resp.getAsBool("ins_count"));
+			rowItems << idItem;
+			rowItems << new QStandardItem(pkg.name);
+			rowItems << new QStandardItem(pkg.packType.name);
+			rowItems << new QStandardItem(pkg.dept.name);
+			rowItems << new QStandardItem(pkgqc.expireDate.toString("yyyy-MM-dd"));//todo 
+
+			QStandardItem *insItem = new QStandardItem(pkg.forImplants ? "是" : "否");
+			insItem->setData(brushForImport(false), Qt::BackgroundRole);
+			rowItems << insItem;
+			_model->appendRow(rowItems);
+		}
+		else
+		{
+			XNotifier::warn(QString("无法获取包质控信息: ").append(resp.msg()));
+			return;
+		}
 	}
 	else
 	{
@@ -916,7 +972,7 @@ bool OperationPackageView::addPackage(const Package &pkg)
 			_model->setData(_model->index(i, 0), true, Qt::UserRole + 2);
 			_model->setData(_model->index(i, 1), pkg.udi, Qt::DisplayRole);
 			_model->setData(_model->index(i, 2), pkg.name, Qt::DisplayRole);
-			_model->setData(_model->index(i, 3), QString("完成绑定-共%1把器械").arg(pkg.instruments.count()), Qt::DisplayRole);
+			_model->setData(_model->index(i, 3), QString("可以绑定-共%1把器械").arg(pkg.instruments.count()), Qt::DisplayRole);
 			_packages.append(pkg);
 			return true;
 		}

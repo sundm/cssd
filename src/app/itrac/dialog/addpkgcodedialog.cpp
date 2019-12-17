@@ -26,7 +26,7 @@
 
 AddpkgcodeDialog::AddpkgcodeDialog(QWidget *parent)
 	: QDialog(parent)
-	, _pkgNameEdit(new Ui::FlatEdit)
+	, _pkgAliasEdit(new Ui::FlatEdit)
 	, _pkgCodeEdit(new Ui::FlatEdit)
 	, _pkgEdit(new PackageEdit)
 	, _insRfidEdit(new Ui::FlatEdit)
@@ -41,8 +41,9 @@ AddpkgcodeDialog::AddpkgcodeDialog(QWidget *parent)
 	//_pkgNameEdit->setText(pkg_name);
 	//_pkgNameEdit->setReadOnly(true);
 	FormGroup * pkgGroup = new FormGroup(this);
-	pkgGroup->addRow("包名称:", _pkgNameEdit);
+	
 	pkgGroup->addRow("包UDI:", _pkgCodeEdit);
+	pkgGroup->addRow("包别名:", _pkgAliasEdit);
 	pkgGroup->addRow("包类型:", _pkgEdit);
 	//_package_type_id = pkg_id;
 
@@ -212,8 +213,6 @@ void AddpkgcodeDialog::onBarcodeReceviced(const QString& code)
 void AddpkgcodeDialog::onPackageTypeChange(int id)
 {
 	loadInstrumentType(id);
-	QString name = _pkgEdit->currentName().append("#");
-	_pkgNameEdit->setText(name);
 }
 
 void AddpkgcodeDialog::loadPackageInfo()
@@ -225,11 +224,11 @@ void AddpkgcodeDialog::loadPackageInfo()
 	result_t resp = dao.getPackage(_package_id, &pk, true);
 	if (resp.isOk())
 	{
-		_pkgNameEdit->setText(pk.name);
+		_pkgAliasEdit->setText(pk.alias);
 		_pkgCodeEdit->setText(pk.udi);
 		PackageType pkt;
 		dao.getPackageType(pk.typeId, &pkt);
-		_pkgEdit->setCurrentIdPicked(pkt.typeId, pkt.name);
+		_pkgEdit->setCurrentIdPicked(pkt.typeId, pkt.typeName);
 
 		_model->removeRows(0, _model->rowCount());
 		_model->insertRows(0, pk.instruments.count());
@@ -333,12 +332,7 @@ void AddpkgcodeDialog::accept() {
 	PackageDao dao;
 	Package pk;
 
-	pk.name = _pkgNameEdit->text();
-	if (pk.name.isEmpty())
-	{
-		_pkgNameEdit->setFocus();
-		return;
-	}
+	pk.alias = _pkgAliasEdit->text();
 
 	pk.udi = _pkgCodeEdit->text();
 	if (pk.udi.isEmpty())
@@ -396,7 +390,7 @@ void AddpkgcodeDialog::reset()
 	_codeUnusualList.clear();
 	_insList.clear();
 
-	_pkgNameEdit->clear();
+	_pkgAliasEdit->clear();
 	_pkgCodeEdit->clear();
 	_pkgEdit->clear();
 

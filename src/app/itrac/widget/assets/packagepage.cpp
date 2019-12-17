@@ -40,7 +40,7 @@ namespace Internal {
 			_model->insertRows(0, pts.count());
 			for (int i = 0; i != pts.count(); ++i) {
 				PackageType pt = pts[i];
-				_model->setData(_model->index(i, Name), pt.name);
+				_model->setData(_model->index(i, Name), pt.typeName);
 				_model->setData(_model->index(i, Name), pt.typeId, 257);
 				_model->setData(_model->index(i, Pinyin), pt.pinyin);
 				_model->setData(_model->index(i, PackType), pt.packType.name);

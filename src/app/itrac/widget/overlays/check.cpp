@@ -172,7 +172,7 @@ void PreBindPanel::reset()
 	_operPackageView->clear();
 }
 
-PreExamPanel::PreExamPanel(QWidget *parent /*= nullptr*/)
+OperExamPanel::OperExamPanel(Rt::SurgeryStatus status, QWidget *parent /*= nullptr*/)
 	: CssdOverlayPanel(parent)
 	, _operInfoView(new OperationInfoTabelView)
 	, _operPackageView(new OperationCheckPackageView)
@@ -219,17 +219,17 @@ PreExamPanel::PreExamPanel(QWidget *parent /*= nullptr*/)
 	connect(_operPackageView, SIGNAL(waitForScan(const QList<Package> &)), this, SLOT(loadInsturments(const QList<Package> &)));
 
 	_step = -1;
-
+	_status = status;
 	initOperationView();
 }
 
-void PreExamPanel::loadPackage(const int surgeryId)
+void OperExamPanel::loadPackage(const int surgeryId)
 {
 	_step = 0;
 	_operPackageView->loadPackages(surgeryId);
 }
 
-void PreExamPanel::loadInsturments(const QList<Package>& pkgs)
+void OperExamPanel::loadInsturments(const QList<Package>& pkgs)
 {
 	QList<Instrument> insList;
 	_packages.clear();
@@ -245,11 +245,11 @@ void PreExamPanel::loadInsturments(const QList<Package>& pkgs)
 	_step = 1;
 }
 
-void PreExamPanel::initOperationView() {
-	_operInfoView->loadSurgeries(Rt::SurgeryStatus::UdiPackageBound);
+void OperExamPanel::initOperationView() {
+	_operInfoView->loadSurgeries(_status);
 }
 
-void PreExamPanel::onScanned(const QString& code)
+void OperExamPanel::onScanned(const QString& code)
 {
 	if (!_scannedCodes->contains(code))
 	{
@@ -269,7 +269,7 @@ void PreExamPanel::onScanned(const QString& code)
 	}
 }
 
-void PreExamPanel::onUnusual(const QString& code)
+void OperExamPanel::onUnusual(const QString& code)
 {
 	if (!_unusualCodes->contains(code))
 	{
@@ -279,7 +279,7 @@ void PreExamPanel::onUnusual(const QString& code)
 	}
 }
 
-void PreExamPanel::onTransponderReceviced(const QString& code)
+void OperExamPanel::onTransponderReceviced(const QString& code)
 {
 	qDebug() << code;
 	TranspondCode tc(code);
@@ -296,7 +296,7 @@ void PreExamPanel::onTransponderReceviced(const QString& code)
 	}
 }
 
-void PreExamPanel::onBarcodeReceviced(const QString& code)
+void OperExamPanel::onBarcodeReceviced(const QString& code)
 {
 	qDebug() << code;
 	Barcode bc(code);
@@ -310,7 +310,7 @@ void PreExamPanel::onBarcodeReceviced(const QString& code)
 	}
 }
 
-void PreExamPanel::handleBarcode(const QString &code) {
+void OperExamPanel::handleBarcode(const QString &code) {
 	Barcode bc(code);
 	if ((bc.type() == Barcode::Package || bc.type() == Barcode::PkgCode)) {//&& !_pkgView->hasPackage(code)) {
 		//_pkgView->addPackage(code);
@@ -323,7 +323,7 @@ void PreExamPanel::handleBarcode(const QString &code) {
 	}
 }
 
-void PreExamPanel::commit() {
+void OperExamPanel::commit() {
 	if (_pkgView->isScanFinished())
 	{
 		Surgery surgery = _operPackageView->getSurgery();
@@ -333,17 +333,38 @@ void PreExamPanel::commit() {
 		op.name = Core::currentUser().name;
 
 		FlowDao dao;
-		result_t resp = dao.addSurgeryPreCheck(surgery.id, op);
+		result_t resp;
+		if (_status == Rt::SurgeryStatus::UdiPackageBound)
+		{
+			resp = dao.addSurgeryPreCheck(surgery.id, op);
 
-		if (resp.isOk())
-		{
-			XNotifier::warn(QString("术前检查登记成功"));
-			reset();
+			if (resp.isOk())
+			{
+				XNotifier::warn(QString("术前检查登记成功"));
+				reset();
+			}
+			else
+			{
+				XNotifier::warn(QString("术前检查登记失败: ").append(resp.msg()));
+			}
 		}
-		else
+
+		if (_status == Rt::SurgeryStatus::PreChecked)
 		{
-			XNotifier::warn(QString("术前检查登记失败: ").append(resp.msg()));
+			resp = dao.addSurgeryPostCheck(surgery.id, op);
+
+			if (resp.isOk())
+			{
+				XNotifier::warn(QString("术后检查登记成功"));
+				reset();
+			}
+			else
+			{
+				XNotifier::warn(QString("术后检查登记失败: ").append(resp.msg()));
+			}
 		}
+		
+		
 	}
 	else
 	{
@@ -351,127 +372,15 @@ void PreExamPanel::commit() {
 	}
 }
 
-void PreExamPanel::reset()
+void OperExamPanel::reset()
 {
 	//todo
 	_scannedCodes->clear();
 	_unusualCodes->clear();
+	_operInfoView->loadSurgeries(_status);
 	_operPackageView->clear();
 	_pkgView->reset();
 	_detailView->clear();
 	_unusualView->clear();
 	_step = 0;
-}
-
-
-PostExamPanel::PostExamPanel(QWidget *parent /*= nullptr*/)
-	: CssdOverlayPanel(parent)
-	, _operInfoTableView(new OperationInfoTabelView)
-	, _operPackageView(new OperationCheckPackageView)
-	, _pkgView(new PackageSimpleInfoView)
-	, _detailView(new PackageDetailView)
-	, _unusualView(new UnusualInstrumentView)
-	, _codeMap(new QHash<QString, QString>)
-	, _unusualCodes(new QStringList)
-	, _scannedCodes(new QStringList)
-{
-	const QString text = "1 扫描物品包ID\n2 扫描托盘内器械\n3 确认回收 \n说明\n灰色：实际数量\n绿色：通过数量\n黄色：剩余数量\n红色：异常数量";
-	Tip *tip = new Tip(text);
-	
-	Ui::PrimaryButton *commitButton = new Ui::PrimaryButton("完成检查");
-	connect(commitButton, SIGNAL(clicked()), this, SLOT(commit()));
-	Ui::PrimaryButton *resetButton = new Ui::PrimaryButton("重置操作");
-	connect(resetButton, SIGNAL(clicked()), this, SLOT(reset()));
-
-	tip->addQr();
-	tip->addButton(commitButton);
-	tip->addButton(resetButton);
-
-	QVBoxLayout *aLayout = new QVBoxLayout;
-	aLayout->addWidget(_operInfoTableView);
-	aLayout->addWidget(_operPackageView);
-	aLayout->setStretch(1, 1);
-
-	QVBoxLayout *bLayout = new QVBoxLayout;
-	bLayout->addWidget(_pkgView);
-	bLayout->addWidget(_detailView);
-	bLayout->addWidget(_unusualView);
-	bLayout->setStretch(1, 1);
-
-	QHBoxLayout *layout = new QHBoxLayout(this);
-	layout->addLayout(aLayout);
-	layout->addLayout(bLayout);
-	layout->addWidget(tip);
-
-	connect(_listener, SIGNAL(onTransponder(const QString&)), this, SLOT(onTransponderReceviced(const QString&)));
-	connect(_listener, SIGNAL(onBarcode(const QString&)), this, SLOT(onBarcodeReceviced(const QString&)));
-
-	_step = 0;
-}
-
-void PostExamPanel::initOperationView() {
-
-}
-
-void PostExamPanel::onTransponderReceviced(const QString& code)
-{
-	qDebug() << code;
-	TranspondCode tc(code);
-
-	if (tc.type() == TranspondCode::Instrument && 1 == _step)
-	{
-		if (_codeMap->size() > 0 && _codeMap->contains(code) && !_scannedCodes->contains(code))
-		{
-			_scannedCodes->append(code);
-			_pkgView->scanned();
-			_detailView->scanned(code);
-		}
-		else if (_codeMap->size() > 0 && !_codeMap->contains(code))
-		{
-			if (!_unusualCodes->contains(code))
-			{
-				_unusualCodes->append(code);
-				_pkgView->unusualed();
-				_unusualView->addUnusual(code);
-			}
-			
-		}
-	}
-}
-
-void PostExamPanel::onBarcodeReceviced(const QString& code)
-{
-	qDebug() << code;
-
-	Barcode bc(code);
-
-	if (bc.type() == Barcode::Commit) {
-		commit();
-	}
-
-	if (bc.type() == Barcode::Reset) {
-		reset();
-	}
-}
-
-void PostExamPanel::handleBarcode(const QString &code) {
-	Barcode bc(code);
-	if ((bc.type() == Barcode::Package || bc.type() == Barcode::PkgCode)) {//&& !_pkgView->hasPackage(code)) {
-		//_pkgView->addPackage(code);
-	}
-	else if (bc.type() == Barcode::Plate) {
-		//updatePlate(code);
-	}
-	else if (bc.type() == Barcode::Action && code == "910108") {
-		commit();
-	}
-}
-
-void PostExamPanel::commit() {
-	//todo
-}
-
-void PostExamPanel::reset()
-{
-	//todo
 }

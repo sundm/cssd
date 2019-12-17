@@ -58,7 +58,7 @@ public:
 	void clear();
 private:
 	QList<Package> _pkgList;
-	enum { Barcode, Name, PackType, Department, ExpireDate, SterType, Implant};
+	enum { Barcode, Name, PackType, Department, SterType, Implant};
 };
 
 class SterileCheckPackageView : public TableView
@@ -74,7 +74,7 @@ private slots:
 	void itemChecked(const QModelIndex &, const bool);
 
 private:
-	enum {Barcode, Name, Implant, Wet};
+	enum { Barcode, Name, Cycle , Wet };
 	QStandardItemModel *_model;
 	QList<SterilizeResult::PackageItem> _packages;
 };

@@ -48,7 +48,7 @@ private:
 
 	const QList<Instrument> getInstruments();
 
-	Ui::FlatEdit * _pkgNameEdit;
+	Ui::FlatEdit * _pkgAliasEdit;
 	Ui::FlatEdit * _pkgCodeEdit;
 	PackageEdit *_pkgEdit;
 	Ui::FlatEdit * _insRfidEdit;

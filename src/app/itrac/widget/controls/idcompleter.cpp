@@ -106,7 +106,7 @@ void PackageCompleter::loadInternal(const QByteArray &data) {
 	{
 		_model->clear();
 		for (auto &pt : pts) {
-			QStandardItem *pkgItem = new QStandardItem(pt.name);
+			QStandardItem *pkgItem = new QStandardItem(pt.typeName);
 			pkgItem->setData(pt.typeId, Constant::IdRole);
 			pkgItem->setData(pt.pinyin, Constant::PinyinRole);
 			_model->appendRow(pkgItem);
@@ -155,7 +155,7 @@ void InstrumentCompleter::loadInternal(const QByteArray &data) {
 		_model->clear();
 
 		for (auto &it : ins) {
-			QStandardItem *pkgItem = new QStandardItem(it.name);
+			QStandardItem *pkgItem = new QStandardItem(it.typeName);
 			pkgItem->setData(it.typeId, Constant::IdRole);
 			pkgItem->setData(it.pinyin, Constant::PinyinRole);
 			_model->appendRow(pkgItem);

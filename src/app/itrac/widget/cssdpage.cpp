@@ -165,8 +165,8 @@ void CssdAreaPanel::clickCallback(int id) {
 	case itrac::OrDispatchAction: panel = new OrDispatchPanel; break;
 	case itrac::ClinicDispatchAction: panel = new ClinicDispatchPanel; break;
 	case itrac::PreBindAction: panel = new PreBindPanel; break;
-	case itrac::PreExamAction: panel = new PreExamPanel; break;
-	case itrac::PostExamAction: panel = new PostExamPanel; break;
+	case itrac::PreExamAction: panel = new OperExamPanel(Rt::SurgeryStatus::UdiPackageBound); break;
+	case itrac::PostExamAction: panel = new OperExamPanel(Rt::SurgeryStatus::PreChecked); break;
 	default: return;
 	}
 

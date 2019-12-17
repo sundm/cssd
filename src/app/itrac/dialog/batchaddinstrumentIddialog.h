@@ -34,10 +34,8 @@ private slots:
 	void loadImg();
 	void onTransponderReceviced(const QString& code);
 	void onBarcodeReceviced(const QString& code);
-	void onDeptChanged(int);
 private:
 	InstrumentEdit * _insEdit;
-	QSpinBox *_beginBox;
 
 	TableView *_view;
 	QItemSelectionModel *_theSelectionModel;
@@ -51,8 +49,6 @@ private:
 	QFile *_imgFile;
 
 	QStringList _scannedList;
-	QString _preName;
-	int _numbers;
 
 	bool copyFileToPath(QString sourceDir, QString toDir, bool coverFileIfExist);
 	void uploadImg(const QString&);

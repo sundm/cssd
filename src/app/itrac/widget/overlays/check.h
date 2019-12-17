@@ -52,12 +52,12 @@ private:
 };
 
 
-class PreExamPanel : public CssdOverlayPanel
+class OperExamPanel : public CssdOverlayPanel
 {
 	Q_OBJECT
 
 public:
-	PreExamPanel(QWidget *parent = nullptr);
+	OperExamPanel(Rt::SurgeryStatus status, QWidget *parent = nullptr);
 
 protected:
 	void handleBarcode(const QString &) override;
@@ -87,37 +87,5 @@ private:
 	QList<Package> _packages;
 	int _row;
 	int _step;
-};
-
-class PostExamPanel : public CssdOverlayPanel
-{
-	Q_OBJECT
-
-public:
-	PostExamPanel(QWidget *parent = nullptr);
-
-protected:
-	void handleBarcode(const QString &) override;
-
-private slots:
-	void commit();
-	void reset();
-	void onTransponderReceviced(const QString& code);
-	void onBarcodeReceviced(const QString& code);
-
-private:
-	void initOperationView();
-
-	OperationInfoTabelView * _operInfoTableView;
-	OperationCheckPackageView * _operPackageView;
-	PackageSimpleInfoView * _pkgView;
-	PackageDetailView * _detailView;
-	UnusualInstrumentView * _unusualView;
-
-	QHash<QString, QString> * _codeMap;
-	QStringList * _scannedCodes;
-	QStringList * _unusualCodes;
-
-	int _row;
-	int _step;
+	Rt::SurgeryStatus _status;
 };

@@ -17,7 +17,7 @@
 
 AddInstrumentIdDialog::AddInstrumentIdDialog(QWidget *parent)
 	: QDialog(parent)
-	, _nameEdit(new Ui::FlatEdit)
+	, _aliasEdit(new Ui::FlatEdit)
 	, _idEdit(new Ui::FlatEdit)
 	, _insEdit(new InstrumentEdit)
 	, _imgLabel(new XPicture(this))
@@ -45,12 +45,12 @@ AddInstrumentIdDialog::AddInstrumentIdDialog(QWidget *parent)
 	QGridLayout *mainLayout = new QGridLayout(this);
 	mainLayout->setVerticalSpacing(15);
 	mainLayout->addWidget(new QLabel("所属基础器械"), 0, 0);
-	mainLayout->addWidget(new QLabel("器械名"), 1, 0);
-	mainLayout->addWidget(new QLabel("器械UDI"), 2, 0);
-	
+	mainLayout->addWidget(new QLabel("器械UDI"), 1, 0);
+	mainLayout->addWidget(new QLabel("器械别名"), 2, 0);
+
 	mainLayout->addWidget(_insEdit, 0, 1);
-	mainLayout->addWidget(_nameEdit, 1, 1);
-	mainLayout->addWidget(_idEdit, 2, 1);
+	mainLayout->addWidget(_idEdit, 1, 1);
+	mainLayout->addWidget(_aliasEdit, 2, 1);
 	
 	mainLayout->addWidget(Ui::createSeperator(Qt::Horizontal), 3, 0, 1, 2);
 	
@@ -64,15 +64,8 @@ AddInstrumentIdDialog::AddInstrumentIdDialog(QWidget *parent)
 	connect(_listener, SIGNAL(onTransponder(const QString&)), this, SLOT(onTransponderReceviced(const QString&)));
 	connect(_listener, SIGNAL(onBarcode(const QString&)), this, SLOT(onBarcodeReceviced(const QString&)));
 
-	connect(_insEdit, SIGNAL(changed(int)), this, SLOT(onDeptChanged(int)));
+	//connect(_insEdit, SIGNAL(changed(int)), this, SLOT(onDeptChanged(int)));
 	_insEdit->load();
-}
-
-void AddInstrumentIdDialog::onDeptChanged(int)
-{
-	QString name = _insEdit->currentName().append("#");
-	_nameEdit->setText(name);
-	_nameEdit->setFocus();
 }
 
 void AddInstrumentIdDialog::setInfo(const QString &id)
@@ -89,11 +82,11 @@ void AddInstrumentIdDialog::setInfo(const QString &id)
 
 	if (resp.isOk())
 	{
-		_nameEdit->setText(it.name);
+		_aliasEdit->setText(it.alias);
 		_idEdit->setText(_instrumentId);
 		_idEdit->setReadOnly(_isModify);
 		//_nameEdit->setReadOnly(_isModify);
-		_insEdit->setCurrentIdPicked(ity.typeId, ity.name);
+		_insEdit->setCurrentIdPicked(ity.typeId, ity.typeName);
 
 		QString imgPath = QString("./photo/instrument/%1.png").arg(_instrumentId);
 		QFile file(imgPath);
@@ -129,14 +122,10 @@ void AddInstrumentIdDialog::loadImg() {
 }
 
 void AddInstrumentIdDialog::accept() {
-	QString name = _nameEdit->text();
+	QString alias = _aliasEdit->text();
 	QString udi = _idEdit->text().toUpper();
 	int typeId = _insEdit->currentId();
 
-	if (name.isEmpty()) {
-		_nameEdit->setFocus();
-		return;
-	}
 	if (udi.isEmpty()) {
 		_idEdit->setFocus();
 		return;
@@ -148,7 +137,7 @@ void AddInstrumentIdDialog::accept() {
 	}
 
 	Instrument it;
-	it.name = name;
+	it.alias = alias;
 	it.udi = udi;
 	it.typeId = typeId;
 
@@ -200,7 +189,8 @@ void AddInstrumentIdDialog::accept() {
 void AddInstrumentIdDialog::resetView()
 {
 	_idEdit->clear();
-	QString name = _nameEdit->text();
+	_aliasEdit->clear();
+	/*QString name = _nameEdit->text();
 	if (name.isEmpty()) return;
 	
 	QStringList l = name.split("#");
@@ -214,7 +204,7 @@ void AddInstrumentIdDialog::resetView()
 		}
 	}
 
-	_nameEdit->setFocus();
+	_nameEdit->setFocus();*/
 }
 
 void AddInstrumentIdDialog::onTransponderReceviced(const QString& code)

@@ -183,7 +183,7 @@ void AddPackageDialog::accept() {
 	
 	PackageDao dao;
 	PackageType pkt;
-	pkt.name = package_type_name;
+	pkt.typeName = package_type_name;
 	pkt.pinyin = pinyin_code;
 	pkt.packType = pt;
 	pkt.sterMethod = sterType;
@@ -235,7 +235,7 @@ void AddPackageDialog::initPackageInfo()
 	result_t resp = dao.getPackageType(_package_type_id, &pkt, true);
 	if (resp.isOk())
 	{
-		QString package_name = pkt.name;
+		QString package_name = pkt.typeName;
 		_pkgNameEdit->setText(package_name);
 		_pkgNameEdit->setReadOnly(true);
 		

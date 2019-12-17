@@ -67,7 +67,7 @@ void AddInstrumentDialog::setInfo(const QString &id)
 	InstrumentType it;
 	result_t res = dao.getInstrumentType(_instrumentId.toInt(), &it);
 
-	_nameEdit->setText(it.name);
+	_nameEdit->setText(it.typeName);
 	_pinyinEdit->setText(it.pinyin);
 	_nameEdit->setReadOnly(_isModify);
 
@@ -90,7 +90,7 @@ void AddInstrumentDialog::accept() {
 
 	InstrumentDao dao;
 	InstrumentType it;
-	it.name = name;
+	it.typeName = name;
 	//it.category = _checkImplantBox->checkState() ? 
 	//	Rt::InstrumentCategory::ImplantedInstrument : 
 	//	Rt::InstrumentCategory::NormalInstrument;

@@ -136,7 +136,7 @@ namespace Internal {
 			_model->insertRows(0, ins.count());
 			for (int i = 0; i != ins.count(); ++i) {
 				InstrumentType inst = ins[i];
-				_model->setData(_model->index(i, Name), inst.name);
+				_model->setData(_model->index(i, Name), inst.typeName);
 				_model->setData(_model->index(i, Name), inst.typeId, Qt::UserRole + 1);
 				_model->setData(_model->index(i, Pinyin), inst.pinyin);
 				_model->setData(_model->index(i, Vip), getVipLiteral(inst.isVip));
