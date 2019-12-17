@@ -129,14 +129,14 @@ border-color: #808080;
       <item>
        <widget class="QPushButton" name="tracePackageButton">
         <property name="text">
-         <string>包ID追溯</string>
+         <string>通过UDI追溯</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="tracePatientButton">
         <property name="text">
-         <string>患者ID追溯</string>
+         <string>通过患者ID追溯</string>
         </property>
        </widget>
       </item>

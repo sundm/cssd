@@ -61,11 +61,11 @@ void HistoryWidget::showPage(int id)
 			break;
 		case itrac::PackageTrace:
 			page = new TracePackagePage;
-			tabWidget->addTab(page, "包ID追溯");
+			tabWidget->addTab(page, "通过UDI追溯");
 			break;
 		case itrac::PatientTrace:
 			page = new TracePatientPage;
-			tabWidget->addTab(page, "患者ID追溯");
+			tabWidget->addTab(page, "通过患者ID追溯");
 			break;
 		default: // this should never happen
 			break;

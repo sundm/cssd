@@ -7,67 +7,165 @@
 #include <xui/searchedit.h>
 #include <QtWidgets/QtWidgets>
 
-TracePackagePage::TracePackagePage(QWidget *parent)
-	: QWidget(parent), 
-	_searchBox(new SearchEdit)
-	, _map(new QVariantMap())
+TracePackageInfoView::TracePackageInfoView(QWidget *parent /*= nullptr*/)
+	: QWidget(parent)
 	, _grid(new QGridLayout)
 {
-	_grid->setSpacing(50);
-	_searchBox->setPlaceholderText("物品包ID");
-	_searchBox->setMinimumHeight(36);
-	connect(_searchBox, &QLineEdit::returnPressed, this, &TracePackagePage::startTrace);
+	_grid->setSpacing(20);
 
-	QHBoxLayout *h_sLayout = new QHBoxLayout;
-	h_sLayout->addStretch(0);
-	h_sLayout->addWidget(_searchBox);
-	h_sLayout->addStretch(0);
-
-	QVBoxLayout *layout = new QVBoxLayout(this);
-	layout->setContentsMargins(100, 40, 100, 100);
-	layout->addLayout(h_sLayout);
-	layout->addLayout(_grid);
-
-	QTimer::singleShot(200, this, SLOT(loadExtOrder()));
+	QVBoxLayout *vLayout = new QVBoxLayout(this);
+	vLayout->addLayout(_grid);
 }
 
-void TracePackagePage::loadExtOrder()
+void TracePackageInfoView::init()
 {
-	QVariantMap vmap;
-	vmap.insert("state", 1);
+	_insNameLabel = new QLabel();
+	_pkgNameLabel = new QLabel();
+	_deptLabel = new QLabel();
+	_insNumLabel = new QLabel();
+	_totalCycleabel = new QLabel();
+	_patientLabel = new QLabel();
+	_cyclelBox = new QSpinBox();
+	_cyclelBox->setMinimum(1);
 
-	post(url(PATH_EXT_SEARCH), vmap, [this](QNetworkReply *reply) {
-		JsonHttpResponse resp(reply);
-		if (!resp.success()) {
-			//XNotifier::warn(QString("查询失败: ").append(resp.errorString()));
-			return;
-		}
-
-		_map->clear();
-
-		QVariantList extInfoList = resp.getAsList("ext_info");
-
-		if (!extInfoList.isEmpty())
-		{
-			for (auto &extInfo : extInfoList) {
-				QVariantMap map = extInfo.toMap();
-
-				QString pkg_id = map["pkg_id"].toString();
-				
-				_map->insert(pkg_id, map);
-			}
-		}
-	});
-
+	QFont font;
+	font.setPointSize(16);
+	_insNameLabel->setFont(font);
+	_pkgNameLabel->setFont(font);
+	_deptLabel->setFont(font);
+	_insNumLabel->setFont(font);
+	_totalCycleabel->setFont(font);
+	_patientLabel->setFont(font);
 }
 
-void TracePackagePage::handleBarcode(const QString &code) {
-	_searchBox->setText(code);
-	if (Barcode(code).type() == Barcode::Package)
-		tracePackage(code);		
+void TracePackageInfoView::loadInfo(const QString &udi, const int &cycel, bool isPackage)
+{
+	_udi = udi;
+	_cycle = cycel;
+	_isPackage = isPackage;
+
+	clear();
+	init();
+
+	QFont font;
+	font.setPointSize(16);
+	
+	if (_isPackage)
+	{
+		_pkgNameLabel->setText("测试器械包");
+		_deptLabel->setText("手术室");
+		_insNumLabel->setText("6");
+		_totalCycleabel->setText("12");
+		_patientLabel->setText("张三，123456");
+
+		_cyclelBox->setValue(_cycle);
+		_cyclelBox->setMaximum(12);
+
+		QLabel *namelabel = new QLabel(QString("包名称:"));
+		namelabel->setFont(font);
+		_grid->addWidget(namelabel, 0, 0);
+		_grid->addWidget(_pkgNameLabel, 0, 1);
+
+		QLabel *deptlabel = new QLabel(QString("所属科室:"));
+		deptlabel->setFont(font);
+		_grid->addWidget(deptlabel, 0, 2);
+		_grid->addWidget(_deptLabel, 0, 3);
+
+		QLabel *insNumlabel = new QLabel(QString("器械数量:"));
+		insNumlabel->setFont(font);
+		_grid->addWidget(insNumlabel, 0, 4);
+		_grid->addWidget(_insNumLabel, 0, 5);
+
+		QLabel *totalCyclelabel = new QLabel(QString("循环总次数:"));
+		totalCyclelabel->setFont(font);
+		_grid->addWidget(totalCyclelabel, 1, 0);
+		_grid->addWidget(_totalCycleabel, 1, 1);
+
+		QLabel *cyclelabel = new QLabel(QString("当前次数:"));
+		cyclelabel->setFont(font);
+		_grid->addWidget(cyclelabel, 1, 2);
+		_grid->addWidget(_cyclelBox, 1, 3);
+
+		QLabel *uselabel = new QLabel(QString("当前使用者:"));
+		uselabel->setFont(font);
+		_grid->addWidget(uselabel, 2, 0);
+		_grid->addWidget(_patientLabel, 2, 1);
+	}
+	else
+	{
+		_insNameLabel->setText("测试器械");
+		_pkgNameLabel->setText("测试器械包");
+		_deptLabel->setText("手术室");
+		_insNumLabel->setText("6");
+		_totalCycleabel->setText("12");
+		_patientLabel->setText("张三，123456");
+
+		_cyclelBox->setValue(_cycle);
+		_cyclelBox->setMaximum(12);
+
+		QLabel *namelabel = new QLabel(QString("器械名称:"));
+		namelabel->setFont(font);
+		_grid->addWidget(namelabel, 0, 0);
+		_grid->addWidget(_insNameLabel, 0, 1);
+
+		QLabel *pkglabel = new QLabel(QString("所属包:"));
+		pkglabel->setFont(font);
+		_grid->addWidget(pkglabel, 0, 2);
+		_grid->addWidget(_pkgNameLabel, 0, 3);
+
+		QLabel *deptlabel = new QLabel(QString("所属科室:"));
+		deptlabel->setFont(font);
+		_grid->addWidget(deptlabel, 0, 4);
+		_grid->addWidget(_deptLabel, 0, 5);
+
+		QLabel *totalCyclelabel = new QLabel(QString("循环总次数:"));
+		totalCyclelabel->setFont(font);
+		_grid->addWidget(totalCyclelabel, 1, 0);
+		_grid->addWidget(_totalCycleabel, 1, 1);
+
+		QLabel *cyclelabel = new QLabel(QString("当前次数:"));
+		cyclelabel->setFont(font);
+		_grid->addWidget(cyclelabel, 1, 2);
+		_grid->addWidget(_cyclelBox, 1, 3);
+
+		QLabel *uselabel = new QLabel(QString("当前使用者:"));
+		uselabel->setFont(font);
+		_grid->addWidget(uselabel, 2, 0);
+		_grid->addWidget(_patientLabel, 2, 1);
+	}
+
+	connect(_cyclelBox, SIGNAL(valueChanged(int)), this, SLOT(cycleChanged(int)));
 }
 
-void TracePackagePage::clear() {
+void TracePackageInfoView::cycleChanged(int value)
+{
+	_cycle = value;
+	updateInfo();
+	emit cycle(_cycle);
+}
+
+void TracePackageInfoView::updateInfo()
+{
+	if (_isPackage)
+	{
+		_pkgNameLabel->setText("测试器械包");
+		_deptLabel->setText("手术室");
+		_insNumLabel->setText("6");
+		_totalCycleabel->setText("12");
+		_patientLabel->setText("李四，654321");
+	}
+	else
+	{
+		_insNameLabel->setText("测试器械");
+		_pkgNameLabel->setText("测试器械包");
+		_deptLabel->setText("手术室");
+		_insNumLabel->setText("6");
+		_totalCycleabel->setText("12");
+		_patientLabel->setText("赵武，123654");
+	}
+}
+
+void TracePackageInfoView::clear() {
 	QLayoutItem *child;
 	while ((child = _grid->takeAt(0)) != 0) {
 		if (child->widget()) {
@@ -76,189 +174,110 @@ void TracePackagePage::clear() {
 		delete child;
 	}
 }
+/***************************************************************/
 
-void TracePackagePage::startTrace() {
-	handleBarcode(_searchBox->text());
-}
-
-void TracePackagePage::tracePackage(const QString &id) {
-	if (id.left(4).compare(QString("1003")) == 0)
-	{
-		if (_map->contains(id)) {
-			QVariantMap map = _map->value(id).toMap();
-			int ext_id = map["id"].toInt();
-
-			QVariantMap vmap;
-			vmap.insert("id", ext_id);
-			vmap.insert("pkg_id", id);
-
-			post(url(PATH_EXT_PROCESS), vmap, [this](QNetworkReply *reply) {
-				JsonHttpResponse resp(reply);
-				if (!resp.success()) {
-					XNotifier::warn(QString("查询失败: ").append(resp.errorString()));
-					return;
-				}
-
-				clear();
-				QVariantMap &recycle_fist = resp.getAsDict("recycle_first");
-				TraceItem *item = new TraceItem("第一次回收");
-				item->addEntry("时间", recycle_fist["recycle_time"].toString());
-				item->addEntry("回收人", recycle_fist["operator"].toString());
-				_grid->addWidget(item, 0, 0);
-
-				QVariantMap &wash = resp.getAsDict("wash_info");
-				item = new TraceItem("清洗");
-				item->addEntry("时间", wash["wash_start_time"].toString());
-				item->addEntry("设备", wash["device_name"].toString());
-				item->addEntry("程序", wash["program_name"].toString());
-				item->addEntry("锅次", wash["wash_cycle"].toString());
-				item->addEntry("清洗员", wash["operator"].toString());
-				_grid->addWidget(item, 0, 1);
-
-				QVariantMap &pack = resp.getAsDict("pack_trace");
-				item = new TraceItem("打包");
-				item->addEntry("时间", pack["pack_time"].toString());
-				item->addEntry("配包人", pack["operator"].toString());
-				item->addEntry("审核人", pack["pack_check_operator"].toString());
-				_grid->addWidget(item, 0, 2);
-
-				QVariantMap &ste = resp.getAsDict("sterilization_trace");
-				item = new TraceItem("灭菌");
-				item->addEntry("时间", ste["sterilization_start_time"].toString());
-				item->addEntry("设备", ste["device_name"].toString());
-				item->addEntry("程序", ste["program_name"].toString());
-				item->addEntry("锅次", ste["sterilization_cycle"].toString());
-				item->addEntry("灭菌员", ste["operator"].toString());
-				_grid->addWidget(item, 1, 0);
-
-				item = new TraceItem("灭菌审核");
-				item->addEntry("物理监测审核时间", ste["physical_test_time"].toString());
-				item->addEntry("物理监测审核人员", ste["physical_test_operator"].toString());
-				item->addEntry("物理监测审核结果", literalExam(ste["physical_test_result"].toInt()));
-				item->addEntry("化学监测审核时间", ste["chemistry_test_time"].toString());
-				item->addEntry("化学监测审核人员", ste["chemistry_test_operator"].toString());
-				item->addEntry("化学监测审核结果", literalExam(ste["chemistry_test_result"].toInt()));
-				item->addEntry("生物监测审核时间", ste["biology_test_time"].toString());
-				item->addEntry("生物监测审核人员", ste["biology_test_operator"].toString());
-				item->addEntry("生物监测审核结果", literalExam(ste["biology_test_result"].toInt()));
-				_grid->addWidget(item, 1, 1);
-
-				QVariantMap &issue = resp.getAsDict("issue_trace");
-				item = new TraceItem("发放");
-				item->addEntry("时间", issue["issue_time"].toString());
-				item->addEntry("发放者", issue["issue_operator"].toString());
-				_grid->addWidget(item, 1, 2);
-
-				QVariantMap &use = resp.getAsDict("use_trace");
-				item = new TraceItem("使用");
-				item->addEntry("时间", use["use_time"].toString());
-				item->addEntry("患者ID", use["patient_id"].toString());
-				item->addEntry("手术室", use["operation_room"].toString());
-				item->addEntry("手术台", use["operation_table"].toString());
-				_grid->addWidget(item, 2, 0);
-
-				QVariantMap &recycle = resp.getAsDict("recycle_trace");
-				item = new TraceItem("回收");
-				item->addEntry("时间", recycle["recycle_time"].toString());
-				item->addEntry("回收人", recycle["operator"].toString());
-				_grid->addWidget(item, 2, 1);
-
-				QVariantMap &wash_trace = resp.getAsDict("wash_trace");
-				item = new TraceItem("第二次清洗");
-				item->addEntry("时间", wash_trace["wash_start_time"].toString());
-				item->addEntry("设备", wash_trace["device_name"].toString());
-				item->addEntry("程序", wash_trace["program_name"].toString());
-				item->addEntry("锅次", wash_trace["wash_cycle"].toString());
-				item->addEntry("清洗员", wash_trace["operator"].toString());
-				_grid->addWidget(item, 2, 2);
-			});
-		}
-	}
-	else {
-		QString data = QString("{\"package_id\":\"%1\"}").arg(id);
-		post(url(PATH_TRACE_PACKAGE), QByteArray().append(data), [=](QNetworkReply *reply) {
-			JsonHttpResponse resp(reply);
-			if (!resp.success()) {
-				XNotifier::warn(QString("查询失败: ").append(resp.errorString()));
-				return;
-			}
-			clear();
-			QVariantMap &wash = resp.getAsDict("wash_info");
-			TraceItem *item = new TraceItem("清洗");
-			item->addEntry("时间", wash["wash_start_time"].toString());
-			item->addEntry("设备", wash["device_name"].toString());
-			item->addEntry("程序", wash["program_name"].toString());
-			item->addEntry("锅次", wash["wash_cycle"].toString());
-			item->addEntry("清洗员", wash["operator"].toString());
-			_grid->addWidget(item, 0, 0);
-
-			QVariantMap &pack = resp.getAsDict("pack_trace");
-			item = new TraceItem("打包");
-			item->addEntry("时间", pack["pack_time"].toString());
-			item->addEntry("配包人", pack["operator"].toString());
-			item->addEntry("审核人", pack["pack_check_operator"].toString());
-			_grid->addWidget(item, 0, 1);
-
-			QVariantMap &ste = resp.getAsDict("sterilization_trace");
-			item = new TraceItem("灭菌");
-			item->addEntry("时间", ste["sterilization_start_time"].toString());
-			item->addEntry("设备", ste["device_name"].toString());
-			item->addEntry("程序", ste["program_name"].toString());
-			item->addEntry("锅次", ste["sterilization_cycle"].toString());
-			item->addEntry("灭菌员", ste["operator"].toString());
-			_grid->addWidget(item, 0, 2);
-
-			item = new TraceItem("灭菌审核");
-			item->addEntry("物理监测审核时间", ste["physical_test_time"].toString());
-			item->addEntry("物理监测审核人员", ste["physical_test_operator"].toString());
-			item->addEntry("物理监测审核结果", literalExam(ste["physical_test_result"].toInt()));
-			item->addEntry("化学监测审核时间", ste["chemistry_test_time"].toString());
-			item->addEntry("化学监测审核人员", ste["chemistry_test_operator"].toString());
-			item->addEntry("化学监测审核结果", literalExam(ste["chemistry_test_result"].toInt()));
-			item->addEntry("生物监测审核时间", ste["biology_test_time"].toString());
-			item->addEntry("生物监测审核人员", ste["biology_test_operator"].toString());
-			item->addEntry("生物监测审核结果", literalExam(ste["biology_test_result"].toInt()));
-			_grid->addWidget(item, 1, 0);
-
-			QVariantMap &issue = resp.getAsDict("issue_trace");
-			item = new TraceItem("发放");
-			item->addEntry("时间", issue["issue_time"].toString());
-			item->addEntry("发放者", issue["issue_operator"].toString());
-			_grid->addWidget(item, 1, 1);
-
-			QVariantMap &use = resp.getAsDict("use_trace");
-			item = new TraceItem("使用");
-			item->addEntry("时间", use["use_time"].toString());
-			item->addEntry("患者ID", use["patient_id"].toString());
-			item->addEntry("手术室", use["operation_room"].toString());
-			item->addEntry("手术台", use["operation_table"].toString());
-			_grid->addWidget(item, 1, 2);
-
-			QVariantMap &recycle = resp.getAsDict("recycle_trace");
-			item = new TraceItem("回收");
-			item->addEntry("时间", recycle["recycle_time"].toString());
-			item->addEntry("回收人", recycle["operator"].toString());
-			_grid->addWidget(item, 2, 0);
-		});
-	}
-	
-}
-
-TraceItem::TraceItem(const QString &title, QWidget *parent /*= Q_NULLPTR*/)
-	:QGroupBox(parent), _formLayout(new QFormLayout)
+TraceDetailView::TraceDetailView(QWidget *parent /*= nullptr*/)
+	: TableView(parent), _model(new QStandardItemModel(this))
 {
-	QVBoxLayout *layout = new QVBoxLayout(this);
-	QLabel *titleLabel = new QLabel(title);
-	titleLabel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
-	titleLabel->setAlignment(Qt::AlignCenter);
+	_model->setColumnCount(State + 1);
+	_model->setHeaderData(Operate, Qt::Horizontal, "操作流程");
+	_model->setHeaderData(OpName, Qt::Horizontal, "操作人员");
+	_model->setHeaderData(OpTime, Qt::Horizontal, "操作时间");
+	_model->setHeaderData(State, Qt::Horizontal, "更多");
 
-	layout->addWidget(titleLabel);
-	
-	QWidget *line = Ui::createSeperator(Qt::Horizontal);
-	layout->addWidget(line);
-	layout->addLayout(_formLayout);
+	setModel(_model);
+	setSelectionMode(QAbstractItemView::SingleSelection);
+	setEditTriggers(QAbstractItemView::NoEditTriggers);
 }
 
-void TraceItem::addEntry(const QString &label, const QString &field) {
-	_formLayout->addRow(label + ":", new QLabel(field));
+void TraceDetailView::loadDetail(const QString& udi, const int cycle)
+{
+	_model->removeRows(0, _model->rowCount());
+
+	QList<QStandardItem *> rowItems;
+	rowItems << new QStandardItem();
+	rowItems << new QStandardItem();
+	rowItems << new QStandardItem();
+
+	for each (QStandardItem * item in rowItems)
+	{
+		item->setTextAlignment(Qt::AlignCenter);
+	}
+	_model->appendRow(rowItems);
+
+	_btn = new QPushButton("详情");
+	connect(_btn, SIGNAL(clicked(bool)), this, SLOT(clickButton()));
+	_btn->setProperty("row", 0);
+	setIndexWidget(_model->index(0, 3), _btn);
+}
+
+void TraceDetailView::clickButton()
+{
+	QPushButton *btn = (QPushButton *)sender();
+	int row = btn->property("row").toInt();
+}
+/***************************************************************/
+
+TracePackagePage::TracePackagePage(QWidget *parent)
+	: QWidget(parent)
+	, _searchBox(new SearchEdit)
+	, _infoView(new TracePackageInfoView)
+	, _detailView(new TraceDetailView)
+
+{
+	_searchBox->setPlaceholderText("请扫描UDI");
+	_searchBox->setMinimumHeight(36);
+	connect(_searchBox, &QLineEdit::returnPressed, this, &TracePackagePage::startTrace);
+
+	QVBoxLayout *vLayout = new QVBoxLayout(this);
+	vLayout->addWidget(_searchBox);
+	vLayout->addWidget(_infoView);
+	vLayout->addWidget(_detailView);
+	_infoView->setHidden(true);
+	_detailView->setHidden(true);
+
+	connect(_listener, SIGNAL(onTransponder(const QString&)), this, SLOT(onTransponderReceviced(const QString&)));
+	connect(_listener, SIGNAL(onBarcode(const QString&)), this, SLOT(onBarcodeReceviced(const QString&)));
+	connect(_infoView, SIGNAL(cycle(int)), this, SLOT(onCycleChange(int)));
+}
+
+void TracePackagePage::onCycleChange(int cycle)
+{
+	_detailView->loadDetail(_udi, cycle);
+}
+
+void TracePackagePage::startTrace()
+{
+	onTransponderReceviced(_searchBox->text());
+}
+
+void TracePackagePage::onTransponderReceviced(const QString& code)
+{
+	qDebug() << code;
+	TranspondCode tc(code);
+	if (tc.type() == TranspondCode::Package)
+	{
+		_udi = code;
+		_infoView->setHidden(false);
+		_detailView->setHidden(false);
+		_searchBox->setText(_udi);
+		_infoView->loadInfo(_udi, 1);
+		_detailView->loadDetail(_udi, 1);
+	}
+
+	if (tc.type() == TranspondCode::Instrument)
+	{
+		_udi = code;
+		_infoView->setHidden(false);
+		_detailView->setHidden(false);
+		_searchBox->setText(_udi);
+		_infoView->loadInfo(_udi, 1, false);
+		_detailView->loadDetail(_udi, 1);
+	}
+
+}
+
+void TracePackagePage::onBarcodeReceviced(const QString& code)
+{
+	qDebug() << code;
 }
