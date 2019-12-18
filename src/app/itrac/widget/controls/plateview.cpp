@@ -37,6 +37,16 @@ void PlateView::addPackage(const QString& udi) {
 	result_t resp = dao.getPackage(udi, &pkg, true);
 	if (resp.isOk())
 	{
+		if (pkg.status == Rt::FlowStatus::Washed) {
+			XNotifier::warn("该包已完成清洗，请勿重复清洗。");
+			return;
+		}
+
+		if (pkg.status != Rt::FlowStatus::Recycled) {
+			XNotifier::warn("该包尚未回收，请先回收，再添加清洗。");
+			return;
+		}
+
 		_pkgList.append(pkg);
 
 		QList<QStandardItem *> rowItems;

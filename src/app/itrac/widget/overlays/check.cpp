@@ -98,6 +98,40 @@ void PreBindPanel::onTransponderReceviced(const QString& code)
 		result_t resp = dao.getPackage(code, &pkg, true);
 		if (resp.isOk())
 		{
+			if (pkg.status != Rt::FlowStatus::Dispatched)
+			{
+				XNotifier::warn(QString("该包尚未完成发放，请先进行发放登记"));
+				return;
+			}
+
+			PackageQualityControl pkgqc;
+			resp = dao.getPackageQualityControl(pkg, &pkgqc);
+			if (resp.isOk())
+			{
+				if (pkgqc.bioResult == Rt::SterilizeVerdict::Unqualified)
+				{
+					XNotifier::warn(QString("该包生物监测结果不合格，不能进行绑定操作。"));
+					return;
+				}
+
+				if (pkgqc.isExpired)
+				{
+					XNotifier::warn(QString("该包已失效，不能进行绑定操作。"));
+					return;
+				}
+
+				if (pkgqc.isRecalled)
+				{
+					XNotifier::warn(QString("该包已被召回，不能进行绑定操作。"));
+					return;
+				}
+			}
+			else
+			{
+				XNotifier::warn(QString("无法获取包质控信息: ").append(resp.msg()));
+				return;
+			}
+
 			_operPackageView->addPackage(pkg);
 		}
 		else

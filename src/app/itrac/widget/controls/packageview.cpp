@@ -127,7 +127,12 @@ void SterilePackageView::addPackage(const QString &id) {
 	{
 		if (pkg.status == Rt::FlowStatus::Sterilized)
 		{
-			XNotifier::warn(QString("包 [%1] 已进行过灭菌，请勿重复登记").arg(id));
+			XNotifier::warn(QString("该包已进行过灭菌，请勿重复登记"));
+			return;
+		}
+
+		if (pkg.status != Rt::Packed) {
+			XNotifier::warn("该包尚未完成配包，请先配包，再添加灭菌。");
 			return;
 		}
 
@@ -274,9 +279,16 @@ void DispatchPackageView::addPackage(const QString &id) {
 	{
 		if (pkg.status == Rt::FlowStatus::Dispatched)
 		{
-			XNotifier::warn(QString("包 [%1] 已进行过发放，请勿重复登记").arg(id));
+			XNotifier::warn(QString("该包已完成发放登记，请勿重复登记"));
 			return;
 		}
+
+		if (pkg.status != Rt::FlowStatus::SterilizeResultChecked)
+		{
+			XNotifier::warn(QString("该包尚未完成灭菌审核，请先进行灭菌审核登记"));
+			return;
+		}
+
 		PackageQualityControl pkgqc;
 		resp = dao.getPackageQualityControl(pkg, &pkgqc);
 		if (resp.isOk())
@@ -865,6 +877,34 @@ void OperationCheckPackageView::loadPackages(const int surgeryId)
 			resp = pdao.getPackage(pkg.udi, &p, true);
 			if (resp.isOk())
 			{
+				PackageQualityControl pkgqc;
+				resp = pdao.getPackageQualityControl(pkg, &pkgqc);
+				if (resp.isOk())
+				{
+					if (pkgqc.bioResult == Rt::SterilizeVerdict::Unqualified)
+					{
+						XNotifier::warn(QString("包[%1]生物监测结果不合格，不能进行绑定操作。").arg(pkg.name));
+						return;
+					}
+
+					if (pkgqc.isExpired)
+					{
+						XNotifier::warn(QString("包[%1]已失效，不能进行绑定操作。").arg(pkg.name));
+						return;
+					}
+
+					if (pkgqc.isRecalled)
+					{
+						XNotifier::warn(QString("包[%1]已被召回，不能进行绑定操作。").arg(pkg.name));
+						return;
+					}
+				}
+				else
+				{
+					XNotifier::warn(QString("无法获取包[%1]质控信息:%2").arg(pkg.name).arg(resp.msg()));
+					return;
+				}
+
 				QList<QStandardItem *> rowItems;
 				QStandardItem *idItem = new QStandardItem(p.udi);
 				QStandardItem *nameItem = new QStandardItem(p.name);

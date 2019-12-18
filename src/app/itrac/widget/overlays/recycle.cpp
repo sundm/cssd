@@ -331,7 +331,7 @@ void OrRecyclePanel::onTransponderReceviced(const QString& code)
 		result_t resp = dao.getPackage(code, &_package, true);
 		if (resp.isOk())
 		{
-			if (_package.status == Rt::Recycled) {
+			if (_package.status == Rt::FlowStatus::Recycled) {
 				XNotifier::warn("该包已回收，请勿重复回收");
 				return;
 			}

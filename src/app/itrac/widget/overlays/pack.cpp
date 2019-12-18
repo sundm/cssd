@@ -160,10 +160,16 @@ void PackPanel::onTransponderReceviced(const QString& code)
 		result_t resp = dao.getPackage(code, &_package, true);
 		if (resp.isOk())
 		{
-			/*if (_package.status == Rt::Recycled) {
-				XNotifier::warn("该包已回收，请勿重复回收");
+			if (_package.status == Rt::Packed) {
+				XNotifier::warn("该包已配包，请勿重复配包");
 				return;
-			}*/
+			}
+
+			if (_package.status != Rt::Washed) {
+				XNotifier::warn("该包尚未完成清洗，请先清洗，再配包打包。");
+				return;
+			}
+
 			_unusualCodes->clear();
 			_scannedCodes->clear();
 
