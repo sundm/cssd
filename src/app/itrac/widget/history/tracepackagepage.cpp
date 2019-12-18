@@ -23,7 +23,7 @@ void TracePackageInfoView::init()
 	_pkgNameLabel = new QLabel();
 	_deptLabel = new QLabel();
 	_insNumLabel = new QLabel();
-	_totalCycleabel = new QLabel();
+	_totalCycleLabel = new QLabel();
 	_patientLabel = new QLabel();
 	_cyclelBox = new QSpinBox();
 	_cyclelBox->setMinimum(1);
@@ -34,7 +34,7 @@ void TracePackageInfoView::init()
 	_pkgNameLabel->setFont(font);
 	_deptLabel->setFont(font);
 	_insNumLabel->setFont(font);
-	_totalCycleabel->setFont(font);
+	_totalCycleLabel->setFont(font);
 	_patientLabel->setFont(font);
 }
 
@@ -55,7 +55,7 @@ void TracePackageInfoView::loadInfo(const QString &udi, const int &cycel, bool i
 		_pkgNameLabel->setText("测试器械包");
 		_deptLabel->setText("手术室");
 		_insNumLabel->setText("6");
-		_totalCycleabel->setText("12");
+		_totalCycleLabel->setText("12");
 		_patientLabel->setText("张三，123456");
 
 		_cyclelBox->setValue(_cycle);
@@ -79,7 +79,7 @@ void TracePackageInfoView::loadInfo(const QString &udi, const int &cycel, bool i
 		QLabel *totalCyclelabel = new QLabel(QString("循环总次数:"));
 		totalCyclelabel->setFont(font);
 		_grid->addWidget(totalCyclelabel, 1, 0);
-		_grid->addWidget(_totalCycleabel, 1, 1);
+		_grid->addWidget(_totalCycleLabel, 1, 1);
 
 		QLabel *cyclelabel = new QLabel(QString("当前次数:"));
 		cyclelabel->setFont(font);
@@ -97,7 +97,7 @@ void TracePackageInfoView::loadInfo(const QString &udi, const int &cycel, bool i
 		_pkgNameLabel->setText("测试器械包");
 		_deptLabel->setText("手术室");
 		_insNumLabel->setText("6");
-		_totalCycleabel->setText("12");
+		_totalCycleLabel->setText("12");
 		_patientLabel->setText("张三，123456");
 
 		_cyclelBox->setValue(_cycle);
@@ -121,7 +121,7 @@ void TracePackageInfoView::loadInfo(const QString &udi, const int &cycel, bool i
 		QLabel *totalCyclelabel = new QLabel(QString("循环总次数:"));
 		totalCyclelabel->setFont(font);
 		_grid->addWidget(totalCyclelabel, 1, 0);
-		_grid->addWidget(_totalCycleabel, 1, 1);
+		_grid->addWidget(_totalCycleLabel, 1, 1);
 
 		QLabel *cyclelabel = new QLabel(QString("当前次数:"));
 		cyclelabel->setFont(font);
@@ -151,7 +151,7 @@ void TracePackageInfoView::updateInfo()
 		_pkgNameLabel->setText("测试器械包");
 		_deptLabel->setText("手术室");
 		_insNumLabel->setText("6");
-		_totalCycleabel->setText("12");
+		_totalCycleLabel->setText("12");
 		_patientLabel->setText("李四，654321");
 	}
 	else
@@ -160,7 +160,7 @@ void TracePackageInfoView::updateInfo()
 		_pkgNameLabel->setText("测试器械包");
 		_deptLabel->setText("手术室");
 		_insNumLabel->setText("6");
-		_totalCycleabel->setText("12");
+		_totalCycleLabel->setText("12");
 		_patientLabel->setText("赵武，123654");
 	}
 }
@@ -183,7 +183,7 @@ TraceDetailView::TraceDetailView(QWidget *parent /*= nullptr*/)
 	_model->setHeaderData(Operate, Qt::Horizontal, "操作流程");
 	_model->setHeaderData(OpName, Qt::Horizontal, "操作人员");
 	_model->setHeaderData(OpTime, Qt::Horizontal, "操作时间");
-	_model->setHeaderData(State, Qt::Horizontal, "更多");
+	_model->setHeaderData(State, Qt::Horizontal, "详情");
 
 	setModel(_model);
 	setSelectionMode(QAbstractItemView::SingleSelection);
@@ -198,24 +198,15 @@ void TraceDetailView::loadDetail(const QString& udi, const int cycle)
 	rowItems << new QStandardItem();
 	rowItems << new QStandardItem();
 	rowItems << new QStandardItem();
+	rowItems << new QStandardItem();
 
 	for each (QStandardItem * item in rowItems)
 	{
 		item->setTextAlignment(Qt::AlignCenter);
 	}
 	_model->appendRow(rowItems);
-
-	_btn = new QPushButton("详情");
-	connect(_btn, SIGNAL(clicked(bool)), this, SLOT(clickButton()));
-	_btn->setProperty("row", 0);
-	setIndexWidget(_model->index(0, 3), _btn);
 }
 
-void TraceDetailView::clickButton()
-{
-	QPushButton *btn = (QPushButton *)sender();
-	int row = btn->property("row").toInt();
-}
 /***************************************************************/
 
 TracePackagePage::TracePackagePage(QWidget *parent)
@@ -280,4 +271,9 @@ void TracePackagePage::onTransponderReceviced(const QString& code)
 void TracePackagePage::onBarcodeReceviced(const QString& code)
 {
 	qDebug() << code;
+}
+
+void TracePackagePage::clear()
+{
+
 }

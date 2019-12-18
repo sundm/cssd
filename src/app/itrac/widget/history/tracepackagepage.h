@@ -32,7 +32,7 @@ private:
 	QLabel * _pkgNameLabel;
 	QLabel * _deptLabel;
 	QLabel * _insNumLabel;
-	QLabel * _totalCycleabel;
+	QLabel * _totalCycleLabel;
 	QSpinBox * _cyclelBox;
 	QLabel * _patientLabel;
 
@@ -49,12 +49,10 @@ class TraceDetailView : public TableView
 public:
 	TraceDetailView(QWidget *parent = nullptr);
 	void loadDetail(const QString& udi, const int cycle);
-private slots:
-	void clickButton();
+
 private:
 	enum { Operate, OpName, OpTime, State };
 	QStandardItemModel * _model;
-	QPushButton* _btn;
 };
 
 class TracePackagePage : public QWidget
@@ -71,7 +69,6 @@ private slots:
 private:
 	void clear();
 	void startTrace();
-	void tracePackage(const QString &);
 	
 	SearchEdit *_searchBox;
 	TracePackageInfoView *_infoView;

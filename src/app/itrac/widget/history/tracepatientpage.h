@@ -1,8 +1,7 @@
 #pragma once
 
-#include <QGroupBox>
-#include <qscanner/qscanner.h>
-#include "core/net/jsonhttpclient.h"
+#include "ui/views.h"
+#include <QTreeView>
 
 class SearchEdit;
 class QTextEdit;
@@ -10,40 +9,84 @@ class QFormLayout;
 class QGridLayout;
 class QStandardItemModel;
 class QTableView;
+class QLabel;
 
-class TracePaientItem : public QGroupBox
+class SurgeryView : public QTreeView
 {
 	Q_OBJECT
 
 public:
-	TracePaientItem(const QString &title = QString(), QWidget *parent = Q_NULLPTR);
-	void addEntry(const QString &label, const QString &field);
+	SurgeryView(QWidget *parent = nullptr);
+	void addPatient(const QString& patientId);
+	void clear();
+
+signals:
+	void packageClicked(const QString&, const int);
+
+private slots:
+	void onClicked(const QModelIndex &);
+
 private:
-	QFormLayout * _formLayout;
+	enum {
+		Patient,
+		Surgery,
+		Package
+	};
+
+	QStandardItemModel * _model;
 };
 
-class TracePatientPage : public QWidget, public Scanable, public JsonHttpClient
+class PatientPackageInfoView : public QWidget
+{
+	Q_OBJECT
+public:
+	PatientPackageInfoView(QWidget *parent = nullptr);
+	void clear();
+public slots:
+	void loadInfo(const QString &, const int);
+
+private:
+	QLabel * _pkgNameLabel;
+	QLabel * _deptLabel;
+	QLabel * _insNumLabel;
+	QLabel * _totalCycleLabel;
+	QLabel * _cyclelLabel;
+};
+
+class PatientPackageDetailView : public TableView
+{
+	Q_OBJECT
+
+public:
+	PatientPackageDetailView(QWidget *parent = nullptr);
+	void clear();
+public slots:
+	void loadDetail(const QString&, const int);
+
+private:
+	enum { Operate, OpName, OpTime, State };
+	QStandardItemModel * _model;
+};
+
+class TracePatientPage : public QWidget
 {
 	Q_OBJECT
 
 public:
 	TracePatientPage(QWidget *parent = Q_NULLPTR);
 
-protected:
-	void handleBarcode(const QString &) override;
-
 private slots:
-	void showDetail(const QModelIndex &);
+	void onTransponderReceviced(const QString& code);
+	void onBarcodeReceviced(const QString& code);
 
 private:
 	void clear();
 	void startTrace();
-	void tracePackage(const QString &);
 	void tracePatient(const QString &);
 	
 	SearchEdit *_searchBox;
-	QGridLayout *_grid;
 
-	QTableView *_view;
-	QStandardItemModel * _model;
+	SurgeryView *_surgeryView;
+	PatientPackageInfoView *_pkgInfoView;
+	PatientPackageDetailView *_pkgDetailView;
 };
