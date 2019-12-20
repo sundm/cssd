@@ -96,6 +96,12 @@
     <ClInclude Include="filter\packagetypefilter.h">
       <Filter>Source Files\filter</Filter>
     </ClInclude>
+    <ClInclude Include="entity\trace.h">
+      <Filter>Source Files\entity</Filter>
+    </ClInclude>
+    <ClInclude Include="dao\tracedao.h">
+      <Filter>Source Files\dao</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dbconnection.cpp">
@@ -130,6 +136,9 @@
     </ClCompile>
     <ClCompile Include="filter\packagetypefilter.cpp">
       <Filter>Source Files\filter</Filter>
+    </ClCompile>
+    <ClCompile Include="dao\tracedao.cpp">
+      <Filter>Source Files\dao</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
