@@ -62,6 +62,8 @@ namespace Core {
 			if (address.isNull() || address.tagName().compare("address") != 0)
 				return;
 			PATH_BASE = address.attribute("url", "");
+			QDomElement pangePrinter = address.nextSiblingElement("page");
+			PAGE_INDEX = pangePrinter.attribute("value", "0").toInt();
 			QDomElement labelPrinter = address.nextSiblingElement("labelPrinter");
 			LABEL_PRINTER = labelPrinter.attribute("name", "");
 			QDomElement commonPrinter = labelPrinter.nextSiblingElement("commonPrinter");

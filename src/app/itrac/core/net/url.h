@@ -12,6 +12,7 @@ extern QString LABEL_PRINTER;
 extern QString COMMON_PRINTER;
 extern QList<TSL1128Reader*> TSL1128Readers;
 extern RfidCodelistener* _listener;
+extern int PAGE_INDEX;
 extern const char PATH_PLATE_SEARCH[];
 extern const char PATH_DEPT_SEARCH[];
 extern const char PATH_DEPT_ADD[];

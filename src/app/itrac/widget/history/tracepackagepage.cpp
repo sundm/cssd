@@ -5,7 +5,22 @@
 #include "core/inliner.h"
 #include <ui/ui_commons.h>
 #include <xui/searchedit.h>
+#include "rdao/dao/PackageDao.h"
+#include "rdao/dao/InstrumentDao.h"
+#include "rdao/dao/tracedao.h"
 #include <QtWidgets/QtWidgets>
+
+QString SterilizeVerdictToString(Rt::SterilizeVerdict v)
+{
+	switch (v)
+	{
+	case Rt::SterilizeVerdict::Qualified: return "合格";
+	case Rt::SterilizeVerdict::Unqualified: return "不合格";
+	case Rt::SterilizeVerdict::Uninvolved: return "未涉及";
+	case Rt::SterilizeVerdict::Unchecked: return "未审核";
+	default: return QString();
+	}
+}
 
 TracePackageInfoView::TracePackageInfoView(QWidget *parent /*= nullptr*/)
 	: QWidget(parent)
@@ -22,7 +37,6 @@ void TracePackageInfoView::init()
 	_insNameLabel = new QLabel();
 	_pkgNameLabel = new QLabel();
 	_deptLabel = new QLabel();
-	_insNumLabel = new QLabel();
 	_totalCycleLabel = new QLabel();
 	_patientLabel = new QLabel();
 	_cyclelBox = new QSpinBox();
@@ -33,15 +47,14 @@ void TracePackageInfoView::init()
 	_insNameLabel->setFont(font);
 	_pkgNameLabel->setFont(font);
 	_deptLabel->setFont(font);
-	_insNumLabel->setFont(font);
 	_totalCycleLabel->setFont(font);
 	_patientLabel->setFont(font);
 }
 
-void TracePackageInfoView::loadInfo(const QString &udi, const int &cycel, bool isPackage)
+void TracePackageInfoView::loadInfo(const QString &udi, bool isPackage)
 {
 	_udi = udi;
-	_cycle = cycel;
+	
 	_isPackage = isPackage;
 
 	clear();
@@ -52,86 +65,153 @@ void TracePackageInfoView::loadInfo(const QString &udi, const int &cycel, bool i
 	
 	if (_isPackage)
 	{
-		_pkgNameLabel->setText("测试器械包");
-		_deptLabel->setText("手术室");
-		_insNumLabel->setText("6");
-		_totalCycleLabel->setText("12");
-		_patientLabel->setText("张三，123456");
+		PackageDao dao;
+		Package pkg;
+		result_t resp = dao.getPackage(_udi, &pkg);
+		if (resp.isOk())
+		{
+			_cycle = pkg.cycle;
 
-		_cyclelBox->setValue(_cycle);
-		_cyclelBox->setMaximum(12);
+			_pkgNameLabel->setText(pkg.name);
+			_deptLabel->setText(pkg.dept.name);
+			_totalCycleLabel->setText(QString::number(_cycle));
+			_cyclelBox->setValue(_cycle);
+			_cyclelBox->setMaximum(_cycle);
 
-		QLabel *namelabel = new QLabel(QString("包名称:"));
-		namelabel->setFont(font);
-		_grid->addWidget(namelabel, 0, 0);
-		_grid->addWidget(_pkgNameLabel, 0, 1);
+			QLabel *namelabel = new QLabel(QString("包名称:"));
+			namelabel->setFont(font);
+			_grid->addWidget(namelabel, 0, 0);
+			_grid->addWidget(_pkgNameLabel, 0, 1);
 
-		QLabel *deptlabel = new QLabel(QString("所属科室:"));
-		deptlabel->setFont(font);
-		_grid->addWidget(deptlabel, 0, 2);
-		_grid->addWidget(_deptLabel, 0, 3);
+			QLabel *deptlabel = new QLabel(QString("所属科室:"));
+			deptlabel->setFont(font);
+			_grid->addWidget(deptlabel, 0, 2);
+			_grid->addWidget(_deptLabel, 0, 3);
 
-		QLabel *insNumlabel = new QLabel(QString("器械数量:"));
-		insNumlabel->setFont(font);
-		_grid->addWidget(insNumlabel, 0, 4);
-		_grid->addWidget(_insNumLabel, 0, 5);
 
-		QLabel *totalCyclelabel = new QLabel(QString("循环总次数:"));
-		totalCyclelabel->setFont(font);
-		_grid->addWidget(totalCyclelabel, 1, 0);
-		_grid->addWidget(_totalCycleLabel, 1, 1);
+			QLabel *totalCyclelabel = new QLabel(QString("循环总次数:"));
+			totalCyclelabel->setFont(font);
+			_grid->addWidget(totalCyclelabel, 1, 0);
+			_grid->addWidget(_totalCycleLabel, 1, 1);
 
-		QLabel *cyclelabel = new QLabel(QString("当前次数:"));
-		cyclelabel->setFont(font);
-		_grid->addWidget(cyclelabel, 1, 2);
-		_grid->addWidget(_cyclelBox, 1, 3);
+			QLabel *cyclelabel = new QLabel(QString("当前次数:"));
+			cyclelabel->setFont(font);
+			_grid->addWidget(cyclelabel, 1, 2);
+			_grid->addWidget(_cyclelBox, 1, 3);
 
-		QLabel *uselabel = new QLabel(QString("当前使用者:"));
-		uselabel->setFont(font);
-		_grid->addWidget(uselabel, 2, 0);
-		_grid->addWidget(_patientLabel, 2, 1);
+			TraceDao tDao;
+			PackageFlow pkgFlow;
+			resp = tDao.getPackgeFlow(_udi, _cycle, &pkgFlow);
+			if (resp.isOk())
+			{
+				
+				QString patientName = pkgFlow.use.patientName;
+				QString patientId = pkgFlow.use.patientId;
+				QString surgeryName = pkgFlow.use.surgeryName;
+				QString surgeryTime = pkgFlow.use.surgeryTime.toString("yyyy-MM-dd HH:mm:ss");
+				if (!patientName.isEmpty())
+				{
+					_patientLabel->setText(QString("%1,住院号:%2。手术名称:%3，手术时间:%4")
+						.arg(patientName).arg(patientId).arg(surgeryName).arg(surgeryTime));
+
+					QLabel *uselabel = new QLabel(QString("当前使用者:"));
+					uselabel->setFont(font);
+					_grid->addWidget(uselabel, 2, 0);
+					_grid->addWidget(_patientLabel, 2, 1);
+				}
+				
+				emit packageFlow(pkgFlow);
+			}
+			else
+			{
+				//todo
+				return;
+			}
+			
+		}
+		else
+		{
+			//todo
+			return;
+		}
+		
 	}
 	else
 	{
-		_insNameLabel->setText("测试器械");
-		_pkgNameLabel->setText("测试器械包");
-		_deptLabel->setText("手术室");
-		_insNumLabel->setText("6");
-		_totalCycleLabel->setText("12");
-		_patientLabel->setText("张三，123456");
+		InstrumentDao dao;
+		Instrument ins;
+		result_t resp = dao.getInstrument(_udi, &ins);
+		if (resp.isOk())
+		{
+			_cycle = ins.cycle;
+			_insNameLabel->setText(ins.name);
+			_pkgNameLabel->setText(ins.packageName);
+			_deptLabel->setText(ins.packageUdi);
+			_totalCycleLabel->setText(QString::number(_cycle));
+			//_patientLabel->setText("张三，123456");
 
-		_cyclelBox->setValue(_cycle);
-		_cyclelBox->setMaximum(12);
+			_cyclelBox->setValue(_cycle);
+			_cyclelBox->setMaximum(_cycle);
 
-		QLabel *namelabel = new QLabel(QString("器械名称:"));
-		namelabel->setFont(font);
-		_grid->addWidget(namelabel, 0, 0);
-		_grid->addWidget(_insNameLabel, 0, 1);
+			QLabel *namelabel = new QLabel(QString("器械名称:"));
+			namelabel->setFont(font);
+			_grid->addWidget(namelabel, 0, 0);
+			_grid->addWidget(_insNameLabel, 0, 1);
 
-		QLabel *pkglabel = new QLabel(QString("所属包:"));
-		pkglabel->setFont(font);
-		_grid->addWidget(pkglabel, 0, 2);
-		_grid->addWidget(_pkgNameLabel, 0, 3);
+			QLabel *pkglabel = new QLabel(QString("所属包:"));
+			pkglabel->setFont(font);
+			_grid->addWidget(pkglabel, 0, 2);
+			_grid->addWidget(_pkgNameLabel, 0, 3);
 
-		QLabel *deptlabel = new QLabel(QString("所属科室:"));
-		deptlabel->setFont(font);
-		_grid->addWidget(deptlabel, 0, 4);
-		_grid->addWidget(_deptLabel, 0, 5);
+			QLabel *deptlabel = new QLabel(QString("所属包UDI:"));
+			deptlabel->setFont(font);
+			_grid->addWidget(deptlabel, 0, 4);
+			_grid->addWidget(_deptLabel, 0, 5);
 
-		QLabel *totalCyclelabel = new QLabel(QString("循环总次数:"));
-		totalCyclelabel->setFont(font);
-		_grid->addWidget(totalCyclelabel, 1, 0);
-		_grid->addWidget(_totalCycleLabel, 1, 1);
+			QLabel *totalCyclelabel = new QLabel(QString("循环总次数:"));
+			totalCyclelabel->setFont(font);
+			_grid->addWidget(totalCyclelabel, 1, 0);
+			_grid->addWidget(_totalCycleLabel, 1, 1);
 
-		QLabel *cyclelabel = new QLabel(QString("当前次数:"));
-		cyclelabel->setFont(font);
-		_grid->addWidget(cyclelabel, 1, 2);
-		_grid->addWidget(_cyclelBox, 1, 3);
+			QLabel *cyclelabel = new QLabel(QString("当前次数:"));
+			cyclelabel->setFont(font);
+			_grid->addWidget(cyclelabel, 1, 2);
+			_grid->addWidget(_cyclelBox, 1, 3);
 
-		QLabel *uselabel = new QLabel(QString("当前使用者:"));
-		uselabel->setFont(font);
-		_grid->addWidget(uselabel, 2, 0);
-		_grid->addWidget(_patientLabel, 2, 1);
+			TraceDao tDao;
+			PackageFlow pkgFlow;
+			resp = tDao.getPackgeFlow(_udi, _cycle, &pkgFlow, true);
+			if (resp.isOk())
+			{
+				QString patientName = pkgFlow.use.patientName;
+				QString patientId = pkgFlow.use.patientId;
+				QString surgeryName = pkgFlow.use.surgeryName;
+				QString surgeryTime = pkgFlow.use.surgeryTime.toString("yyyy-MM-dd HH:mm:ss");
+				if (!patientName.isEmpty())
+				{
+					_patientLabel->setText(QString("%1,住院号:%2。手术名称:%3，手术时间:%4")
+						.arg(patientName).arg(patientId).arg(surgeryName).arg(surgeryTime));
+
+					QLabel *uselabel = new QLabel(QString("当前使用者:"));
+					uselabel->setFont(font);
+					_grid->addWidget(uselabel, 2, 0);
+					_grid->addWidget(_patientLabel, 2, 1);
+				}
+
+				emit packageFlow(pkgFlow);
+			}
+			else
+			{
+				//todo
+				return;
+			}
+		}
+		else
+		{
+			//todo
+			return;
+		}
+		
 	}
 
 	connect(_cyclelBox, SIGNAL(valueChanged(int)), this, SLOT(cycleChanged(int)));
@@ -141,27 +221,83 @@ void TracePackageInfoView::cycleChanged(int value)
 {
 	_cycle = value;
 	updateInfo();
-	emit cycle(_cycle);
 }
 
 void TracePackageInfoView::updateInfo()
 {
 	if (_isPackage)
 	{
-		_pkgNameLabel->setText("测试器械包");
-		_deptLabel->setText("手术室");
-		_insNumLabel->setText("6");
-		_totalCycleLabel->setText("12");
-		_patientLabel->setText("李四，654321");
+		TraceDao tDao;
+		PackageFlow pkgFlow;
+		result_t resp = tDao.getPackgeFlow(_udi, _cycle, &pkgFlow);
+		if (resp.isOk())
+		{
+
+			QString patientName = pkgFlow.use.patientName;
+			QString patientId = pkgFlow.use.patientId;
+			QString surgeryName = pkgFlow.use.surgeryName;
+			QString surgeryTime = pkgFlow.use.surgeryTime.toString("yyyy-MM-dd HH:mm:ss");
+			if (!patientName.isEmpty())
+			{
+				_patientLabel->setText(QString("%1,住院号:%2。手术名称:%3，手术时间:%4")
+					.arg(patientName).arg(patientId).arg(surgeryName).arg(surgeryTime));
+			}
+			else
+			{
+				_patientLabel->clear();
+			}
+
+			emit packageFlow(pkgFlow);
+		}
+		else
+		{
+			//todo
+			return;
+		}
 	}
 	else
 	{
-		_insNameLabel->setText("测试器械");
-		_pkgNameLabel->setText("测试器械包");
-		_deptLabel->setText("手术室");
-		_insNumLabel->setText("6");
-		_totalCycleLabel->setText("12");
-		_patientLabel->setText("赵武，123654");
+		InstrumentDao dao;
+		Instrument ins;
+		result_t resp = dao.getInstrument(_udi, &ins);
+		if (resp.isOk())
+		{
+			_insNameLabel->setText(ins.name);
+			_pkgNameLabel->setText(ins.packageName);
+			_deptLabel->setText(ins.packageUdi);
+			
+			TraceDao tDao;
+			PackageFlow pkgFlow;
+			resp = tDao.getPackgeFlow(_udi, _cycle, &pkgFlow, true);
+			if (resp.isOk())
+			{
+				QString patientName = pkgFlow.use.patientName;
+				QString patientId = pkgFlow.use.patientId;
+				QString surgeryName = pkgFlow.use.surgeryName;
+				QString surgeryTime = pkgFlow.use.surgeryTime.toString("yyyy-MM-dd HH:mm:ss");
+				if (!patientName.isEmpty())
+				{
+					_patientLabel->setText(QString("%1,住院号:%2。手术名称:%3，手术时间:%4")
+						.arg(patientName).arg(patientId).arg(surgeryName).arg(surgeryTime));
+				}
+				else
+				{
+					_patientLabel->clear();
+				}
+
+				emit packageFlow(pkgFlow);
+			}
+			else
+			{
+				//todo
+				return;
+			}
+		}
+		else
+		{
+			//todo
+			return;
+		}
 	}
 }
 
@@ -188,23 +324,73 @@ TraceDetailView::TraceDetailView(QWidget *parent /*= nullptr*/)
 	setModel(_model);
 	setSelectionMode(QAbstractItemView::SingleSelection);
 	setEditTriggers(QAbstractItemView::NoEditTriggers);
+	resizeColumnToContents(State);
 }
 
-void TraceDetailView::loadDetail(const QString& udi, const int cycle)
+void TraceDetailView::loadDetail(const PackageFlow &pkgFlow)
 {
 	_model->removeRows(0, _model->rowCount());
 
-	QList<QStandardItem *> rowItems;
-	rowItems << new QStandardItem();
-	rowItems << new QStandardItem();
-	rowItems << new QStandardItem();
-	rowItems << new QStandardItem();
+	Rt::FlowStatus status = pkgFlow.status;//todo
 
-	for each (QStandardItem * item in rowItems)
+	QList<QStandardItem *> totalItems;
+
+	QList<QStandardItem *> rowWashItems;
+	rowWashItems << new QStandardItem("清洗");
+	rowWashItems << new QStandardItem(pkgFlow.wash.op);
+	rowWashItems << new QStandardItem(pkgFlow.wash.finishTime.toString("yyyy-MM-dd HH:mm:ss"));
+	rowWashItems << new QStandardItem(QString("清洗机:%1 \r 清洗程序:%2 \r 清洗锅次:%3").arg(pkgFlow.wash.device).arg(pkgFlow.wash.program).arg(pkgFlow.wash.cycleCount));
+	totalItems.append(rowWashItems);
+
+	QList<QStandardItem *> rowPackItems;
+	rowPackItems << new QStandardItem("配包");
+	rowPackItems << new QStandardItem(pkgFlow.pack.op);
+	rowPackItems << new QStandardItem(pkgFlow.pack.time.toString("yyyy-MM-dd HH:mm:ss"));
+	rowPackItems << new QStandardItem(QString("审核人:%1").arg(pkgFlow.pack.checker));
+	totalItems.append(rowPackItems);
+
+	QList<QStandardItem *> rowSterItems;
+	rowSterItems << new QStandardItem("灭菌");
+	rowSterItems << new QStandardItem(pkgFlow.ster.op);
+	rowSterItems << new QStandardItem(pkgFlow.ster.finishTime.toString("yyyy-MM-dd HH:mm:ss"));
+	rowSterItems << new QStandardItem(QString("灭菌器:%1 \r 灭菌程序:%2 \r 灭菌锅次:%3").arg(pkgFlow.ster.device).arg(pkgFlow.ster.program).arg(pkgFlow.ster.cycleCount));
+	totalItems.append(rowSterItems);
+
+	QList<QStandardItem *> rowphyChecItems;
+	rowphyChecItems << new QStandardItem("物理监测审核");
+	rowphyChecItems << new QStandardItem(pkgFlow.sterCheck.phyChecker);
+	rowphyChecItems << new QStandardItem(pkgFlow.sterCheck.phyCheckTime.toString("yyyy-MM-dd HH:mm:ss"));
+	rowphyChecItems << new QStandardItem(QString("监测结果:%1").arg(SterilizeVerdictToString(pkgFlow.sterCheck.phyResult)));
+	totalItems.append(rowphyChecItems);
+
+	QList<QStandardItem *> rowcheChecItems;
+	rowcheChecItems << new QStandardItem("化学监测审核");
+	rowcheChecItems << new QStandardItem(pkgFlow.sterCheck.cheChecker);
+	rowcheChecItems << new QStandardItem(pkgFlow.sterCheck.cheCheckTime.toString("yyyy-MM-dd HH:mm:ss"));
+	rowcheChecItems << new QStandardItem(QString("监测结果:%1").arg(SterilizeVerdictToString(pkgFlow.sterCheck.cheResult)));
+	totalItems.append(rowcheChecItems);
+
+	QList<QStandardItem *> rowbioChecItems;
+	rowbioChecItems << new QStandardItem("生物监测审核");
+	rowbioChecItems << new QStandardItem(pkgFlow.sterCheck.bioChecker);
+	rowbioChecItems << new QStandardItem(pkgFlow.sterCheck.bioCheckTime.toString("yyyy-MM-dd HH:mm:ss"));
+	rowbioChecItems << new QStandardItem(QString("监测结果:%1").arg(SterilizeVerdictToString(pkgFlow.sterCheck.bioResult)));
+	totalItems.append(rowbioChecItems);
+
+	QFont font;
+	font.setPointSize(16);
+	for each (QStandardItem * item in totalItems)
 	{
 		item->setTextAlignment(Qt::AlignCenter);
+		item->setFont(font);
 	}
-	_model->appendRow(rowItems);
+
+	_model->appendRow(rowWashItems);
+	_model->appendRow(rowPackItems);
+	_model->appendRow(rowSterItems);
+	_model->appendRow(rowphyChecItems);
+	_model->appendRow(rowcheChecItems);
+	_model->appendRow(rowbioChecItems);
 }
 
 /***************************************************************/
@@ -229,12 +415,7 @@ TracePackagePage::TracePackagePage(QWidget *parent)
 
 	connect(_listener, SIGNAL(onTransponder(const QString&)), this, SLOT(onTransponderReceviced(const QString&)));
 	connect(_listener, SIGNAL(onBarcode(const QString&)), this, SLOT(onBarcodeReceviced(const QString&)));
-	connect(_infoView, SIGNAL(cycle(int)), this, SLOT(onCycleChange(int)));
-}
-
-void TracePackagePage::onCycleChange(int cycle)
-{
-	_detailView->loadDetail(_udi, cycle);
+	connect(_infoView, SIGNAL(packageFlow(const PackageFlow &)), _detailView, SLOT(loadDetail(const PackageFlow &)));
 }
 
 void TracePackagePage::startTrace()
@@ -252,8 +433,7 @@ void TracePackagePage::onTransponderReceviced(const QString& code)
 		_infoView->setHidden(false);
 		_detailView->setHidden(false);
 		_searchBox->setText(_udi);
-		_infoView->loadInfo(_udi, 1);
-		_detailView->loadDetail(_udi, 1);
+		_infoView->loadInfo(_udi);
 	}
 
 	if (tc.type() == TranspondCode::Instrument)
@@ -262,8 +442,7 @@ void TracePackagePage::onTransponderReceviced(const QString& code)
 		_infoView->setHidden(false);
 		_detailView->setHidden(false);
 		_searchBox->setText(_udi);
-		_infoView->loadInfo(_udi, 1, false);
-		_detailView->loadDetail(_udi, 1);
+		_infoView->loadInfo(_udi, false);
 	}
 
 }

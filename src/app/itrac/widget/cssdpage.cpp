@@ -1,7 +1,7 @@
 #include "cssdpage.h"
 #include "mainwindow.h"
 #include "core/itracnamespace.h"
-
+#include "net/url.h"
 #include "ui/buttons.h"
 #include "ui/ui_commons.h"
 #include "ui/container.h"
@@ -20,8 +20,8 @@
 #include <QtGui/QtGui>
 #include <QtWidgets/QtWidgets>
 
-DoorPlate::DoorPlate() : QGraphicsObject(), _clickable(true) {
-	createInterlData();
+DoorPlate::DoorPlate(const int index) : QGraphicsObject(), _clickable(true) {
+	createInterlData(index);
 	createTransformStates();
 
 	//setCacheMode(ItemCoordinateCache);
@@ -73,13 +73,39 @@ void DoorPlate::updateInternalData() {
 	update();
 }
 
-void DoorPlate::createInterlData() {
+void DoorPlate::createInterlData(const int index) {
 	std::vector<Data> vec;
 	vec.reserve(4);
-	vec.emplace_back("去污区", QColor(212, 98, 98));
-	vec.emplace_back("检查包装及灭菌区", QColor(0, 160, 221));
-	vec.emplace_back("无菌物品存放区", Qt::darkGreen);
-	vec.emplace_back("手术室操作区", QColor(0, 160, 221));
+	switch (index)
+	{
+	case 0:
+		vec.emplace_back("去污区", QColor(212, 98, 98));
+		vec.emplace_back("检查包装及灭菌区", QColor(0, 160, 221));
+		vec.emplace_back("无菌物品存放区", Qt::darkGreen);
+		vec.emplace_back("手术室操作区", QColor(0, 160, 221));
+		break;
+	case 1:
+		vec.emplace_back("检查包装及灭菌区", QColor(0, 160, 221));
+		vec.emplace_back("无菌物品存放区", Qt::darkGreen);
+		vec.emplace_back("手术室操作区", QColor(0, 160, 221));
+		vec.emplace_back("去污区", QColor(212, 98, 98));
+		break;
+	case 2:
+		vec.emplace_back("无菌物品存放区", Qt::darkGreen);
+		vec.emplace_back("手术室操作区", QColor(0, 160, 221));
+		vec.emplace_back("去污区", QColor(212, 98, 98));
+		vec.emplace_back("检查包装及灭菌区", QColor(0, 160, 221));
+		break;
+	case 3:
+		vec.emplace_back("手术室操作区", QColor(0, 160, 221));
+		vec.emplace_back("去污区", QColor(212, 98, 98));
+		vec.emplace_back("检查包装及灭菌区", QColor(0, 160, 221));
+		vec.emplace_back("无菌物品存放区", Qt::darkGreen);
+		break;
+	default:
+		break;
+	}
+	
 	_data = vec;
 
 	for (auto point : points)
@@ -120,11 +146,11 @@ void DoorPlate::createTransformStates() {
 }
 
 /* class DoorPlatePanel*/
-DoorPlatePanel::DoorPlatePanel(QWidget *parent) : QGraphicsView(parent) {
+DoorPlatePanel::DoorPlatePanel(const int index, QWidget *parent) : QGraphicsView(parent) {
 	QGraphicsScene *scene = new QGraphicsScene(this);
 	scene->setSceneRect(0, -100, 600, 200); //make (0,0) at left-center
 
-	DoorPlate *doorPlate = new DoorPlate();
+	DoorPlate *doorPlate = new DoorPlate(index);
 	connect(doorPlate, &DoorPlate::clicked, this, &DoorPlatePanel::flipped);
 	scene->addItem(doorPlate);
 	setScene(scene);
@@ -140,10 +166,12 @@ DoorPlatePanel::DoorPlatePanel(QWidget *parent) : QGraphicsView(parent) {
 
 CssdAreaPanel::CssdAreaPanel(QWidget *parent) : Ui::Source(parent)
 , _layout(new QGridLayout(this))
+, _hlayout(new QHBoxLayout())
 , _signalMapper(new QSignalMapper(this))
 , _count(0) {
 	_layout->setContentsMargins(0, 0, 0, 0);
-	_layout->setSpacing(80);
+	//_layout->setSpacing(80);
+	_layout->addLayout(_hlayout, 0, 0);
 	connect(_signalMapper, SIGNAL(mapped(int)), this, SLOT(clickCallback(int)));
 }
 
@@ -191,10 +219,16 @@ QAbstractButton * CssdAreaPanel::addButton(int id,
 	connect(button, SIGNAL(clicked()), _signalMapper, SLOT(map()));
 	_signalMapper->setMapping(button, id);
 	int row = _count / columnCount, col = _count % columnCount;
-	if (col) {
-		_layout->addWidget(Ui::createSeperator(Qt::Vertical), row, col * 2 - 1);
-	}
-	_layout->addWidget(button, row, col * 2 );
+	
+	
+	//if (col) {
+	//	layout->addWidget(Ui::createSeperator(Qt::Vertical));
+	//	//_layout->addWidget(Ui::createSeperator(Qt::Vertical), row, col * 2 -1);
+	//}
+	_hlayout->addWidget(button);
+	_hlayout->addSpacing(100);
+	
+	//_layout->addWidget(button, row, col*2);
 	_count++;
 	return button;
 }
@@ -227,43 +261,22 @@ OperatingAreaPanel::OperatingAreaPanel(QWidget *parent) : CssdAreaPanel(parent) 
 	addButton(itrac::PostExamAction, ":/res/dept-64.png", "术后清点", "手术后清点器械包");
 }
 
-CssdButtonsPanelLoader::CssdButtonsPanelLoader(QWidget *parent)
-	: Ui::Loader(parent)
-	, _cur(0) {
-}
-
-void CssdButtonsPanelLoader::loadNext() {
-	_cur = (_cur + 1) % 3;
-	switch (_cur) {
-	case 0:
-		Ui::Loader::setSourceAnimated(new PollutedAreaPanel);
-		break;
-	case 1:
-		Ui::Loader::setSourceAnimated(new CleanAreaPanel);
-		break;
-	case 2:
-		Ui::Loader::setSourceAnimated(new AsepsisAreaPanel);
-		break;
-	case 3:
-		Ui::Loader::setSourceAnimated(new OperatingAreaPanel);
-		break;
-	}
-}
-
 CssdPage::CssdPage(QWidget *parent) : QWidget(parent) {
 	QVBoxLayout *layout = new QVBoxLayout(this);
 	layout->setContentsMargins(0, 0, 0, 0);
 
-	DoorPlatePanel *doorPlatePanel = new DoorPlatePanel;
-	doorPlatePanel->setFixedHeight(200);
-	layout->addWidget(doorPlatePanel);
+	_doorPlatePanel = new DoorPlatePanel(PAGE_INDEX);
+	_doorPlatePanel->setFixedHeight(200);
+	layout->addWidget(_doorPlatePanel);
 
 	/*PollutedAreaPanel *panel = new PollutedAreaPanel();
 	CssdButtonsPanelLoader *loader = new CssdButtonsPanelLoader;
 	loader->setSource(panel);*/
-	_loader = new InternalLoader(0);
+	_loader = new InternalLoader(PAGE_INDEX);
+	
 	Ui::Container *container = new Ui::Container(_loader, Ui::Container::Top);
-	connect(doorPlatePanel, &DoorPlatePanel::flipped, _loader, &InternalLoader::loadNext);
+	
+	connect(_doorPlatePanel, &DoorPlatePanel::flipped, _loader, &InternalLoader::loadNext);
 
 	layout->addWidget(container);
 }

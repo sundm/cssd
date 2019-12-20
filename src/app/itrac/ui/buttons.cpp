@@ -87,7 +87,8 @@ QSize CommandButton::sizeHint() const {
 	int buttonWidth = textWidth + textOffset() + RightMargin;
 	int heightWithoutDescription = descriptionOffset() + BottomMargin;
 
-	size.setWidth(qMax(size.width(), buttonWidth));
+	//size.setWidth(qMax(size.width(), buttonWidth));
+	size.setWidth(400);
 	size.setHeight(qMax(_desc.isEmpty() ? 41 : 60,
 		heightWithoutDescription + descriptionHeight(buttonWidth)));
 	return size;

@@ -15,6 +15,7 @@ QString LABEL_PRINTER;
 QString COMMON_PRINTER;
 QList<TSL1128Reader*> TSL1128Readers;
 RfidCodelistener* _listener;
+int PAGE_INDEX;
 const char PATH_PLATE_SEARCH[] = "plate/search";
 const char PATH_DEPT_SEARCH[] = "department/search";
 const char PATH_DEPT_ADD[] = "department/add";

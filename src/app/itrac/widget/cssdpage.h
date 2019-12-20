@@ -8,7 +8,7 @@
 class DoorPlate : public QGraphicsObject {
 	Q_OBJECT
 public:
-	DoorPlate();
+	DoorPlate(const int index);
 
 protected:
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *) override;
@@ -31,7 +31,7 @@ private:
 		}
 	};
 
-	void createInterlData();
+	void createInterlData(const int index);
 	void createTransformStates();
 
 	QPolygon _polygon;
@@ -55,13 +55,14 @@ class DoorPlatePanel : public QGraphicsView
 {
 	Q_OBJECT
 public:
-	DoorPlatePanel(QWidget *parent = nullptr);
+	DoorPlatePanel(const int index, QWidget *parent = nullptr);
 signals:
 	void flipped();
 };
 
 class QAbstractButton;
 class QGridLayout;
+class QHBoxLayout;
 class QSignalMapper;
 class CssdAreaPanel : public Ui::Source {
 	Q_OBJECT
@@ -75,6 +76,7 @@ protected:
 		const QString &text,
 		const QString &desc);
 private:
+	QHBoxLayout *_hlayout;
 	QGridLayout * _layout;
 	QSignalMapper * _signalMapper;
 	int _count;
@@ -105,18 +107,6 @@ public:
 	OperatingAreaPanel(QWidget *parent = nullptr);
 };
 
-class CssdButtonsPanelLoader : public Ui::Loader {
-	Q_OBJECT
-public:
-	CssdButtonsPanelLoader(QWidget *parent = nullptr);
-	void loadNext();
-
-	//void setSource(Source *src) = delete;
-	//void setSourceAnimated(Source *src, AnimMode animMode = AnimMode::Fade, int pause = 0) = delete;
-private:
-	int _cur;
-};
-
 class CssdPage : public QWidget
 {
     Q_OBJECT
@@ -124,6 +114,7 @@ public:
     explicit CssdPage(QWidget *parent = 0);
     ~CssdPage() = default;
 private:
+	DoorPlatePanel *_doorPlatePanel;
 	using InternalLoader = Ui::CyclicLoader<PollutedAreaPanel, CleanAreaPanel, AsepsisAreaPanel, OperatingAreaPanel>;
 	InternalLoader *_loader;
 };

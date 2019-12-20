@@ -12,15 +12,16 @@ class QTableView;
 class QLabel;
 class QSpinBox;
 class QPushButton;
+class PackageFlow;
 
 class TracePackageInfoView : public QWidget
 {
 	Q_OBJECT
 public:
 	TracePackageInfoView(QWidget *parent = nullptr);
-	void loadInfo(const QString &udi, const int &cycel, bool isPackage = true);
+	void loadInfo(const QString &udi, bool isPackage = true);
 signals:
-	void cycle(int);
+	void packageFlow(const PackageFlow &);
 private slots:
 	void cycleChanged(int);
 private:
@@ -31,7 +32,6 @@ private:
 	QLabel * _insNameLabel;
 	QLabel * _pkgNameLabel;
 	QLabel * _deptLabel;
-	QLabel * _insNumLabel;
 	QLabel * _totalCycleLabel;
 	QSpinBox * _cyclelBox;
 	QLabel * _patientLabel;
@@ -48,7 +48,9 @@ class TraceDetailView : public TableView
 
 public:
 	TraceDetailView(QWidget *parent = nullptr);
-	void loadDetail(const QString& udi, const int cycle);
+
+public slots:
+	void loadDetail(const PackageFlow &);
 
 private:
 	enum { Operate, OpName, OpTime, State };
@@ -65,7 +67,6 @@ public:
 private slots:
 	void onTransponderReceviced(const QString& code);
 	void onBarcodeReceviced(const QString& code);
-	void onCycleChange(int);
 private:
 	void clear();
 	void startTrace();
