@@ -52,9 +52,11 @@ struct PackageFlow {
 		QString surgeryName;
 		QDateTime surgeryTime;
 		// TODO: surgeryId?
+		int surgeryId = 0;
 	};
 
-	Rt::FlowStatus status;
+	Rt::FlowStatus status = Rt::UnknownFlowStatus;
+	bool isRecalled = false;
 	Wash wash;
 	Pack pack;
 	Sterilize ster;

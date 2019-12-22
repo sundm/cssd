@@ -99,35 +99,54 @@ result_t InstrumentDao::addInstrumentType(const InstrumentType &it)
 	return 0;
 }
 
-result_t InstrumentDao::getInstrument(const QString &udi, Instrument *ins)
+result_t InstrumentDao::getInstrument(const QString &udi, Instrument *ins, int cycle/* = -1*/)
 {
-	QSqlQuery q;
-	q.prepare("SELECT a.type_id, a.sn, a.alias, a.photo, a.pkg_udi, a.price, b.name, b.is_vip, c.sn, d.name"
+	if (!ins) return 0;
+	bool getLatest = cycle < 0;
+
+	QString sql = "SELECT a.type_id, a.sn, a.alias, a.photo, %1, a.price, a.cycle, b.name, b.is_vip, c.sn, c.cycle, d.name"
 		" FROM t_instrument a"
 		" LEFT JOIN t_instrument_type b ON a.type_id = b.id"
-		" LEFT JOIN t_package c ON a.pkg_udi = c.udi"
+		" LEFT JOIN t_package c ON %1 = c.udi"
 		" LEFT JOIN t_package_type d ON c.type_id = d.id"
-		" WHERE a.udi = ?");
+		" WHERE a.udi = ?";
+	
+	QString pkgUdi = "a.pkg_udi";
+	int pkgCycle = 0;
+	if (!getLatest) {
+		result_t res = findBoundPackage(udi, cycle, &pkgUdi, &pkgCycle);
+		if (!res.isOk()) return res;
+		pkgUdi = '\'' + pkgUdi + '\'';
+	}
+	sql = sql.arg(pkgUdi);
+
+	QSqlQuery q;
+	q.prepare(sql);
 	q.addBindValue(udi);
 
 	if (!q.exec())
-		return kErrorDbUnreachable;
+		return q.lastError().text();
 
 	if (!q.first())
 		return "没有找到对应器械的信息";
 
-	if (ins) {
-		ins->udi = udi;
-		ins->typeId = q.value(0).toInt();
-		ins->alias = q.value(2).toString();
-		ins->photo = q.value(3).toString();
-		ins->packageUdi = q.value(4).toString();
-		ins->price = q.value(5).toInt();
-		ins->typeName = q.value(6).toString();
-		ins->isVip = q.value(7).toBool();
-		ins->packageName = DaoUtil::udiName(q.value(9).toString(), q.value(8).toInt());
-		ins->name = DaoUtil::udiName(ins->typeName, q.value(1).toInt());
-	}
+	// see if cycle exceeds
+	int latestCycle = q.value(6).toInt();
+	if (cycle > latestCycle)
+		return QString("器械尚未到达指定周期: %1").arg(cycle);
+
+	ins->udi = udi;
+	ins->typeId = q.value(0).toInt();
+	ins->alias = q.value(2).toString();
+	ins->photo = q.value(3).toString();
+	ins->packageUdi = q.value(4).toString();
+	ins->price = q.value(5).toInt();
+	ins->cycle = getLatest ? latestCycle : cycle;
+	ins->typeName = q.value(7).toString();
+	ins->isVip = q.value(8).toBool();
+	ins->packageName = DaoUtil::udiName(q.value(11).toString(), q.value(9).toInt());
+	ins->packageCycle = getLatest ? q.value(10).toInt() : pkgCycle;
+	ins->name = DaoUtil::udiName(ins->typeName, q.value(1).toInt());
 
 	return 0;
 }
@@ -217,5 +236,26 @@ result_t InstrumentDao::updateInstrument(const Instrument &it)
 
 	if (!query.exec())
 		return query.lastError().text();
+	return 0;
+}
+
+result_t InstrumentDao::findBoundPackage(
+	const QString &insUdi, int insCycle, QString *pkgUdi, int *pkgCycle/* = 0*/)
+{
+	QSqlQuery q;
+	q.prepare("SELECT pkg_udi, pkg_cycle_stamp, ins_cycle_stamp FROM t_package_detail"
+		" WHERE ins_udi=? AND ins_cycle_stamp<? ORDER BY ins_cycle_stamp DESC LIMIT 1");
+	q.addBindValue(insUdi);
+	q.addBindValue(0 == insCycle ? 1 : insCycle);
+
+	if (!q.exec())
+		return q.lastError().text();
+
+	if (!q.first())
+		return "No bound package found with specified instrument cycle";
+
+	if (pkgUdi) *pkgUdi = q.value(0).toString();
+	if (pkgCycle) *pkgCycle = q.value(1).toInt() + (insCycle - q.value(2).toInt());
+
 	return 0;
 }

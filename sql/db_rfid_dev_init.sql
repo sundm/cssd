@@ -1,3 +1,5 @@
+START TRANSACTION;
+
 -- 110001
 INSERT INTO `t_operator` (`pwd`, `name`, `phone`, `gender`, `role`, `dept_id`) VALUES
  ('7c4a8d09ca3762af61e59520943dc26494f8941b', '刘向惠', '13688888888', 1, 2, 120036),
@@ -2022,3 +2024,5 @@ INSERT INTO `t_package_type_detail` (`pkg_type_id`, `ins_type_id`, `num`) VALUES
     (220082, 240248, 1),
     (220082, 240448, 1),
     (220082, 240171, 2);
+	
+COMMIT;

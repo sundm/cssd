@@ -36,9 +36,22 @@ public:
 
 	result_t updateInstrumentType(const InstrumentType &it);
 
+	/**
+	 * Fetch a udi instrument information, note that an instrument may be in different
+	 * packages for different cycles. The rebounding of an instrument is supposed to be
+	 * done when it is recycled.
+	 *
+	 * @param udi: the instrument udi
+	 * @param ins[OUT]: the instrument object returned
+	 * @param cycle: the instrument cycle, if it is -1, the latest cycle is returned;
+	 *               if it is larger than the latest cycle, an error is raised;
+	 *               cycle 0 is special as it is always in the same package with cycle 1
+	 * @return a result_t object
+	 */
 	result_t getInstrument(
 		const QString& udi,
-		Instrument* ins);
+		Instrument* ins, 
+		int cycle = -1);
 
 	/**
 	 * Fetch a udi instrument list.
@@ -56,5 +69,8 @@ public:
 
 	result_t addInstrument(const Instrument &ins);
 	result_t updateInstrument(const Instrument &it);
+
+private:
+	result_t findBoundPackage(const QString &insUdi, int insCycle, QString *pkgUdi, int *pkgCycle = 0);
 };
 

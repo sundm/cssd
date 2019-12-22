@@ -24,8 +24,9 @@ struct Instrument : public InstrumentType
 	QString alias;
 	QString packageUdi;
 	QString packageName;
+	int packageCycle;
 	int cycle;
 	int price;
 
-	Instrument() : cycle(0), price(-1) {}
+	Instrument() : packageCycle(0), cycle(0), price(-1) {}
 };

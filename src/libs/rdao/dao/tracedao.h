@@ -9,13 +9,13 @@ class Surgery;
 class RDAO_EXPORT TraceDao
 {
 public:
-	result_t getPackgeFlow(
+	result_t getPackageFlow(
 		const QString & udi,
 		int cycle,
-		PackageFlow *pf,
-		bool byInstrument = false
+		PackageFlow *pf
 	);
 
 	result_t getPatientSurgeries(int patientId, QList<Surgery> *surgeries);
+
 };
 

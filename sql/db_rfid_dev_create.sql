@@ -129,7 +129,7 @@ CREATE TABLE IF NOT EXISTS `t_package_detail` (
   `pkg_udi` varchar(32) NOT NULL,
   `pkg_cycle_stamp` int unsigned NOT NULL,
   `ins_udi` varchar(32) NOT NULL,
-  `ins_cycle_stamp` int unsigned NOT NULL,
+  `ins_cycle_stamp` int unsigned NOT NULL, -- from ins_cycle_stamp+1 and on, ins_udi is bound with pkg_udi
   `status` tinyint(1) NOT NULL default 1, -- 0:unbound 1:bound
   `bound_tm` datetime NOT NULL,
   `unbound_tm` datetime,
