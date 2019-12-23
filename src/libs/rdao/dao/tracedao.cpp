@@ -18,7 +18,7 @@ namespace Internal {
 		q.addBindValue(cycle);
 		if (!q.exec())
 			return kErrorDbUnreachable;
-		if (q.first())
+		if (!q.first())
 			return "无此包清洗记录";
 
 		wash.batchId = q.value(0).toString();
@@ -43,7 +43,7 @@ namespace Internal {
 		q.addBindValue(cycle);
 		if (!q.exec())
 			return kErrorDbUnreachable;
-		if (q.first())
+		if (!q.first())
 			return "无此包配包记录";
 
 		pack.op = q.value(0).toString();
@@ -60,14 +60,14 @@ namespace Internal {
 		q.prepare("SELECT batch_id, device_name, program_name, cycle_count, cycle_total, start_time, finish_time, op_name,"
 			" phy_check_result, phy_check_time, phy_check_op_name,"
 			" che_check_result, che_check_time, che_check_op_name,"
-			" bio_check_result, bio_check_time, bio_check_op_name,"
+			" bio_check_result, bio_check_time, bio_check_op_name"
 			" FROM r_ster_batch"
 			" WHERE batch_id = (SELECT batch_id FROM r_ster_package WHERE pkg_udi = ? AND pkg_cycle = ?)");
 		q.addBindValue(udi);
 		q.addBindValue(cycle);
 		if (!q.exec())
 			return kErrorDbUnreachable;
-		if (q.first())
+		if (!q.first())
 			return "无此包灭菌记录";
 
 		ster.batchId = q.value(0).toString();
@@ -102,7 +102,7 @@ namespace Internal {
 		q.addBindValue(cycle);
 		if (!q.exec())
 			return kErrorDbUnreachable;
-		if (q.first())
+		if (!q.first())
 			return "无此包发放记录";
 
 		dispatch.op = q.value(0).toString();
@@ -125,13 +125,13 @@ namespace Internal {
 		q.addBindValue(cycle);
 		if (!q.exec())
 			return kErrorDbUnreachable;
-		if (q.first())
+		if (!q.first())
 			return "无此包清洗记录";
 
 		use.surgeryId = q.value(0).toInt();
 		use.surgeryName = q.value(1).toString();
 		use.surgeryTime = q.value(2).toDateTime();
-		use.patientId = q.value(3).toInt();
+		use.patientId = q.value(3).toString();
 		use.patientName = q.value(4).toString();
 
 		bind.op = q.value(5).toString();
@@ -157,7 +157,7 @@ result_t TraceDao::getPackageFlow(const QString & udi, int cycle, PackageFlow *p
 	q.addBindValue(cycle);
 	if (!q.exec())
 		return kErrorDbUnreachable;
-	if (q.first())
+	if (!q.first())
 		return "无此包记录";
 	pf->status = static_cast<Rt::FlowStatus>(q.value(0).toInt());
 	pf->isRecalled = q.value(1).toBool();
