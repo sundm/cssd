@@ -25,6 +25,13 @@ namespace Internal {
 		setModel(_model);
 		setEditTriggers(QAbstractItemView::NoEditTriggers);
 
+		QHeaderView *header = horizontalHeader();
+		header->setStretchLastSection(true);
+		header->resizeSection(0, 350);
+		header->resizeSection(1, 250);
+		header->resizeSection(2, 250);
+		header->resizeSection(3, 250);
+
 		setPageCount(30);
 	}
 

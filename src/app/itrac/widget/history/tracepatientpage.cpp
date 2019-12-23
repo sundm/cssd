@@ -3,6 +3,8 @@
 #include "core/net/url.h"
 #include "xnotifier.h"
 #include "core/inliner.h"
+#include "rdao/dao/tracedao.h"
+#include "rdao/entity/surgery.h"
 #include <ui/ui_commons.h>
 #include <xui/searchedit.h>
 #include <QtWidgets/QtWidgets>
@@ -11,7 +13,7 @@ SurgeryView::SurgeryView(QWidget *parent)
 	: QTreeView(parent), _model(new QStandardItemModel(0, Package + 1, this))
 {
 	_model->setHeaderData(Patient, Qt::Horizontal, "患者信息");
-	_model->setHeaderData(Surgery, Qt::Horizontal, "手术信息");
+	_model->setHeaderData(Surgeries, Qt::Horizontal, "手术信息");
 	_model->setHeaderData(Package, Qt::Horizontal, "器械包信息");
 	setModel(_model);
 	setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -26,8 +28,28 @@ void SurgeryView::addPatient(const QString& patientId)
 {
 	_model->removeRows(0, _model->rowCount());
 
-	QStandardItem *patientItem = new QStandardItem(QString("张三，%1").arg("123456"));
-	patientItem->setData(123456);
+	TraceDao dao;
+	QList<Surgery> surgeries;
+	result_t resp = dao.getPatientSurgeries(patientId.toInt(), &surgeries);
+	if (resp.isOk())
+	{
+		if (surgeries.count() < 1)
+		{
+			//todo
+			return;
+		}
+		QStandardItem *patientItem = new QStandardItem(QString("%1，%2").arg(surgeries[0].patientName).arg(surgeries[0].patientId));
+		patientItem->setData(surgeries[0].patientId);
+		for each (Surgery sur in surgeries)
+		{
+			
+		}
+	}
+	else
+	{
+		//todo
+	}
+	
 
 	QStandardItem *surgeryItem = new QStandardItem("阑尾手术");
 	surgeryItem->setData(12345, Qt::UserRole + 1);

@@ -121,6 +121,12 @@ namespace Internal {
 		_model->setHeaderData(Vip, Qt::Horizontal, "是否贵重器械");
 		setModel(_model);
 		setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+		QHeaderView *header = horizontalHeader();
+		header->setStretchLastSection(true);
+		header->resizeSection(0, 500);
+		header->resizeSection(1, 350);
+
 		setPageCount(30);
 	}
 

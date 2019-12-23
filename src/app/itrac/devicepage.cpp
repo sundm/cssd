@@ -159,6 +159,11 @@ void DevicePage::updateDeviceView(const QString& deviceType/* = QString()*/)
 			stItem->setData(st);
 			rowItems.append(stItem);
 
+			for each (QStandardItem* item in rowItems)
+			{
+				item->setTextAlignment(Qt::AlignCenter);
+			}
+
 			_deviceModel->appendRow(rowItems);
 		}
 	}

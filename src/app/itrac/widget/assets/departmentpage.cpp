@@ -65,6 +65,12 @@ namespace Internal {
 		_model->setHeaderData(Phone, Qt::Horizontal, "联系方式");
 		setModel(_model);
 
+		QHeaderView *header = horizontalHeader();
+		header->setStretchLastSection(true);
+		header->resizeSection(0, 500);
+		header->resizeSection(1, 300);
+		header->resizeSection(2, 300);
+
 		setEditTriggers(QAbstractItemView::NoEditTriggers);
 	}
 

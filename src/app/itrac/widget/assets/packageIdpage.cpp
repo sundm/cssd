@@ -22,6 +22,14 @@ namespace Internal {
 		_model->setHeaderData(Basics, Qt::Horizontal, "所属包类型");
 		_model->setHeaderData(Cycle, Qt::Horizontal, "循环次数");
 		setModel(_model);
+
+		QHeaderView *header = horizontalHeader();
+		header->setStretchLastSection(true);
+		header->resizeSection(0, 350);
+		header->resizeSection(1, 350);
+		header->resizeSection(2, 250);
+		header->resizeSection(3, 250);
+
 		setEditTriggers(QAbstractItemView::NoEditTriggers);
 	}
 

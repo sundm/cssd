@@ -20,6 +20,12 @@ namespace Internal {
 		setModel(_model);
 		setSelectionMode(SingleSelection);
 		setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+		QHeaderView *header = horizontalHeader();
+		header->setStretchLastSection(true);
+		header->resizeSection(0, 300);
+		header->resizeSection(1, 300);
+		header->resizeSection(2, 300);
 	}
 
 	void PacktypeAssetView::load()

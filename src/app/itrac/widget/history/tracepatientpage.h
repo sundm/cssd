@@ -29,7 +29,7 @@ private slots:
 private:
 	enum {
 		Patient,
-		Surgery,
+		Surgeries,
 		Package
 	};
 

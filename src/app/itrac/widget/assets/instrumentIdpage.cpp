@@ -96,7 +96,11 @@ namespace Internal {
 		_model->setHeaderData(Basics, Qt::Horizontal, "所属基础器械名");
 		setModel(_model);
 		setEditTriggers(QAbstractItemView::NoEditTriggers);
-
+		QHeaderView *header = horizontalHeader();
+		header->setStretchLastSection(true);
+		header->resizeSection(0, 500);
+		header->resizeSection(1, 500);
+		header->resizeSection(2, 300);
 		setPageCount(30);
 	}
 

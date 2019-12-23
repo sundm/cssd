@@ -8,6 +8,7 @@
 #include "rdao/dao/PackageDao.h"
 #include "rdao/dao/InstrumentDao.h"
 #include "rdao/dao/tracedao.h"
+#include "rdao/entity/trace.h"
 #include <QtWidgets/QtWidgets>
 
 QString SterilizeVerdictToString(Rt::SterilizeVerdict v)
