@@ -35,6 +35,7 @@ private:
 	QLabel * _totalCycleLabel;
 	QSpinBox * _cyclelBox;
 	QLabel * _patientLabel;
+	QLabel * _surgeryLabel;
 
 	QGridLayout *_grid;
 	QString _udi;

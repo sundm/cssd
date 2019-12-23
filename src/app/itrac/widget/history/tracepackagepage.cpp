@@ -39,6 +39,7 @@ void TracePackageInfoView::init()
 	_deptLabel = new QLabel();
 	_totalCycleLabel = new QLabel();
 	_patientLabel = new QLabel();
+	_surgeryLabel = new QLabel();
 	_cyclelBox = new QSpinBox();
 	_cyclelBox->setMinimum(1);
 
@@ -49,6 +50,7 @@ void TracePackageInfoView::init()
 	_deptLabel->setFont(font);
 	_totalCycleLabel->setFont(font);
 	_patientLabel->setFont(font);
+	_surgeryLabel->setFont(font);
 }
 
 void TracePackageInfoView::loadInfo(const QString &udi, bool isPackage)
@@ -72,36 +74,26 @@ void TracePackageInfoView::loadInfo(const QString &udi, bool isPackage)
 		{
 			_cycle = pkg.cycle;
 
-			_pkgNameLabel->setText(pkg.name);
-			_deptLabel->setText(pkg.dept.name);
-			_totalCycleLabel->setText(QString::number(_cycle));
+			_pkgNameLabel->setText(QString("包名称：%1").arg(pkg.name));
+			_deptLabel->setText(QString("所属科室：%1").arg(pkg.dept.name));
+			_totalCycleLabel->setText(QString("循环总次数：%1").arg(QString::number(_cycle)));
 			_cyclelBox->setValue(_cycle);
 			_cyclelBox->setMaximum(_cycle);
 
-			QLabel *namelabel = new QLabel(QString("包名称:"));
-			namelabel->setFont(font);
-			_grid->addWidget(namelabel, 0, 0);
-			_grid->addWidget(_pkgNameLabel, 0, 1);
+			_grid->addWidget(_pkgNameLabel, 0, 0);
+			_grid->addWidget(_deptLabel, 0, 1);
 
-			QLabel *deptlabel = new QLabel(QString("所属科室:"));
-			deptlabel->setFont(font);
-			_grid->addWidget(deptlabel, 0, 2);
-			_grid->addWidget(_deptLabel, 0, 3);
-
-
-			QLabel *totalCyclelabel = new QLabel(QString("循环总次数:"));
-			totalCyclelabel->setFont(font);
-			_grid->addWidget(totalCyclelabel, 1, 0);
-			_grid->addWidget(_totalCycleLabel, 1, 1);
+			_grid->addWidget(_totalCycleLabel, 1, 0);
 
 			QLabel *cyclelabel = new QLabel(QString("当前次数:"));
 			cyclelabel->setFont(font);
-			_grid->addWidget(cyclelabel, 1, 2);
-			_grid->addWidget(_cyclelBox, 1, 3);
+
+			_grid->addWidget(cyclelabel, 1, 1);
+			_grid->addWidget(_cyclelBox, 1, 2);
 
 			TraceDao tDao;
 			PackageFlow pkgFlow;
-			resp = tDao.getPackgeFlow(_udi, _cycle, &pkgFlow);
+			resp = tDao.getPackageFlow(_udi, _cycle, &pkgFlow);
 			if (resp.isOk())
 			{
 				
@@ -109,14 +101,16 @@ void TracePackageInfoView::loadInfo(const QString &udi, bool isPackage)
 				QString patientId = pkgFlow.use.patientId;
 				QString surgeryName = pkgFlow.use.surgeryName;
 				QString surgeryTime = pkgFlow.use.surgeryTime.toString("yyyy-MM-dd HH:mm:ss");
+				if (!surgeryName.isEmpty()) {
+					_surgeryLabel->setText(QString("手术名称：%1，  手术时间：%2").arg(surgeryName).arg(surgeryTime));
+
+					_grid->addWidget(_surgeryLabel, 2, 0);
+				}
+
 				if (!patientName.isEmpty())
 				{
-					_patientLabel->setText(QString("%1,住院号:%2。手术名称:%3，手术时间:%4")
-						.arg(patientName).arg(patientId).arg(surgeryName).arg(surgeryTime));
-
-					QLabel *uselabel = new QLabel(QString("当前使用者:"));
-					uselabel->setFont(font);
-					_grid->addWidget(uselabel, 2, 0);
+					_patientLabel->setText(QString("患者姓名：%1，  住院号：%2")
+						.arg(patientName).arg(patientId));
 					_grid->addWidget(_patientLabel, 2, 1);
 				}
 				
@@ -144,57 +138,45 @@ void TracePackageInfoView::loadInfo(const QString &udi, bool isPackage)
 		if (resp.isOk())
 		{
 			_cycle = ins.cycle;
-			_insNameLabel->setText(ins.name);
-			_pkgNameLabel->setText(ins.packageName);
-			_deptLabel->setText(ins.packageUdi);
-			_totalCycleLabel->setText(QString::number(_cycle));
+			_insNameLabel->setText(QString("器械名称:%1").arg(ins.name));
+			_pkgNameLabel->setText(QString("所属包:%1").arg(ins.packageName));
+			_deptLabel->setText(QString("所属包UDI:%1").arg(ins.packageUdi));
+			_totalCycleLabel->setText(QString("循环总次数::%1").arg(QString::number(_cycle)));
 			//_patientLabel->setText("张三，123456");
 
 			_cyclelBox->setValue(_cycle);
 			_cyclelBox->setMaximum(_cycle);
 
-			QLabel *namelabel = new QLabel(QString("器械名称:"));
-			namelabel->setFont(font);
-			_grid->addWidget(namelabel, 0, 0);
-			_grid->addWidget(_insNameLabel, 0, 1);
+			_grid->addWidget(_insNameLabel, 0, 0);
+			_grid->addWidget(_pkgNameLabel, 0, 1);
+			_grid->addWidget(_deptLabel, 0, 2);
 
-			QLabel *pkglabel = new QLabel(QString("所属包:"));
-			pkglabel->setFont(font);
-			_grid->addWidget(pkglabel, 0, 2);
-			_grid->addWidget(_pkgNameLabel, 0, 3);
-
-			QLabel *deptlabel = new QLabel(QString("所属包UDI:"));
-			deptlabel->setFont(font);
-			_grid->addWidget(deptlabel, 0, 4);
-			_grid->addWidget(_deptLabel, 0, 5);
-
-			QLabel *totalCyclelabel = new QLabel(QString("循环总次数:"));
-			totalCyclelabel->setFont(font);
-			_grid->addWidget(totalCyclelabel, 1, 0);
-			_grid->addWidget(_totalCycleLabel, 1, 1);
+			_grid->addWidget(_totalCycleLabel, 1, 0);
 
 			QLabel *cyclelabel = new QLabel(QString("当前次数:"));
 			cyclelabel->setFont(font);
-			_grid->addWidget(cyclelabel, 1, 2);
-			_grid->addWidget(_cyclelBox, 1, 3);
+			_grid->addWidget(cyclelabel, 1, 1);
+			_grid->addWidget(_cyclelBox, 1, 2);
 
 			TraceDao tDao;
 			PackageFlow pkgFlow;
-			resp = tDao.getPackgeFlow(_udi, _cycle, &pkgFlow, true);
+			resp = tDao.getPackageFlow(ins.packageUdi, ins.packageCycle, &pkgFlow);
 			if (resp.isOk())
 			{
 				QString patientName = pkgFlow.use.patientName;
 				QString patientId = pkgFlow.use.patientId;
 				QString surgeryName = pkgFlow.use.surgeryName;
 				QString surgeryTime = pkgFlow.use.surgeryTime.toString("yyyy-MM-dd HH:mm:ss");
+				if (!surgeryName.isEmpty()) {
+					_surgeryLabel->setText(QString("手术名称：%1，  手术时间：%2").arg(surgeryName).arg(surgeryTime));
+
+					_grid->addWidget(_surgeryLabel, 2, 0);
+				}
+
 				if (!patientName.isEmpty())
 				{
-					_patientLabel->setText(QString("%1,住院号:%2。手术名称:%3，手术时间:%4")
-						.arg(patientName).arg(patientId).arg(surgeryName).arg(surgeryTime));
-
-					QLabel *uselabel = new QLabel(QString("当前使用者:"));
-					uselabel->setFont(font);
-					_grid->addWidget(uselabel, 2, 0);
+					_patientLabel->setText(QString("患者姓名：%1，  住院号：%2")
+						.arg(patientName).arg(patientId));
 					_grid->addWidget(_patientLabel, 2, 1);
 				}
 
@@ -229,7 +211,7 @@ void TracePackageInfoView::updateInfo()
 	{
 		TraceDao tDao;
 		PackageFlow pkgFlow;
-		result_t resp = tDao.getPackgeFlow(_udi, _cycle, &pkgFlow);
+		result_t resp = tDao.getPackageFlow(_udi, _cycle, &pkgFlow);
 		if (resp.isOk())
 		{
 
@@ -265,10 +247,10 @@ void TracePackageInfoView::updateInfo()
 			_insNameLabel->setText(ins.name);
 			_pkgNameLabel->setText(ins.packageName);
 			_deptLabel->setText(ins.packageUdi);
-			
+
 			TraceDao tDao;
 			PackageFlow pkgFlow;
-			resp = tDao.getPackgeFlow(_udi, _cycle, &pkgFlow, true);
+			resp = tDao.getPackageFlow(ins.packageUdi, ins.packageCycle, &pkgFlow);
 			if (resp.isOk())
 			{
 				QString patientName = pkgFlow.use.patientName;
@@ -324,7 +306,13 @@ TraceDetailView::TraceDetailView(QWidget *parent /*= nullptr*/)
 	setModel(_model);
 	setSelectionMode(QAbstractItemView::SingleSelection);
 	setEditTriggers(QAbstractItemView::NoEditTriggers);
-	resizeColumnToContents(State);
+
+	QHeaderView *header = horizontalHeader();
+	header->setStretchLastSection(true);
+
+	setColumnWidth(Operate, 250);
+	setColumnWidth(OpName, 200);
+	setColumnWidth(OpTime, 350);
 }
 
 void TraceDetailView::loadDetail(const PackageFlow &pkgFlow)
@@ -338,7 +326,7 @@ void TraceDetailView::loadDetail(const PackageFlow &pkgFlow)
 	QList<QStandardItem *> rowWashItems;
 	rowWashItems << new QStandardItem("清洗");
 	rowWashItems << new QStandardItem(pkgFlow.wash.op);
-	rowWashItems << new QStandardItem(pkgFlow.wash.finishTime.toString("yyyy-MM-dd HH:mm:ss"));
+	rowWashItems << new QStandardItem(pkgFlow.wash.startTime.toString("yyyy-MM-dd HH:mm:ss"));
 	rowWashItems << new QStandardItem(QString("清洗机:%1 \r 清洗程序:%2 \r 清洗锅次:%3").arg(pkgFlow.wash.device).arg(pkgFlow.wash.program).arg(pkgFlow.wash.cycleCount));
 	totalItems.append(rowWashItems);
 
@@ -352,7 +340,7 @@ void TraceDetailView::loadDetail(const PackageFlow &pkgFlow)
 	QList<QStandardItem *> rowSterItems;
 	rowSterItems << new QStandardItem("灭菌");
 	rowSterItems << new QStandardItem(pkgFlow.ster.op);
-	rowSterItems << new QStandardItem(pkgFlow.ster.finishTime.toString("yyyy-MM-dd HH:mm:ss"));
+	rowSterItems << new QStandardItem(pkgFlow.ster.startTime.toString("yyyy-MM-dd HH:mm:ss"));
 	rowSterItems << new QStandardItem(QString("灭菌器:%1 \r 灭菌程序:%2 \r 灭菌锅次:%3").arg(pkgFlow.ster.device).arg(pkgFlow.ster.program).arg(pkgFlow.ster.cycleCount));
 	totalItems.append(rowSterItems);
 

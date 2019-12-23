@@ -6,9 +6,9 @@ TableView::TableView(QWidget *parent)
 {
 	setSelectionBehavior(QAbstractItemView::SelectRows);
 
-	QHeaderView *header = horizontalHeader();
+	//QHeaderView *header = horizontalHeader();
 	//header->setStretchLastSection(true);
-	header->setSectionResizeMode(QHeaderView::Stretch);
+	//header->setSectionResizeMode(QHeaderView::Stretch);
 }
 
 int TableView::findRow(int column, int role, const QVariant &value) {
