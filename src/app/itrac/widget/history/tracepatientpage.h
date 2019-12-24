@@ -30,7 +30,7 @@ private:
 	enum {
 		Patient,
 		Surgeries,
-		Package
+		Packages
 	};
 
 	QStandardItemModel * _model;

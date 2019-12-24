@@ -11,18 +11,6 @@
 #include "rdao/entity/trace.h"
 #include <QtWidgets/QtWidgets>
 
-QString SterilizeVerdictToString(Rt::SterilizeVerdict v)
-{
-	switch (v)
-	{
-	case Rt::SterilizeVerdict::Qualified: return "合格";
-	case Rt::SterilizeVerdict::Unqualified: return "不合格";
-	case Rt::SterilizeVerdict::Uninvolved: return "未涉及";
-	case Rt::SterilizeVerdict::Unchecked: return "未审核";
-	default: return QString();
-	}
-}
-
 TracePackageInfoView::TracePackageInfoView(QWidget *parent /*= nullptr*/)
 	: QWidget(parent)
 	, _grid(new QGridLayout)
@@ -366,6 +354,27 @@ void TraceDetailView::loadDetail(const PackageFlow &pkgFlow)
 	rowbioChecItems << new QStandardItem(QString("监测结果:%1").arg(SterilizeVerdictToString(pkgFlow.sterCheck.bioResult)));
 	totalItems.append(rowbioChecItems);
 
+	QList<QStandardItem *> rowBindItems;
+	rowBindItems << new QStandardItem("手术绑定");
+	rowBindItems << new QStandardItem(pkgFlow.bind.op);
+	rowBindItems << new QStandardItem(pkgFlow.bind.time.toString("yyyy-MM-dd HH:mm:ss"));
+	rowBindItems << new QStandardItem(QString("——"));
+	totalItems.append(rowBindItems);
+
+	QList<QStandardItem *> rowPreCheckItems;
+	rowPreCheckItems << new QStandardItem("术前检查");
+	rowPreCheckItems << new QStandardItem(pkgFlow.preCheck.op);
+	rowPreCheckItems << new QStandardItem(pkgFlow.preCheck.time.toString("yyyy-MM-dd HH:mm:ss"));
+	rowPreCheckItems << new QStandardItem(QString("——"));
+	totalItems.append(rowPreCheckItems);
+
+	QList<QStandardItem *> rowPostCheckItems;
+	rowPostCheckItems << new QStandardItem("术后清点");
+	rowPostCheckItems << new QStandardItem(pkgFlow.postCheck.op);
+	rowPostCheckItems << new QStandardItem(pkgFlow.postCheck.time.toString("yyyy-MM-dd HH:mm:ss"));
+	rowPostCheckItems << new QStandardItem(QString("——"));
+	totalItems.append(rowPostCheckItems);
+
 	QFont font;
 	font.setPointSize(16);
 	for each (QStandardItem * item in totalItems)
@@ -380,6 +389,9 @@ void TraceDetailView::loadDetail(const PackageFlow &pkgFlow)
 	_model->appendRow(rowphyChecItems);
 	_model->appendRow(rowcheChecItems);
 	_model->appendRow(rowbioChecItems);
+	_model->appendRow(rowBindItems);
+	_model->appendRow(rowPreCheckItems);
+	_model->appendRow(rowPostCheckItems);
 }
 
 /***************************************************************/

@@ -104,3 +104,15 @@ extern inline QBrush brushForImport(bool import) {
 	else
 		return QBrush(QColor(255, 255, 255));
 }
+
+extern inline QString SterilizeVerdictToString(Rt::SterilizeVerdict v)
+{
+	switch (v)
+	{
+	case Rt::SterilizeVerdict::Qualified: return "合格";
+	case Rt::SterilizeVerdict::Unqualified: return "不合格";
+	case Rt::SterilizeVerdict::Uninvolved: return "未涉及";
+	case Rt::SterilizeVerdict::Unchecked: return "未审核";
+	default: return QString();
+	}
+}
