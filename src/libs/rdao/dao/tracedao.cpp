@@ -3,6 +3,7 @@
 #include "debugsqlquery.h"
 #include "tracedao.h"
 #include "errors.h"
+#include "surgerydao.h"
 #include "../entity/trace.h"
 
 namespace Internal {
@@ -191,6 +192,32 @@ result_t TraceDao::getPackageFlow(const QString & udi, int cycle, PackageFlow *p
 
 result_t TraceDao::getPatientSurgeries(int patientId, QList<Surgery> *surgeries)
 {
+	if (!surgeries) return 0;
+
+	// get surgery ids
+	QSqlQuery q;
+	q.prepare("SELECT surgery_id FROM r_surgery WHERE id=?");
+	q.addBindValue(patientId);
+	if (!q.exec())
+		return kErrorDbUnreachable;
+
+	QList<int> surgeryIds;
+	while (q.next()) {
+		surgeryIds << q.value(0).toInt();
+	}
+	if (0 == surgeryIds.size()) {
+		return "未找到该病人的手术记录";
+	}
+
+	// get packages for each surgery
+	SurgeryDao dao;
+	Surgery sur;
+	for each (int id in surgeryIds) {
+		result_t res = dao.getSurgery(id, &sur, false);
+		if (!res.isOk()) return res;
+		surgeries->append(sur);
+	}
+
 	return 0;
 }
 

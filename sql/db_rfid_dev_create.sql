@@ -313,7 +313,8 @@ CREATE TABLE IF NOT EXISTS `r_surgery` (
   `pre_check_op_name` varchar(32),
   `post_check_time` datetime,
   `post_check_op_id` int,
-  `post_check_op_name` varchar(32)
+  `post_check_op_name` varchar(32),
+  KEY `idx_patient_id` (`patient_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=810001 DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `r_surgery_detail` (
