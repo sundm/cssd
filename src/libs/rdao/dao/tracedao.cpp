@@ -135,13 +135,13 @@ namespace Internal {
 		use.patientId = q.value(3).toString();
 		use.patientName = q.value(4).toString();
 
-		bind.op = q.value(5).toString();
-		bind.time = q.value(6).toDateTime();
+		bind.time = q.value(5).toDateTime();
+		bind.op = q.value(6).toString();
+		preCheck.time = q.value(7).toDateTime();
 		preCheck.op = q.value(7).toString();
-		preCheck.time = q.value(8).toDateTime();
-		postCheck.op = q.value(9).toString();
-		postCheck.time = q.value(10).toDateTime();
-
+		postCheck.time = q.value(9).toDateTime();
+		postCheck.op = q.value(10).toString();
+		
 		return 0;
 	}
 
@@ -196,7 +196,7 @@ result_t TraceDao::getPatientSurgeries(int patientId, QList<Surgery> *surgeries)
 
 	// get surgery ids
 	QSqlQuery q;
-	q.prepare("SELECT surgery_id FROM r_surgery WHERE id=?");
+	q.prepare("SELECT id FROM r_surgery WHERE patient_id=?");
 	q.addBindValue(patientId);
 	if (!q.exec())
 		return kErrorDbUnreachable;
