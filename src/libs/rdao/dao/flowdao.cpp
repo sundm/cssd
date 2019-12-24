@@ -423,40 +423,12 @@ result_t FlowDao::addSurgeryBindPackages(const Surgery &surgery, const Operator 
 
 result_t FlowDao::addSurgeryPreCheck(int surgeryId, const Operator &op)
 {
-	// update surgery status
-	QSqlQuery q;
-	q.prepare("UPDATE r_surgery SET status=?, pre_check_time=NOW(),"
-		" pre_check_op_id=?, pre_check_op_name=? WHERE id=?");
-	q.addBindValue(Rt::PreChecked);
-	q.addBindValue(op.id);
-	q.addBindValue(op.name);
-	q.addBindValue(surgeryId);
-	if (!q.exec()) {
-		return q.lastError().text();
-	}
-
-	// TODO: update package status?
-
-	return 0;
+	return addSurgeryCheck(surgeryId, op, true);
 }
 
 result_t FlowDao::addSurgeryPostCheck(int surgeryId, const Operator &op)
 {
-	// update surgery status
-	QSqlQuery q;
-	q.prepare("UPDATE r_surgery SET status=?, post_check_time=NOW(),"
-		" post_check_op_id=?, post_check_op_name=? WHERE id=?");
-	q.addBindValue(Rt::PostChecked);
-	q.addBindValue(op.id);
-	q.addBindValue(op.name);
-	q.addBindValue(surgeryId);
-	if (!q.exec()) {
-		return q.lastError().text();
-	}
-
-	// TODO: update package status?
-
-	return 0;
+	return addSurgeryCheck(surgeryId, op, false);
 }
 
 #include <QSqlDriver>
@@ -497,8 +469,10 @@ result_t FlowDao::updatePackageStatus(const Package &pkg, Rt::FlowStatus fs)
 {
 	QSqlQuery q;
 
-	// update r_package
-	if (Rt::UnknownFlowStatus != pkg.status) { // a new package is not in flow control
+	// update r_package.status, we never update a package status to Recycled.
+	// NOTE: a new package whose status is UnknownFlowStatus is not in the flow control, skip it
+	//if (Rt::UnknownFlowStatus != pkg.status) {
+	if (Rt::Recycled != fs) {
 		QString sql = QString("UPDATE r_package SET status=%1"
 			" WHERE pkg_udi='%2' AND pkg_cycle=%3").arg(fs).arg(pkg.udi).arg(pkg.cycle);
 		if (!q.exec(sql))
@@ -527,23 +501,25 @@ result_t FlowDao::updatePackageStatus(const QList<Package> &pkgs, Rt::FlowStatus
 {
 	QSqlQuery q;
 
-	// update status in `r_package`
-	QString sql = QString("UPDATE r_package SET status=%1 WHERE (pkg_udi, pkg_cycle) IN ").arg(fs);
-	QStringList values;
-	for each (const Package &pkg in pkgs) {
-		QString value = QString("('%1', %2)").arg(pkg.udi).arg(pkg.cycle);
-		values << value;
+	// update status in `r_package`, skip `Recycled` status
+	if (Rt::Recycled != fs) {
+		QString sql = QString("UPDATE r_package SET status=%1 WHERE (pkg_udi, pkg_cycle) IN ").arg(fs);
+		QStringList values;
+		for each (const Package &pkg in pkgs) {
+			QString value = QString("('%1', %2)").arg(pkg.udi).arg(pkg.cycle);
+			values << value;
+		}
+		sql.append("(").append(values.join(',')).append(")");
+		if (!q.exec(sql))
+			return q.lastError().text();
 	}
-	sql.append("(").append(values.join(',')).append(")");
-	if (!q.exec(sql))
-		return q.lastError().text();
 
 	// update status for each package in `t_package`
-	values.clear();
+	QStringList values;
 	for each (const Package &pkg in pkgs) {
 		values << QString("'%1'").arg(pkg.udi);
 	}
-	sql = QString("UPDATE t_package SET status=%1 WHERE udi IN (%2)").
+	QString sql = QString("UPDATE t_package SET status=%1 WHERE udi IN (%2)").
 		arg(fs).arg(values.join(','));
 	if (!q.exec(sql))
 		return q.lastError().text();
@@ -633,3 +609,61 @@ result_t FlowDao::getPackagesInBatch(const QString &batchId, QList<Package> *pkg
 	return 0;
 }
 
+result_t FlowDao::getPackagesInSurgery(int surgeryId, QList<Package> *pkgs)
+{
+	QSqlQuery q;
+	q.prepare("SELECT pkg_udi, pkg_cycle FROM r_surgery_package WHERE surgery_id=?");
+	q.addBindValue(surgeryId);
+	if (!q.exec()) {
+		return q.lastError().text();
+	}
+
+	if (pkgs) {
+		Package pkg;
+		while (q.next()) {
+			pkg.udi = q.value(0).toString();
+			pkg.cycle = q.value(1).toInt();
+			pkgs->append(pkg);
+		}
+	}
+	return 0;
+}
+
+result_t FlowDao::addSurgeryCheck(int surgeryId, const Operator &op, bool pre/* = true*/)
+{
+	// start transaction
+	QSqlDatabase db = QSqlDatabase::database();
+	db.transaction();
+
+	// update surgery status
+	QSqlQuery q;
+	q.prepare(pre ? 
+		"UPDATE r_surgery SET status=?, pre_check_time=NOW(), pre_check_op_id=?, pre_check_op_name=? WHERE id=?" :
+		"UPDATE r_surgery SET status=?, post_check_time=NOW(), post_check_op_id=?, post_check_op_name=? WHERE id=?"
+	);
+	q.addBindValue(pre ? Rt::PreChecked : Rt::PostChecked);
+	q.addBindValue(op.id);
+	q.addBindValue(op.name);
+	q.addBindValue(surgeryId);
+	if (!q.exec()) {
+		db.rollback();
+		return q.lastError().text();
+	}
+
+	// update package status
+	QList<Package> pkgs;
+	result_t res = this->getPackagesInSurgery(surgeryId, &pkgs);
+	if (res.isOk()) {
+		db.rollback();
+		return res.msg();
+	}
+
+	res = updatePackageStatus(pkgs, pre ? Rt::SurgeryPreChecked : Rt::SurgeryPostChecked);
+	if (res.isOk()) {
+		db.rollback();
+		return res.msg();
+	}
+
+	db.commit();
+	return 0;
+}

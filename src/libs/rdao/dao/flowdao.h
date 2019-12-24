@@ -86,6 +86,7 @@ private:
 		const Operator &op);
 
 	result_t getPackagesInBatch(const QString &batchId, QList<Package> *pkgs);
-
+	result_t getPackagesInSurgery(int surgeryId, QList<Package> *pkgs);
+	result_t addSurgeryCheck(int surgeryId, const Operator &op, bool pre/* = true*/);
 };
 

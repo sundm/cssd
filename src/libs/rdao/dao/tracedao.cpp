@@ -138,7 +138,7 @@ namespace Internal {
 		bind.time = q.value(5).toDateTime();
 		bind.op = q.value(6).toString();
 		preCheck.time = q.value(7).toDateTime();
-		preCheck.op = q.value(7).toString();
+		preCheck.op = q.value(8).toString();
 		postCheck.time = q.value(9).toDateTime();
 		postCheck.op = q.value(10).toString();
 		
