@@ -31,6 +31,7 @@ private:
 
 	QLabel * _insNameLabel;
 	QLabel * _pkgNameLabel;
+	QLabel * _pkgUDILabel;
 	QLabel * _deptLabel;
 	QLabel * _totalCycleLabel;
 	QSpinBox * _cyclelBox;

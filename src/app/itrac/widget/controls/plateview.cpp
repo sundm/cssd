@@ -14,10 +14,15 @@ PlateView::PlateView(QWidget *parent)
 	: TableView(parent)
 	, _model(new QStandardItemModel(0, 2, this))
 {
-	_model->setHeaderData(0, Qt::Horizontal, "器械包UDID");
+	_model->setHeaderData(0, Qt::Horizontal, "器械包UDI");
 	_model->setHeaderData(1, Qt::Horizontal, "包内器械数量");
 	setModel(_model);
 	setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+
+	QHeaderView *header = horizontalHeader();
+	//header->setStretchLastSection(true);
+	header->setSectionResizeMode(QHeaderView::Stretch);
 
 	_pkgList.clear();
 }

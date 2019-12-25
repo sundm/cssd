@@ -111,14 +111,16 @@ void SurgeryView::onClicked(const QModelIndex &index)
 PatientPackageInfoView::PatientPackageInfoView(QWidget *parent /*= nullptr*/)
 	: QWidget(parent)
 	, _pkgNameLabel(new QLabel)
+	, _pkgUDILabel(new QLabel)
 	, _deptLabel(new QLabel)
 	, _insNumLabel(new QLabel)
 	, _totalCycleLabel(new QLabel)
 	, _cyclelLabel(new QLabel)
 {
 	QFont font;
-	font.setPointSize(16);
+	font.setPointSize(14);
 	_pkgNameLabel->setFont(font);
+	_pkgUDILabel->setFont(font);
 	_deptLabel->setFont(font);
 	_insNumLabel->setFont(font);
 	_totalCycleLabel->setFont(font);
@@ -132,10 +134,15 @@ PatientPackageInfoView::PatientPackageInfoView(QWidget *parent /*= nullptr*/)
 	grid->addWidget(namelabel, 0, 0);
 	grid->addWidget(_pkgNameLabel, 0, 1);
 
+	QLabel *udilabel = new QLabel(QString("包UDI:"));
+	udilabel->setFont(font);
+	grid->addWidget(udilabel, 0, 2);
+	grid->addWidget(_pkgUDILabel, 0, 3);
+
 	QLabel *deptlabel = new QLabel(QString("所属科室:"));
 	deptlabel->setFont(font);
-	grid->addWidget(deptlabel, 0, 2);
-	grid->addWidget(_deptLabel, 0, 3);
+	grid->addWidget(deptlabel, 0, 4);
+	grid->addWidget(_deptLabel, 0, 5);
 
 	//QLabel *insNumlabel = new QLabel(QString("器械数量:"));
 	//insNumlabel->setFont(font);
@@ -165,6 +172,7 @@ void PatientPackageInfoView::loadInfo(const QString &udi, const int cycel)
 	if (resp.isOk())
 	{
 		_pkgNameLabel->setText(pkg.name);
+		_pkgUDILabel->setText(pkg.name);
 		_deptLabel->setText(pkg.dept.name);
 		_totalCycleLabel->setText(QString::number(pkg.cycle));
 		_cyclelLabel->setText(QString::number(cycel));
@@ -180,6 +188,7 @@ void PatientPackageInfoView::loadInfo(const QString &udi, const int cycel)
 void PatientPackageInfoView::clear()
 {
 	_pkgNameLabel->clear();
+	_pkgUDILabel->clear();
 	_deptLabel->clear();
 	_insNumLabel->clear();
 	_totalCycleLabel->clear();

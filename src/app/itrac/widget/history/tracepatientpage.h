@@ -47,6 +47,7 @@ public slots:
 
 private:
 	QLabel * _pkgNameLabel;
+	QLabel * _pkgUDILabel;
 	QLabel * _deptLabel;
 	QLabel * _insNumLabel;
 	QLabel * _totalCycleLabel;

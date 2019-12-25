@@ -82,8 +82,11 @@ SterilePackageView::SterilePackageView(QWidget *parent /*= nullptr*/)
 	_model->setHeaderData(Department, Qt::Horizontal, "所属科室");
 	_model->setHeaderData(SterType, Qt::Horizontal, "灭菌类型");
 	_model->setHeaderData(Implant, Qt::Horizontal, "是否用于植入性手术");
-	
-	horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
+
+	QHeaderView *header = horizontalHeader();
+	//header->setStretchLastSection(true);
+	header->setSectionResizeMode(QHeaderView::Stretch);
+	header->setSectionResizeMode(0, QHeaderView::Fixed);
 	setColumnWidth(0, 400);
 }
 
@@ -204,7 +207,10 @@ SterileCheckPackageView::SterileCheckPackageView(QWidget *parent /*= nullptr*/)
 	setModel(_model);
 	setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-	horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
+	QHeaderView *header = horizontalHeader();
+	//header->setStretchLastSection(true);
+	header->setSectionResizeMode(QHeaderView::Stretch);
+	header->setSectionResizeMode(0, QHeaderView::Fixed);
 	setColumnWidth(0, 400);
 }
 
@@ -248,7 +254,10 @@ DispatchPackageView::DispatchPackageView(QWidget *parent /*= nullptr*/)
 	_model->setHeaderData(ExpireDate, Qt::Horizontal, "失效日期");
 	_model->setHeaderData(Implant, Qt::Horizontal, "是否用于植入性手术");
 
-	horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
+	QHeaderView *header = horizontalHeader();
+	//header->setStretchLastSection(true);
+	header->setSectionResizeMode(QHeaderView::Stretch);
+	header->setSectionResizeMode(0, QHeaderView::Fixed);
 	setColumnWidth(0, 400);
 }
 
@@ -728,6 +737,10 @@ OperationInfoTabelView::OperationInfoTabelView(QWidget *parent /*= nullptr*/)
 	setSelectionMode(QAbstractItemView::SingleSelection);
 	setEditTriggers(QAbstractItemView::NoEditTriggers);
 
+	QHeaderView *header = horizontalHeader();
+	//header->setStretchLastSection(true);
+	header->setSectionResizeMode(QHeaderView::Stretch);
+
 	connect(this, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(slotRowDoubleClicked(const QModelIndex &)));
 }
 
@@ -843,6 +856,10 @@ OperationCheckPackageView::OperationCheckPackageView(QWidget *parent /*= nullptr
 	setModel(_model);
 	setSelectionMode(QAbstractItemView::SingleSelection);
 	setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+	QHeaderView *header = horizontalHeader();
+	//header->setStretchLastSection(true);
+	header->setSectionResizeMode(QHeaderView::Stretch);
 }
 
 void OperationCheckPackageView::setScanned(const QString& udi)
@@ -951,6 +968,10 @@ OperationPackageView::OperationPackageView(QWidget *parent /*= nullptr*/)
 	setModel(_model);
 	setSelectionMode(QAbstractItemView::SingleSelection);
 	setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+	QHeaderView *header = horizontalHeader();
+	//header->setStretchLastSection(true);
+	header->setSectionResizeMode(QHeaderView::Stretch);
 
 	//connect(this, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(slotRowDoubleClicked(const QModelIndex &)));
 
@@ -1079,14 +1100,22 @@ UnusualInstrumentView::UnusualInstrumentView(QWidget *parent /*= nullptr*/)
 	: TableView(parent), _model(new QStandardItemModel(this))
 {
 	_model->setColumnCount(PackageName + 1);
-	_model->setHeaderData(InstrumentID, Qt::Horizontal, "异常器械ID");
+	_model->setHeaderData(InstrumentID, Qt::Horizontal, "异常器械UDI");
 	_model->setHeaderData(InstrumentName, Qt::Horizontal, "异常器械名");
-	_model->setHeaderData(PackageID, Qt::Horizontal, "所属包ID");
+	_model->setHeaderData(PackageID, Qt::Horizontal, "所属包UDI");
 	_model->setHeaderData(PackageName, Qt::Horizontal, "所属包名");
 
 	setModel(_model);
 	setSelectionMode(QAbstractItemView::SingleSelection);
 	setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+	QHeaderView *header = horizontalHeader();
+	header->setStretchLastSection(true);
+
+	setColumnWidth(InstrumentID, 300);
+	setColumnWidth(InstrumentName, 200);
+	setColumnWidth(PackageID, 300);
+	setColumnWidth(PackageName, 200);
 }
 
 void UnusualInstrumentView::addUnusual(const QString& instrumentID)
@@ -1130,15 +1159,15 @@ PackageDetailView::PackageDetailView(QWidget *parent /*= nullptr*/)
 
 	setModel(_model);
 
-	//horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
-	//horizontalHeader()->setSectionResizeMode(1, QHeaderView::Fixed);
-	//horizontalHeader()->setSectionResizeMode(2, QHeaderView::Fixed);
-	//setColumnWidth(0, 200);
-	//setColumnWidth(1, 300);
-	//setColumnWidth(2, 300);
-
 	setSelectionMode(QAbstractItemView::SingleSelection);
 	setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+	QHeaderView *header = horizontalHeader();
+	header->setStretchLastSection(true);
+
+	setColumnWidth(Name, 400);
+	setColumnWidth(Code, 500);
+	setColumnWidth(Status, 300);
 
 	//connect(_imgLabel, SIGNAL(clicked()), this, SLOT(imgClicked()));
 	connect(this, SIGNAL(clicked(const QModelIndex &)), this, SLOT(slotItemClicked(const QModelIndex &)));

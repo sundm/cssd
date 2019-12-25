@@ -156,7 +156,6 @@ void SterileExamPanel::updateSterileInfo(const QString &code) {
 			//set info
 			_infoGroup->updateInfo(info);
 			_checkGroup->updateInfo(info.result);
-
 			// show packages
 			bool readOnly = info.result.phyVerdict != Rt::SterilizeVerdict::Unchecked;
 			_view->addPackages(info.result.packages, readOnly);

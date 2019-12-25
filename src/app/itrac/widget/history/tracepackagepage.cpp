@@ -25,6 +25,7 @@ void TracePackageInfoView::init()
 {
 	_insNameLabel = new QLabel();
 	_pkgNameLabel = new QLabel();
+	_pkgUDILabel = new QLabel();
 	_deptLabel = new QLabel();
 	_totalCycleLabel = new QLabel();
 	_patientLabel = new QLabel();
@@ -36,6 +37,7 @@ void TracePackageInfoView::init()
 	font.setPointSize(16);
 	_insNameLabel->setFont(font);
 	_pkgNameLabel->setFont(font);
+	_pkgUDILabel->setFont(font);
 	_deptLabel->setFont(font);
 	_totalCycleLabel->setFont(font);
 	_patientLabel->setFont(font);
@@ -52,7 +54,7 @@ void TracePackageInfoView::loadInfo(const QString &udi, bool isPackage)
 	init();
 
 	QFont font;
-	font.setPointSize(16);
+	font.setPointSize(14);
 	
 	if (_isPackage)
 	{
@@ -64,13 +66,15 @@ void TracePackageInfoView::loadInfo(const QString &udi, bool isPackage)
 			_cycle = pkg.cycle;
 
 			_pkgNameLabel->setText(QString("包名称：%1").arg(pkg.name));
+			_pkgUDILabel->setText(QString("包UDI:%1").arg(pkg.udi));
 			_deptLabel->setText(QString("所属科室：%1").arg(pkg.dept.name));
 			_totalCycleLabel->setText(QString("循环总次数：%1").arg(QString::number(_cycle)));
 			_cyclelBox->setValue(_cycle);
 			_cyclelBox->setMaximum(_cycle);
 
 			_grid->addWidget(_pkgNameLabel, 0, 0);
-			_grid->addWidget(_deptLabel, 0, 1);
+			_grid->addWidget(_pkgUDILabel, 0, 1);
+			_grid->addWidget(_deptLabel, 0, 2);
 
 			_grid->addWidget(_totalCycleLabel, 1, 0);
 
@@ -129,7 +133,7 @@ void TracePackageInfoView::loadInfo(const QString &udi, bool isPackage)
 			_cycle = ins.cycle;
 			_insNameLabel->setText(QString("器械名称:%1").arg(ins.name));
 			_pkgNameLabel->setText(QString("所属包:%1").arg(ins.packageName));
-			_deptLabel->setText(QString("所属包UDI:%1").arg(ins.packageUdi));
+			_pkgUDILabel->setText(QString("所属包UDI:%1").arg(ins.packageUdi));
 			_totalCycleLabel->setText(QString("循环总次数::%1").arg(QString::number(_cycle)));
 			//_patientLabel->setText("张三，123456");
 
@@ -138,7 +142,7 @@ void TracePackageInfoView::loadInfo(const QString &udi, bool isPackage)
 
 			_grid->addWidget(_insNameLabel, 0, 0);
 			_grid->addWidget(_pkgNameLabel, 0, 1);
-			_grid->addWidget(_deptLabel, 0, 2);
+			_grid->addWidget(_pkgUDILabel, 0, 2);
 
 			_grid->addWidget(_totalCycleLabel, 1, 0);
 
@@ -376,7 +380,7 @@ void TraceDetailView::loadDetail(const PackageFlow &pkgFlow)
 	totalItems.append(rowPostCheckItems);
 
 	QFont font;
-	font.setPointSize(16);
+	font.setPointSize(12);
 	for each (QStandardItem * item in totalItems)
 	{
 		item->setTextAlignment(Qt::AlignCenter);
