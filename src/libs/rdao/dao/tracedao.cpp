@@ -115,7 +115,7 @@ namespace Internal {
 
 	result_t getSurgeryInfo(const QString & udi, int cycle,
 		PackageFlow::SurgerBind &bind, PackageFlow::Use &use,
-		PackageFlow::SurgeryPreCheck preCheck, PackageFlow::SurgeryPostCheck postCheck)
+		PackageFlow::SurgeryPreCheck &preCheck, PackageFlow::SurgeryPostCheck &postCheck)
 	{
 		QSqlQuery q;
 		q.prepare("SELECT id, surgery_name, surgery_time, patient_id, patient_name,"

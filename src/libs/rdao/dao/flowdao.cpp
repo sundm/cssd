@@ -278,13 +278,13 @@ result_t FlowDao::updateSterilizationResult(
 	// update package status
 	QList<Package> pkgs;
 	result_t res = this->getPackagesInBatch(batchId, &pkgs);
-	if (res.isOk()) {
+	if (!res.isOk()) {
 		db.rollback();
 		return res.msg();
 	}
 	
 	res = updatePackageStatus(pkgs, Rt::SterilizeResultChecked);
-	if (res.isOk()) {
+	if (!res.isOk()) {
 		db.rollback();
 		return res.msg();
 	}
