@@ -417,6 +417,9 @@
     <ClCompile Include="dialog\batchaddinstrumentIddialog.cpp">
       <Filter>Source Files\dialog</Filter>
     </ClCompile>
+    <ClCompile Include="dialog\addrecalldialog.cpp">
+      <Filter>Source Files\dialog</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="devicepage.h">
@@ -711,6 +714,9 @@
       <Filter>Source Files\model</Filter>
     </QtMoc>
     <QtMoc Include="dialog\batchaddinstrumentIddialog.h">
+      <Filter>Source Files\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="dialog\addrecalldialog.h">
       <Filter>Source Files\dialog</Filter>
     </QtMoc>
   </ItemGroup>

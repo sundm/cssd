@@ -1,33 +1,33 @@
 #pragma once
 
 #include <QWidget>
-#include "core/net/jsonhttpclient.h"
 
-class QComboBox;
 class TableView;
 class QStandardItemModel;
-class QPushButton;
+class RecallInfo;
 
-class RecallPage : public QWidget, public JsonHttpClient
+class RecallPage : public QWidget
 {
 	Q_OBJECT
 
 public:
-	enum {PackageId, PackageName, PackType, ExpireDate};
+	enum {Device, Cycle, PackageNum, Reason};
 	RecallPage(QWidget *parent = Q_NULLPTR);
 	~RecallPage();
 
 private slots:
-	void onDeviceChanged(int);
+	void reflash();
+	void addEntry();
+	void delEntry();
+
 	void recall();
 
+	void onAddRecall(const RecallInfo&);
+	void onBarcodeReceviced(const QString& code);
 private:
-	void loadSterilizer();
 
-	QComboBox * _comboBox;
 	TableView * _view;
 	QStandardItemModel *_model;
 
-
-	QPushButton *_recallButton;
+	QFont _font;
 };
