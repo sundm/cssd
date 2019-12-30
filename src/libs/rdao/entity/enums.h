@@ -87,4 +87,10 @@ namespace Rt
 		PreChecked,
 		PostChecked
 	};
+
+	enum RecallReason {
+		BioFailure,
+		Subordinate,
+		Custom
+	};
 }
