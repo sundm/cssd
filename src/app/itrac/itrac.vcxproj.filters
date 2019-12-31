@@ -420,6 +420,9 @@
     <ClCompile Include="dialog\addrecalldialog.cpp">
       <Filter>Source Files\dialog</Filter>
     </ClCompile>
+    <ClCompile Include="dialog\registerdialog.cpp">
+      <Filter>Source Files\dialog</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="devicepage.h">
@@ -717,6 +720,9 @@
       <Filter>Source Files\dialog</Filter>
     </QtMoc>
     <QtMoc Include="dialog\addrecalldialog.h">
+      <Filter>Source Files\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="dialog\registerdialog.h">
       <Filter>Source Files\dialog</Filter>
     </QtMoc>
   </ItemGroup>

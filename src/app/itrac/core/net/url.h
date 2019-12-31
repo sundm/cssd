@@ -10,6 +10,7 @@
 extern QString PATH_BASE;
 extern QString LABEL_PRINTER;
 extern QString COMMON_PRINTER;
+extern QString REGIST_CODE;
 extern QList<TSL1128Reader*> TSL1128Readers;
 extern RfidCodelistener* _listener;
 extern int PAGE_INDEX;

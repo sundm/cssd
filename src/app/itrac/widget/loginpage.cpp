@@ -15,8 +15,11 @@
 #include "../libs/rfidreader/rfidreader.h"
 #include "dialog/rfidreaderconfigerdialog.h"
 #include "dialog/rfidconfigerdialog.h"
+#include "dialog/registerdialog.h"
 #include "rdao/dao/operatordao.h"
 #include "rdao/entity/operator.h"
+#include "des/des3.h"
+#include <QMessageBox>
 #include <QVBoxLayout>
 #include <QProgressBar>
 #include <QAction>
@@ -83,6 +86,8 @@ LoginPanel::LoginPanel(Ui::Container *container /*= nullptr*/)
 	}
 	
 	//version();
+	QTimer::singleShot(100, this, &LoginPanel::registerApp);
+	
 }
 
 void LoginPanel::showRfidConfiger() {
@@ -132,6 +137,75 @@ void LoginPanel::handleBarcode(const QString &code) {
 	if (bc.type() == Barcode::User) {
 		login(bc.intValue(), "123456"); //todo
 	}
+}
+
+const QString LoginPanel::getCpuId()
+{
+	return getWMIC("wmic cpu get processorid");
+}
+
+const QString LoginPanel::getWMIC(const QString &cmd)
+{
+	QProcess p;
+	p.start(cmd);
+	p.waitForFinished();
+	QString result = QString::fromLocal8Bit(p.readAllStandardOutput());
+	QStringList list = cmd.split(" ");
+	result = result.remove(list.last(), Qt::CaseInsensitive);
+	result = result.replace("\r", "");
+	result = result.replace("\n", "");
+	result = result.simplified();
+	return result;
+}
+
+void LoginPanel::showRegisterDialog(const QString &code)
+{
+	RegisterDialog d(code, this);
+	if (d.exec() != QDialog::Accepted)
+	{
+		QMessageBox::StandardButton rb = QMessageBox::critical(this, "验证失败", "验证失败，系统即将退出。", QMessageBox::Yes | QMessageBox::Yes);
+		
+		Core::app()->quit();
+		
+	}
+}
+
+void LoginPanel::registerApp() {
+	QString cpuId = getCpuId();
+	if (cpuId.length() < 16)
+	{
+		int num = 16 - cpuId.length();
+		for (int i = 0; i < num; i++)
+		{
+			cpuId.append("F");
+		}
+	}
+
+	QString code = REGIST_CODE.remove("-");
+	if (code.isEmpty() || code.length() < 16)
+	{
+		showRegisterDialog(cpuId);
+		return;
+	}
+
+	DES3 des(0x2BD6459F82C5B300, 0x952C49104881FF48, 0x2BD6459F82C5B300);
+
+	bool isOK = false;
+	ui64 uCode = code.toULongLong(&isOK, 16);
+	ui64 uCPUid = cpuId.toULongLong(&isOK, 16);
+	if (isOK)
+	{
+		ui64 result = des.encrypt(uCPUid);
+		if (result == uCode) return;
+
+		showRegisterDialog(cpuId);
+	}
+	else
+	{
+		showRegisterDialog(cpuId);
+		return;
+	}
+	
 }
 
 void LoginPanel::version()

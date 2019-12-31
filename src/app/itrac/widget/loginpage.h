@@ -32,7 +32,12 @@ private slots:
 	void onBarcodeReceviced(const QString& code);
 private:
 	void login(const int, const QString &);
+	void registerApp();
+	void showRegisterDialog(const QString &);
 	void version();
+
+	const QString getCpuId();
+	const QString getWMIC(const QString &cmd);
 
 	const QString getFileMd5(QString filePath);
 

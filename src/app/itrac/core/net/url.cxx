@@ -13,6 +13,7 @@
 QString PATH_BASE;
 QString LABEL_PRINTER;
 QString COMMON_PRINTER;
+QString REGIST_CODE;
 QList<TSL1128Reader*> TSL1128Readers;
 RfidCodelistener* _listener;
 int PAGE_INDEX;
