@@ -111,6 +111,7 @@
     <ClInclude Include="dao\packagedao.h" />
     <ClInclude Include="dao\flowdao.h" />
     <ClInclude Include="dao\daoutil.h" />
+    <ClInclude Include="dao\recalldao.h" />
     <ClInclude Include="dao\surgerydao.h" />
     <ClInclude Include="dao\tracedao.h" />
     <ClInclude Include="dbconnection.h" />
@@ -118,6 +119,7 @@
     <ClInclude Include="entity\department.h" />
     <ClInclude Include="entity\device.h" />
     <ClInclude Include="entity\enums.h" />
+    <ClInclude Include="entity\recall.h" />
     <ClInclude Include="entity\trace.h" />
     <ClInclude Include="entity\instrument.h" />
     <ClInclude Include="entity\operator.h" />
@@ -135,6 +137,7 @@
     <ClCompile Include="dao\packagedao.cpp" />
     <ClCompile Include="dao\flowdao.cpp" />
     <ClCompile Include="dao\daoutil.cpp" />
+    <ClCompile Include="dao\recalldao.cpp" />
     <ClCompile Include="dao\surgerydao.cpp" />
     <ClCompile Include="dao\tracedao.cpp" />
     <ClCompile Include="dbconnection.cpp" />
