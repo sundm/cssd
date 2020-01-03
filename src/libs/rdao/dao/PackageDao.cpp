@@ -399,7 +399,8 @@ result_t PackageDao::getPackageQualityControl(const Package &pkg, PackageQuality
 	}
 
 	if (Rt::Sterilized < pkg.status) {
-		// sterilization result checked, fetch the results 
+		// sterilization result checked, fetch the results
+		// TODO: use JOIN here may take a long time, exec two queries?
 		q.prepare("SELECT a.wet_pack, b.phy_check_result, b.che_check_result, b.bio_check_result"
 			" FROM r_ster_package a"
 			" LEFT JOIN r_ster_batch b ON a.batch_id = b.batch_id"

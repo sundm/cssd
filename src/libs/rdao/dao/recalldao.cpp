@@ -5,39 +5,27 @@
 #include "recalldao.h"
 #include "../entity/recall.h"
 
-namespace Internal {
-
-} // namespace
-
-result_t RecallDao::getRecallPackagesByDevice(int deviceId, int cycle, QList<PackageForRecall> *packages)
+result_t RecallDao::getSterilizeBatchInfo(const QString &udi, SterBatchInfo *sbi)
 {
 	return 0;
 }
 
-result_t RecallDao::getRecallByPackageId(const QString &udi, RecallItem *recall)
+result_t RecallDao::getSterilizeBatchInfo(int deviceId, int cycleTotal, SterBatchInfo *sbi)
 {
 	return 0;
 }
 
-result_t RecallDao::getCurrentRecallList(QList<RecallItem> *recalls)
+result_t RecallDao::addRecall(int deviceId, int cycleTotal, const Operator &op, const QString desc /*= QString()*/)
 {
 	return 0;
 }
 
-
-result_t RecallDao::getHistoryRecallList(const Filtrate &filtrate, QList<RecallItem> *recalls)
+result_t RecallDao::addRecall(int deviceId, int startCycleTotal, int endCycleTotal, const Operator &op)
 {
 	return 0;
 }
 
-
-result_t RecallDao::addBatchRecalls(const QList<RecallItem> &recalls)
-{
-	return 0;
-}
-
-
-result_t RecallDao::addSingleRecall(const RecallItem &recall)
+result_t RecallDao::getBatchesToBeRecalled(QList<RangedSterBatchInfo> *rangedSbi)
 {
 	return 0;
 }

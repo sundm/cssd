@@ -3,6 +3,7 @@
 #include "enums.h"
 #include <QString>
 #include <QDateTime>
+#include "package.h"
 
 struct Program {
 	int id;
@@ -94,4 +95,24 @@ struct DeviceBatchInfo {
 	QDateTime startTime;
 	QDateTime finishTime;
 	SterilizeResult result;
+};
+
+struct DynamicSterBatchInfo {
+	QString batchId;
+	QString programName;
+	QDate date;
+	unsigned int cycleCount;
+	unsigned int cycleTotal;
+};
+
+struct SterBatchInfo : public DynamicSterBatchInfo {
+	int deviceId;
+	QString deviceName;
+	QList<Package> packages;
+};
+
+struct RangedSterBatchInfo {
+	int deviceId;
+	QString deviceName;
+	QList<DynamicSterBatchInfo> bis;
 };

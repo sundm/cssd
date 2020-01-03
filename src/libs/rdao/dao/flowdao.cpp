@@ -653,13 +653,13 @@ result_t FlowDao::addSurgeryCheck(int surgeryId, const Operator &op, bool pre/* 
 	// update package status
 	QList<Package> pkgs;
 	result_t res = this->getPackagesInSurgery(surgeryId, &pkgs);
-	if (res.isOk()) {
+	if (!res.isOk()) {
 		db.rollback();
 		return res.msg();
 	}
 
 	res = updatePackageStatus(pkgs, pre ? Rt::SurgeryPreChecked : Rt::SurgeryPostChecked);
-	if (res.isOk()) {
+	if (!res.isOk()) {
 		db.rollback();
 		return res.msg();
 	}
