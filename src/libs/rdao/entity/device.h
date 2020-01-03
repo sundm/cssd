@@ -90,8 +90,8 @@ struct DeviceBatchInfo {
 	QString deviceName;
 	QString programName;
 	QString opName;
-	unsigned int cycleCount;
-	unsigned int cycleTotal;
+	unsigned int cycleCount = 0;
+	unsigned int cycleTotal = 0;
 	QDateTime startTime;
 	QDateTime finishTime;
 	SterilizeResult result;
@@ -101,18 +101,19 @@ struct DynamicSterBatchInfo {
 	QString batchId;
 	QString programName;
 	QDate date;
-	unsigned int cycleCount;
-	unsigned int cycleTotal;
+	unsigned int cycleCount = 0;
+	unsigned int cycleTotal = 0;
+	int packageCount = 0;
 };
 
 struct SterBatchInfo : public DynamicSterBatchInfo {
-	int deviceId;
+	int deviceId = 0;
 	QString deviceName;
 	QList<Package> packages;
 };
 
 struct RangedSterBatchInfo {
-	int deviceId;
+	int deviceId = 0;
 	QString deviceName;
 	QList<DynamicSterBatchInfo> bis;
 };

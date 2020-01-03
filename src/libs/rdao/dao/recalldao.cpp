@@ -15,7 +15,7 @@ result_t RecallDao::getSterilizeBatchInfo(int deviceId, int cycleTotal, SterBatc
 	return 0;
 }
 
-result_t RecallDao::addRecall(int deviceId, int cycleTotal, const Operator &op, const QString desc /*= QString()*/)
+result_t RecallDao::addRecall(int deviceId, int cycleTotal, const Operator &op, const QString &desc /*= QString()*/)
 {
 	return 0;
 }

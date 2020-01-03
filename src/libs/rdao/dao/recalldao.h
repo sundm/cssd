@@ -41,7 +41,7 @@ public:
 		int deviceId,
 		int cycleTotal,
 		const Operator &op,
-		const QString desc = QString());
+		const QString &desc = QString());
 
 	/**
 	 * This function is an overload version.
