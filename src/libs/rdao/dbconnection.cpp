@@ -67,6 +67,10 @@ DBConnection::DBConnection(const QString &provider,
     _db.setUserName(user);
     //_db.setPassword(decodePassword(password));
     _db.setPassword(password);
+	if (provider == "MYSQL") {
+		_db.setConnectOptions("MYSQL_OPT_RECONNECT=1");
+	}
+	
     if (_db.open()) {
         qDebug()<< "database connected.";
     }else{
