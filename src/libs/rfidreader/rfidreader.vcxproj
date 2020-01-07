@@ -105,8 +105,9 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\src\client_git\src\libs\rfidreader\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ImportLibrary>$(SolutionDir)..\lib\$(Platform)\$(TargetName).lib</ImportLibrary>
+      <AdditionalDependencies>ModuleAPI_C.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -141,6 +142,8 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImportLibrary>$(SolutionDir)..\lib\$(Platform)\$(TargetName).lib</ImportLibrary>
+      <AdditionalLibraryDirectories>D:\src\client_git\src\libs\rfidreader\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ModuleAPI_C.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -162,12 +165,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="desktopreader.h" />
+    <ClInclude Include="ModuleReader.h" />
     <ClInclude Include="rfidreader.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="tsl_1128.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="desktopreader.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="rfidreader.cpp" />
     <ClCompile Include="stdafx.cpp">

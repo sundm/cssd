@@ -9,8 +9,6 @@
 #define DLL_API _declspec(dllimport)
 #endif
 
-class TSL_1128_Private;
-
 enum class CodeType {
 	Transponder,
 	Barcode,

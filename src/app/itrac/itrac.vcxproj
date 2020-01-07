@@ -288,6 +288,7 @@
     <ClCompile Include="ui\ui_commons.cpp" />
     <ClCompile Include="ui\views.cpp" />
     <ClCompile Include="userpage.cpp" />
+    <ClCompile Include="util\ftpmanager.cpp" />
     <ClCompile Include="util\printermanager.cpp" />
     <ClCompile Include="widget\analysepage.cpp" />
     <ClCompile Include="widget\analyse\costpage.cpp" />
@@ -420,6 +421,12 @@
     </QtMoc>
     <ClInclude Include="resource.h" />
     <QtMoc Include="startupthread.h" />
+    <QtMoc Include="util\ftpmanager.h">
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtXml</IncludePath>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtXml</IncludePath>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtXml</IncludePath>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtXml</IncludePath>
+    </QtMoc>
     <ClInclude Include="util\printermanager.h">
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog</IncludePath>
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtWidgets;$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog</IncludePath>

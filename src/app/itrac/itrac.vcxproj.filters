@@ -423,6 +423,9 @@
     <ClCompile Include="dialog\registerdialog.cpp">
       <Filter>Source Files\dialog</Filter>
     </ClCompile>
+    <ClCompile Include="util\ftpmanager.cpp">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="devicepage.h">
@@ -724,6 +727,9 @@
     </QtMoc>
     <QtMoc Include="dialog\registerdialog.h">
       <Filter>Source Files\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="util\ftpmanager.h">
+      <Filter>Source Files\util</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
