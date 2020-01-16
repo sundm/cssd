@@ -1165,8 +1165,8 @@ PackageDetailView::PackageDetailView(QWidget *parent /*= nullptr*/)
 	QHeaderView *header = horizontalHeader();
 	header->setStretchLastSection(true);
 
-	setColumnWidth(Name, 400);
-	setColumnWidth(Code, 500);
+	setColumnWidth(Name, 250);
+	setColumnWidth(Code, 350);
 	setColumnWidth(Status, 300);
 
 	//connect(_imgLabel, SIGNAL(clicked()), this, SLOT(imgClicked()));

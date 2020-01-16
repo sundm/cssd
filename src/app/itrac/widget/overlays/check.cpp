@@ -12,6 +12,7 @@
 #include "widget/controls/idedit.h"
 #include "dialog/operatorchooser.h"
 #include "dialog/regexpinputdialog.h"
+#include "dialog/rfidconfigerdialog.h"
 #include "importextdialog.h"
 #include "model/itemdelegate.h"
 #include "xnotifier.h"
@@ -21,6 +22,7 @@
 #include "rdao/entity/operator.h"
 #include "rdao/dao/flowDao.h"
 #include "rdao/dao/instrumentdao.h"
+#include "../libs/rfidreader/desktopreader.h"
 #include <xui/images.h>
 #include <xui/imageviewer.h>
 #include <QtWidgets/QtWidgets>
@@ -40,7 +42,7 @@ PreBindPanel::PreBindPanel(QWidget *parent /*= nullptr*/)
 	Ui::PrimaryButton *resetButton = new Ui::PrimaryButton("重置操作");
 	connect(resetButton, SIGNAL(clicked()), this, SLOT(reset()));
 
-	tip->addQr();
+	//tip->addQr();
 	tip->addButton(commitButton);
 	tip->addButton(resetButton);
 
@@ -217,16 +219,16 @@ OperExamPanel::OperExamPanel(Rt::SurgeryStatus status, QWidget *parent /*= nullp
 	, _scannedCodes(new QStringList)
 {
 	//const QString text = "1 扫描物品包ID\n2 扫描托盘内器械\n3 确认回收 \n说明\n灰色：实际数量\n绿色：通过数量\n黄色：剩余数量\n红色：异常数量";
-	//Tip *tip = new Tip(text);
+	Tip *tip = new Tip();
 
-	//Ui::PrimaryButton *commitButton = new Ui::PrimaryButton("完成检查");
-	//connect(commitButton, SIGNAL(clicked()), this, SLOT(commit()));
-	//Ui::PrimaryButton *resetButton = new Ui::PrimaryButton("重置操作");
-	//connect(resetButton, SIGNAL(clicked()), this, SLOT(reset()));
+	Ui::PrimaryButton *commitButton = new Ui::PrimaryButton("完成检查");
+	connect(commitButton, SIGNAL(clicked()), this, SLOT(commit()));
+	Ui::PrimaryButton *resetButton = new Ui::PrimaryButton("重置操作");
+	connect(resetButton, SIGNAL(clicked()), this, SLOT(reset()));
 
 	//tip->addQr();
-	//tip->addButton(commitButton);
-	//tip->addButton(resetButton);
+	tip->addButton(commitButton);
+	tip->addButton(resetButton);
 
 	QVBoxLayout *aLayout = new QVBoxLayout;
 	aLayout->addWidget(_operInfoView);
@@ -242,8 +244,12 @@ OperExamPanel::OperExamPanel(Rt::SurgeryStatus status, QWidget *parent /*= nullp
 	QHBoxLayout *layout = new QHBoxLayout(this);
 	layout->addLayout(aLayout);
 	layout->addLayout(bLayout);
-	//layout->addWidget(tip);
+	layout->addWidget(tip);
 
+	if (_listener == nullptr)
+		_listener = new RfidCodelistener();
+
+	DesktopReader::getInstance()->addListener(_listener);
 	connect(_listener, SIGNAL(onTransponder(const QString&)), this, SLOT(onTransponderReceviced(const QString&)));
 	connect(_listener, SIGNAL(onBarcode(const QString&)), this, SLOT(onBarcodeReceviced(const QString&)));
 	
@@ -257,9 +263,15 @@ OperExamPanel::OperExamPanel(Rt::SurgeryStatus status, QWidget *parent /*= nullp
 	initOperationView();
 }
 
+OperExamPanel::~OperExamPanel()
+{
+	QTimer::singleShot(100, this, &OperExamPanel::desktopReaderStop);
+}
+
 void OperExamPanel::loadPackage(const int surgeryId)
 {
 	_step = 0;
+	DesktopReader::getInstance()->setStop();
 	_operPackageView->loadPackages(surgeryId);
 }
 
@@ -277,10 +289,41 @@ void OperExamPanel::loadInsturments(const QList<Package>& pkgs)
 	_pkgView->updatePackageInfo(insList.count());
 	_detailView->loadDetail(&insList);
 	_step = 1;
+
+	if (_connect)
+	{
+		DesktopReader::getInstance()->setStart();
+	}
+	else
+	{
+		ConfigRfidDialog d(this);
+		d.exec();
+	}
 }
 
 void OperExamPanel::initOperationView() {
 	_operInfoView->loadSurgeries(_status);
+	
+	QTimer::singleShot(100, this ,&OperExamPanel::desktopReaderConnect);
+}
+
+void OperExamPanel::desktopReaderStop()
+{
+	DesktopReader::getInstance()->setStop();
+	DesktopReader::getInstance()->clearListeners();
+}
+
+void OperExamPanel::desktopReaderConnect()
+{
+	_connect = DesktopReader::getInstance()->isConnected();
+	
+	if (!_connect)
+	{
+		//todo
+		ConfigRfidDialog d(this);
+		d.exec();
+		_connect = DesktopReader::getInstance()->isConnected();
+	}
 }
 
 void OperExamPanel::onScanned(const QString& code)
@@ -328,6 +371,11 @@ void OperExamPanel::onTransponderReceviced(const QString& code)
 			_detailView->scanned(code);
 		}
 	}
+
+	if (_pkgView->isScanFinished())
+	{
+		DesktopReader::getInstance()->setStop();
+	}
 }
 
 void OperExamPanel::onBarcodeReceviced(const QString& code)
@@ -360,6 +408,8 @@ void OperExamPanel::handleBarcode(const QString &code) {
 void OperExamPanel::commit() {
 	if (_pkgView->isScanFinished())
 	{
+		DesktopReader::getInstance()->setStop();
+
 		Surgery surgery = _operPackageView->getSurgery();
 
 		Operator op;
@@ -417,4 +467,5 @@ void OperExamPanel::reset()
 	_detailView->clear();
 	_unusualView->clear();
 	_step = 0;
+	DesktopReader::getInstance()->setStop();
 }

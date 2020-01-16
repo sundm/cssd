@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cssd_overlay.h"
-#include "core/net/jsonhttpclient.h"
+#include "../core/rfidlistener.h"
 #include "rdao/entity/surgery.h"
 #include <QHash>
 
@@ -58,7 +58,7 @@ class OperExamPanel : public CssdOverlayPanel
 
 public:
 	OperExamPanel(Rt::SurgeryStatus status, QWidget *parent = nullptr);
-
+	~OperExamPanel();
 protected:
 	void handleBarcode(const QString &) override;
 
@@ -74,7 +74,8 @@ private slots:
 	void loadInsturments(const QList<Package>& pkgs);
 private:
 	void initOperationView();
-	
+	void desktopReaderConnect();
+	void desktopReaderStop();
 	OperationInfoTabelView * _operInfoView;
 	OperationCheckPackageView * _operPackageView;
 
@@ -87,5 +88,6 @@ private:
 	QList<Package> _packages;
 	int _row;
 	int _step;
+	bool _connect;
 	Rt::SurgeryStatus _status;
 };

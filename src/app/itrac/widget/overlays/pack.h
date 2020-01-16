@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cssd_overlay.h"
+#include <QNetworkReply>
 #include "rdao/entity/package.h"
 
 class DeptEdit;
@@ -36,7 +37,13 @@ private slots:
 	void onTransponderReceviced(const QString& code);
 	void onBarcodeReceviced(const QString& code);
 
+	void imgInsClicked();
+	void imgPkgClicked();
+
+	void imgError(QNetworkReply::NetworkError);
+	void imgLoaded();
 private:
+	const QString getFileMd5(const QString &filePath);
 	void loadPackageImg(const QString& udi);
 
 	PackageInfoView * _pkgView;
@@ -52,4 +59,7 @@ private:
 	XPicture * _insImg;
 	int _row;
 	int _step;
+
+	int _imgType;
+	QString _imgFilePath;
 };

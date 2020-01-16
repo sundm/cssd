@@ -21,17 +21,31 @@
 
 #endif 
 
-const int code_len = 32;
+//void hex_str(unsigned char *inchar, unsigned int len, char *outtxt)
+//{
+//	unsigned char hbit, lbit;
+//	unsigned int i;
+//	for (i = 0; i < len; i++)
+//	{
+//		hbit = (*(inchar + i) & 0xf0) >> 4;
+//		lbit = *(inchar + i) & 0x0f;
+//		if (hbit > 9) outtxt[2 * i] = 'A' + hbit - 10;
+//		else outtxt[2 * i] = '0' + hbit;
+//		if (lbit > 9) outtxt[2 * i + 1] = 'A' + lbit - 10;
+//		else    outtxt[2 * i + 1] = '0' + lbit;
+//	}
+//	outtxt[2 * i] = 0;
+//}
 
 DesktopReader* DesktopReader::_instance = NULL;
 
 static void onTagFound(int hreader, TAGINFO *tag, void *pdata)
 {
-	char out[code_len];
-	memset(out, 0, code_len);
+	char out[MAXEPCBYTESCNT];
+	memset(out, 0, MAXEPCBYTESCNT);
 	Hex2Str(tag->EpcId, tag->Epclen, out);
-	DP1("onTagFound, len = %d\n", tag->Epclen);
-	DP1("onTagFound, code = %hs\n", out);
+	//DP1("onTagFound, len = %d\n", tag->Epclen);
+	//DP1("onTagFound, code = %hs\n", out);
 	DesktopReader::getInstance()->broadcast(CodeType::Transponder, out);
 }
 
@@ -168,7 +182,7 @@ READER_ERR DesktopReader::setStart()
 	m_BROption.ReadDuration = 200 * antcnt; 
 
 	//盘存周期间的设备不工作时间,单位为ms,一般设置为0
-	m_BROption.ReadInterval = 0;
+	m_BROption.ReadInterval = 200;
 
 	return StartReading(_hreader, ants, antcnt, &m_BROption);
 }

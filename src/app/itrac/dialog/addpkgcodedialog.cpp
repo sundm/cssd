@@ -10,6 +10,7 @@
 #include "widget/controls/combos.h"
 #include "widget/controls/idedit.h"
 #include "ui/views.h"
+#include "ftpmanager.h"
 #include "model/itemdelegate.h"
 #include "ui/composite/waitingspinner.h"
 #include "rdao/dao/instrumentdao.h"
@@ -112,6 +113,10 @@ AddpkgcodeDialog::AddpkgcodeDialog(QWidget *parent)
 	connect(_listener, SIGNAL(onBarcode(const QString&)), this, SLOT(onBarcodeReceviced(const QString&)));
 	connect(_pkgEdit, SIGNAL(changed(int)), this, SLOT(onPackageTypeChange(int)));
 
+	connect(FtpManager::getInstance(), SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(imgError(QNetworkReply::NetworkError)));
+	connect(FtpManager::getInstance(), SIGNAL(uploadFinished()), this, SLOT(imgUploaded()));
+
+
 	//QTimer::singleShot(1000, this, &AddpkgcodeDialog::loadPackageInfo);
 	QTimer::singleShot(500, [this] {_pkgEdit->loadForDepartment(0);});
 
@@ -213,6 +218,19 @@ void AddpkgcodeDialog::onBarcodeReceviced(const QString& code)
 void AddpkgcodeDialog::onPackageTypeChange(int id)
 {
 	loadInstrumentType(id);
+
+	QString imgPath = QString("./photo/package/%1.jpg").arg(id);
+	QFile file(imgPath);
+	if (file.exists()) {
+		_imgLabel->setImage(imgPath);
+		_imgLabel->setHidden(false);
+	}
+	else
+	{
+		_imgLabel->setImage("");
+		_imgLabel->setHidden(true);
+		resize(1000, 900);
+	}
 }
 
 void AddpkgcodeDialog::loadPackageInfo()
@@ -227,26 +245,40 @@ void AddpkgcodeDialog::loadPackageInfo()
 		_pkgAliasEdit->setText(pk.alias);
 		_pkgCodeEdit->setText(pk.udi);
 		PackageType pkt;
-		dao.getPackageType(pk.typeId, &pkt);
-		_pkgEdit->setCurrentIdPicked(pkt.typeId, pkt.typeName);
-
-		_model->removeRows(0, _model->rowCount());
-		_model->insertRows(0, pk.instruments.count());
-		int i = 0;
-		for each (auto &item in pk.instruments)
+		resp = dao.getPackageType(pk.typeId, &pkt);
+		if (resp.isOk())
 		{
-			_model->setData(_model->index(i, 0), item.name);
-			_model->setData(_model->index(i, 0), item.typeId, Qt::UserRole + 1);
-			_model->setData(_model->index(i, 1), item.udi);
-			i++;
-		}
+			_pkgEdit->setCurrentIdPicked(pkt.typeId, pkt.typeName);
 
-		QString imgPath = QString("./photo/package/%1.png").arg(_package_id);
-		QFile file(imgPath);
-		if (file.exists()) {
-			_imgLabel->setImage(imgPath);
-			_imgLabel->setHidden(false);
+			_model->removeRows(0, _model->rowCount());
+			_model->insertRows(0, pk.instruments.count());
+			int i = 0;
+			for each (auto &item in pk.instruments)
+			{
+				_model->setData(_model->index(i, 0), item.name);
+				_model->setData(_model->index(i, 0), item.typeId, Qt::UserRole + 1);
+				_model->setData(_model->index(i, 1), item.udi);
+				i++;
+			}
+
+			QString imgPath = QString("./photo/package/%1.jpg").arg(_package_id);
+			QFile file(imgPath);
+			if (file.exists()) {
+				_imgLabel->setImage(imgPath);
+				_imgLabel->setHidden(false);
+			}
+			else
+			{
+				QString imgPath = QString("./photo/package/%1.jpg").arg(pk.typeId);
+				QFile file(imgPath);
+				if (file.exists()) {
+					_imgLabel->setImage(imgPath);
+					_imgLabel->setHidden(false);
+				}
+			}
 		}
+		else
+			XNotifier::warn(QString("添加包类型信息失败: ").append(resp.msg()));
 	}
 	else
 		XNotifier::warn(QString("添加包信息失败: ").append(resp.msg()));
@@ -296,11 +328,15 @@ void AddpkgcodeDialog::loadImg() {
 	_imgLabel->setHidden(false);
 }
 
-void AddpkgcodeDialog::uploadImg(const QString& instrument_id) {
-	QString newFileName = QString("./photo/package/%1.png").arg(instrument_id);
+void AddpkgcodeDialog::uploadImg() {
+	QString newFileName = QString("./photo/package/%1.jpg").arg(_package_id);
 	if (!copyFileToPath(_imgFilePath, newFileName, true)) {
 		XNotifier::warn(QString("包信息添加成功，拷贝本地包图片失败!"));
 		return;
+	}
+	else
+	{
+		FtpManager::getInstance()->put(newFileName, newFileName);
 	}
 }
 
@@ -327,19 +363,46 @@ bool AddpkgcodeDialog::copyFileToPath(QString sourceDir, QString toDir, bool cov
 	return QFile::copy(sourceDir, toDir);
 }
 
+void AddpkgcodeDialog::imgError(QNetworkReply::NetworkError error)
+{
+	qDebug() << error;
+	XNotifier::warn(QString("上传器械图片失败: ").append(error));
+
+	return QDialog::accept();
+}
+
+void AddpkgcodeDialog::imgUploaded()
+{
+	QString md5 = getFileMd5(_imgFilePath);
+	if (!md5.isEmpty())
+	{
+		PackageDao dao;
+
+		result_t resp = dao.setPackagePhoto(_package_id, md5);
+		if (!resp.isOk())
+		{
+			XNotifier::warn(QString("上传器械图片失败: ").append(resp.msg()));
+		}
+	}
+
+	return QDialog::accept();
+
+}
+
 void AddpkgcodeDialog::accept() {
 	
 	PackageDao dao;
 	Package pk;
 
 	pk.alias = _pkgAliasEdit->text();
-
-	pk.udi = _pkgCodeEdit->text();
-	if (pk.udi.isEmpty())
+	_package_id = _pkgCodeEdit->text();
+	
+	if (_package_id.isEmpty())
 	{
 		_pkgCodeEdit->setFocus();
 		return;
 	}
+	pk.udi = _package_id;
 
 	pk.typeId = _pkgEdit->currentId();
 	if (pk.typeId <= 0)
@@ -353,6 +416,14 @@ void AddpkgcodeDialog::accept() {
 	if (_isModify)
 	{
 		//todo
+		if (!_imgFilePath.isEmpty())
+		{
+			uploadImg();
+		}
+		else
+		{
+			return QDialog::accept();
+		}
 	}
 	else {
 		//todo
@@ -362,8 +433,16 @@ void AddpkgcodeDialog::accept() {
 			XNotifier::warn(QString("添加包信息失败: ").append(resp.msg()));
 			return;
 		}
+
+		if (!_imgFilePath.isEmpty())
+		{
+			uploadImg();
+		}
+		else
+		{
+			return QDialog::accept();
+		}
 	}
-	return QDialog::accept();
 }
 
 const QList<Instrument> AddpkgcodeDialog::getInstruments()
@@ -410,4 +489,20 @@ int AddpkgcodeDialog::findRow(int code) {
 		return index.row();
 	}
 	return -1;
+}
+
+const QString AddpkgcodeDialog::getFileMd5(const QString &filePath)
+{
+	QFile theFile(filePath);
+	if (theFile.exists())
+	{
+		theFile.open(QIODevice::ReadOnly);
+		QByteArray ba = QCryptographicHash::hash(theFile.readAll(), QCryptographicHash::Md5);
+		theFile.close();
+		return QString(ba.toHex().constData());
+	}
+	else
+	{
+		return QString("");
+	}
 }

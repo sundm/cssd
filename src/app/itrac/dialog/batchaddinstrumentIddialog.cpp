@@ -70,7 +70,14 @@ BatchAddInstrumentIdDialog::BatchAddInstrumentIdDialog(QWidget *parent)
 	connect(_listener, SIGNAL(onTransponder(const QString&)), this, SLOT(onTransponderReceviced(const QString&)));
 	connect(_listener, SIGNAL(onBarcode(const QString&)), this, SLOT(onBarcodeReceviced(const QString&)));
 
+	connect(_insEdit, SIGNAL(changed(int)), this, SLOT(onInsTypeChange(int)));
 	_insEdit->load();
+}
+
+void BatchAddInstrumentIdDialog::onInsTypeChange(int type)
+{
+	_model->removeRows(0, _model->rowCount());
+	_imgLabel->setHidden(true);
 }
 
 void BatchAddInstrumentIdDialog::loadImg() {
@@ -175,7 +182,7 @@ void BatchAddInstrumentIdDialog::onBarcodeReceviced(const QString& code)
 }
 
 void BatchAddInstrumentIdDialog::uploadImg(const QString& instrument_id) {
-	QString newFileName = QString("./photo/instrument/%1.png").arg(instrument_id);
+	QString newFileName = QString("./photo/instrument/%1.jpg").arg(instrument_id);
 	if (!copyFileToPath(_imgFilePath, newFileName, true)) {
 		XNotifier::warn(QString("器械信息添加成功，拷贝本地器械图片失败!"));
 		return;
@@ -210,7 +217,7 @@ void BatchAddInstrumentIdDialog::uploadImg(const QString& instrument_id) {
 			return;
 		}
 		else {
-			QString newFileName = QString("./photo/instrument/%1.png").arg(instrument_id);
+			QString newFileName = QString("./photo/instrument/%1.jpg").arg(instrument_id);
 			if (!copyFileToPath(_imgFilePath, newFileName, true)) {
 				XNotifier::warn(QString("器械信息添加成功，拷贝本地器械图片失败!"));
 				return;

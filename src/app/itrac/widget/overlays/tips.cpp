@@ -38,6 +38,5 @@ void Tip::setupUi(const QString &text) {
 	_layout->addWidget(iconLabel);
 	_layout->addWidget(tipLabel);
 	
-	_layout->addStretch();
-	_layout->addStretch();
+	_layout->addStretch(10);
 }

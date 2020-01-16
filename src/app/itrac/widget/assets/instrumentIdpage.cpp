@@ -45,7 +45,7 @@ InstrumentIdPage::InstrumentIdPage(QWidget *parent)
 
 	connect(_view, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(slotRowDoubleClicked(const QModelIndex &)));
 
-	refresh();
+	search();
 }
 
 void InstrumentIdPage::refresh() {
@@ -74,15 +74,6 @@ void InstrumentIdPage::modify() {
 	BatchAddInstrumentIdDialog d(this);
 	connect(&d, SIGNAL(reload()), this, SLOT(refresh()));
 	d.exec();
-	/*QModelIndexList indexes = _view->selectionModel()->selectedRows();
-	if (indexes.count() == 0) return;
-	int row = indexes[0].row();
-	QString id = _view->model()->data(_view->model()->index(row, Internal::InstrumentIdAssetView::Id)).toString();
-
-	AddInstrumentIdDialog d(this);
-	d.setInfo(id);
-	if (d.exec() == QDialog::Accepted)
-		_view->load();*/
 }
 
 namespace Internal {
@@ -123,7 +114,6 @@ namespace Internal {
 				_model->setData(_model->index(i, Basics), it.typeName);
 				_model->setData(_model->index(i, Basics), it.typeId, Qt::UserRole + 1);
 				_model->setHeaderData(i, Qt::Vertical, (page - 1)*_pageCount + 1 + i);
-				
 			}
 		}
 		else
@@ -142,5 +132,4 @@ void InstrumentIdPage::doSearch(int page)
 void InstrumentIdPage::search() {
 	_view->load(_searchBox->text(), 1);
 	_paginator->setTotalPages(_view->totalCount() / _view->pageCount() + (_view->totalCount() % _view->pageCount() > 0));
-	//_paginator->setTotalPages(1);//todo
 }

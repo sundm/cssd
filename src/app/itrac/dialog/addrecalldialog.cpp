@@ -1,12 +1,15 @@
 #include "addrecalldialog.h"
 #include "core/net/url.h"
 #include "ui/labels.h"
+#include "core/user.h"
 #include "ui/inputfields.h"
 #include "ui/buttons.h"
 #include "xnotifier.h"
 #include "ui/views.h"
 #include "barcode.h"
 #include "rdao/dao/devicedao.h"
+#include "rdao/dao/recalldao.h"
+#include "rdao/entity/operator.h"
 #include <QtWidgets/QtWidgets>
 
 AddRecallDialog::AddRecallDialog(QWidget *parent)
@@ -16,7 +19,7 @@ AddRecallDialog::AddRecallDialog(QWidget *parent)
 	, _cycleBox(new QSpinBox)
 	, _reasonEdit(new QTextEdit)
 	, _view(new TableView(this))
-	, _model(new QStandardItemModel(0, Dept + 1, _view))
+	, _model(new QStandardItemModel(0, PackageNum + 1, _view))
 {
 	QRadioButton *byPackage = new QRadioButton();
 	byPackage->setChecked(true);
@@ -47,9 +50,11 @@ AddRecallDialog::AddRecallDialog(QWidget *parent)
 	bhLayout->addWidget(_cycleBox);
 	bhLayout->addStretch(0);
 
-	_model->setHeaderData(UDI, Qt::Horizontal, "UDI");
-	_model->setHeaderData(Name, Qt::Horizontal, "包名");
-	_model->setHeaderData(Dept, Qt::Horizontal, "所属科室");
+	_model->setHeaderData(DeviceName, Qt::Horizontal, "灭菌器名称");
+	_model->setHeaderData(BatchId, Qt::Horizontal, "灭菌批次号");
+	_model->setHeaderData(Date, Qt::Horizontal, "灭菌时间");
+	_model->setHeaderData(Cycle, Qt::Horizontal, "当日锅次");
+	_model->setHeaderData(PackageNum, Qt::Horizontal, "涉及包数量");
 	_view->setModel(_model);
 	_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
@@ -81,15 +86,32 @@ AddRecallDialog::AddRecallDialog(QWidget *parent)
 	connect(_listener, SIGNAL(onTransponder(const QString&)), this, SLOT(onTransponderReceviced(const QString&)));
 	connect(_listener, SIGNAL(onBarcode(const QString&)), this, SLOT(onBarcodeReceviced(const QString&)));
 
+	connect(_view, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(onRowDoubleClicked(const QModelIndex &)));
+
 	QTimer::singleShot(200, [this] { initDevice(); });
 }
 
 void AddRecallDialog::accept()
 {
-	RecallInfo info;
-	info.deviceName = _deviceBox->currentText();
-	info.deviceId = _deviceBox->currentData().toInt();
-	info.pkgNums = _model->rowCount();
+	int deviceId = _sbi.deviceId;
+	if (deviceId == 0) return;
+	
+	Operator op;
+	op.id = Core::currentUser().id;
+	op.name = Core::currentUser().name;
+
+	int cycle = _sbi.cycleTotal;
+	RecallDao dao;
+	result_t resp = dao.addRecall(deviceId, cycle, op);
+	if (resp.isOk())
+	{
+		XNotifier::warn(QString("召回成功!"));
+		return QDialog::accept();
+	}
+	else
+	{
+		XNotifier::warn(QString("召回%1失败: %2").arg(_sbi.deviceName).arg(resp.msg()));
+	}
 }
 
 void AddRecallDialog::startTrace()
@@ -99,12 +121,12 @@ void AddRecallDialog::startTrace()
 
 void AddRecallDialog::onDeviceChanged(int value)
 {
-	int devId = _deviceBox->itemData(value).toInt();
-	if (devId == 0) return;
+	_devId = _deviceBox->itemData(value).toInt();
+	if (_devId == 0) return;
 
 	DeviceDao dao;
 	Device dev;
-	result_t resp = dao.getDevice(devId, &dev);
+	result_t resp = dao.getDevice(_devId, &dev);
 	if (resp.isOk())
 	{
 		_cycleBox->setMaximum(dev.cycleTotal);
@@ -119,7 +141,26 @@ void AddRecallDialog::onDeviceChanged(int value)
 
 void AddRecallDialog::onCycleChanged(int value)
 {
+	clear();
 
+	RecallDao dao;
+	
+	result_t resp = dao.getSterilizeBatchInfo(_devId, value, &_sbi);
+	if (resp.isOk())
+	{
+		_model->insertRows(0, 1);
+
+		_model->setData(_model->index(0, DeviceName), _sbi.deviceName);
+		_model->setData(_model->index(0, DeviceName), _sbi.deviceId, Qt::UserRole + 1);
+
+		_model->setData(_model->index(0, BatchId), _sbi.batchId);
+		_model->setData(_model->index(0, Date), _sbi.date.toString("yyyy-MM-dd HH:mm:ss"));
+
+		_model->setData(_model->index(0, Cycle), _sbi.cycleCount);
+
+		_model->setData(_model->index(0, PackageNum), _sbi.packageCount);
+
+	}
 }
 
 void AddRecallDialog::initDevice()
@@ -141,6 +182,11 @@ void AddRecallDialog::initDevice()
 		XNotifier::warn(QString("无法获取设备列表: ").append(resp.msg()));
 		return;
 	}
+}
+
+void AddRecallDialog::onRowDoubleClicked(const QModelIndex &)
+{
+
 }
 
 void AddRecallDialog::onToggled(int itemId, bool isChecked)
@@ -174,7 +220,25 @@ void AddRecallDialog::onTransponderReceviced(const QString& code)
 
 		if (tc.type() == TranspondCode::Package)
 		{
+			clear();
 
+			RecallDao dao;
+			result_t resp = dao.getSterilizeBatchInfo(code, &_sbi);
+			if (resp.isOk())
+			{
+				_model->insertRows(0, 1);
+
+				_model->setData(_model->index(0, DeviceName), _sbi.deviceName);
+				_model->setData(_model->index(0, DeviceName), _sbi.deviceId, Qt::UserRole + 1);
+
+				_model->setData(_model->index(0, BatchId), _sbi.batchId);
+				_model->setData(_model->index(0, Date), _sbi.date.toString("yyyy-MM-dd HH:mm:ss"));
+
+				_model->setData(_model->index(0, Cycle), _sbi.cycleCount);
+
+				_model->setData(_model->index(0, PackageNum), _sbi.packageCount);
+			}
+			
 		}
 	}
 	
@@ -184,4 +248,9 @@ void AddRecallDialog::onTransponderReceviced(const QString& code)
 void AddRecallDialog::onBarcodeReceviced(const QString& code)
 {
 	qDebug() << code;
+}
+
+void AddRecallDialog::clear()
+{
+	_model->removeRows(0, _model->rowCount());
 }

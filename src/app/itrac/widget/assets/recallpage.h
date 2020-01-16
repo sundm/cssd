@@ -1,28 +1,28 @@
 #pragma once
 
+#include "rdao/entity/recall.h"
 #include <QWidget>
 
 class TableView;
 class QStandardItemModel;
-class RecallInfo;
+struct RangedSterBatchInfo;
 
 class RecallPage : public QWidget
 {
 	Q_OBJECT
 
 public:
-	enum {Device, Cycle, PackageNum, Reason};
+	enum {DeviceName, BatchId, Date, Cycle, PackageNum};
 	RecallPage(QWidget *parent = Q_NULLPTR);
 	~RecallPage();
 
 private slots:
 	void reflash();
 	void addEntry();
-	void delEntry();
+	//void delEntry();
+	//void onAddRecall(const RecallInfo&);
 
 	void recall();
-
-	void onAddRecall(const RecallInfo&);
 	void onBarcodeReceviced(const QString& code);
 private:
 
@@ -30,4 +30,6 @@ private:
 	QStandardItemModel *_model;
 
 	QFont _font;
+
+	QList<RangedSterBatchInfo> _recalls;
 };

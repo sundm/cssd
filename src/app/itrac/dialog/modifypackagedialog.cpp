@@ -174,7 +174,7 @@ void ModifyPackageDialog::initData() {
 
 	_insEdit->load();
 
-	QString imgPath = QString("./photo/package/%1.png").arg(_info.package_type_id);
+	QString imgPath = QString("./photo/package/%1.jpg").arg(_info.package_type_id);
 	_imgLabel->setImage(imgPath);
 	_imgLabel->setHidden(false);
 }
@@ -354,7 +354,7 @@ void ModifyPackageDialog::uploadImg() {
 			return;
 		}
 		else {
-			QString newFileName = QString("./photo/package/%1.png").arg(_package_type_id);
+			QString newFileName = QString("./photo/package/%1.jpg").arg(_package_type_id);
 			if (!copyFileToPath(_imgFilePath, newFileName, true)) {
 				XNotifier::warn(QString("包信息添加成功，拷贝本地包图片失败!"));
 				return;

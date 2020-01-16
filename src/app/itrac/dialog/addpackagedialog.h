@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QDialog>
-#include "core/net/jsonhttpclient.h"
+#include <QNetworkReply>
 #include "rdao/dao/PackageDao.h"
 
 namespace Ui {
@@ -22,7 +22,7 @@ class QStandardItemModel;
 class QItemSelectionModel;
 class QHttpMultiPart;
 
-class AddPackageDialog : public QDialog, public JsonHttpClient
+class AddPackageDialog : public QDialog
 {
 	Q_OBJECT
 
@@ -37,6 +37,10 @@ private slots:
 	void addEntry();
 	void removeEntry();
 	void typeBoxChanaged(int);
+
+	void loadImg();
+	void imgError(QNetworkReply::NetworkError);
+	void imgUploaded();
 private:
 	void initData();
 	void initPackageInfo();
@@ -44,6 +48,10 @@ private:
 	void initInstrumentView();
 	void getOrders();
 	int findRow(int insId);
+
+	bool copyFileToPath(QString sourceDir, QString toDir, bool coverFileIfExist);
+	void uploadImg();
+	const QString getFileMd5(const QString &filePath);
 
 	Ui::FlatEdit * _pkgNameEdit;
 	Ui::FlatEdit * _pkgPYCodeEdit;
@@ -62,4 +70,9 @@ private:
 	Ui::PrimaryButton *_commitButton;
 	bool _isModfy;
 	int _package_type_id;
+
+	Ui::PrimaryButton *_loadImgButton;
+	XPicture* _imgLabel;
+	QString _imgFilePath;
+	QFile *_imgFile;
 };

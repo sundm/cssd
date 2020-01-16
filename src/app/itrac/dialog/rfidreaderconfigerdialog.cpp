@@ -90,6 +90,8 @@ void ConfigRfidReaderDialog::onClickConnectBtn() {
 		_reader = new TSL1128Reader();
 		TSL1128Readers.append(_reader);
 	}
+
+	_reader->setPort(port.toStdString());
 	
 	if (_reader->connect()) {
 		XNotifier::warn(QString("%1连接成功！").arg(name), -1, this);

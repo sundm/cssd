@@ -135,6 +135,7 @@
       <AdditionalDependencies>qtmaind.lib;qscannerd.lib;qjsond.lib;printerd.lib;xerneld.lib;xuid.lib;rfidreaderd.lib;rcored.lib;rdaod.lib;desd.lib;Qt5Chartsd.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Widgetsd.lib;Qt5Networkd.lib;Qt5Xmld.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <TargetMachine>MachineX86</TargetMachine>
       <AdditionalOptions> /SUBSYSTEM:WINDOWS</AdditionalOptions>
+      <UACExecutionLevel>AsInvoker</UACExecutionLevel>
     </Link>
     <QtMoc>
       <OutputFile>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</OutputFile>
@@ -202,6 +203,7 @@
       <AdditionalDependencies>qtmain.lib;qscanner.lib;qjson.lib;printer.lib;xernel.lib;xui.lib;des.lib;rfidreader.lib;rcore.lib;rdao.lib;Qt5Charts.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;Qt5Network.lib;Qt5Xml.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <TargetMachine>MachineX86</TargetMachine>
       <AdditionalOptions> /SUBSYSTEM:WINDOWS</AdditionalOptions>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <QtMoc>
       <OutputFile>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</OutputFile>
@@ -249,6 +251,7 @@
     <ClCompile Include="dialog\adduserdialog.cpp" />
     <ClCompile Include="dialog\batchaddinstrumentIddialog.cpp" />
     <ClCompile Include="dialog\clinicerchooser.cpp" />
+    <ClCompile Include="dialog\desktopreaderconfig.cpp" />
     <ClCompile Include="dialog\devicedialog.cpp" />
     <ClCompile Include="dialog\extdialog.cpp" />
     <ClCompile Include="dialog\idpicker.cpp" />
@@ -283,6 +286,7 @@
     <ClCompile Include="ui\groups.cpp" />
     <ClCompile Include="ui\image.cpp" />
     <ClCompile Include="ui\inputfields.cpp" />
+    <ClCompile Include="ui\inputip.cpp" />
     <ClCompile Include="ui\labels.cpp" />
     <ClCompile Include="ui\loader.cpp" />
     <ClCompile Include="ui\ui_commons.cpp" />
@@ -419,9 +423,21 @@
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtXml</IncludePath>
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtXml</IncludePath>
     </QtMoc>
+    <QtMoc Include="dialog\desktopreaderconfig.h">
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtXml</IncludePath>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtXml</IncludePath>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtXml</IncludePath>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtXml</IncludePath>
+    </QtMoc>
     <ClInclude Include="resource.h" />
     <QtMoc Include="startupthread.h" />
     <QtMoc Include="util\ftpmanager.h">
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtXml</IncludePath>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtXml</IncludePath>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtXml</IncludePath>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtXml</IncludePath>
+    </QtMoc>
+    <QtMoc Include="ui\inputip.h">
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtXml</IncludePath>
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtXml</IncludePath>
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(SolutionDir)\libs;.\ui;.\widget;.\ui\composite;.\widget\overlays;.\model;.\widget\controls;.\core;.\widget\history;.\dialog;.\util;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtXml</IncludePath>

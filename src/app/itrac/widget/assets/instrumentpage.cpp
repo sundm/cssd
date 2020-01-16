@@ -48,7 +48,7 @@ InstrumentPage::InstrumentPage(QWidget *parent)
 
 	connect(_view, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(slotRowDoubleClicked(const QModelIndex &)));
 
-	refresh();
+	search();
 }
 
 void InstrumentPage::refresh() {
@@ -184,5 +184,4 @@ void InstrumentPage::doSearch(int page)
 void InstrumentPage::search() {
 	_view->load(_searchBox->text(), 1);
 	_paginator->setTotalPages(_view->totalCount() / _view->pageCount()  + (_view->totalCount() % _view->pageCount() > 0));
-	//_paginator->setTotalPages(1);//todo
 }

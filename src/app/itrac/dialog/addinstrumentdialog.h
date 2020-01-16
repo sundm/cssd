@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QDialog>
+#include <QNetworkReply>
 #include "core/net/jsonhttpclient.h"
 
 namespace Ui {
@@ -13,7 +14,7 @@ class XPicture;
 class QHttpMultiPart;
 class QFile;
 
-class AddInstrumentDialog : public QDialog, public JsonHttpClient
+class AddInstrumentDialog : public QDialog
 {
 	Q_OBJECT
 
@@ -23,10 +24,10 @@ public:
 protected:
 	void accept() override;
 
-//private slots:
-//	void loadImg();
-//	void onTransponderReceviced(const QString& code);
-//	void onBarcodeReceviced(const QString& code);
+private slots:
+	void loadImg();
+	void imgError(QNetworkReply::NetworkError);
+	void imgUploaded();
 
 private:
 	Ui::FlatEdit *_nameEdit;
@@ -38,11 +39,11 @@ private:
 	bool _isModify;
 	QString _instrumentId;
 
-	/*QHttpMultiPart *_multiPart;
 	XPicture* _imgLabel;
 	QString _imgFilePath;
 	QFile *_imgFile;
 
 	bool copyFileToPath(QString sourceDir, QString toDir, bool coverFileIfExist);
-	void uploadImg(int instrument_id);*/
+	void uploadImg();
+	const QString getFileMd5(const QString &filePath);
 };

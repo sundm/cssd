@@ -35,7 +35,7 @@ UserInfoDialog::UserInfoDialog(QWidget *parent)
 	Ui::Description *loginTime = new Ui::Description("登录于 " + user.loginTime);
 	QToolButton *closeButton = new QToolButton();
 	closeButton->setIcon(QIcon(":/res/close.png"));
-	connect(closeButton, &QPushButton::clicked, this, &UserInfoDialog::reject);
+	connect(closeButton, &QPushButton::clicked, this, &UserInfoDialog::exitApp);
 
 	QWidget *pwdGroup = new QWidget;
 	_oldPwdEdit->setInputValidator(Ui::InputValitor::LetterAndNumber);
@@ -74,7 +74,7 @@ UserInfoDialog::UserInfoDialog(QWidget *parent)
 	resize(parent ? parent->width() / 2 : 360, height());
 }
 
-void UserInfoDialog::reject()
+void UserInfoDialog::exitApp()
 {
 	QMessageBox::StandardButton rb = QMessageBox::question(this, "退出", "真的要退出系统?", QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
 	if (rb == QMessageBox::Yes)

@@ -13,6 +13,8 @@ extern QString COMMON_PRINTER;
 extern QString REGIST_CODE;
 extern QList<TSL1128Reader*> TSL1128Readers;
 extern RfidCodelistener* _listener;
+extern QString DESKTOP_ADDRESS;
+extern int DESKTOP_ANTENNA;
 extern int PAGE_INDEX;
 extern const char PATH_PLATE_SEARCH[];
 extern const char PATH_DEPT_SEARCH[];

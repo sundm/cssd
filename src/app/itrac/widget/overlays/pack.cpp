@@ -13,6 +13,7 @@
 #include "core/net/url.h"
 #include "core/user.h"
 #include "xnotifier.h"
+#include "ftpmanager.h"
 #include "rdao/dao/PackageDao.h"
 #include "rdao/dao/instrumentdao.h"
 #include "rdao/entity/operator.h"
@@ -73,6 +74,12 @@ PackPanel::PackPanel(QWidget *parent) : CssdOverlayPanel(parent)
 	layout->addLayout(aLayout);
 	layout->addLayout(imgLayout);
 	layout->addWidget(tip);
+
+	connect(_pkgImg, SIGNAL(clicked()), this, SLOT(imgPkgClicked()));
+	connect(_insImg, SIGNAL(clicked()), this, SLOT(imgInsClicked()));
+
+	connect(FtpManager::getInstance(), SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(imgError(QNetworkReply::NetworkError)));
+	connect(FtpManager::getInstance(), SIGNAL(downloadFinished()), this, SLOT(imgLoaded()));
 
 	connect(_listener, SIGNAL(onTransponder(const QString&)), this, SLOT(onTransponderReceviced(const QString&)));
 	connect(_listener, SIGNAL(onBarcode(const QString&)), this, SLOT(onBarcodeReceviced(const QString&)));
@@ -243,27 +250,206 @@ void PackPanel::reset()
 
 void PackPanel::loadPackageImg(const QString& udi)
 {
-	QString imgPath = QString("./photo/package/%1.png").arg(udi);
+	QString imgPath = QString("./photo/package/%1.jpg").arg(udi);
 	QFile file(imgPath);
 	if (file.exists()) {
-		_pkgImg->setImage(imgPath);
+		QString md5 = getFileMd5(imgPath);
+		QString newMd5;
+		PackageDao dao;
+		result_t resp = dao.getPackagePhoto(udi, &newMd5);
+		if (resp.isOk())
+		{
+			if (md5.compare(newMd5) == 0) {
+				_pkgImg->setImage(imgPath);
+			}
+			else
+			{
+				_imgFilePath = imgPath;
+				FtpManager::getInstance()->get(imgPath, _imgFilePath);
+				_imgType = 1;
+			}
+		}
 	}
-	else {
-		QString fileName = QString("./photo/timg.png");
-		_pkgImg->setImage(fileName);
+	else
+	{
+		QString newMd5;
+		PackageDao dao;
+		result_t resp = dao.getPackagePhoto(udi, &newMd5);
+		if (resp.isOk() && !newMd5.isEmpty())
+		{
+			_imgFilePath = imgPath;
+			FtpManager::getInstance()->get(imgPath, _imgFilePath);
+			_imgType = 1;
+		}
+		else
+		{
+			PackageDao dao;
+			Package pkg;
+			result_t resp = dao.getPackage(udi, &pkg);
+			if (resp.isOk())
+			{
+				QString imgPath = QString("./photo/package/%1.jpg").arg(pkg.typeId);
+				QFile file(imgPath);
+				if (file.exists()) {
+					QString md5 = getFileMd5(imgPath);
+					QString newMd5;
+					PackageDao dao;
+					result_t resp = dao.getPackagePhoto(pkg.typeId, &newMd5);
+					if (resp.isOk())
+					{
+						if (md5.compare(newMd5) == 0) {
+							_pkgImg->setImage(imgPath);
+						}
+						else
+						{
+							_imgFilePath = imgPath;
+							FtpManager::getInstance()->get(imgPath, _imgFilePath);
+							_imgType = 1;
+						}
+					}
+
+				}
+				else
+				{
+					_imgFilePath = imgPath;
+					FtpManager::getInstance()->get(imgPath, _imgFilePath);
+					_imgType = 1;
+				}
+			}
+		}
+
 	}
 }
 
 void PackPanel::loadInstrumentImg(const QString& udi)
 {
-	QString imgPath = QString("./photo/instrument/%1.png").arg(udi);
+	QString imgPath = QString("./photo/instrument/%1.jpg").arg(udi);
 	QFile file(imgPath);
 	if (file.exists()) {
-		_insImg->setImage(imgPath);
+		QString md5 = getFileMd5(imgPath);
+		QString newMd5;
+		InstrumentDao dao;
+		result_t resp = dao.getInstrumentPhoto(udi, &newMd5);
+		if (resp.isOk())
+		{
+			if (md5.compare(newMd5) == 0) {
+				_insImg->setImage(imgPath);
+			}
+			else
+			{
+				_imgFilePath = imgPath;
+				FtpManager::getInstance()->get(imgPath, _imgFilePath);
+				_imgType = 0;
+			}
+		}
 	}
 	else
 	{
-		QString fileName = QString("./photo/timg.png");
+		QString newMd5;
+		InstrumentDao dao;
+		result_t resp = dao.getInstrumentPhoto(udi, &newMd5);
+		if (resp.isOk() && !newMd5.isEmpty())
+		{
+			_imgFilePath = imgPath;
+			FtpManager::getInstance()->get(imgPath, _imgFilePath);
+			_imgType = 0;
+		}
+		else
+		{
+			InstrumentDao dao;
+			Instrument ins;
+			result_t resp = dao.getInstrument(udi, &ins);
+			if (resp.isOk())
+			{
+				QString imgPath = QString("./photo/instrument/%1.jpg").arg(ins.typeId);
+				QFile file(imgPath);
+				if (file.exists()) {
+					QString md5 = getFileMd5(imgPath);
+					QString newMd5;
+					InstrumentDao dao;
+					result_t resp = dao.getInstrumentPhoto(ins.typeId, &newMd5);
+					if (resp.isOk())
+					{
+						if (md5.compare(newMd5) == 0) {
+							_insImg->setImage(imgPath);
+						}
+						else
+						{
+							_imgFilePath = imgPath;
+							FtpManager::getInstance()->get(imgPath, _imgFilePath);
+							_imgType = 0;
+						}
+					}
+
+				}
+				else
+				{
+					_imgFilePath = imgPath;
+					FtpManager::getInstance()->get(imgPath, _imgFilePath);
+					_imgType = 0;
+				}
+			}
+		}
+
+	}
+}
+
+void PackPanel::imgInsClicked()
+{
+	ImageViewer *viewer = new ImageViewer(_insImg->fileName());
+	viewer->showNormal();
+}
+
+void PackPanel::imgPkgClicked()
+{
+	ImageViewer *viewer = new ImageViewer(_pkgImg->fileName());
+	viewer->showNormal();
+}
+
+void PackPanel::imgError(QNetworkReply::NetworkError error)
+{
+	qDebug() << error;
+	QString fileName = QString("./photo/timg.png");
+	switch (_imgType)
+	{
+	case 0:
 		_insImg->setImage(fileName);
+		break;
+	case 1:
+		_pkgImg->setImage(fileName);
+		break;
+	default:
+		break;
+	}
+}
+
+void PackPanel::imgLoaded()
+{
+	switch (_imgType)
+	{
+	case 0:
+		_insImg->setImage(_imgFilePath);
+		break;
+	case 1:
+		_pkgImg->setImage(_imgFilePath);
+		break;
+	default:
+		break;
+	}
+}
+
+const QString PackPanel::getFileMd5(const QString &filePath)
+{
+	QFile theFile(filePath);
+	if (theFile.exists())
+	{
+		theFile.open(QIODevice::ReadOnly);
+		QByteArray ba = QCryptographicHash::hash(theFile.readAll(), QCryptographicHash::Md5);
+		theFile.close();
+		return QString(ba.toHex().constData());
+	}
+	else
+	{
+		return QString("");
 	}
 }

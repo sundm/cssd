@@ -37,6 +37,7 @@ private:
 	void version();
 
 	const QString getCpuId();
+	const QString getBioSn();
 	const QString getWMIC(const QString &cmd);
 
 	const QString getFileMd5(QString filePath);

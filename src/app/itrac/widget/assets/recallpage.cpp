@@ -3,22 +3,26 @@
 #include "barcode.h"
 #include "ui/buttons.h"
 #include "core/net/url.h"
+#include "core/user.h"
 #include "dialog/addrecalldialog.h"
 #include "xnotifier.h"
+#include "rdao/dao/recalldao.h"
+#include "rdao/entity/operator.h"
+#include "rdao/entity/device.h"
 #include <QtWidgets/QtWidgets>
-
 
 RecallPage::RecallPage(QWidget *parent)
 	: QWidget(parent)
 	, _view(new TableView(this))
-	, _model(new QStandardItemModel(0, Reason + 1, _view))
+	, _model(new QStandardItemModel(0, PackageNum + 1, _view))
 {
 	_font.setPointSize(12);
 
-	_model->setHeaderData(Device, Qt::Horizontal, "灭菌器名称");
-	_model->setHeaderData(Cycle, Qt::Horizontal, "灭菌锅次");
+	_model->setHeaderData(DeviceName, Qt::Horizontal, "灭菌器名称");
+	_model->setHeaderData(BatchId, Qt::Horizontal, "灭菌批次号");
+	_model->setHeaderData(Date, Qt::Horizontal, "灭菌时间");
+	_model->setHeaderData(Cycle, Qt::Horizontal, "当日锅次");
 	_model->setHeaderData(PackageNum, Qt::Horizontal, "涉及包数量");
-	_model->setHeaderData(Reason, Qt::Horizontal, "召回原因");
 	_view->setModel(_model);
 	_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
@@ -27,24 +31,24 @@ RecallPage::RecallPage(QWidget *parent)
 	header->resizeSection(0, 350);
 	header->resizeSection(1, 150);
 	header->resizeSection(2, 150);
-	header->resizeSection(3, 350);
+	header->resizeSection(3, 150);
 
 	Ui::IconButton *refreshButton = new Ui::IconButton(":/res/refresh-24.png", "刷新");
 	connect(refreshButton, SIGNAL(clicked()), this, SLOT(reflash()));
 
-	Ui::IconButton *addButton = new Ui::IconButton(":/res/plus-24.png", "添加");
+	Ui::IconButton *addButton = new Ui::IconButton(":/res/plus-24.png", "添加召回");
 	connect(addButton, SIGNAL(clicked()), this, SLOT(addEntry()));
 
-	Ui::IconButton *delButton = new Ui::IconButton(":/res/forbidden-24.png", "删除");
-	connect(delButton, SIGNAL(clicked()), this, SLOT(delEntry()));
+	/*Ui::IconButton *delButton = new Ui::IconButton(":/res/forbidden-24.png", "删除");
+	connect(delButton, SIGNAL(clicked()), this, SLOT(delEntry()));*/
 
 	QHBoxLayout *htlayout = new QHBoxLayout;
 	htlayout->addWidget(refreshButton);
 	htlayout->addWidget(addButton);
-	htlayout->addWidget(delButton);
+	//htlayout->addWidget(delButton);
 	htlayout->addStretch(0);
 
-	QLabel *label = new QLabel(QString("系统自动列出的召回信息不可删除。"));
+	QLabel *label = new QLabel(QString("系统自动列出的召回信息请及时处理。"));
 	Ui::PrimaryButton *recallButton = new Ui::PrimaryButton("召回", Ui::BtnSize::Small);
 	connect(recallButton, SIGNAL(clicked()), this, SLOT(recall()));
 
@@ -84,23 +88,37 @@ void RecallPage::onBarcodeReceviced(const QString& code)
 
 void RecallPage::reflash()
 {
-	if (true)
+	_recalls.clear();
+
+	RecallDao dao;
+	result_t resp = dao.getBatchesToBeRecalled(&_recalls);
+
+	if (resp.isOk())
 	{
-		_view->clear(); // when succeeded
+		_view->clear();
 
-		_model->insertRows(0, 1);
+		_model->insertRows(0, _recalls.count());
 
-		for (int i = 0; i !=1; ++i) {
+		int i = 0;
+		for each (RangedSterBatchInfo var in _recalls)
+		{
+			QString deviceName = var.deviceName;
+			int deviceId = var.deviceId;
+			QList<DynamicSterBatchInfo> dsbis = var.bis;
+			for each (DynamicSterBatchInfo bi in dsbis)
+			{
+				_model->setData(_model->index(i, DeviceName), deviceName);
+				_model->setData(_model->index(i, DeviceName), deviceId, Qt::UserRole + 1);
 
-			_model->setData(_model->index(i, Device), QString("1号高温灭菌器"));
-			_model->setData(_model->index(i, Device), 130004, Qt::UserRole + 1);
+				_model->setData(_model->index(i, BatchId), bi.batchId);
+				_model->setData(_model->index(i, Date), bi.date.toString("yyyy-MM-dd HH:mm:ss"));
 
-			_model->setData(_model->index(i, Cycle), QString("2"));
+				_model->setData(_model->index(i, Cycle), bi.cycleCount);
 
-			_model->setData(_model->index(i, PackageNum), 6);
+				_model->setData(_model->index(i, PackageNum), bi.packageCount);
 
-			_model->setData(_model->index(i, Reason), QString("生物审核失败"));
-			_model->setData(_model->index(i, Reason), false, Qt::UserRole + 1);
+				i++;
+			}
 		}
 
 		for (int i = 0; i < _model->rowCount(); i++)
@@ -110,12 +128,11 @@ void RecallPage::reflash()
 				_model->item(i, j)->setTextAlignment(Qt::AlignCenter);
 				_model->item(i, j)->setFont(_font);
 			}
-			
 		}
 	}
 	else
 	{
-		//XNotifier::warn(QString("获取召回列表失败: ").append(resp.msg()));
+		XNotifier::warn(QString("获取召回列表失败: ").append(resp.msg()));
 		return;
 	}
 }
@@ -123,13 +140,10 @@ void RecallPage::reflash()
 void RecallPage::addEntry()
 {
 	AddRecallDialog d(this);
-	connect(&d, SIGNAL(addRecall(const RecallInfo&)), this, SLOT(onAddRecall(const RecallInfo&)));
-	if (d.exec() == QDialog::Accepted)
-	{
-		//todo
-	}
+	d.exec();
 }
 
+/*
 void RecallPage::onAddRecall(const RecallInfo& info)
 {
 	int row = _model->rowCount();
@@ -170,11 +184,36 @@ void RecallPage::delEntry()
 		XNotifier::warn(QString("系统自动列出的召回信息不可删除。"));
 		return;
 	}
-
 }
-
+*/
 
 void RecallPage::recall() 
 {
+	if (_recalls.isEmpty()) return;
+		
+	Operator op;
+	op.id = Core::currentUser().id;
+	op.name = Core::currentUser().name;
+
+	for each (RangedSterBatchInfo var in _recalls)
+	{
+		QString deviceName = var.deviceName;
+		int deviceId = var.deviceId;
+		if (var.bis.isEmpty())
+		{
+			XNotifier::warn(QString("召回%1失败:召回列表为空").arg(deviceName));
+			continue;
+		}
+
+		int startCycleTotal = var.bis.first().cycleTotal;
+		int endCycleTotal = var.bis.last().cycleTotal;
+
+		RecallDao dao;
+		result_t resp = dao.addRecall(deviceId, startCycleTotal, endCycleTotal, op);
+		if (!resp.isOk()){
+			XNotifier::warn(QString("召回%1失败: %2").arg(deviceName).arg(resp.msg()));
+		}
+	}
 	
+	reflash();
 }

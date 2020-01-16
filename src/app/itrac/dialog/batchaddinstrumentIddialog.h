@@ -34,6 +34,7 @@ private slots:
 	void loadImg();
 	void onTransponderReceviced(const QString& code);
 	void onBarcodeReceviced(const QString& code);
+	void onInsTypeChange(int type);
 private:
 	InstrumentEdit * _insEdit;
 

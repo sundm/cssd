@@ -148,6 +148,6 @@ void UsePanel::showImage(const QString &pkgId)
 {
 	QString typeId = pkgId.mid(4, 4);
 	trimLeadingChar(typeId, '0');
-	QString fileName = QString("./photo/package/%1.png").arg(typeId);
+	QString fileName = QString("./photo/package/%1.jpg").arg(typeId);
 	image->setImage(fileName);
 }

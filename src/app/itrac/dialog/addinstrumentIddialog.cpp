@@ -9,6 +9,7 @@
 #include "ui/ui_commons.h"
 #include "ui/composite/waitingspinner.h"
 #include "rdao/dao/InstrumentDao.h"
+#include "ftpmanager.h"
 #include <xui/images.h>
 #include <qhttpmultipart.h>
 #include <thirdparty/qjson/src/parser.h>
@@ -26,6 +27,7 @@ AddInstrumentIdDialog::AddInstrumentIdDialog(QWidget *parent)
 	setWindowTitle("添加新器械");
 
 	_isModify = false;
+	_imgFilePath.clear();
 
 	_idEdit->setInputValidator(Ui::InputValitor::LetterAndNumber);
 
@@ -59,10 +61,15 @@ AddInstrumentIdDialog::AddInstrumentIdDialog(QWidget *parent)
 
 	mainLayout->addWidget(submitButton, 6, 0, 1, 2, Qt::AlignHCenter);
 
-	resize(parent ? parent->width() / 3 : 360, sizeHint().height());
+	resize(600, 400);
+
+	connect(_insEdit, SIGNAL(changed(int)), this, SLOT(onInstrumentTypeChange(int)));
 
 	connect(_listener, SIGNAL(onTransponder(const QString&)), this, SLOT(onTransponderReceviced(const QString&)));
 	connect(_listener, SIGNAL(onBarcode(const QString&)), this, SLOT(onBarcodeReceviced(const QString&)));
+
+	connect(FtpManager::getInstance(), SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(imgError(QNetworkReply::NetworkError)));
+	connect(FtpManager::getInstance(), SIGNAL(uploadFinished()), this, SLOT(imgUploaded()));
 
 	//connect(_insEdit, SIGNAL(changed(int)), this, SLOT(onDeptChanged(int)));
 	_insEdit->load();
@@ -71,6 +78,7 @@ AddInstrumentIdDialog::AddInstrumentIdDialog(QWidget *parent)
 void AddInstrumentIdDialog::setInfo(const QString &id)
 {
 	setWindowTitle("修改器械");
+	_imgFilePath.clear();
 	_isModify = true;
 	_instrumentId = id;
 
@@ -78,21 +86,38 @@ void AddInstrumentIdDialog::setInfo(const QString &id)
 	Instrument it;
 	InstrumentType ity;
 	result_t resp = dao.getInstrument(_instrumentId, &it);
-	dao.getInstrumentType(it.typeId, &ity);
-
 	if (resp.isOk())
 	{
-		_aliasEdit->setText(it.alias);
-		_idEdit->setText(_instrumentId);
-		_idEdit->setReadOnly(_isModify);
-		//_nameEdit->setReadOnly(_isModify);
-		_insEdit->setCurrentIdPicked(ity.typeId, ity.typeName);
+		resp = dao.getInstrumentType(it.typeId, &ity);
 
-		QString imgPath = QString("./photo/instrument/%1.png").arg(_instrumentId);
-		QFile file(imgPath);
-		if (file.exists()) {
-			_imgLabel->setImage(imgPath);
-			_imgLabel->setHidden(false);
+		if (resp.isOk())
+		{
+			_aliasEdit->setText(it.alias);
+			_idEdit->setText(_instrumentId);
+			_insEdit->setReadOnly(_isModify);
+			_idEdit->setReadOnly(_isModify);
+			//_nameEdit->setReadOnly(_isModify);
+			_insEdit->setCurrentIdPicked(ity.typeId, ity.typeName);
+
+			QString imgPath = QString("./photo/instrument/%1.jpg").arg(_instrumentId);
+			QFile file(imgPath);
+			if (file.exists()) {
+				_imgLabel->setImage(imgPath);
+				_imgLabel->setHidden(false);
+			}
+			else
+			{
+				QString imgPath = QString("./photo/instrument/%1.jpg").arg(it.typeId);
+				QFile file(imgPath);
+				if (file.exists()) {
+					_imgLabel->setImage(imgPath);
+					_imgLabel->setHidden(false);
+				}
+			}
+		}
+		else
+		{
+			XNotifier::warn(QString("查询器械类型失败: ").append(resp.msg()));
 		}
 	}
 	else
@@ -100,6 +125,22 @@ void AddInstrumentIdDialog::setInfo(const QString &id)
 		XNotifier::warn(QString("查询器械失败: ").append(resp.msg()));
 	}
 	
+}
+
+void AddInstrumentIdDialog::onInstrumentTypeChange(int typeId)
+{
+	QString imgPath = QString("./photo/instrument/%1.jpg").arg(typeId);
+	QFile file(imgPath);
+	if (file.exists()) {
+		_imgLabel->setImage(imgPath);
+		_imgLabel->setHidden(false);
+	}
+	else
+	{
+		_imgLabel->setImage("");
+		_imgLabel->setHidden(true);
+		resize(600, 400);
+	}
 }
 
 void AddInstrumentIdDialog::loadImg() {
@@ -123,10 +164,10 @@ void AddInstrumentIdDialog::loadImg() {
 
 void AddInstrumentIdDialog::accept() {
 	QString alias = _aliasEdit->text();
-	QString udi = _idEdit->text().toUpper();
+	_instrumentId = _idEdit->text().toUpper();
 	int typeId = _insEdit->currentId();
 
-	if (udi.isEmpty()) {
+	if (_instrumentId.isEmpty()) {
 		_idEdit->setFocus();
 		return;
 	}
@@ -138,7 +179,7 @@ void AddInstrumentIdDialog::accept() {
 
 	Instrument it;
 	it.alias = alias;
-	it.udi = udi;
+	it.udi = _instrumentId;
 	it.typeId = typeId;
 
 	_waiter->start();
@@ -149,12 +190,17 @@ void AddInstrumentIdDialog::accept() {
 		_waiter->stop();
 		if (resp.isOk())
 		{
+			emit reload();
+
 			if (!_imgFilePath.isEmpty())
 			{
-				uploadImg(udi);
+				uploadImg();
 			}
-
-			return QDialog::accept();
+			else
+			{
+				return QDialog::accept();
+			}
+			
 		}
 		else
 		{
@@ -171,7 +217,7 @@ void AddInstrumentIdDialog::accept() {
 		{
 			if (!_imgFilePath.isEmpty())
 			{
-				uploadImg(udi);
+				uploadImg();
 			}
 
 			resetView();
@@ -190,21 +236,6 @@ void AddInstrumentIdDialog::resetView()
 {
 	_idEdit->clear();
 	_aliasEdit->clear();
-	/*QString name = _nameEdit->text();
-	if (name.isEmpty()) return;
-	
-	QStringList l = name.split("#");
-	if (l.count() == 2)
-	{
-		bool isOK = false;
-		int num = l.at(1).toInt(&isOK);
-		if (isOK)
-		{
-			_nameEdit->setText(QString("%1#%2").arg(l.at(0)).arg(QString::number(num + 1)));
-		}
-	}
-
-	_nameEdit->setFocus();*/
 }
 
 void AddInstrumentIdDialog::onTransponderReceviced(const QString& code)
@@ -224,51 +255,42 @@ void AddInstrumentIdDialog::onBarcodeReceviced(const QString& code)
 	qDebug() << code;
 }
 
-void AddInstrumentIdDialog::uploadImg(const QString& instrument_id) {
-	QString newFileName = QString("./photo/instrument/%1.png").arg(instrument_id);
+void AddInstrumentIdDialog::uploadImg() {
+	QString newFileName = QString("./photo/instrument/%1.jpg").arg(_instrumentId);
 	if (!copyFileToPath(_imgFilePath, newFileName, true)) {
 		XNotifier::warn(QString("器械信息添加成功，拷贝本地器械图片失败!"));
 		return;
 	}
-
-	/*
-	_multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
-
-	QHttpPart imagePart;
-	imagePart.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("image/png"));
-	QString head = QString("form-data; name=\"file\"; filename=\"%1.png\"").arg(instrument_id);
-	imagePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant(head));
-	_imgFile = new QFile(_imgFilePath);
-	_imgFile->open(QIODevice::ReadOnly);
-	imagePart.setBodyDevice(_imgFile);
-	_imgFile->setParent(_multiPart);
-	_multiPart->append(imagePart);
-
-	const QByteArray resp = post(url(PATH_INSTRUMENT_UPLOAD_IMG), _multiPart);
-
-	QJson::Parser parser;
-	bool ok;
-	QVariantMap vmap = parser.parse(resp, &ok).toMap();
-	if (!ok) {
-		XNotifier::warn(QString("上传器械图片失败"));
-		return;
+	else
+	{
+		FtpManager::getInstance()->put(newFileName, newFileName);
 	}
-	else {
-		QString code = vmap.value("code").toString();
-		if ("9000" != code) {
-			XNotifier::warn(QString("上传器械图片失败:").append(code));
-			return;
-		}
-		else {
-			QString newFileName = QString("./photo/instrument/%1.png").arg(instrument_id);
-			if (!copyFileToPath(_imgFilePath, newFileName, true)) {
-				XNotifier::warn(QString("器械信息添加成功，拷贝本地器械图片失败!"));
-				return;
-			}
+}
 
+void AddInstrumentIdDialog::imgError(QNetworkReply::NetworkError error)
+{
+	qDebug() << error;
+	XNotifier::warn(QString("上传器械图片失败: ").append(error));
+
+	return QDialog::accept();
+}
+
+void AddInstrumentIdDialog::imgUploaded()
+{
+	QString md5 = getFileMd5(_imgFilePath);
+	if (!md5.isEmpty())
+	{
+		InstrumentDao dao;
+
+		result_t resp = dao.setInstrumentPhoto(_instrumentId, md5);
+		if (!resp.isOk())
+		{
+			XNotifier::warn(QString("上传器械图片失败: ").append(resp.msg()));
 		}
 	}
-	*/
+
+	return QDialog::accept();
+	
 }
 
 bool AddInstrumentIdDialog::copyFileToPath(QString sourceDir, QString toDir, bool coverFileIfExist)
@@ -292,4 +314,20 @@ bool AddInstrumentIdDialog::copyFileToPath(QString sourceDir, QString toDir, boo
 	}
 
 	return QFile::copy(sourceDir, toDir);
+}
+
+const QString AddInstrumentIdDialog::getFileMd5(const QString &filePath)
+{
+	QFile theFile(filePath);
+	if (theFile.exists())
+	{
+		theFile.open(QIODevice::ReadOnly);
+		QByteArray ba = QCryptographicHash::hash(theFile.readAll(), QCryptographicHash::Md5);
+		theFile.close();
+		return QString(ba.toHex().constData());
+	}
+	else
+	{
+		return QString("");
+	}
 }

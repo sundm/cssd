@@ -8,6 +8,8 @@
 #include "xnotifier.h"
 #include "ui/views.h"
 #include "rfidreaderconfigerdialog.h"
+#include "desktopreaderconfig.h"
+#include "../libs/rfidreader/desktopreader.h"
 #include <QtWidgets/QtWidgets>
 #include <QFile>
 #include <QDomDocument>
@@ -105,6 +107,17 @@ void ConfigRfidDialog::accept() {
 
 			root.appendChild(element);
 		}
+
+
+		if (!DesktopReader::getInstance()->getAddress().empty())
+		{
+			QDomElement element = document.createElement("reader");
+			element.setAttribute("type", "2");
+			element.setAttribute("name", QString::fromStdString(DesktopReader::getInstance()->getAddress()));
+			element.setAttribute("port", QString::number(DesktopReader::getInstance()->getAntenna()));
+
+			root.appendChild(element);
+		}		
 	
 		if (!file.open(QFile::WriteOnly | QFile::Text))
 		{
@@ -121,11 +134,34 @@ void ConfigRfidDialog::accept() {
 }
 
 void ConfigRfidDialog::addEntry() {
-	ConfigRfidReaderDialog d(this);
-	if (d.exec() == QDialog::Accepted)
+	int type = _comBox->currentData().toInt();
+	if (type == 1)
 	{
-		loadReaders();
+		ConfigRfidReaderDialog d(this);
+		if (d.exec() == QDialog::Accepted)
+		{
+			loadReaders();
+		}
 	}
+	else if(type == 2)
+	{
+		for (int i = 0; i < _model->rowCount(); i++)
+		{
+			int type = _model->data(_model->index(i, 1), 257).toInt();
+			if (type == 2)
+			{
+				XNotifier::warn(QString("已存在该型号读卡器，无法添加。"), -1, this);
+				return;
+			}
+		}
+
+		DesktopReaderConfigDialog d("192.168.1.100", 4, this);
+		if (d.exec() == QDialog::Accepted)
+		{
+			loadReaders();
+		}
+	}
+	
 }
 
 void ConfigRfidDialog::removeEntry() {
@@ -134,7 +170,19 @@ void ConfigRfidDialog::removeEntry() {
 	if (indexes.size() > 0)
 	{
 		int row = indexes.at(0).row();
-		TSL1128Readers.removeAt(row);
+		int type = _model->data(_model->index(row, 1), 257).toInt();
+		if (type == 1)
+		{
+			TSL1128Readers.removeAt(row);
+		}
+		else if (type == 2)
+		{
+			DESKTOP_ADDRESS.clear();
+			DesktopReader::getInstance()->disconnect();
+			DesktopReader::getInstance()->setAddress("");
+			DesktopReader::getInstance()->setAntenna(0);
+		}
+		
 		_model->removeRow(row);
 	}
 	
@@ -154,11 +202,10 @@ void ConfigRfidDialog::initView()
 	QHeaderView *header = _view->horizontalHeader();
 	header->setStretchLastSection(true);
 	header->resizeSection(0, 150);
-	header->resizeSection(1, 50);
+	header->resizeSection(1, 150);
 
-	QStringList readerTypeList;
-	readerTypeList.append("TSL-1128");
-	_comBox->addItems(readerTypeList);
+	_comBox->addItem("tsl-1128", 1);
+	_comBox->addItem("桌面检查台", 2);
 
 	loadReaders();
 }
@@ -179,15 +226,52 @@ void ConfigRfidDialog::loadReaders()
 		items << nameItem << typeItem << portItem << stateItem;
 		_model->appendRow(items);
 	}
+
+	if (!DESKTOP_ADDRESS.isEmpty() && DesktopReader::getInstance()->getAddress().empty())
+	{
+		QList<QStandardItem *> items;
+		QStandardItem *nameItem = new QStandardItem(DESKTOP_ADDRESS);
+		QStandardItem *typeItem = new QStandardItem("桌面检查台");
+		typeItem->setData(2);
+		QStandardItem *portItem = new QStandardItem(QString::number(DESKTOP_ANTENNA).append("天线"));
+		QStandardItem *stateItem = new QStandardItem(DesktopReader::getInstance()->isConnected() ? "已连接" : "已断开");
+		stateItem->setData(DesktopReader::getInstance()->isConnected());
+		items << nameItem << typeItem << portItem << stateItem;
+		_model->appendRow(items);
+	}
+	else if (!DesktopReader::getInstance()->getAddress().empty())
+	{
+		QList<QStandardItem *> items;
+		QStandardItem *nameItem = new QStandardItem(QString::fromStdString(DesktopReader::getInstance()->getAddress()));
+		QStandardItem *typeItem = new QStandardItem("桌面检查台");
+		typeItem->setData(2);
+		QStandardItem *portItem = new QStandardItem(QString::number(DesktopReader::getInstance()->getAntenna()).append("天线"));
+		QStandardItem *stateItem = new QStandardItem(DesktopReader::getInstance()->isConnected() ? "已连接" : "已断开");
+		stateItem->setData(DesktopReader::getInstance()->isConnected());
+		items << nameItem << typeItem << portItem << stateItem;
+		_model->appendRow(items);
+	}
 }
 
 void ConfigRfidDialog::slotRowDoubleClicked(const QModelIndex &index)
 {
 	int row = index.row();
-	ConfigRfidReaderDialog d(this);
-	d.setReader(row);
-	if (d.exec() == QDialog::Accepted)
+	int type = _model->data(_model->index(row, 1), 257).toInt();
+	
+	if (type == 1)
 	{
+		ConfigRfidReaderDialog d(this);
+		d.setReader(row);
+		if (d.exec() == QDialog::Accepted)
+		{
+			loadReaders();
+		}
+	}
+	
+	if (type == 2)
+	{
+		DesktopReaderConfigDialog d(DESKTOP_ADDRESS, DESKTOP_ANTENNA, this);
+		d.exec();
 		loadReaders();
 	}
 }

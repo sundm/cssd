@@ -10,7 +10,7 @@ class FtpManager : public QObject
 	Q_OBJECT
 
 public:
-	explicit FtpManager(QObject *parent = 0);
+	static FtpManager* getInstance();
 
 	void setHostPort(const QString &host, int port = 21);
 
@@ -21,6 +21,9 @@ public:
 	void get(const QString &path, const QString &fileName);
 
 signals:
+	void downloadFinished();
+	void uploadFinished();
+
 	void error(QNetworkReply::NetworkError);
 
 	void uploadProgress(qint64 bytesSent, qint64 bytesTotal);
@@ -28,9 +31,12 @@ signals:
 	void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);
 
 private slots:
-	void finished();
-
+	void onDownloadFinished();
+	void onUploadFinished();
+	void onError(QNetworkReply::NetworkError);
 private:
+	explicit FtpManager(QObject *parent = 0);
+	static FtpManager* _instance;
 	QUrl m_pUrl;
 	QFile m_file;
 	QNetworkAccessManager m_manager;

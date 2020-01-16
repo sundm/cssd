@@ -8,6 +8,7 @@
 #include "ui/buttons.h"
 #include "ui/views.h"
 #include "inliner.h"
+#include "ftpmanager.h"
 #include "widget/controls/packageview.h"
 #include "widget/controls/idedit.h"
 #include "dialog/operatorchooser.h"
@@ -297,10 +298,14 @@ OrRecyclePanel::OrRecyclePanel(QWidget *parent /*= nullptr*/)
 	QString fileName = QString("./photo/timg.png");
 	_pkgImg->setBgColor(QColor(245, 246, 247));
 	_pkgImg->setImage(fileName);
-	_pkgImg->setMinimumWidth(300);
+	_pkgImg->setMinimumWidth(400);
 	_insImg->setBgColor(QColor(245, 246, 247));
 	_insImg->setImage(fileName);
-	_insImg->setMinimumWidth(300);
+	_insImg->setMinimumWidth(400);
+
+	_ftp = FtpManager::getInstance();
+	connect(_ftp, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(imgError(QNetworkReply::NetworkError)));
+	connect(_ftp, SIGNAL(downloadFinished()), this, SLOT(imgLoaded()));
 
 	QVBoxLayout *imgLayout = new QVBoxLayout;
 	imgLayout->addWidget(_pkgImg);
@@ -317,6 +322,9 @@ OrRecyclePanel::OrRecyclePanel(QWidget *parent /*= nullptr*/)
 	connect(_detailView, SIGNAL(scand(const QString&)), this, SLOT(onScanned(const QString&)));
 	connect(_detailView, SIGNAL(unusual(const QString&)), this, SLOT(onUnusual(const QString&)));
 	connect(_detailView, SIGNAL(onclick(const QString&)), this, SLOT(loadInstrumentImg(const QString&)));
+
+	connect(_pkgImg, SIGNAL(clicked()), this, SLOT(imgPkgClicked()));
+	connect(_insImg, SIGNAL(clicked()), this, SLOT(imgInsClicked()));
 
 	_step = 0;
 }
@@ -432,42 +440,6 @@ void OrRecyclePanel::commit() {
 	{
 		XNotifier::warn(QString("回收登记失败: ").append(resp.msg()));
 	}
-	/*
-	QVariantList packageIds;// = _pkgView->packageIds();
-	QVariantList cardIds;// = _pkgView->cardIds();
-	if (packageIds.isEmpty()) {
-		XNotifier::warn("请先添加需要回收的包");
-		return;
-	}
-
-	int opId = OperatorChooser::get(this, this);
-	if (0 == opId) return;
-
-	QVariantList pkgList;
-	for (int i = 0; i != packageIds.size(); i++) {
-		QVariantMap package;
-		package.insert("package_id", packageIds[i].toString());
-		package.insert("card_id", cardIds[i].toInt());
-		package.insert("recycle_reason", 1);
-		pkgList << package;
-	}
-
-	QVariantMap vmap;
-	vmap.insert("packages", pkgList);
-	//vmap.insert("plate_id", plateId);
-	vmap.insert("operator_id", opId);
-
-	post(url(PATH_RECYCLE_ADD), vmap, [this](QNetworkReply *reply) {
-		JsonHttpResponse resp(reply);
-		if (!resp.success()) {
-			XNotifier::warn(QString("回收登记失败: ").append(resp.errorString()));
-		}
-		else {
-			XNotifier::warn("回收成功!");
-			reset();
-		}
-	});
-	*/
 }
 
 void OrRecyclePanel::reset()
@@ -485,29 +457,208 @@ void OrRecyclePanel::reset()
 	_insImg->setImage(fileName);
 }
 
+void OrRecyclePanel::imgError(QNetworkReply::NetworkError error)
+{
+	qDebug() << error;
+	QString fileName = QString("./photo/timg.png");
+	switch (_imgType)
+	{
+	case 0:
+		_insImg->setImage(fileName);
+		break;
+	case 1:
+		_pkgImg->setImage(fileName);
+		break;
+	default:
+		break;
+	}
+}
+
+void OrRecyclePanel::imgLoaded()
+{
+	switch (_imgType)
+	{
+	case 0:
+		_insImg->setImage(_imgFilePath);
+		break;
+	case 1:
+		_pkgImg->setImage(_imgFilePath);
+		break;
+	default:
+		break;
+	}
+}
+
 void OrRecyclePanel::loadPackageImg(const QString& udi)
 {
-	QString imgPath = QString("./photo/package/%1.png").arg(udi);
+	QString imgPath = QString("./photo/package/%1.jpg").arg(udi);
 	QFile file(imgPath);
 	if (file.exists()) {
-		_pkgImg->setImage(imgPath);
+		QString md5 = getFileMd5(imgPath);
+		QString newMd5;
+		PackageDao dao;
+		result_t resp = dao.getPackagePhoto(udi, &newMd5);
+		if (resp.isOk())
+		{
+			if (md5.compare(newMd5) == 0) {
+				_pkgImg->setImage(imgPath);
+			}
+			else
+			{
+				_imgFilePath = imgPath;
+				FtpManager::getInstance()->get(imgPath, _imgFilePath);
+				_imgType = 1;
+			}
+		}
 	}
-	else {
-		QString fileName = QString("./photo/timg.png");
-		_pkgImg->setImage(fileName);
+	else
+	{
+		QString newMd5;
+		PackageDao dao;
+		result_t resp = dao.getPackagePhoto(udi, &newMd5);
+		if (resp.isOk() && !newMd5.isEmpty())
+		{
+			_imgFilePath = imgPath;
+			FtpManager::getInstance()->get(imgPath, _imgFilePath);
+			_imgType = 1;
+		}
+		else
+		{
+			PackageDao dao;
+			Package pkg;
+			result_t resp = dao.getPackage(udi, &pkg);
+			if (resp.isOk())
+			{
+				QString imgPath = QString("./photo/package/%1.jpg").arg(pkg.typeId);
+				QFile file(imgPath);
+				if (file.exists()) {
+					QString md5 = getFileMd5(imgPath);
+					QString newMd5;
+					PackageDao dao;
+					result_t resp = dao.getPackagePhoto(pkg.typeId, &newMd5);
+					if (resp.isOk())
+					{
+						if (md5.compare(newMd5) == 0) {
+							_pkgImg->setImage(imgPath);
+						}
+						else
+						{
+							_imgFilePath = imgPath;
+							FtpManager::getInstance()->get(imgPath, _imgFilePath);
+							_imgType = 1;
+						}
+					}
+
+				}
+				else
+				{
+					_imgFilePath = imgPath;
+					FtpManager::getInstance()->get(imgPath, _imgFilePath);
+					_imgType = 1;
+				}
+			}
+		}
+
 	}
 }
 
 void OrRecyclePanel::loadInstrumentImg(const QString& udi)
 {
-	QString imgPath = QString("./photo/instrument/%1.png").arg(udi);
+	QString imgPath = QString("./photo/instrument/%1.jpg").arg(udi);
 	QFile file(imgPath);
 	if (file.exists()) {
-		_insImg->setImage(imgPath);
+		QString md5 = getFileMd5(imgPath);
+		QString newMd5;
+		InstrumentDao dao;
+		result_t resp = dao.getInstrumentPhoto(udi, &newMd5);
+		if (resp.isOk())
+		{
+			if (md5.compare(newMd5) == 0) {
+				_insImg->setImage(imgPath);
+			}
+			else
+			{
+				_imgFilePath = imgPath;
+				FtpManager::getInstance()->get(imgPath, _imgFilePath);
+				_imgType = 0;
+			}
+		}
 	}
 	else
 	{
-		QString fileName = QString("./photo/timg.png");
-		_insImg->setImage(fileName);
+		QString newMd5;
+		InstrumentDao dao;
+		result_t resp = dao.getInstrumentPhoto(udi, &newMd5);
+		if (resp.isOk() && !newMd5.isEmpty())
+		{
+			_imgFilePath = imgPath;
+			FtpManager::getInstance()->get(imgPath, _imgFilePath);
+			_imgType = 0;
+		}
+		else
+		{
+			InstrumentDao dao;
+			Instrument ins;
+			result_t resp = dao.getInstrument(udi, &ins);
+			if (resp.isOk())
+			{
+				QString imgPath = QString("./photo/instrument/%1.jpg").arg(ins.typeId);
+				QFile file(imgPath);
+				if (file.exists()) {
+					QString md5 = getFileMd5(imgPath);
+					QString newMd5;
+					InstrumentDao dao;
+					result_t resp = dao.getInstrumentPhoto(ins.typeId, &newMd5);
+					if (resp.isOk())
+					{
+						if (md5.compare(newMd5) == 0) {
+							_insImg->setImage(imgPath);
+						}
+						else
+						{
+							_imgFilePath = imgPath;
+							FtpManager::getInstance()->get(imgPath, _imgFilePath);
+							_imgType = 0;
+						}
+					}
+
+				}
+				else
+				{
+					_imgFilePath = imgPath;
+					FtpManager::getInstance()->get(imgPath, _imgFilePath);
+					_imgType = 0;
+				}
+			}
+		}
+		
+	}
+}
+
+void OrRecyclePanel::imgInsClicked()
+{
+	ImageViewer *viewer = new ImageViewer(_insImg->fileName());
+	viewer->showNormal();
+}
+
+void OrRecyclePanel::imgPkgClicked()
+{
+	ImageViewer *viewer = new ImageViewer(_pkgImg->fileName());
+	viewer->showNormal();
+}
+
+const QString OrRecyclePanel::getFileMd5(const QString &filePath)
+{
+	QFile theFile(filePath);
+	if (theFile.exists())
+	{
+		theFile.open(QIODevice::ReadOnly);
+		QByteArray ba = QCryptographicHash::hash(theFile.readAll(), QCryptographicHash::Md5);
+		theFile.close();
+		return QString(ba.toHex().constData());
+	}
+	else
+	{
+		return QString("");
 	}
 }

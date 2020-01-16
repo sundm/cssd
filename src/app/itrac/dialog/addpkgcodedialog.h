@@ -1,8 +1,8 @@
 #pragma once
 
 #include <QDialog>
+#include <QNetworkReply>
 #include <qscanner/qscanner.h>
-#include "core/net/jsonhttpclient.h"
 #include "rdao/dao/PackageDao.h"
 
 namespace Ui {
@@ -12,14 +12,13 @@ namespace Ui {
 
 class PackageEdit;
 class XPicture;
-class QHttpMultiPart;
 class QFile;
 class WaitingSpinner;
 class TableView;
 class QStandardItemModel;
 class QItemSelectionModel;
 
-class AddpkgcodeDialog : public QDialog, public JsonHttpClient
+class AddpkgcodeDialog : public QDialog
 {
 	Q_OBJECT
 
@@ -35,13 +34,16 @@ private slots:
 	void onTransponderReceviced(const QString& code);
 	void onBarcodeReceviced(const QString& code);
 	void loadImg();
+	void imgError(QNetworkReply::NetworkError);
+	void imgUploaded();
 	void reset();
 private:
 	void initInstrumentView();
 	
 	int findRow(int code);
 	bool copyFileToPath(QString sourceDir, QString toDir, bool coverFileIfExist);
-	void uploadImg(const QString& instrument_id);
+	void uploadImg();
+	const QString getFileMd5(const QString &filePath);
 
 	bool loadInstrumentType(int);
 	void loadPackageInfo();
@@ -65,7 +67,6 @@ private:
 	TableView *_unview;
 	QStandardItemModel *_unmodel;
 
-	QHttpMultiPart *_multiPart;
 	XPicture* _imgLabel;
 	QString _imgFilePath;
 	QFile *_imgFile;

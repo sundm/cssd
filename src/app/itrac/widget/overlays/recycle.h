@@ -4,6 +4,7 @@
 #include "core/net/jsonhttpclient.h"
 #include "rdao/entity/package.h"
 #include <QHash>
+#include <QNetworkReply>
 
 class DeptEdit;
 class PackageEdit;
@@ -14,6 +15,7 @@ class UnusualInstrumentView;
 class PackageInfoView;
 class PackageDetailView;
 class QStandardItemModel;
+class FtpManager;
 
 class NoBCRecyclePanel : public CssdOverlayPanel, public JsonHttpClient
 {
@@ -67,9 +69,13 @@ private slots:
 	void onScanned(const QString& code);
 	void onUnusual(const QString& code);
 	void loadInstrumentImg(const QString& udi);
+	void imgInsClicked();
+	void imgPkgClicked();
 
+	void imgError(QNetworkReply::NetworkError);
+	void imgLoaded();
 private:
-	
+	const QString getFileMd5(const QString &filePath);
 	void loadPackageImg(const QString& udi);
 
 	PackageInfoView * _pkgView;
@@ -79,8 +85,11 @@ private:
 	QStringList * _scannedCodes;
 	QStringList * _unusualCodes;
 	Package _package;
+	FtpManager * _ftp;
 	XPicture * _pkgImg;
 	XPicture * _insImg;
 	int _row;
 	int _step;
+	int _imgType;
+	QString _imgFilePath;
 };

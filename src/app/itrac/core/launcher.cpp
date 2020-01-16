@@ -4,6 +4,7 @@
 #include "core/net/url.h"
 #include "../libs/rfidreader/rfidreader.h"
 #include "../libs/des/des3.h"
+#include "ftpmanager.h"
 #include <QFile>
 #include <QDomDocument>
 
@@ -87,11 +88,21 @@ namespace Core {
 
 					TSL1128Readers.append(reader);
 				}
+
+				if (readerNode.toElement().attribute("type", "0").toInt() == 2)
+				{
+					DESKTOP_ADDRESS = readerNode.toElement().attribute("name", "");
+					DESKTOP_ANTENNA = readerNode.toElement().attribute("port", "0").toInt();
+				}
 			}
 			
 		}
 
 		file.close();
+
+
+		FtpManager::getInstance()->setHostPort("192.168.16.102");
+		FtpManager::getInstance()->setUserInfo("ftp_user", "123456");
 	}
 
 	void Launcher::initialize() {

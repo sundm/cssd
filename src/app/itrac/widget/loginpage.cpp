@@ -28,6 +28,7 @@
 #include <QGraphicsOpacityEffect>
 #include <QProcess>
 #include <QDir>
+#include <QSettings>
 #include <QNetworkReply>
 #include "startupthread.h"
 
@@ -80,12 +81,13 @@ LoginPanel::LoginPanel(Ui::Container *container /*= nullptr*/)
 	connect(_listener, SIGNAL(onBarcode(const QString&)), this, SLOT(onBarcodeReceviced(const QString&)));
 
 	//todo
-	if (TSL1128Readers.count() > 0)
-	{
-		TSL1128Readers[0]->connect();
-	}
+	//if (TSL1128Readers.count() > 0)
+	//{
+	//	TSL1128Readers[0]->connect();
+	//}
+
+
 	
-	//version();
 	QTimer::singleShot(100, this, &LoginPanel::registerApp);
 	
 }
@@ -139,6 +141,11 @@ void LoginPanel::handleBarcode(const QString &code) {
 	}
 }
 
+const QString LoginPanel::getBioSn()
+{
+	return getWMIC("wmic bios get serialnumber");
+}
+
 const QString LoginPanel::getCpuId()
 {
 	return getWMIC("wmic cpu get processorid");
@@ -172,19 +179,19 @@ void LoginPanel::showRegisterDialog(const QString &code)
 
 void LoginPanel::registerApp() {
 	QString cpuId = getCpuId();
-	if (cpuId.length() < 16)
+	QString bioSn = getBioSn();
+	QString src = bioSn.append(cpuId);
+	QByteArray ba = QCryptographicHash::hash(src.toUtf8(), QCryptographicHash::Md5);
+	QString head = QString(ba.toHex().constData());
+	if (head.length() > 16)
 	{
-		int num = 16 - cpuId.length();
-		for (int i = 0; i < num; i++)
-		{
-			cpuId.append("F");
-		}
+		head = head.left(16);
 	}
 
 	QString code = REGIST_CODE.remove("-");
 	if (code.isEmpty() || code.length() < 16)
 	{
-		showRegisterDialog(cpuId);
+		showRegisterDialog(head);
 		return;
 	}
 
@@ -192,17 +199,20 @@ void LoginPanel::registerApp() {
 
 	bool isOK = false;
 	ui64 uCode = code.toULongLong(&isOK, 16);
-	ui64 uCPUid = cpuId.toULongLong(&isOK, 16);
+	ui64 uCPUid = head.toULongLong(&isOK, 16);
 	if (isOK)
 	{
 		ui64 result = des.encrypt(uCPUid);
-		if (result == uCode) return;
+		if (result == uCode) {
 
-		showRegisterDialog(cpuId);
+			version();
+			return;
+		}
+		showRegisterDialog(head);
 	}
 	else
 	{
-		showRegisterDialog(cpuId);
+		showRegisterDialog(head);
 		return;
 	}
 	
@@ -210,42 +220,51 @@ void LoginPanel::registerApp() {
 
 void LoginPanel::version()
 {
-	_waiter->start();
-
-	post(url(PATH_VERSION), "{}", [=](QNetworkReply *reply) {
-		_waiter->stop();
-		JsonHttpResponse resp(reply);
-		if (!resp.success()) {
-			error->shake(QString("获取版本号错误：%1").arg(resp.errorString()));
-			updateSize();
-		}
-		else
-		{
-			const QString code = resp.getAsString("code");
-			if (!code.compare("9000")) {
-				const QString _version = resp.getAsString("version");
-				if (_version.compare(Constant::Version)) {
-					QProcess *pro = new QProcess(this);
-					QStringList args(PATH_BASE);
-#ifdef _DEBUG
-					pro->startDetached("updated.exe", args);
-#else
-					pro->startDetached("update.exe", args);
-#endif // DEBUG
-					qApp->quit();
-					
-				}
-				else {
-					//get package Img
-					getPkgImgs();
-				}
-			}
-			else {
-				error->shake(QString("获取版本号错误：%1").arg(resp.getAsString("msg")));
-				updateSize();
-			}
-		}
-	});
+	//QString path("./photo/package/test.jpg");
+	//QDateTime current_date_time = QDateTime::currentDateTime();
+	//qDebug() << current_date_time.toString("hh:mm:ss.zzz");
+	//for (int i = 0; i < 1000; i++)
+	//{
+	//	QString md5 = getFileMd5(path);
+	//}
+	//QDateTime date_time = QDateTime::currentDateTime();
+	//qDebug() << date_time.toString("hh:mm:ss.zzz");
+//	_waiter->start();
+//
+//	post(url(PATH_VERSION), "{}", [=](QNetworkReply *reply) {
+//		_waiter->stop();
+//		JsonHttpResponse resp(reply);
+//		if (!resp.success()) {
+//			error->shake(QString("获取版本号错误：%1").arg(resp.errorString()));
+//			updateSize();
+//		}
+//		else
+//		{
+//			const QString code = resp.getAsString("code");
+//			if (!code.compare("9000")) {
+//				const QString _version = resp.getAsString("version");
+//				if (_version.compare(Constant::Version)) {
+//					QProcess *pro = new QProcess(this);
+//					QStringList args(PATH_BASE);
+//#ifdef _DEBUG
+//					pro->startDetached("updated.exe", args);
+//#else
+//					pro->startDetached("update.exe", args);
+//#endif // DEBUG
+//					qApp->quit();
+//					
+//				}
+//				else {
+//					//get package Img
+//					getPkgImgs();
+//				}
+//			}
+//			else {
+//				error->shake(QString("获取版本号错误：%1").arg(resp.getAsString("msg")));
+//				updateSize();
+//			}
+//		}
+//	});
 }
 
 void LoginPanel::getPkgImgs() {
@@ -417,10 +436,17 @@ void LoginPanel::downloadInsImgs() {
 const QString LoginPanel::getFileMd5(QString filePath)
 {
 	QFile theFile(filePath);
-	theFile.open(QIODevice::ReadOnly);
-	QByteArray ba = QCryptographicHash::hash(theFile.readAll(), QCryptographicHash::Md5);
-	theFile.close();
-	return QString(ba.toHex().constData());
+	if (theFile.exists())
+	{
+		theFile.open(QIODevice::ReadOnly);
+		QByteArray ba = QCryptographicHash::hash(theFile.readAll(), QCryptographicHash::Md5);
+		theFile.close();
+		return QString(ba.toHex().constData());
+	}
+	else
+	{
+		return QString("");
+	}
 }
 
 void LoginPanel::login(const int account, const QString &pwd) {

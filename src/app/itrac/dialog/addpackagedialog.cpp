@@ -9,6 +9,7 @@
 #include "widget/controls/combos.h"
 #include "widget/controls/idedit.h"
 #include "ui/views.h"
+#include "ftpmanager.h"
 #include "model/itemdelegate.h"
 #include <thirdparty/qjson/src/parser.h>
 #include <xui/images.h>
@@ -30,6 +31,7 @@ AddPackageDialog::AddPackageDialog(QWidget *parent)
 	, _stertypeBox(new QComboBox)
 	, _importBox(new QCheckBox)
 	, _deptEdit(new DeptEdit)
+	, _imgLabel(new XPicture(this))
 	, _insEdit(new InstrumentEdit)
 	, _view(new TableView(this))
 	, _model(new QStandardItemModel(0, 2, _view))
@@ -60,25 +62,45 @@ AddPackageDialog::AddPackageDialog(QWidget *parent)
 	minusButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
 	hLayout->addWidget(minusButton);
 	connect(minusButton, SIGNAL(clicked()), this, SLOT(removeEntry()));
+
+	_loadImgButton = new Ui::PrimaryButton("加载图片", Ui::BtnSize::Small);
+	connect(_loadImgButton, SIGNAL(clicked()), this, SLOT(loadImg()));
+
+	_imgLabel->setFixedHeight(256);
+	_imgLabel->setBgColor(QColor(245, 246, 247));
+	_imgLabel->setHidden(true);
+
+	QVBoxLayout *bvlayout = new QVBoxLayout();
+	bvlayout->addWidget(_imgLabel);
+	bvlayout->addWidget(_loadImgButton);
 	
 	QVBoxLayout *vlayout = new QVBoxLayout;
+	vlayout->addWidget(pkgGroup);
 	vlayout->addLayout(hLayout);
 	vlayout->addWidget(_view);
+
+	QHBoxLayout *cLayout = new QHBoxLayout;
+	cLayout->addLayout(vlayout);
+	cLayout->addLayout(bvlayout);
+	cLayout->setStretch(0, 3);
+	cLayout->setStretch(1, 2);
 
 	setWindowTitle("添加包信息");
 	_commitButton = new Ui::PrimaryButton("确定", Ui::BtnSize::Small);
 	connect(_commitButton, SIGNAL(clicked()), this, SLOT(accept()));
 
 	QVBoxLayout *layout = new QVBoxLayout(this);
-	layout->addWidget(pkgGroup);
-	layout->addLayout(vlayout);
+	layout->addLayout(cLayout);
 	layout->addWidget(_commitButton);
 
-	resize(600, 800);
+	resize(1000, 900);
 
 	initInstrumentView();
 
 	connect(_pkgtypeBox, SIGNAL(currentIndexChanged(int)), this, SLOT(typeBoxChanaged(int)));
+	connect(FtpManager::getInstance(), SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(imgError(QNetworkReply::NetworkError)));
+	connect(FtpManager::getInstance(), SIGNAL(uploadFinished()), this, SLOT(imgUploaded()));
+
 	QTimer::singleShot(0, this, &AddPackageDialog::initData);
 
 }
@@ -193,28 +215,51 @@ void AddPackageDialog::accept() {
 
 	if (_isModfy)
 	{
-		pkt.typeId = _package_type_id;
-		result_t resp = dao.addPackageType(pkt);
-		if (resp.isOk())
+		if (!_imgFilePath.isEmpty())
 		{
-			return QDialog::accept();
+			uploadImg();
 		}
 		else
 		{
-			XNotifier::warn(QString("更新包失败: ").append(resp.msg()));
-			return;
+			return QDialog::accept();
 		}
+		/*pkt.typeId = _package_type_id;
+		result_t resp = dao.addPackageType(pkt);
+		if (resp.isOk())
+		{
+			if (!_imgFilePath.isEmpty())
+			{
+				uploadImg();
+			}
+			else
+			{
+				return QDialog::accept();
+			}
+		}
+		else
+		{
+			XNotifier::warn(QString("更新包类型失败: ").append(resp.msg()));
+			return;
+		}*/
 	}
 	else
 	{
-		result_t resp = dao.addPackageType(pkt);
+
+		result_t resp = dao.addPackageType(pkt, &_package_type_id);
 		if (resp.isOk())
 		{
-			return QDialog::accept();
+			if (!_imgFilePath.isEmpty())
+			{
+				uploadImg();
+			}
+			else
+			{
+				return QDialog::accept();
+			}
 		}
 		else
 		{
-			XNotifier::warn(QString("添加包失败: ").append(resp.msg()));
+			XNotifier::warn(QString("添加包类型失败: ").append(resp.msg()));
 			return;
 		}
 	}
@@ -263,6 +308,13 @@ void AddPackageDialog::initPackageInfo()
 			insItem->setData(it.insTypeId);
 			items << insItem << new QStandardItem(QString::number(it.insNum));
 			_model->appendRow(items);
+		}
+
+		QString imgPath = QString("./photo/package/%1.jpg").arg(_package_type_id);
+		QFile file(imgPath);
+		if (file.exists()) {
+			_imgLabel->setImage(imgPath);
+			_imgLabel->setHidden(false);
 		}
 	}
 	else
@@ -340,4 +392,100 @@ int AddPackageDialog::findRow(int insId) {
 		return index.row();
 	}
 	return -1;
+}
+
+void AddPackageDialog::loadImg() {
+	QFileDialog *fileDialog = new QFileDialog(this);
+	fileDialog->setWindowTitle(tr("打开图片"));
+	fileDialog->setDirectory(".");
+	fileDialog->setNameFilter(tr("Images(*.png *.jpg *.jpeg)"));
+	fileDialog->setFileMode(QFileDialog::ExistingFiles);
+	fileDialog->setViewMode(QFileDialog::Detail);
+
+	QStringList fileNames;
+	if (fileDialog->exec())
+		fileNames = fileDialog->selectedFiles();
+
+	if (fileNames.size() == 0 || fileNames.size() > 1) return;
+
+	_imgFilePath = fileNames.at(0);
+	_imgLabel->setImage(_imgFilePath);
+	_imgLabel->setHidden(false);
+}
+
+void AddPackageDialog::uploadImg() {
+	QString newFileName = QString("./photo/package/%1.jpg").arg(_package_type_id);
+	if (!copyFileToPath(_imgFilePath, newFileName, true)) {
+		XNotifier::warn(QString("包信息添加成功，拷贝本地包图片失败!"));
+		return;
+	}
+	else
+	{
+		FtpManager::getInstance()->put(newFileName, newFileName);
+	}
+}
+
+bool AddPackageDialog::copyFileToPath(QString sourceDir, QString toDir, bool coverFileIfExist)
+{
+	toDir.replace("\\", "/");
+
+	if (sourceDir == toDir) {
+		return true;
+	}
+
+	if (!QFile::exists(sourceDir)) {
+		return false;
+	}
+
+	QDir *createfile = new QDir;
+	bool exist = createfile->exists(toDir);
+	if (exist) {
+		if (coverFileIfExist) {
+			createfile->remove(toDir);
+		}
+	}
+
+	return QFile::copy(sourceDir, toDir);
+}
+
+void AddPackageDialog::imgError(QNetworkReply::NetworkError error)
+{
+	qDebug() << error;
+	XNotifier::warn(QString("上传器械图片失败: ").append(error));
+
+	return QDialog::accept();
+}
+
+void AddPackageDialog::imgUploaded()
+{
+	QString md5 = getFileMd5(_imgFilePath);
+	if (!md5.isEmpty())
+	{
+		PackageDao dao;
+
+		result_t resp = dao.setPackagePhoto(_package_type_id, md5);
+		if (!resp.isOk())
+		{
+			XNotifier::warn(QString("上传器械图片失败: ").append(resp.msg()));
+		}
+	}
+
+	return QDialog::accept();
+
+}
+
+const QString AddPackageDialog::getFileMd5(const QString &filePath)
+{
+	QFile theFile(filePath);
+	if (theFile.exists())
+	{
+		theFile.open(QIODevice::ReadOnly);
+		QByteArray ba = QCryptographicHash::hash(theFile.readAll(), QCryptographicHash::Md5);
+		theFile.close();
+		return QString(ba.toHex().constData());
+	}
+	else
+	{
+		return QString("");
+	}
 }
