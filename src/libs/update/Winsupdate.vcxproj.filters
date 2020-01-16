@@ -36,9 +36,21 @@
     <ClCompile Include="winsupdate.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ftpmanager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="startupthread.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="winsupdate.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="ftpmanager.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="startupthread.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

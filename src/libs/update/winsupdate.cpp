@@ -1,191 +1,94 @@
 #include "winsupdate.h"
-#include "JlCompress.h"
-#include <QJsonDocument>
-#include <QJsonParseError>
-#include <QJsonObject>
-#include <QJsonArray>
-#include <QJsonValue>
+#include "ftpmanager.h"
+#include "startupthread.h"
+#include "../rdao/dao/verdao.h"
+#include <QMessageBox>
+#include <QFileDialog>
 #include <QProcess>
 
-//#define ITRAC
-
-#ifdef ITRAC
-const QString sz_version_url("file/version/itrac");
-const QString sz_update_url("file/updateItrac");
-#else
-const QString sz_version_url("file/version/ortrac");
-const QString sz_update_url("file/updateOrtrac");
-#endif // ITRAC
-
-
-
-Winsupdate::Winsupdate(QString &path_url, QWidget *parent)
+Winsupdate::Winsupdate(QWidget *parent)
 	: QMainWindow(parent)
 {
 	isSuccess = false;
 	ui.setupUi(this);
-	setWindowFlags(Qt::FramelessWindowHint);
-	netManager = new QNetworkAccessManager(this);
 
-	QUrl url;
-	server_url = path_url;
- 	url = QUrl(QString("%1/%2").arg(server_url).arg(sz_version_url));
+	ui.comboBox->addItem("itrac", 1);
 
-	QNetworkRequest request;
-	request.setUrl(url);
+	FtpManager::getInstance()->setHostPort("192.168.16.102");
+	FtpManager::getInstance()->setUserInfo("ftp_user", "123456");
 
-	QByteArray array("{}");
-	request.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/json"));
+	connect(FtpManager::getInstance(), SIGNAL(uploadProgress(qint64, qint64)), this, SLOT(uploadProgress(qint64, qint64)));
+	connect(FtpManager::getInstance(), SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(uploadError(QNetworkReply::NetworkError)));
+	connect(FtpManager::getInstance(), SIGNAL(uploadFinished()), this, SLOT(uploadFinished()));
 
-	//post
-	mGetVerReply = netManager->post(request, array);
-	connect(netManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(replyFinished(QNetworkReply*)));
+	_thread = new StartupThread(this);
+	connect(_thread, SIGNAL(message(const QString&, bool)), this, SLOT(showInfo(const QString&, bool)), Qt::QueuedConnection);
+	connect(_thread, SIGNAL(finished()), this, SLOT(onThreadFinished()), Qt::QueuedConnection);
+
+	_thread->start();
+	
 }
 
-void Winsupdate::on_click_btn()
+void Winsupdate::on_file_btn()
 {
-	if (isSuccess)
-	{
-		QProcess *pro = new QProcess(this);
+	QFileDialog *fileDialog = new QFileDialog(this);
+	fileDialog->setWindowTitle(tr("閫夋嫨鏇存柊绋嬪簭"));
+	fileDialog->setDirectory(".");
+	fileDialog->setNameFilter(tr("exe(*.exe)"));
+	fileDialog->setFileMode(QFileDialog::ExistingFiles);
+	fileDialog->setViewMode(QFileDialog::Detail);
 
-#ifdef ITRAC
-#ifdef _DEBUG
-		pro->startDetached("itracd.exe");
-#else
-		pro->startDetached("itrac.exe");
-#endif // _DEBUG
-#else
-#ifdef _DEBUG
-		pro->startDetached("ortracd.exe");
-#else
-		pro->startDetached("ortrac.exe");
-#endif // _DEBUG
-#endif // ITRAC
+	QStringList fileNames;
+	if (fileDialog->exec())
+		fileNames = fileDialog->selectedFiles();
+
+	if (fileNames.size() == 0 || fileNames.size() > 1) return;
+
+	_filePath = fileNames.at(0);
+
+	_fileMd5 = getFileMd5(_filePath);
+
+	ui.MD5Label->setText(QString("MD5:").append(_fileMd5));
+	ui.pathLabel->setText(QString("鏂囦欢璺緞:").append(_filePath));
+}
+
+void Winsupdate::on_update_btn()
+{
+	if (_filePath.isEmpty() || _fileMd5.isEmpty())
+	{
+		QMessageBox::about(NULL, "鎻愮ず", "璇峰厛閫夋嫨鏇存柊鏂囦欢");
+		return;
 	}
 
-	qApp->quit();
+	int typeId = ui.comboBox->currentData().toInt();
+	VerDao dao;
+	result_t resp = dao.setVersion(typeId, "", _fileMd5);
+	if (resp.isOk())
+	{
+		QString urlPath = "./update/update.exe";
+		FtpManager::getInstance()->put(_filePath, urlPath);
+	}
+	else
+	{
+		QMessageBox::about(NULL, "鎻愮ず", QString("鎻掑叆鏁版嵁搴撳け璐ワ細%1").arg(resp.msg()));
+		return;
+	}
 }
 
-void Winsupdate::downloadProgress(qint64 bytesReceived, qint64 bytesTotal) 
+void Winsupdate::uploadError(QNetworkReply::NetworkError e)
 {
-	//qDebug() << "Total:  " << bytesTotal << "  current received : " << bytesReceived;
+	qDebug() << e;
+}
+
+void Winsupdate::uploadFinished()
+{
+
+}
+
+void Winsupdate::uploadProgress(qint64 bytesReceived, qint64 bytesTotal)
+{
+	ui.progressBar->setMaximum(bytesTotal);
 	ui.progressBar->setValue(bytesReceived);
-}
-
-void Winsupdate::httpDownloadFinished(QNetworkReply *reply)
-{
-	if (reply->error() == QNetworkReply::NoError) {
-		zipFile->waitForBytesWritten(5 * 1000);
-		if (0 == zipFile->size())
-		{
-			ui.infoLabel->setText(QString::fromLocal8Bit("下载文件失败"));
-			return;
-		}
-
-		QString md5 = getFileMd5(zipFile->fileName());
-		if (0 == QString::compare(md5, zipFileMD5, Qt::CaseInsensitive))
-		{
-			JlCompress::extractDir(zipFile->fileName(), QDir::currentPath()); 
-			ui.infoLabel->setText(QString::fromLocal8Bit("下载完成"));
-			isSuccess = true;
-		}
-		else
-			ui.infoLabel->setText(QString::fromLocal8Bit("文件md5校验失败"));
-
-		
-
-		zipFile->deleteLater();
-		mDownloadReply->deleteLater();
-		zipFile = Q_NULLPTR;
-		mDownloadReply = Q_NULLPTR;
-	}
-	else
-	{
-		ui.infoLabel->setText(reply->errorString());
-	}
-
-}
-
-void Winsupdate::replyFinished(QNetworkReply *reply)
-{
-	if (reply->error() == QNetworkReply::NoError)
-	{
-		QString res = reply->readAll();
-		QJsonParseError parseJsonErr;
-		QJsonDocument document = QJsonDocument::fromJson(res.toUtf8(), &parseJsonErr);
-		if (!(parseJsonErr.error == QJsonParseError::NoError))
-		{
-			ui.infoLabel->setText(QString::fromLocal8Bit("解析json失败"));
-			return;
-		}
-		QJsonObject jsonObject = document.object();
-		zipFileName = jsonObject["version"].toString();
-		zipFileMD5 = jsonObject["md5"].toString();
-
-		ui.versionLabel->setText(QString::fromLocal8Bit("服务器最新版本: %1").arg(zipFileName));
-		ui.MD5Label->setText(QString::fromLocal8Bit("MD5: %1").arg(zipFileMD5));
-		ui.sizeLabel->setText(QString::fromLocal8Bit("文件大小: %1").arg(jsonObject["size"].toInt()));
-
-		ui.progressBar->setMaximum(jsonObject["size"].toInt());
-
-		if (!createFile())
-		{
-			ui.infoLabel->setText(QString::fromLocal8Bit("创建下载文件失败"));
-			ui.pushButton->setEnabled(true);
-			return;
-		}
-
-		QUrl url;
-		url = QUrl(QString("%1/%2").arg(server_url).arg(sz_update_url));
-
-		QNetworkRequest request;
-		request.setUrl(url);
-
-		//post
-		mDownloadReply = netManager->get(request);
-		disconnect(netManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(replyFinished(QNetworkReply*)));
-		connect(netManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(httpDownloadFinished(QNetworkReply*)));
-		connect(mDownloadReply, SIGNAL(downloadProgress(qint64, qint64)), this, SLOT(downloadProgress(qint64, qint64)));
-		connect(mDownloadReply, SIGNAL(readyRead()), this, SLOT(writeToFile()));
-
-		mGetVerReply->deleteLater();
-		mGetVerReply = Q_NULLPTR;
-	}
-	else
-	{
-		ui.infoLabel->setText(reply->errorString());
-	}
-}
-
-void Winsupdate::writeToFile()
-{
-	QByteArray tem = mDownloadReply->readAll();
-
-	zipFile->write(tem);
-}
-
-bool Winsupdate::createFile()
-{
-	QString fileName = QString("%1.zip").arg(zipFileName);
-	QString currentPath = QDir::currentPath();
-	QString filePath = QString("%1/update").arg(currentPath);
-	QDir *folder = new QDir;
-	if(!folder->exists(filePath))
-	{
-		if (!folder->mkdir(filePath)) {
-			ui.infoLabel->setText(QString::fromLocal8Bit("创建文件夹失败"));
-		}
-	}
-
-	QString zipFileName = QString("%1/%2").arg(filePath).arg(fileName);
-	zipFile = new QFile(zipFileName);
-	if (zipFile->exists())
-		QFile::remove(zipFileName);
-
-	if (!zipFile->open(QIODevice::WriteOnly))
-		return false;
-
-	return true;
 }
 
 QString Winsupdate::getFileMd5(QString filePath)
