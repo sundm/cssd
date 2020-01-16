@@ -109,7 +109,7 @@ result_t PackageDao::getPackageTypeList(
 	return 0;
 }
 
-result_t PackageDao::addPackageType(const PackageType &pt)
+result_t PackageDao::addPackageType(const PackageType &pt, int *typeId)
 {
 	QSqlQuery q;
 	q.prepare("INSERT INTO t_package_type (category, name, pinyin, sterilize_type, for_implants, pack_type_id, dept_id)"
@@ -130,7 +130,7 @@ result_t PackageDao::addPackageType(const PackageType &pt)
 		return q.lastError().text();
 	if (!q.first()) // this should never happen
 		return "Internal Error";
-	int typeId = q.value(0).toInt();
+	*typeId = q.value(0).toInt();
 
 	// add instrument types
 	if (pt.detail.isEmpty()) {
@@ -140,7 +140,7 @@ result_t PackageDao::addPackageType(const PackageType &pt)
 
 	QVariantList pkgTypeIds, insTypeIds, insNums;
 	for each(const PackageType::DetailItem &detail in pt.detail) {
-		pkgTypeIds << typeId;
+		pkgTypeIds << *typeId;
 		insTypeIds << detail.insTypeId;
 		insNums << detail.insNum;
 	}
@@ -417,6 +417,74 @@ result_t PackageDao::getPackageQualityControl(const Package &pkg, PackageQuality
 			pqc->cheResult = static_cast<Rt::SterilizeVerdict>(q.value(2).toInt());
 			pqc->bioResult = static_cast<Rt::SterilizeVerdict>(q.value(3).toInt());
 		}
+	}
+
+	return 0;
+}
+
+result_t PackageDao::setPackagePhoto(const QString& udi, const QString& photo)
+{
+	QSqlQuery query;
+	query.prepare("UPDATE t_package SET photo = ?"
+		" WHERE udi = ?");
+	query.addBindValue(photo);
+	query.addBindValue(udi);
+
+	if (!query.exec())
+		return query.lastError().text();
+	return 0;
+}
+
+result_t PackageDao::getPackagePhoto(const QString& udi, QString *photo)
+{
+	QSqlQuery q;
+	q.prepare("SELECT photo"
+		" FROM t_package"
+		" WHERE udi = ?");
+	q.addBindValue(udi);
+
+	if (!q.exec())
+		return kErrorDbUnreachable;
+
+	if (!q.first())
+		return "没有找到对应器械包的图片";
+
+	if (photo) {
+		*photo = q.value(0).toString();
+	}
+
+	return 0;
+}
+
+result_t PackageDao::setPackagePhoto(int typeId, const QString& photo)
+{
+	QSqlQuery query;
+	query.prepare("UPDATE t_package_type SET photo = ?"
+		" WHERE id = ?");
+	query.addBindValue(photo);
+	query.addBindValue(typeId);
+
+	if (!query.exec())
+		return query.lastError().text();
+	return 0;
+}
+
+result_t PackageDao::getPackagePhoto(int typeId, QString *photo)
+{
+	QSqlQuery q;
+	q.prepare("SELECT photo"
+		" FROM t_package_type"
+		" WHERE id = ?");
+	q.addBindValue(typeId);
+
+	if (!q.exec())
+		return kErrorDbUnreachable;
+
+	if (!q.first())
+		return "没有找到对应器械包类型的图片";
+
+	if (photo) {
+		*photo = q.value(0).toString();
 	}
 
 	return 0;

@@ -62,6 +62,12 @@ CREATE TABLE IF NOT EXISTS `t_pack_type` (
   `standard_period` smallint unsigned NOT NULL
 ) ENGINE=InnoDB AUTO_INCREMENT=160001 DEFAULT CHARSET=utf8;
 
+CREATE TABLE IF NOT EXISTS `t_version` (
+  `id` smallint unsigned PRIMARY KEY AUTO_INCREMENT,
+  `version` varchar(16) NOT NULL,
+  `hash` varchar(128) NOT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `t_package_type` (
   `id` int unsigned PRIMARY KEY AUTO_INCREMENT,
   `category` tinyint NOT NULL DEFAULT 0, -- For backward compatibility, 0:surgical 1:clinical 2:external 3:dressing 4:universal  

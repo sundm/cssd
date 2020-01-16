@@ -114,6 +114,7 @@
     <ClInclude Include="dao\recalldao.h" />
     <ClInclude Include="dao\surgerydao.h" />
     <ClInclude Include="dao\tracedao.h" />
+    <ClInclude Include="dao\verdao.h" />
     <ClInclude Include="dbconnection.h" />
     <ClInclude Include="debugsqlquery.h" />
     <ClInclude Include="entity\department.h" />
@@ -140,6 +141,7 @@
     <ClCompile Include="dao\recalldao.cpp" />
     <ClCompile Include="dao\surgerydao.cpp" />
     <ClCompile Include="dao\tracedao.cpp" />
+    <ClCompile Include="dao\verdao.cpp" />
     <ClCompile Include="dbconnection.cpp" />
     <ClCompile Include="debugsqlquery.cpp" />
     <ClCompile Include="filter\packagetypefilter.cpp" />

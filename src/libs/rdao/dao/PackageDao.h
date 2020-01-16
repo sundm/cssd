@@ -40,7 +40,7 @@ public:
 	//	QList<PackageType> *pts,
 	//	const PackageTypeFilter &filter);
 
-	result_t addPackageType(const PackageType &packageType);
+	result_t addPackageType(const PackageType &packageType, int *typeId);
 
 	// package ops
 	result_t getPackage(
@@ -81,5 +81,11 @@ public:
 	result_t updatePackType(const PackType &packType);
 
 	result_t getPackageQualityControl(const Package &pkg, PackageQualityControl *pqc);
+
+	result_t setPackagePhoto(const QString& udi, const QString& photo);
+	result_t getPackagePhoto(const QString& udi, QString *photo);
+
+	result_t setPackagePhoto(int typeId, const QString& photo);
+	result_t getPackagePhoto(int typeId, QString *photo);
 };
 

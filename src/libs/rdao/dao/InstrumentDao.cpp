@@ -84,7 +84,7 @@ result_t InstrumentDao::updateInstrumentType(const InstrumentType &it)
 	return 0;
 }
 
-result_t InstrumentDao::addInstrumentType(const InstrumentType &it)
+result_t InstrumentDao::addInstrumentType(const InstrumentType &it, int * typeId)
 {
 	QSqlQuery query;
 	query.prepare("INSERT INTO t_instrument_type (name, pinyin, photo, is_vip)"
@@ -96,6 +96,14 @@ result_t InstrumentDao::addInstrumentType(const InstrumentType &it)
 
 	if (!query.exec())
 		return query.lastError().text();
+
+	// get type id of the new instrument
+	if (!query.exec("SELECT id FROM t_instrument_type ORDER BY id DESC LIMIT 1"))
+		return query.lastError().text();
+	if (!query.first()) // this should never happen
+		return "Internal Error";
+	*typeId = query.value(0).toInt();
+
 	return 0;
 }
 
@@ -256,6 +264,74 @@ result_t InstrumentDao::findBoundPackage(
 
 	if (pkgUdi) *pkgUdi = q.value(0).toString();
 	if (pkgCycle) *pkgCycle = q.value(1).toInt() + (insCycle - q.value(2).toInt());
+
+	return 0;
+}
+
+result_t InstrumentDao::setInstrumentPhoto(const QString& udi, const QString& photo)
+{
+	QSqlQuery query;
+	query.prepare("UPDATE t_instrument SET photo = ?"
+		" WHERE udi = ?");
+	query.addBindValue(photo);
+	query.addBindValue(udi);
+
+	if (!query.exec())
+		return query.lastError().text();
+	return 0;
+}
+
+result_t InstrumentDao::getInstrumentPhoto(const QString& udi, QString *photo)
+{
+	QSqlQuery q;
+	q.prepare("SELECT photo"
+		" FROM t_instrument"
+		" WHERE udi = ?");
+	q.addBindValue(udi);
+
+	if (!q.exec())
+		return kErrorDbUnreachable;
+
+	if (!q.first())
+		return "没有找到对应器械的图片";
+
+	if (photo) {
+		*photo = q.value(0).toString();
+	}
+
+	return 0;
+}
+
+result_t InstrumentDao::setInstrumentPhoto(int typeId, const QString& photo)
+{
+	QSqlQuery query;
+	query.prepare("UPDATE t_instrument_type SET photo = ?"
+		" WHERE id = ?");
+	query.addBindValue(photo);
+	query.addBindValue(typeId);
+
+	if (!query.exec())
+		return query.lastError().text();
+	return 0;
+}
+
+result_t InstrumentDao::getInstrumentPhoto(int typeId, QString *photo)
+{
+	QSqlQuery q;
+	q.prepare("SELECT photo"
+		" FROM t_instrument_type"
+		" WHERE id = ?");
+	q.addBindValue(typeId);
+
+	if (!q.exec())
+		return kErrorDbUnreachable;
+
+	if (!q.first())
+		return "没有找到对应器械类型的图片";
+
+	if (photo) {
+		*photo = q.value(0).toString();
+	}
 
 	return 0;
 }

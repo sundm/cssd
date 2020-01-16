@@ -32,7 +32,7 @@ public:
 		int page = 1,
 		int count = 20);
 
-	result_t addInstrumentType(const InstrumentType &insType);
+	result_t addInstrumentType(const InstrumentType &insType, int * typeId);
 
 	result_t updateInstrumentType(const InstrumentType &it);
 
@@ -69,6 +69,12 @@ public:
 
 	result_t addInstrument(const Instrument &ins);
 	result_t updateInstrument(const Instrument &it);
+
+	result_t setInstrumentPhoto(const QString& udi, const QString& photo);
+	result_t getInstrumentPhoto(const QString& udi, QString *photo);
+
+	result_t setInstrumentPhoto(int typeId, const QString& photo);
+	result_t getInstrumentPhoto(int typeId, QString *photo);
 
 private:
 	result_t findBoundPackage(const QString &insUdi, int insCycle, QString *pkgUdi, int *pkgCycle = 0);

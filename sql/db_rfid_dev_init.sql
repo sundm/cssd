@@ -668,7 +668,9 @@ INSERT INTO `t_instrument_type` (`name`, `pinyin`) VALUES
 	('PF探针', 'PFTZ'),
 	('90°咬钳', 'YQ'),
 	('5.5F导丝', 'FDS'),
-	('3F导丝', 'FDS');
+	('3F导丝', 'FDS'),
+    ('牙刮匙', 'YGS'),
+    ('双头骨膜撬', 'STGMQ');
 	
 -- 83 <-> 220001, 15000001<->240001
 INSERT INTO `t_package_type_detail` (`pkg_type_id`, `ins_type_id`, `num`) VALUES

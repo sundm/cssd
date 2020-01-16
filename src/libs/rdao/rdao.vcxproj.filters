@@ -108,6 +108,9 @@
     <ClInclude Include="entity\recall.h">
       <Filter>Source Files\entity</Filter>
     </ClInclude>
+    <ClInclude Include="dao\verdao.h">
+      <Filter>Source Files\dao</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dbconnection.cpp">
@@ -147,6 +150,9 @@
       <Filter>Source Files\dao</Filter>
     </ClCompile>
     <ClCompile Include="dao\recalldao.cpp">
+      <Filter>Source Files\dao</Filter>
+    </ClCompile>
+    <ClCompile Include="dao\verdao.cpp">
       <Filter>Source Files\dao</Filter>
     </ClCompile>
   </ItemGroup>
