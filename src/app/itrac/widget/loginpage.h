@@ -3,6 +3,7 @@
 #include "ui/container.h"
 #include "ui/loader.h"
 #include <QWidget>
+#include <QNetworkReply>
 #include <qscanner/qscanner.h>
 #include "core/net/jsonhttpclient.h"
 
@@ -30,6 +31,10 @@ protected:
 private slots:
 	void showRfidConfiger();
 	void onBarcodeReceviced(const QString& code);
+
+	void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);
+	void downloadError(QNetworkReply::NetworkError);
+	void downloadFinished();
 private:
 	void login(const int, const QString &);
 	void registerApp();

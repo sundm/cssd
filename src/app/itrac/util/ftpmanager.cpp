@@ -45,7 +45,7 @@ void FtpManager::put(const QString &fileName, const QString &path)
 
 void FtpManager::get(const QString &path, const QString &fileName)
 {
-	
+	m_file.setFileName(fileName);
 	m_file.open(QIODevice::WriteOnly | QIODevice::Append);
 	m_pUrl.setPath(path);
 
@@ -80,14 +80,14 @@ void FtpManager::onDownloadFinished()
 	{
 		m_file.write(pReply->readAll());
 		m_file.flush();
-
+		m_file.close();
 		emit downloadFinished();
 		break;
 	}
 	default:
+		m_file.close();
 		break;
 	}
-
-	m_file.close();
+	
 	pReply->deleteLater();
 }

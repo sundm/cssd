@@ -12,11 +12,13 @@
 #include "core/constants.h"
 #include "core/application.h"
 #include "core/barcode.h"
+#include "ftpmanager.h"
 #include "../libs/rfidreader/rfidreader.h"
 #include "dialog/rfidreaderconfigerdialog.h"
 #include "dialog/rfidconfigerdialog.h"
 #include "dialog/registerdialog.h"
 #include "rdao/dao/operatordao.h"
+#include "rdao/dao/verdao.h"
 #include "rdao/entity/operator.h"
 #include "des/des3.h"
 #include <QMessageBox>
@@ -31,6 +33,8 @@
 #include <QSettings>
 #include <QNetworkReply>
 #include "startupthread.h"
+
+const QString updateFilePath = "./update/update.exe";
 
 LoginPanel::LoginPanel(Ui::Container *container /*= nullptr*/)
 	: Inner(container)
@@ -80,16 +84,17 @@ LoginPanel::LoginPanel(Ui::Container *container /*= nullptr*/)
 	connect(pwdEdit, SIGNAL(returnPressed()), this, SLOT(submit()));
 	connect(_listener, SIGNAL(onBarcode(const QString&)), this, SLOT(onBarcodeReceviced(const QString&)));
 
+	connect(FtpManager::getInstance(), SIGNAL(downloadProgress(qint64, qint64)), this, SLOT(downloadProgress(qint64, qint64)));
+	connect(FtpManager::getInstance(), SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(downloadError(QNetworkReply::NetworkError)));
+	connect(FtpManager::getInstance(), SIGNAL(downloadFinished()), this, SLOT(downloadFinished()));
+
 	//todo
 	//if (TSL1128Readers.count() > 0)
 	//{
 	//	TSL1128Readers[0]->connect();
 	//}
-
-
 	
 	QTimer::singleShot(100, this, &LoginPanel::registerApp);
-	
 }
 
 void LoginPanel::showRfidConfiger() {
@@ -218,53 +223,56 @@ void LoginPanel::registerApp() {
 	
 }
 
+void LoginPanel::downloadError(QNetworkReply::NetworkError e)
+{
+	qDebug() << e;
+
+	error->shake(QString("获取软件更新包错误：%1").arg(e));
+}
+
+void LoginPanel::downloadFinished()
+{
+	QProcess *myProcess = new QProcess(this);
+	myProcess->startDetached(updateFilePath);
+	qApp->quit();
+	return;
+}
+
+void LoginPanel::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
+{
+	if (bytesReceived > 0 && bytesTotal > 0)
+	{
+		bar->setHidden(false);
+		bar->setMaximum(bytesTotal);
+		bar->setValue(bytesReceived);
+
+		double dProgress = bytesReceived * 100.0 / bytesTotal;
+		bar->setFormat(QString("正在下载软件更新包，当前进度为：%1%").arg(QString::number(dProgress, 'f', 1)));
+	}
+}
+
 void LoginPanel::version()
 {
-	//QString path("./photo/package/test.jpg");
-	//QDateTime current_date_time = QDateTime::currentDateTime();
-	//qDebug() << current_date_time.toString("hh:mm:ss.zzz");
-	//for (int i = 0; i < 1000; i++)
-	//{
-	//	QString md5 = getFileMd5(path);
-	//}
-	//QDateTime date_time = QDateTime::currentDateTime();
-	//qDebug() << date_time.toString("hh:mm:ss.zzz");
-//	_waiter->start();
-//
-//	post(url(PATH_VERSION), "{}", [=](QNetworkReply *reply) {
-//		_waiter->stop();
-//		JsonHttpResponse resp(reply);
-//		if (!resp.success()) {
-//			error->shake(QString("获取版本号错误：%1").arg(resp.errorString()));
-//			updateSize();
-//		}
-//		else
-//		{
-//			const QString code = resp.getAsString("code");
-//			if (!code.compare("9000")) {
-//				const QString _version = resp.getAsString("version");
-//				if (_version.compare(Constant::Version)) {
-//					QProcess *pro = new QProcess(this);
-//					QStringList args(PATH_BASE);
-//#ifdef _DEBUG
-//					pro->startDetached("updated.exe", args);
-//#else
-//					pro->startDetached("update.exe", args);
-//#endif // DEBUG
-//					qApp->quit();
-//					
-//				}
-//				else {
-//					//get package Img
-//					getPkgImgs();
-//				}
-//			}
-//			else {
-//				error->shake(QString("获取版本号错误：%1").arg(resp.getAsString("msg")));
-//				updateSize();
-//			}
-//		}
-//	});
+	QString ver;
+	QString md5;
+	VerDao dao;
+	result_t resp = dao.getVersion(1, &ver, &md5);
+	if (resp.isOk() && !md5.isEmpty())
+	{
+		QFile updateFile(updateFilePath);
+		if (updateFile.exists())
+		{
+			QString fileMd5 = getFileMd5(updateFilePath);
+			if (fileMd5.compare(md5) == 0)
+			{
+				return;
+			}
+				
+		}
+
+		FtpManager::getInstance()->get(updateFilePath, updateFilePath);
+	}
+	
 }
 
 void LoginPanel::getPkgImgs() {
