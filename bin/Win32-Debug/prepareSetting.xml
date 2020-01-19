@@ -1,12 +1,12 @@
 <?xml version='1.0' encoding='utf-8'?>
 <cssd>
     <address url="http://192.168.16.129:8080/CSSD/"/>
-    <page value="0"/>
+    <page value="3"/>
     <!--<address url="http://localhost:8080/CSSD/"></address>-->
     <!--<label name="ZDesigner GT800 (ZPL)"></label>-->
     <!--<commonPrinter name="Canon MF220 Series"></commonPrinter>-->
     <labelPrinter name=""/>
     <commonPrinter name=""/>
-    <reader type="1" port="COM4" name="tsl-1630"/>
-    <reader type="1" port="COM6" name="tsl-1633"/>
+    <code value="ea11-f225-92dc-f431"/>
+    <reader port="COM4" name="1633" type="1"/>
 </cssd>
