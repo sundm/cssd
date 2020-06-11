@@ -40,7 +40,7 @@ namespace Internal {
 		PackageDao dao;
 		QList<PackageType> pts;
 		_total = 0;
-		result_t resp = dao.getPackageTypeList(&pts, &_total, page, _pageCount);
+		result_t resp = dao.getPackageTypeList(&pts, kw, &_total, page, _pageCount);
 		if (resp.isOk())
 		{
 			clear(); // when succeeded
@@ -98,8 +98,8 @@ PackagePage::PackagePage(QWidget *parent)
 	Ui::IconButton *addButton = new Ui::IconButton(":/res/plus-24.png", "添加");
 	connect(addButton, SIGNAL(clicked()), this, SLOT(addEntry()));
 
-	//Ui::IconButton *modifyButton = new Ui::IconButton(":/res/write-24.png", "修改");
-	//connect(modifyButton, SIGNAL(clicked()), this, SLOT(editEntry()));
+	Ui::IconButton *deleteButton = new Ui::IconButton(":/res/delete-24.png", "删除");
+	connect(deleteButton, SIGNAL(clicked()), this, SLOT(delEntry()));
 
 	//searchBox->setMinimumWidth(300);
 	_searchBox->setPlaceholderText("输入包名搜索");
@@ -108,7 +108,7 @@ PackagePage::PackagePage(QWidget *parent)
 	QHBoxLayout *hLayout = new QHBoxLayout;
 	hLayout->addWidget(refreshButton);
 	hLayout->addWidget(addButton);
-	//hLayout->addWidget(modifyButton);
+	hLayout->addWidget(deleteButton);
 	hLayout->addStretch(0);
 	hLayout->addWidget(_searchBox);
 	
@@ -143,6 +143,34 @@ void PackagePage::addEntry()
 	AddPackageDialog d(this);
 	if (QDialog::Accepted == d.exec())
 		reflash();
+}
+
+void PackagePage::delEntry()
+{
+	QMessageBox *messageBox = new QMessageBox(this);
+	messageBox->setIcon(QMessageBox::Warning);
+	messageBox->setWindowTitle("提示");
+	messageBox->setText("是否删除当前基础包类型？");
+	messageBox->addButton("取消", QMessageBox::RejectRole);
+	messageBox->addButton("确定", QMessageBox::AcceptRole);
+	if (messageBox->exec() == QDialog::Accepted) {
+		QModelIndexList indexes = _view->selectionModel()->selectedRows();
+		if (indexes.count() == 0) return;
+		int row = indexes[0].row();
+		int package_type_id = _view->model()->data(_view->model()->index(row, Internal::PackageAssetView::Name), 257).toInt();
+
+		PackageDao dao;
+		result_t res = dao.delPackageType(package_type_id);
+		if (res.isOk())
+		{
+			reflash();
+		}
+		else
+		{
+			XNotifier::warn(res.msg());
+			return;
+		}
+	}
 }
 
 void PackagePage::editEntry()

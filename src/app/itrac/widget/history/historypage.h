@@ -58,6 +58,8 @@ public:
 protected:
 	FilterGroup * createFilterGroup() override;
 	void doSearch(int page = 1) override;
+private:
+	int _total;
 };
 
 class WashHistoryPage : public HistoryPage
@@ -70,6 +72,8 @@ public:
 protected:
 	FilterGroup * createFilterGroup() override;
 	void doSearch(int page = 1) override;
+private:
+	int _total;
 };
 
 class PackHistoryPage : public HistoryPage
@@ -82,6 +86,8 @@ public:
 protected:
 	FilterGroup * createFilterGroup() override;
 	void doSearch(int page = 1) override;
+private:
+	int _total;
 };
 
 class SterileHistoryPage : public HistoryPage
@@ -96,6 +102,7 @@ protected:
 	void doSearch(int page = 1) override;
 private:
 	QString toString(int v);
+	int _total;
 };
 
 class DispatchHistoryPage : public HistoryPage
@@ -108,5 +115,7 @@ public:
 protected:
 	FilterGroup * createFilterGroup() override;
 	void doSearch(int page = 1) override;
+private:
+	int _total;
 };
 

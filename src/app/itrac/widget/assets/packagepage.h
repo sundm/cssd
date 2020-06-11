@@ -41,7 +41,7 @@ private slots:
 	void reflash();
 	void addEntry();
 	void editEntry();
-	//void infoEntry();
+	void delEntry();
 	void slotRowDoubleClicked(const QModelIndex &);
 
 private:

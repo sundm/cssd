@@ -38,6 +38,7 @@ private slots:
 	void refresh();
 	void add();
 	void modify();
+	void del();
 	void slotRowDoubleClicked(const QModelIndex &);
 	void doSearch(int page = 1);
 	void search();

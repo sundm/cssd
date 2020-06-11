@@ -36,6 +36,33 @@ result_t SurgeryDao::getSurgeryList(Rt::SurgeryStatus status, QList<Surgery> *su
 	return 0;
 }
 
+result_t SurgeryDao::delSurgery(int surgeryId)
+{
+	QSqlQuery query;
+	query.prepare("DELETE FROM r_surgery  WHERE id = ?");
+	query.addBindValue(surgeryId);
+
+	if (!query.exec())
+		return query.lastError().text();
+	else
+	{
+		query.prepare("DELETE FROM r_surgery_detail  WHERE surgery_id = ?");
+		query.addBindValue(surgeryId);
+
+		if (!query.exec())
+			return query.lastError().text();
+		else
+		{
+			query.prepare("DELETE FROM r_surgery_package  WHERE surgery_id = ?");
+			query.addBindValue(surgeryId);
+
+			if (!query.exec()) return query.lastError().text();
+
+			return 0;
+		}
+	}
+}
+
 result_t SurgeryDao::getSurgery(int surgeryId, Surgery *surgery, bool excludeBasicInfo/* = true*/)
 {
 	if (!surgery) return 0;

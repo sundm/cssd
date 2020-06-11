@@ -8,5 +8,5 @@
     <labelPrinter name=""/>
     <commonPrinter name=""/>
     <code value="ea11-f225-92dc-f431"/>
-    <reader port="COM4" name="1633" type="1"/>
+    <reader name="1633" port="COM4" type="1"/>
 </cssd>

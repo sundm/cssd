@@ -11,6 +11,7 @@ public:
 	result_t login(int id, const QString &pwd, Operator *op = Q_NULLPTR);
 	void logout(int id);
 	result_t changePassword(int id, const QString &oldPwd, const QString &newPwd);
+	result_t getOperatorList(QMap<int,QString> *opList);
 };
 
 #endif // OPERATORDAO_H

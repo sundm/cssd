@@ -101,7 +101,7 @@ void PackageCompleter::loadInternal(const QByteArray &data) {
 	PackageDao dao;
 	QList<PackageType> pts;
 
-	result_t resp = dao.getPackageTypeList(&pts);
+	result_t resp = dao.getPackageTypeList(&pts, "");
 	if (resp.isOk())
 	{
 		_model->clear();
@@ -149,7 +149,7 @@ void InstrumentCompleter::load() {
 void InstrumentCompleter::loadInternal(const QByteArray &data) {
 	InstrumentDao dao;
 	QList<InstrumentType> ins;
-	result_t resp = dao.getInstrumentTypeList(&ins);
+	result_t resp = dao.getInstrumentTypeList(&ins, "");
 	if (resp.isOk())
 	{
 		_model->clear();

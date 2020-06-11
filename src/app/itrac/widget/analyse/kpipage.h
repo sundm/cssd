@@ -20,7 +20,6 @@ private slots:
 	void doSearch();
 
 private:
-	void queryUserJobs();
 
 	QComboBox * _yearCombo;
 	QComboBox * _monthCombo;

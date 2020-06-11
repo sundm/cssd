@@ -491,6 +491,9 @@ void OrRecyclePanel::imgLoaded()
 
 void OrRecyclePanel::loadPackageImg(const QString& udi)
 {
+	QString fileName = QString("./photo/timg.png");
+	_pkgImg->setImage(fileName);
+
 	QString imgPath = QString("./photo/package/%1.jpg").arg(udi);
 	QFile file(imgPath);
 	if (file.exists()) {
@@ -564,6 +567,9 @@ void OrRecyclePanel::loadPackageImg(const QString& udi)
 
 void OrRecyclePanel::loadInstrumentImg(const QString& udi)
 {
+	QString fileName = QString("./photo/timg.png");
+	_insImg->setImage(fileName);
+
 	QString imgPath = QString("./photo/instrument/%1.jpg").arg(udi);
 	QFile file(imgPath);
 	if (file.exists()) {

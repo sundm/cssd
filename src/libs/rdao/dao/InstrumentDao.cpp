@@ -31,14 +31,19 @@ result_t InstrumentDao::getInstrumentType(int typeId, InstrumentType* insType)
 }
 
 result_t InstrumentDao::getInstrumentTypeList(
-	QList<InstrumentType> *its, int *total/* = nullptr*/, int page/* = 1*/, int count/* = 20*/)
+	QList<InstrumentType> *its, const QString &kw, int *total/* = nullptr*/, int page/* = 1*/, int count/* = 20*/)
 {
 	if (!its) return 0;
 	its->clear();
 	bool paginated = nullptr != total;
 
 	QSqlQuery q;
-	QString sql = "SELECT id, name, pinyin, photo, is_vip FROM t_instrument_type";
+	QString sql;
+
+	if (kw.isEmpty())
+		sql = "SELECT id, name, pinyin, photo, is_vip FROM t_instrument_type";
+	else
+		sql = QString("SELECT id, name, pinyin, photo, is_vip FROM t_instrument_type WHERE pinyin LIKE '%").append(kw).append("%'");
 
 	if (paginated) { // do pagination
 		count = qMax(20, count);
@@ -63,6 +68,157 @@ result_t InstrumentDao::getInstrumentTypeList(
 		if (!q.nextResult() || !q.first())
 			return "Could not determine the total number";
 		*total = q.value(0).toInt();
+	}
+
+	return 0;
+}
+
+result_t InstrumentDao::changeInstrumentBound(const QString& pkg_udi, const QMap<QString, QString> &insMap)
+{
+	QMap<QString, QString>::const_iterator i;
+	QSqlQuery q;
+	QString sql;
+
+	QSqlDatabase db = QSqlDatabase::database();
+	db.transaction();
+
+	for (i = insMap.constBegin(); i != insMap.constEnd(); ++i) {
+		q.prepare("SELECT type_id"
+			" FROM t_instrument"
+			" WHERE udi = ? AND pkg_udi = ?");
+		q.addBindValue(i.key());
+		q.addBindValue(pkg_udi);
+
+		if (!q.exec())
+			return kErrorDbUnreachable;
+
+		if (!q.first())
+			return "没有找到对应器械类型的信息";
+
+		int type_id = q.value(0).toInt();
+
+		q.prepare("SELECT type_id, pkg_udi, is_del"
+			" FROM t_instrument"
+			" WHERE udi = ?");
+		q.addBindValue(i.value());
+
+		if (!q.exec())
+			return kErrorDbUnreachable;
+
+		if (!q.first())
+			return "没有找到对应器械类型的信息";
+
+		if (q.value(0).toInt() != type_id)
+			return "替换器械与原器械类型不一致";
+
+		if(q.value(2).toInt() == 1)
+			return "替换器械已删除 ,无法替换";
+
+		if (q.value(1).toString() == NULL || q.value(1).toString().isEmpty())
+		{
+			q.prepare("UPDATE t_instrument SET is_del = 1"
+				" WHERE udi = ? AND pkg_udi = ?");
+			q.addBindValue(i.key());
+			q.addBindValue(pkg_udi);
+			if (!q.exec())
+			{
+				db.rollback();
+				return q.lastError().text();
+			}
+
+			q.prepare("UPDATE t_instrument SET pkg_udi = ?"
+				" WHERE udi = ?");
+			q.addBindValue(pkg_udi);
+			q.addBindValue(i.value());
+			if (!q.exec())
+			{
+				db.rollback();
+				return q.lastError().text();
+			}
+
+			sql = QString("UPDATE t_package_detail"
+				" SET status = 0, unbound_tm = now() WHERE pkg_udi = '%1' AND ins_udi = '%2'").arg(pkg_udi, i.key());
+			if (!q.exec(sql))
+			{
+				db.rollback();
+				return q.lastError().text();
+			}
+
+			q.prepare("INSERT INTO t_package_detail (pkg_udi, pkg_cycle_stamp, ins_udi, ins_cycle_stamp, status, bound_tm)"
+				" VALUES (?, 0, ?, 0, 1, now())");
+			q.addBindValue(pkg_udi);
+			q.addBindValue(i.value());
+
+			if (!q.exec())
+			{
+				db.rollback();
+				return q.lastError().text();
+			}
+
+		}
+		else
+		{
+			return "替换器械已绑定,无法替换";
+		}
+	}
+	
+	db.commit();
+	return 0;
+}
+
+result_t InstrumentDao::deleteInstrument(const QString& udi)
+{
+	QSqlQuery q;
+	q.prepare("SELECT pkg_udi"
+		" FROM t_instrument"
+		" WHERE udi = ?");
+	q.addBindValue(udi);
+
+	if (!q.exec())
+		return kErrorDbUnreachable;
+
+	if (q.first()) {
+		if (q.value(0).toString() == NULL || q.value(0).toString().isEmpty())
+		{
+			QSqlQuery query;
+			query.prepare("DELETE FROM t_instrument  WHERE udi = ?");
+			query.addBindValue(udi);
+
+			if (!query.exec())
+				return query.lastError().text();
+		}
+		else
+		{
+			return "该器械已绑定，无法删除";
+		}
+	}
+	
+
+	return 0;
+}
+
+result_t InstrumentDao::deleteInstrumentType(int typeId)
+{
+	QSqlQuery q;
+	q.prepare("SELECT udi"
+		" FROM t_instrument"
+		" WHERE type_id = ?");
+	q.addBindValue(typeId);
+
+	if (!q.exec())
+		return kErrorDbUnreachable;
+
+	if (!q.first()) {
+		QSqlQuery query;
+		query.prepare("DELETE FROM t_instrument_type  WHERE id = ?");
+		query.addBindValue(typeId);
+
+		if (!query.exec())
+			return query.lastError().text();
+	}
+	else
+	{
+		return "存在该类型器械实体，无法删除这个类型";
 	}
 
 	return 0;
@@ -160,7 +316,7 @@ result_t InstrumentDao::getInstrument(const QString &udi, Instrument *ins, int c
 }
 
 result_t InstrumentDao::getInstrumentList(
-	QList<Instrument> *instruments, int *total/* = nullptr*/, int page/* = 1*/, int count/* = 20*/)
+	QList<Instrument> *instruments, const QString &kw, int *total/* = nullptr*/, int page/* = 1*/, int count/* = 20*/)
 {
 	if (!instruments) return 0;
 	instruments->clear();
@@ -172,6 +328,11 @@ result_t InstrumentDao::getInstrumentList(
 		" LEFT JOIN t_instrument_type b ON a.type_id = b.id"
 		" LEFT JOIN t_package c ON a.pkg_udi = c.udi"
 		" LEFT JOIN t_package_type d ON c.type_id = d.id";
+	if (!kw.isEmpty())
+	{
+		sql.append(" WHERE b.pinyin LIKE '%").append(kw).append("%'");
+	}
+	
 
 	if (paginated) { // do pagination
 		count = qMax(20, count);

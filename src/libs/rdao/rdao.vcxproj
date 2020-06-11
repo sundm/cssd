@@ -106,6 +106,7 @@
   <ItemGroup>
     <ClInclude Include="dao\deptdao.h" />
     <ClInclude Include="dao\devicedao.h" />
+    <ClInclude Include="dao\historydao.h" />
     <ClInclude Include="dao\instrumentdao.h" />
     <ClInclude Include="dao\operatordao.h" />
     <ClInclude Include="dao\packagedao.h" />
@@ -120,6 +121,7 @@
     <ClInclude Include="entity\department.h" />
     <ClInclude Include="entity\device.h" />
     <ClInclude Include="entity\enums.h" />
+    <ClInclude Include="entity\history.h" />
     <ClInclude Include="entity\recall.h" />
     <ClInclude Include="entity\trace.h" />
     <ClInclude Include="entity\instrument.h" />
@@ -133,6 +135,7 @@
   <ItemGroup>
     <ClCompile Include="dao\deptdao.cpp" />
     <ClCompile Include="dao\devicedao.cpp" />
+    <ClCompile Include="dao\historydao.cpp" />
     <ClCompile Include="dao\instrumentdao.cpp" />
     <ClCompile Include="dao\operatordao.cpp" />
     <ClCompile Include="dao\packagedao.cpp" />

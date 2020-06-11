@@ -25,8 +25,8 @@ InstrumentPage::InstrumentPage(QWidget *parent)
 	Ui::IconButton *addButton = new Ui::IconButton(":/res/plus-24.png", "添加");
 	connect(addButton, &QToolButton::clicked, this, &InstrumentPage::add);
 
-	Ui::IconButton *modifyButton = new Ui::IconButton(":/res/write-24.png", "修改");
-	connect(modifyButton, &QToolButton::clicked, this, &InstrumentPage::modify);
+	Ui::IconButton *deleteButton = new Ui::IconButton(":/res/delete-24.png", "删除");
+	connect(deleteButton, &QToolButton::clicked, this, &InstrumentPage::modify);
 
 	_searchBox->setPlaceholderText("输入器械名搜索");
 	connect(_searchBox, &SearchEdit::returnPressed, this, &InstrumentPage::search);
@@ -34,7 +34,7 @@ InstrumentPage::InstrumentPage(QWidget *parent)
 	QHBoxLayout *hLayout = new QHBoxLayout;
 	hLayout->addWidget(refreshButton);
 	hLayout->addWidget(addButton);
-	//hLayout->addWidget(modifyButton);
+	hLayout->addWidget(deleteButton);
 	hLayout->addStretch(0);
 	hLayout->addWidget(_searchBox);
 
@@ -86,29 +86,33 @@ void InstrumentPage::slotRowDoubleClicked(const QModelIndex &index)
 }
 
 void InstrumentPage::modify() {
-	QModelIndexList indexes = _view->selectionModel()->selectedRows();
-	if (indexes.count() == 0) return;
-	int row = indexes[0].row();
-	QString id = _view->model()->data(_view->model()->index(row, Internal::InstrumentAssetView::Name), Qt::UserRole + 1).toString();
-	/*
-	QString name = _view->model()->data(_view->model()->index(row, Internal::InstrumentAssetView::Name)).toString();
-	//QString id = _view->model()->data(_view->model()->index(row, Internal::InstrumentAssetView::Id)).toString();
-	QString vip = _view->model()->data(_view->model()->index(row, Internal::InstrumentAssetView::Vip)).toString();
-	QString implant = _view->model()->data(_view->model()->index(row, Internal::InstrumentAssetView::Implant)).toString();
-	QString pinyin = _view->model()->data(_view->model()->index(row, Internal::InstrumentAssetView::Pinyin)).toString();
 
-	bool isVIP = false;
-	if (0 == vip.compare("是"))
-		isVIP = true;
+	QMessageBox *messageBox = new QMessageBox(this);
+	messageBox->setIcon(QMessageBox::Warning);
+	messageBox->setWindowTitle("提示");
+	messageBox->setText("是否删除当前器械类型？");
+	messageBox->addButton("取消", QMessageBox::RejectRole);
+	messageBox->addButton("确定", QMessageBox::AcceptRole);
+	if (messageBox->exec() == QDialog::Accepted) {
+		QModelIndexList indexes = _view->selectionModel()->selectedRows();
+		if (indexes.count() == 0) return;
+		int row = indexes[0].row();
+		int typeId = _view->model()->data(_view->model()->index(row, Internal::InstrumentAssetView::Name), Qt::UserRole + 1).toInt();
 
-	bool isImplant = false;
-	if (0 == implant.compare("是"))
-		isImplant = true;
-	*/
-	AddInstrumentDialog d(this);
-	d.setInfo(id);
-	if (d.exec() == QDialog::Accepted)
-		_view->load();
+		InstrumentDao dao;
+		result_t res = dao.deleteInstrumentType(typeId);
+		if (res.isOk())
+		{
+			refresh();
+		}
+		else
+		{
+			XNotifier::warn(res.msg());
+			return;
+		}
+	}
+
+	
 }
 
 namespace Internal {
@@ -135,7 +139,7 @@ namespace Internal {
 		InstrumentDao dao;
 		QList<InstrumentType> ins;
 		_total = 0;
-		result_t res = dao.getInstrumentTypeList(&ins, &_total, page, _pageCount);
+		result_t res = dao.getInstrumentTypeList(&ins, kw, &_total, page, _pageCount);
 		if (res.isOk())
 		{
 			clear();

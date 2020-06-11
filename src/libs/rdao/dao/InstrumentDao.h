@@ -28,11 +28,18 @@ public:
 	 */
 	result_t getInstrumentTypeList(
 		QList<InstrumentType> *its,
+		const QString &kw,
 		int *total = nullptr,
 		int page = 1,
 		int count = 20);
 
+	result_t changeInstrumentBound(const QString& pkg_udi, const QMap<QString, QString> &insMap);
+
 	result_t addInstrumentType(const InstrumentType &insType, int * typeId);
+
+	result_t deleteInstrumentType(int typeId);
+
+	result_t deleteInstrument(const QString& udi);
 
 	result_t updateInstrumentType(const InstrumentType &it);
 
@@ -63,6 +70,7 @@ public:
 	 */
 	result_t getInstrumentList(
 		QList<Instrument> *instruments,
+		const QString &kw,
 		int *total = nullptr,
 		int page = 1,
 		int count = 20);

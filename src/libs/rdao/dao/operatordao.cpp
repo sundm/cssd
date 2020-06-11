@@ -60,3 +60,20 @@ result_t OperatorDao::changePassword(int id, const QString &oldPwd, const QStrin
 
 	return 0;
 }
+
+result_t OperatorDao::getOperatorList(QMap<int, QString> *opList)
+{
+	opList->clear();
+
+	QSqlQuery query;
+	query.prepare("select id,name FROM t_operator");
+	if (!query.exec())
+		return kErrorDbUnreachable;
+
+	while (query.next())
+	{
+		opList->insert(query.value(0).toInt(), query.value(1).toString());
+	}
+
+	return 0;
+}

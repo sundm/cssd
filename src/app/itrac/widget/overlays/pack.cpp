@@ -62,6 +62,7 @@ PackPanel::PackPanel(QWidget *parent) : CssdOverlayPanel(parent)
 	_pkgImg->setBgColor(QColor(245, 246, 247));
 	_pkgImg->setImage(fileName);
 	_pkgImg->setMinimumWidth(300);
+	_insImg = new XPicture(this);
 	_insImg->setBgColor(QColor(245, 246, 247));
 	_insImg->setImage(fileName);
 	_insImg->setMinimumWidth(300);

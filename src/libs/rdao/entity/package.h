@@ -56,8 +56,8 @@ struct Package : public PackageType
 	int cycle;
 	Rt::FlowStatus status;
 	QList<Instrument> instruments;
-	
-	Package() : cycle(0), status(Rt::UnknownFlowStatus) {}
+	bool is_del;
+	Package() : cycle(0), status(Rt::UnknownFlowStatus), is_del(false) {}
 };
 
 struct PackageQualityControl {

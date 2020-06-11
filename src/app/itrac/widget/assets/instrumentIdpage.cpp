@@ -25,6 +25,9 @@ InstrumentIdPage::InstrumentIdPage(QWidget *parent)
 	Ui::IconButton *modifyButton = new Ui::IconButton(":/res/datchadd.png", "批量添加");
 	connect(modifyButton, &QToolButton::clicked, this, &InstrumentIdPage::modify);
 
+	Ui::IconButton *deleteButton = new Ui::IconButton(":/res/delete-24.png", "删除");
+	connect(deleteButton, &QToolButton::clicked, this, &InstrumentIdPage::del);
+
 	_searchBox->setPlaceholderText("输入器械名搜索");
 	connect(_searchBox, &SearchEdit::returnPressed, this, &InstrumentIdPage::search);
 
@@ -32,6 +35,7 @@ InstrumentIdPage::InstrumentIdPage(QWidget *parent)
 	hLayout->addWidget(refreshButton);
 	hLayout->addWidget(addButton);
 	hLayout->addWidget(modifyButton);
+	hLayout->addWidget(deleteButton);
 	hLayout->addStretch(0);
 	hLayout->addWidget(_searchBox);
 
@@ -70,6 +74,34 @@ void InstrumentIdPage::slotRowDoubleClicked(const QModelIndex &index)
 		refresh();
 }
 
+void InstrumentIdPage::del()
+{
+	QMessageBox *messageBox = new QMessageBox(this);
+	messageBox->setIcon(QMessageBox::Warning);
+	messageBox->setWindowTitle("提示");
+	messageBox->setText("是否删除当前器械？");
+	messageBox->addButton("取消", QMessageBox::RejectRole);
+	messageBox->addButton("确定", QMessageBox::AcceptRole);
+	if (messageBox->exec() == QDialog::Accepted) {
+		QModelIndexList indexes = _view->selectionModel()->selectedRows();
+		if (indexes.count() == 0) return;
+		int row = indexes[0].row();
+		QString udi = _view->model()->data(_view->model()->index(row, Internal::InstrumentIdAssetView::Id), 2).toString();
+
+		InstrumentDao dao;
+		result_t res = dao.deleteInstrument(udi);
+		if (res.isOk())
+		{
+			refresh();
+		}
+		else
+		{
+			XNotifier::warn(res.msg());
+			return;
+		}
+	}
+}
+
 void InstrumentIdPage::modify() {
 	BatchAddInstrumentIdDialog d(this);
 	connect(&d, SIGNAL(reload()), this, SLOT(refresh()));
@@ -100,7 +132,7 @@ namespace Internal {
 		InstrumentDao dao;
 		QList<Instrument> ins;
 		_total = 0;
-		result_t res = dao.getInstrumentList(&ins, &_total, page, _pageCount);
+		result_t res = dao.getInstrumentList(&ins, kw, &_total, page, _pageCount);
 		if (res.isOk())
 		{
 			clear();

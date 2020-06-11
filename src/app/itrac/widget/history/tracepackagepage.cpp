@@ -128,7 +128,7 @@ void TracePackageInfoView::loadInfo(const QString &udi, bool isPackage)
 		InstrumentDao dao;
 		Instrument ins;
 		result_t resp = dao.getInstrument(_udi, &ins);
-		if (resp.isOk())
+		if (resp.isOk() && !ins.packageUdi.isEmpty())
 		{
 			_cycle = ins.cycle;
 			_insNameLabel->setText(QString("器械名称:%1").arg(ins.name));
@@ -437,6 +437,7 @@ void TracePackagePage::onTransponderReceviced(const QString& code)
 		_udi = code;
 		_infoView->setHidden(false);
 		_detailView->setHidden(false);
+		_detailView->clear();
 		_searchBox->setText(_udi);
 		_infoView->loadInfo(_udi);
 	}
@@ -446,6 +447,7 @@ void TracePackagePage::onTransponderReceviced(const QString& code)
 		_udi = code;
 		_infoView->setHidden(false);
 		_detailView->setHidden(false);
+		_detailView->clear();
 		_searchBox->setText(_udi);
 		_infoView->loadInfo(_udi, false);
 	}

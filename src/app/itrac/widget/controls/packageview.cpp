@@ -836,7 +836,30 @@ void OperationInfoView::addOperation()
 
 void OperationInfoView::delOperation()
 {
+	QMessageBox *messageBox = new QMessageBox(this);
+	messageBox->setIcon(QMessageBox::Warning);
+	messageBox->setWindowTitle("提示");
+	messageBox->setText("是否删除当前手术？");
+	messageBox->addButton("取消", QMessageBox::RejectRole);
+	messageBox->addButton("确定", QMessageBox::AcceptRole);
+	if (messageBox->exec() == QDialog::Accepted) {
+		QModelIndexList indexes = _view->selectionModel()->selectedRows();
+		if (indexes.count() == 0) return;
+		int row = indexes[0].row();
+		int surgeryId = _view->model()->data(_view->model()->index(row, 0), 2).toInt();
 
+		SurgeryDao dao;
+		result_t res = dao.delSurgery(surgeryId);
+		if (res.isOk())
+		{
+			refresh();
+		}
+		else
+		{
+			XNotifier::warn(res.msg());
+			return;
+		}
+	}
 }
 
 void OperationInfoView::refresh()

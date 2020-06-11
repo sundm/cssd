@@ -7,6 +7,7 @@
 #include "core/net/url.h"
 #include "ui/composite/qpaginationwidget.h"
 #include "ui/composite/waitingspinner.h"
+#include "rdao/dao/historydao.h"
 #include <QtWidgets/QtWidgets>
 
 HistoryPage::HistoryPage(QWidget *parent)
@@ -51,9 +52,9 @@ HistoryPage::HistoryPage(QWidget *parent)
 	mainLayout->addWidget(_view);
 
 	QHeaderView *header = _view->horizontalHeader();
-	header->setSectionResizeMode(QHeaderView::ResizeToContents);
-	header->setStretchLastSection(true);
-	//header->setSectionResizeMode(QHeaderView::Stretch);
+	//header->setSectionResizeMode(QHeaderView::ResizeToContents);
+	//header->setStretchLastSection(true);
+	header->setSectionResizeMode(QHeaderView::Stretch);
 }
 
 HistoryPage::~HistoryPage() {
@@ -106,14 +107,13 @@ void HistoryPage::showFilterPopup(bool show) {
 }
 
 RecycleHistoryPage::RecycleHistoryPage(QWidget *parent) :HistoryPage(parent) {
-	_historyModel = new QStandardItemModel(0, 7, _view);
+	_historyModel = new QStandardItemModel(0, 6, _view);
 	_historyModel->setHeaderData(0, Qt::Horizontal, "包ID");
 	_historyModel->setHeaderData(1, Qt::Horizontal, "包名");
 	_historyModel->setHeaderData(2, Qt::Horizontal, "回收人员");
 	_historyModel->setHeaderData(3, Qt::Horizontal, "回收时间");
 	_historyModel->setHeaderData(4, Qt::Horizontal, "回收方式");
 	_historyModel->setHeaderData(5, Qt::Horizontal, "来源科室");
-	_historyModel->setHeaderData(6, Qt::Horizontal, "清洗盘");
 	_view->setModel(_historyModel);
 
 	doSearch();
@@ -127,65 +127,43 @@ FilterGroup * RecycleHistoryPage::createFilterGroup()
 void RecycleHistoryPage::doSearch(int page)
 {
 	_historyModel->removeRows(0, _historyModel->rowCount());
-	_waiter->start();
-
-	QVariantMap vmap;
+	//_waiter->start();
+	QDate from_date = QDate::currentDate().addDays(-7);
+	QDate to_date = QDate::currentDate();
+	int op_id = 0;
+	int dept_id = 0;
 	if (_filter) {
-		vmap.insert("start_time", _filter->condition(FilterFlag::StartDate).toDate());
-		vmap.insert("end_time", _filter->condition(FilterFlag::EndDate).toDate());
-		vmap.insert("operator_id", _filter->condition(FilterFlag::Operator).toInt());
-		vmap.insert("department_id", _filter->condition(FilterFlag::Department).toInt());
+		from_date = _filter->condition(FilterFlag::StartDate).toDate();
+		to_date = _filter->condition(FilterFlag::EndDate).toDate();
+		op_id = _filter->condition(FilterFlag::Operator).toInt();
+		dept_id = _filter->condition(FilterFlag::Department).toInt();
 	}
-	else {
-		vmap.insert("start_time", QDate::currentDate());
-		vmap.insert("end_time", QDate::currentDate());
-	}
-	vmap.insert("page", page);
-	vmap.insert("page_count", _visibleCount);
-
-	post(url(PATH_RECYCLE_SEARCH), vmap, [this, page](QNetworkReply *reply) {
-		_waiter->stop();
-		_waiter->stop();
-		JsonHttpResponse resp(reply);
-		if (!resp.success()) {
-			XNotifier::warn(QString("暂时无法查询历史记录：").append(resp.errorString()));
-			return;
-		}
-
-		int count = resp.getAsInt("items_count");
-		_paginator->setTotalPages(count / _visibleCount + (count % _visibleCount > 0));
-		
-		QList<QVariant> packages = resp.getAsList("packages");
-		_historyModel->insertRows(0, packages.count());
-		for (int i = 0; i != packages.count(); ++i) {
-			QVariantMap map = packages[i].toMap();
-			_historyModel->setData(_historyModel->index(i, 0), map["package_id"].toInt() == 0 ? QString("-"): map["package_id"]);
-			_historyModel->setData(_historyModel->index(i, 1), map["package_type_name"]);
-			_historyModel->setData(_historyModel->index(i, 2), map["operator_name"]);
-			_historyModel->setData(_historyModel->index(i, 3), map["operation_time"]);
-			switch (map["recycle_reason"].toInt())
-			{
-			case 1:
-				_historyModel->setData(_historyModel->index(i, 4),QString("手术器械有码回收"));
-				break;
-			case 2:
-				_historyModel->setData(_historyModel->index(i, 4), QString("外来器械回收"));
-				break;
-			case 3:
-				_historyModel->setData(_historyModel->index(i, 4), QString("手术器械无码回收"));
-				break;
-			case 4:
-				_historyModel->setData(_historyModel->index(i, 4), QString("临床器械回收"));
-				break;
-			default:
-				break;
-			}
+	
+	HistoryDao dao;
+	QList<RecycleHistory> his;
+	_total = 0;
+	result_t resp = dao.getRecycleHistoryList(from_date, to_date, op_id, dept_id, &his, &_total, page);
+	
+	if (resp.isOk())
+	{
+		if (_total > 0 && !his.isEmpty())
+		{
+			_paginator->setTotalPages(_total / _visibleCount + (_total % _visibleCount > 0));
 			
-			_historyModel->setData(_historyModel->index(i, 5), map["department_name"]);
-			_historyModel->setData(_historyModel->index(i, 6), map["plate_name"]);
-			_historyModel->setHeaderData(i, Qt::Vertical, (page - 1)*_visibleCount + 1 + i);
+			_historyModel->insertRows(0, his.count());
+
+			for (int i = 0; i != his.count(); ++i) {
+				_historyModel->setData(_historyModel->index(i, 0), his[i].pkg_udi);
+				_historyModel->setData(_historyModel->index(i, 1), his[i].pkg_name);
+				_historyModel->setData(_historyModel->index(i, 2), his[i].op_name);
+				_historyModel->setData(_historyModel->index(i, 3), his[i].op_time);
+				_historyModel->setData(_historyModel->index(i, 4), QString("手术器械有码回收"));
+				_historyModel->setData(_historyModel->index(i, 5), his[i].from_dept_name.isEmpty()?QString("-"):his[i].from_dept_name);
+			
+				_historyModel->setHeaderData(i, Qt::Vertical, (page - 1)*_visibleCount + 1 + i);
+			}
 		}
-	});
+	}
 }
 
 WashHistoryPage::WashHistoryPage(QWidget *parent) :HistoryPage(parent) {
@@ -210,49 +188,45 @@ FilterGroup * WashHistoryPage::createFilterGroup()
 
 void WashHistoryPage::doSearch(int page) {
 	_historyModel->removeRows(0, _historyModel->rowCount());
-	_waiter->start();
-
-	QVariantMap vmap;
+	
+	QDate from_date = QDate::currentDate().addDays(-7);
+	QDate to_date = QDate::currentDate();
+	int op_id = 0;
+	int device_id = 0;
 	if (_filter) {
-		vmap.insert("start_time", _filter->condition(FilterFlag::StartDate).toDate());
-		vmap.insert("end_time", _filter->condition(FilterFlag::EndDate).toDate());
-		vmap.insert("operator_id", _filter->condition(FilterFlag::Operator).toInt());
-		vmap.insert("device_id", _filter->condition(FilterFlag::Device).toInt());
-		vmap.insert("device_cycle", _filter->condition(FilterFlag::cycle).toInt());
+		from_date = _filter->condition(FilterFlag::StartDate).toDate();
+		to_date = _filter->condition(FilterFlag::EndDate).toDate();
+		op_id = _filter->condition(FilterFlag::Operator).toInt();
+		device_id = _filter->condition(FilterFlag::Device).toInt();
 	}
-	else {
-		vmap.insert("start_time", QDate::currentDate());
-		vmap.insert("end_time", QDate::currentDate());
+
+	HistoryDao dao;
+	QList<WashHistory> his;
+	_total = 0;
+	result_t resp = dao.getWashHistoryList(from_date, to_date, op_id, device_id, &his, &_total, page);
+
+	if (resp.isOk())
+	{
+		if (_total > 0 && !his.isEmpty())
+		{
+			_paginator->setTotalPages(_total / _visibleCount + (_total % _visibleCount > 0));
+
+			_historyModel->insertRows(0, his.count());
+
+			for (int i = 0; i != his.count(); ++i) {
+				_historyModel->setData(_historyModel->index(i, 0), his[i].device_name);
+				_historyModel->setData(_historyModel->index(i, 1), his[i].cycle_count);
+				_historyModel->setData(_historyModel->index(i, 2), his[i].cycle_total);
+				_historyModel->setData(_historyModel->index(i, 3), his[i].program_name);
+				_historyModel->setData(_historyModel->index(i, 4), his[i].op_time);
+				_historyModel->setData(_historyModel->index(i, 5), his[i].op_name);
+				_historyModel->setData(_historyModel->index(i, 6), his[i].check_op_name);
+				_historyModel->setData(_historyModel->index(i, 7), his[i].check_result);
+
+				_historyModel->setHeaderData(i, Qt::Vertical, (page - 1)*_visibleCount + 1 + i);
+			}
+		}
 	}
-	vmap.insert("page", page);
-	vmap.insert("page_count", _visibleCount);
-
-	post(url(PATH_WASH_SEARCH), vmap, [this](QNetworkReply *reply) {
-		_waiter->stop();
-		JsonHttpResponse resp(reply);
-		if (!resp.success()) {
-			XNotifier::warn(QString("暂时无法查询历史记录：").append(resp.errorString()));
-			return;
-		}
-
-		int count = resp.getAsInt("total_count");
-		_paginator->setTotalPages(count / _visibleCount + (count % _visibleCount > 0));
-
-		QList<QVariant> washes = resp.getAsList("items");
-		for (auto &wash : washes) {
-			QVariantMap map = wash.toMap();
-			QList<QStandardItem *> rowItems;
-			rowItems.append(new QStandardItem(map["device_name"].toString()));
-			rowItems.append(new QStandardItem(map["device_cycle"].toString()));
-			rowItems.append(new QStandardItem(map["total_cycle"].toString()));
-			rowItems.append(new QStandardItem(map["program_name"].toString()));
-			rowItems.append(new QStandardItem(map["wash_time"].toString()));
-			rowItems.append(new QStandardItem(map["operator_name"].toString()));
-			rowItems.append(new QStandardItem(map["operator_name"].toString()));
-			rowItems.append(map["check_result"].toBool()? new QStandardItem(QString("合格")): new QStandardItem(QString("存在异常")));
-			_historyModel->appendRow(rowItems);
-		}
-	});
 }
 
 PackHistoryPage::PackHistoryPage(QWidget *parent) :HistoryPage(parent) {
@@ -274,67 +248,62 @@ FilterGroup * PackHistoryPage::createFilterGroup() {
 
 void PackHistoryPage::doSearch(int page /*= 1*/) {
 	_historyModel->removeRows(0, _historyModel->rowCount());
-	_waiter->start();
-
-	QVariantMap vmap;
+	
+	QDate from_date = QDate::currentDate().addDays(-7);
+	QDate to_date = QDate::currentDate();
+	int op_id = 0;
+	int pack_type_id = 0;
 	if (_filter) {
-		vmap.insert("start_time", _filter->condition(FilterFlag::StartDate).toDate());
-		vmap.insert("end_time", _filter->condition(FilterFlag::EndDate).toDate());
-		vmap.insert("operator_id", _filter->condition(FilterFlag::Operator).toInt());
-		vmap.insert("check_operator_id", _filter->condition(FilterFlag::Auditor).toInt());
-		vmap.insert("pack_type_id", _filter->condition(FilterFlag::PackType).toInt());
+		from_date = _filter->condition(FilterFlag::StartDate).toDate();
+		to_date = _filter->condition(FilterFlag::EndDate).toDate();
+		op_id = _filter->condition(FilterFlag::Operator).toInt();
+		pack_type_id = _filter->condition(FilterFlag::PackType).toInt();
 	}
-	else {
-		vmap.insert("start_time", QDate::currentDate());
-		vmap.insert("end_time", QDate::currentDate());
+
+	HistoryDao dao;
+	QList<PackHistory> his;
+	_total = 0;
+	result_t resp = dao.getPackHistoryList(from_date, to_date, op_id, pack_type_id, &his, &_total, page);
+
+	if (resp.isOk())
+	{
+		if (_total > 0 && !his.isEmpty())
+		{
+			_paginator->setTotalPages(_total / _visibleCount + (_total % _visibleCount > 0));
+
+			_historyModel->insertRows(0, his.count());
+
+			for (int i = 0; i != his.count(); ++i) {
+				_historyModel->setData(_historyModel->index(i, 0), his[i].pkg_udi);
+				_historyModel->setData(_historyModel->index(i, 1), his[i].pkg_name);
+				_historyModel->setData(_historyModel->index(i, 2), his[i].op_time);
+				_historyModel->setData(_historyModel->index(i, 3), his[i].packType);
+				_historyModel->setData(_historyModel->index(i, 4), his[i].op_name);
+				_historyModel->setData(_historyModel->index(i, 6), his[i].check_op_name);
+
+				_historyModel->setHeaderData(i, Qt::Vertical, (page - 1)*_visibleCount + 1 + i);
+			}
+		}
 	}
-	vmap.insert("page", page);
-	vmap.insert("page_count", _visibleCount);
-
-	post(url(PATH_PACK_SEARCH), vmap, [this](QNetworkReply *reply) {
-		_waiter->stop();
-		JsonHttpResponse resp(reply);
-		if (!resp.success()) {
-			XNotifier::warn(QString("暂时无法查询历史记录：").append(resp.errorString()));
-			return;
-		}
-
-		int count = resp.getAsInt("total_count");
-		_paginator->setTotalPages(count / _visibleCount + (count % _visibleCount > 0));
-
-		QList<QVariant> washes = resp.getAsList("pack_info");
-		for (auto &wash : washes) {
-			QVariantMap map = wash.toMap();
-			QList<QStandardItem *> rowItems;
-			rowItems.append(new QStandardItem(map["package_id"].toString()));
-			rowItems.append(new QStandardItem(map["package_name"].toString()));
-			rowItems.append(new QStandardItem(map["pack_time"].toString()));
-			rowItems.append(new QStandardItem(map["pack_type_name"].toString()));
-			rowItems.append(new QStandardItem(map["operator_name"].toString()));
-			rowItems.append(new QStandardItem(map["check_operator_name"].toString()));
-			_historyModel->appendRow(rowItems);
-		}
-	});
 }
 
 SterileHistoryPage::SterileHistoryPage(QWidget *parent) :HistoryPage(parent) {
-	_historyModel = new QStandardItemModel(0, 16, _view);
+	_historyModel = new QStandardItemModel(0, 15, _view);
 	_historyModel->setHeaderData(0, Qt::Horizontal, "灭菌器");
 	_historyModel->setHeaderData(1, Qt::Horizontal, "锅次");
 	_historyModel->setHeaderData(2, Qt::Horizontal, "总锅次");
 	_historyModel->setHeaderData(3, Qt::Horizontal, "灭菌程序");
 	_historyModel->setHeaderData(4, Qt::Horizontal, "灭菌时间");
 	_historyModel->setHeaderData(5, Qt::Horizontal, "灭菌员");
-	_historyModel->setHeaderData(6, Qt::Horizontal, "包数量");
-	_historyModel->setHeaderData(7, Qt::Horizontal, "物理监测审核人");
-	_historyModel->setHeaderData(8, Qt::Horizontal, "物理监测审核时间");
-	_historyModel->setHeaderData(9, Qt::Horizontal, "物理监测审核结果");
-	_historyModel->setHeaderData(10, Qt::Horizontal, "化学监测审核人");
-	_historyModel->setHeaderData(11, Qt::Horizontal, "化学监测审核时间");
-	_historyModel->setHeaderData(12, Qt::Horizontal, "化学监测审核结果");
-	_historyModel->setHeaderData(13, Qt::Horizontal, "生物监测审核人");
-	_historyModel->setHeaderData(14, Qt::Horizontal, "生物监测审核时间");
-	_historyModel->setHeaderData(15, Qt::Horizontal, "生物监测审核结果");
+	_historyModel->setHeaderData(6, Qt::Horizontal, "物理监测审核人");
+	_historyModel->setHeaderData(7, Qt::Horizontal, "物理监测审核时间");
+	_historyModel->setHeaderData(8, Qt::Horizontal, "物理监测审核结果");
+	_historyModel->setHeaderData(9, Qt::Horizontal, "化学监测审核人");
+	_historyModel->setHeaderData(10, Qt::Horizontal, "化学监测审核时间");
+	_historyModel->setHeaderData(11, Qt::Horizontal, "化学监测审核结果");
+	_historyModel->setHeaderData(12, Qt::Horizontal, "生物监测审核人");
+	_historyModel->setHeaderData(13, Qt::Horizontal, "生物监测审核时间");
+	_historyModel->setHeaderData(14, Qt::Horizontal, "生物监测审核结果");
 	_view->setModel(_historyModel);
 
 	doSearch();
@@ -346,77 +315,78 @@ FilterGroup * SterileHistoryPage::createFilterGroup() {
 
 void SterileHistoryPage::doSearch(int page /*= 1*/) {
 	_historyModel->removeRows(0, _historyModel->rowCount());
-	_waiter->start();
+	
+	QDate from_date = QDate::currentDate().addDays(-7);
+	QDate to_date = QDate::currentDate();
+	int op_id = 0;
+	int device_id = 0;
 
-	QVariantMap vmap;
 	if (_filter) {
-		vmap.insert("start_time", _filter->condition(FilterFlag::StartDate).toDate());
-		vmap.insert("end_time", _filter->condition(FilterFlag::EndDate).toDate());
-		vmap.insert("operator_id", _filter->condition(FilterFlag::Operator).toInt());
-		vmap.insert("device_id", _filter->condition(FilterFlag::Device).toInt());
-		vmap.insert("cycle", _filter->condition(FilterFlag::cycle).toInt());
-		vmap.insert("test_result", _filter->condition(FilterFlag::Check).toString());
+		from_date = _filter->condition(FilterFlag::StartDate).toDate();
+		to_date = _filter->condition(FilterFlag::EndDate).toDate();
+		op_id = _filter->condition(FilterFlag::Operator).toInt();
+		device_id = _filter->condition(FilterFlag::Device).toInt();
 	}
-	else {
-		vmap.insert("start_time", QDate::currentDate());
-		vmap.insert("end_time", QDate::currentDate());
+
+	HistoryDao dao;
+	QList<SterHistory> his;
+	_total = 0;
+	result_t resp = dao.getSterHistoryList(from_date, to_date, op_id, device_id, &his, &_total, page);
+
+	if (resp.isOk())
+	{
+		if (_total > 0 && !his.isEmpty())
+		{
+			_paginator->setTotalPages(_total / _visibleCount + (_total % _visibleCount > 0));
+
+			_historyModel->insertRows(0, his.count());
+
+			for (int i = 0; i != his.count(); ++i) {
+				_historyModel->setData(_historyModel->index(i, 0), his[i].device_name);
+				_historyModel->setData(_historyModel->index(i, 1), his[i].cycle_count);
+				_historyModel->setData(_historyModel->index(i, 2), his[i].cycle_total);
+				_historyModel->setData(_historyModel->index(i, 3), his[i].program_name);
+				_historyModel->setData(_historyModel->index(i, 4), his[i].op_time);
+				_historyModel->setData(_historyModel->index(i, 5), his[i].op_name);
+
+				_historyModel->setData(_historyModel->index(i, 6), his[i].phy_check_op_name);
+				_historyModel->setData(_historyModel->index(i, 7), his[i].phy_check_time);
+				_historyModel->setData(_historyModel->index(i, 8), toString(his[i].phy_check_result));
+
+				_historyModel->setData(_historyModel->index(i, 9), his[i].che_check_op_name);
+				_historyModel->setData(_historyModel->index(i, 10), his[i].che_check_time);
+				_historyModel->setData(_historyModel->index(i, 11), toString(his[i].che_check_result));
+
+				_historyModel->setData(_historyModel->index(i, 12), his[i].bio_check_op_name);
+				_historyModel->setData(_historyModel->index(i, 13), his[i].bio_check_time);
+				_historyModel->setData(_historyModel->index(i, 14), toString(his[i].bio_check_result));
+
+				_historyModel->setHeaderData(i, Qt::Vertical, (page - 1)*_visibleCount + 1 + i);
+			}
+		}
 	}
-	vmap.insert("page", page);
-	vmap.insert("page_count", _visibleCount);
-
-	post(url(PATH_STERILE_SEARCH), vmap, [this](QNetworkReply *reply) {
-		_waiter->stop();
-		JsonHttpResponse resp(reply);
-		if (!resp.success()) {
-			XNotifier::warn(QString("暂时无法查询历史记录：").append(resp.errorString()));
-			return;
-		}
-
-		int count = resp.getAsInt("total_count");
-		_paginator->setTotalPages(count / _visibleCount + (count % _visibleCount > 0));
-
-		QList<QVariant> items = resp.getAsList("sterilize_info_list");
-		for (auto &item : items) {
-			QVariantMap map = item.toMap();
-			QList<QStandardItem *> rowItems;
-			rowItems.append(new QStandardItem(map["ste_device_name"].toString()));
-			rowItems.append(new QStandardItem(map["ste_cycle"].toString()));
-			rowItems.append(new QStandardItem(map["total_cycle"].toString()));
-			rowItems.append(new QStandardItem(map["program_name"].toString()));
-			rowItems.append(new QStandardItem(map["sterilize_time"].toString()));
-			rowItems.append(new QStandardItem(map["operator_name"].toString()));
-			rowItems.append(new QStandardItem(map["package_number"].toString())); 
-			rowItems.append(new QStandardItem(map["physical_test_operator"].toString()));
-			rowItems.append(new QStandardItem(map["physical_test_time"].toString()));
-			rowItems.append(new QStandardItem(toString(map["physical_test_result"].toInt())));
-			rowItems.append(new QStandardItem(map["chemistry_test_operator"].toString()));
-			rowItems.append(new QStandardItem(map["chemistry_test_time"].toString()));
-			rowItems.append(new QStandardItem(toString(map["chemistry_test_result"].toInt())));
-			rowItems.append(new QStandardItem(map["biology_test_operator"].toString())); 
-			rowItems.append(new QStandardItem(map["biology_test_time"].toString()));
-			rowItems.append(new QStandardItem(toString(map["biology_test_result"].toInt())));
-			_historyModel->appendRow(rowItems);
-		}
-	});
 }
 
 QString SterileHistoryPage::toString(int v)
 {
 	switch (v)
 	{
+	case 0: return "未审核";
 	case 1: return "合格";
-	case 0: return "不合格";
-	case 2: return "未审核";
+	case 2: return "不合格";
+	case 3: return "未涉及";
 	default: return QString();
 	}
 }
 
 DispatchHistoryPage::DispatchHistoryPage(QWidget *parent /*= Q_NULLPTR*/) {
-	_historyModel = new QStandardItemModel(0, 4, _view);
-	_historyModel->setHeaderData(0, Qt::Horizontal, "发放人员");
-	_historyModel->setHeaderData(1, Qt::Horizontal, "发放时间");
-	_historyModel->setHeaderData(2, Qt::Horizontal, "发放部门");
-	_historyModel->setHeaderData(3, Qt::Horizontal, "包数量");
+	_historyModel = new QStandardItemModel(0, 5, _view);
+	_historyModel->setHeaderData(0, Qt::Horizontal, "包UDI");
+	_historyModel->setHeaderData(1, Qt::Horizontal, "包名");
+	_historyModel->setHeaderData(2, Qt::Horizontal, "发放人员");
+	_historyModel->setHeaderData(3, Qt::Horizontal, "发放时间");
+	_historyModel->setHeaderData(4, Qt::Horizontal, "发放部门");
+	
 	_view->setModel(_historyModel);
 
 	doSearch();
@@ -429,7 +399,43 @@ FilterGroup * DispatchHistoryPage::createFilterGroup() {
 void DispatchHistoryPage::doSearch(int page /*= 1*/) {
 	_historyModel->removeRows(0, _historyModel->rowCount());
 	
-	QVariantMap vmap;
+	QDate from_date = QDate::currentDate().addDays(-7);
+	QDate to_date = QDate::currentDate();
+	int op_id = 0;
+	int dept_id = 0;
+	if (_filter) {
+		from_date = _filter->condition(FilterFlag::StartDate).toDate();
+		to_date = _filter->condition(FilterFlag::EndDate).toDate();
+		op_id = _filter->condition(FilterFlag::Operator).toInt();
+		dept_id = _filter->condition(FilterFlag::Department).toInt();
+	}
+
+	HistoryDao dao;
+	QList<DispatchHistory> his;
+	_total = 0;
+	result_t resp = dao.getDispatchHistoryList(from_date, to_date, op_id, dept_id, &his, &_total, page);
+
+	if (resp.isOk())
+	{
+		if (_total > 0 && !his.isEmpty())
+		{
+			_paginator->setTotalPages(_total / _visibleCount + (_total % _visibleCount > 0));
+
+			_historyModel->insertRows(0, his.count());
+
+			for (int i = 0; i != his.count(); ++i) {
+				_historyModel->setData(_historyModel->index(i, 0), his[i].pkg_udi);
+				_historyModel->setData(_historyModel->index(i, 1), his[i].pkg_name);
+				_historyModel->setData(_historyModel->index(i, 2), his[i].op_name);
+				_historyModel->setData(_historyModel->index(i, 3), his[i].op_time);
+				_historyModel->setData(_historyModel->index(i, 5), his[i].dept_name.isEmpty() ? QString("-") : his[i].dept_name);
+
+				_historyModel->setHeaderData(i, Qt::Vertical, (page - 1)*_visibleCount + 1 + i);
+			}
+		}
+	}
+
+	/*QVariantMap vmap;
 	if (_filter) {
 		vmap.insert("start_time", _filter->condition(FilterFlag::StartDate).toDate());
 		vmap.insert("end_time", _filter->condition(FilterFlag::EndDate).toDate());
@@ -466,5 +472,5 @@ void DispatchHistoryPage::doSearch(int page /*= 1*/) {
 			_historyModel->setData(_historyModel->index(i, 3), map["package_number"]);
 			_historyModel->setHeaderData(i, Qt::Vertical, (page - 1)*_visibleCount + 1 + i);
 		}
-	});
+	});*/
 }

@@ -3,6 +3,8 @@
 #include "core/net/url.h"
 #include "ui/composite/waitingspinner.h"
 #include "xnotifier.h"
+#include "rdao/dao/operatordao.h"
+#include "rdao/dao/historydao.h"
 #include <xernel/xtimescope.h>
 #include <QtWidgets/QtWidgets>
 
@@ -61,65 +63,24 @@ KpiPage::~KpiPage()
 
 void KpiPage::doSearch()
 {
-	if (_model->rowCount()) {
-		queryUserJobs();
-		return;
+	_model->removeRows(0, _model->rowCount());
+
+	int year = _yearCombo->currentText().toInt();
+	int month = _monthCombo->currentText().toInt();
+	HistoryDao dao;
+	QList<OperatorHistory> opHisList;
+	result_t res = dao.getOperatorHistoryList(year, month, &opHisList);
+	if (res.isOk())
+	{
+		_model->insertRows(0, opHisList.count());
+		for (int i = 0; i != opHisList.count(); ++i) {
+			_model->setData(_model->index(i, 0), opHisList.at(i).name);
+			_model->setData(_model->index(i, 1), opHisList.at(i).id);
+			_model->setData(_model->index(i, 2), opHisList.at(i).recycleCount);
+			_model->setData(_model->index(i, 3), opHisList.at(i).washCount);
+			_model->setData(_model->index(i, 4), opHisList.at(i).packCount);
+			_model->setData(_model->index(i, 5), opHisList.at(i).sterCount);
+			_model->setData(_model->index(i, 6), opHisList.at(i).dispatchCount);
+		}
 	}
-
-	// query user first
-	_waiter->start();
-	QByteArray data("{\"role_id\":");
-	data.append(QString::number(5)).append('}'); // todo: CSSD = 5, define it as a constant
-	_http.post(url(PATH_USER_SEARCH), data, [this](QNetworkReply *reply) {
-		_waiter->stop();
-		JsonHttpResponse resp(reply);
-		if (!resp.success()) {
-			XNotifier::warn(QString("无法获取用户列表: ").append(resp.errorString()));
-			return;
-		}
-
-		QList<QVariant> users = resp.getAsList("user_list");
-		_model->insertRows(0, users.count());
-		for (int i = 0; i != users.count(); ++i) {
-			QVariantMap map = users[i].toMap();
-			_model->setData(_model->index(i, 0), map["name"]);
-			_model->setData(_model->index(i, 1), map["operator_id"]);
-		}
-
-		queryUserJobs();
-	});
-}
-
-void KpiPage::queryUserJobs()
-{
-	QVariantList userList;
-	for (int i = 0; i != _model->rowCount(); ++i) {
-		userList.append(_model->data(_model->index(i, 1)));
-	}
-
-	QVariantMap data;
-	XDateScope ds = getMonthDateScope(_yearCombo->currentText().toInt(), _monthCombo->currentText().toInt());
-	data["start_time"] = ds.from;
-	data["end_time"] = ds.to;
-	data["operator_ids"] = userList;
-	_waiter->start();
-	_http.post(url(PATH_OP_STATISTICS), data, [this](QNetworkReply *reply) {
-		_waiter->stop();
-		JsonHttpResponse resp(reply);
-		if (!resp.success()) {
-			XNotifier::warn(QString("无法获取用户绩效数据: ").append(resp.errorString()));
-			return;
-		}
-
-		QList<QVariant> datas = resp.getAsList("operator_statistics");
-		for (int i = 0; i != datas.count(); ++i) {
-			QVariantMap map = datas[i].toMap();
-			QVariantList &list = map["pkg_nums"].toList();
-			_model->setData(_model->index(i, 2), list[0]);
-			_model->setData(_model->index(i, 3), list[1]);
-			_model->setData(_model->index(i, 4), list[2]);
-			_model->setData(_model->index(i, 5), list[3]);
-			_model->setData(_model->index(i, 6), list[5]);
-		}
-	});
 }

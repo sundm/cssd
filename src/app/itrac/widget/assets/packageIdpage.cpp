@@ -7,6 +7,7 @@
 #include "dialog/addpackagedialog.h"
 #include "dialog/modifypackagedialog.h"
 #include "dialog/addpkgcodedialog.h"
+#include "dialog/changeUDIdialog.h"
 #include <xui/searchedit.h>
 #include "rdao/dao/PackageDao.h"
 #include <QtWidgets/QtWidgets>
@@ -37,7 +38,7 @@ namespace Internal {
 	{
 		PackageDao dao;
 		QList<Package> pkgs;
-		result_t resp = dao.getPackageList(&pkgs, &_total, page, _pageCount);
+		result_t resp = dao.getPackageList(&pkgs, kw, &_total, page, _pageCount);
 		_total = 0;
 		if (resp.isOk())
 		{
@@ -83,8 +84,11 @@ PackageIdPage::PackageIdPage(QWidget *parent)
 	Ui::IconButton *addButton = new Ui::IconButton(":/res/plus-24.png", "添加");
 	connect(addButton, SIGNAL(clicked()), this, SLOT(addEntry()));
 
-	/*Ui::IconButton *modifyButton = new Ui::IconButton(":/res/write-24.png", "修改");
-	connect(modifyButton, SIGNAL(clicked()), this, SLOT(editEntry()));*/
+	Ui::IconButton *deleteButton = new Ui::IconButton(":/res/delete-24.png", "删除");
+	connect(deleteButton, SIGNAL(clicked()), this, SLOT(delEntry()));
+
+	Ui::IconButton *editButton = new Ui::IconButton(":/res/write-24.png", "替换");
+	connect(editButton, SIGNAL(clicked()), this, SLOT(editEntry()));
 
 	//searchBox->setMinimumWidth(300);
 	_searchBox->setPlaceholderText("输入ID搜索");
@@ -93,7 +97,8 @@ PackageIdPage::PackageIdPage(QWidget *parent)
 	QHBoxLayout *hLayout = new QHBoxLayout;
 	hLayout->addWidget(refreshButton);
 	hLayout->addWidget(addButton);
-	//hLayout->addWidget(modifyButton);
+	hLayout->addWidget(deleteButton);
+	hLayout->addWidget(editButton);
 	hLayout->addStretch(0);
 	hLayout->addWidget(_searchBox);
 
@@ -132,24 +137,45 @@ void PackageIdPage::addEntry()
 
 void PackageIdPage::editEntry()
 {
-	QModelIndexList indexes = _view->selectionModel()->selectedRows();
-	if (indexes.count() == 0) return;
-	int row = indexes[0].row();
+	//QModelIndexList indexes = _view->selectionModel()->selectedRows();
+	//if (indexes.count() == 0) return;
+	//int row = indexes[0].row();
 
-	editRow(row);
+	//editRow(row);
+	//PackageDao dao;
+	//dao.changePackageUDI("E2009A9050048AF000000203", "E2009A9050048AF000000204");
+	ChangeUDIDialog d(this);
+	if (QDialog::Accepted == d.exec())
+		reflash();
 }
 
-//void PackageIdPage::infoEntry()
-//{
-//	QModelIndexList indexes = _view->selectionModel()->selectedRows();
-//	if (indexes.count() == 0) return;
-//	int row = indexes[0].row();
-//	QString package_name = _view->model()->data(_view->model()->index(row, Internal::PackageIdAssetView::Name)).toString();
-//	QString package_type_id = _view->model()->data(_view->model()->index(row, Internal::PackageIdAssetView::Name), 257).toString();
-//	AddpkgcodeDialog d(this);
-//	if (QDialog::Accepted == d.exec())
-//		reflash();
-//}
+void PackageIdPage::delEntry()
+{
+	QMessageBox *messageBox = new QMessageBox(this);
+	messageBox->setIcon(QMessageBox::Warning);
+	messageBox->setWindowTitle("提示");
+	messageBox->setText("是否删除当前包？");
+	messageBox->addButton("取消", QMessageBox::RejectRole);
+	messageBox->addButton("确定", QMessageBox::AcceptRole);
+	if (messageBox->exec() == QDialog::Accepted) {
+		QModelIndexList indexes = _view->selectionModel()->selectedRows();
+		if (indexes.count() == 0) return;
+		int row = indexes[0].row();
+		QString package_udi = _view->model()->data(_view->model()->index(row, Internal::PackageIdAssetView::Id)).toString();
+
+		PackageDao dao;
+		result_t res = dao.delPackage(package_udi);
+		if (res.isOk())
+		{
+			reflash();
+		}
+		else
+		{
+			XNotifier::warn(res.msg());
+			return;
+		}
+	}
+}
 
 void PackageIdPage::editRow(int row)
 {

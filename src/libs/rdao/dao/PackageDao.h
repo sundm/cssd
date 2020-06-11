@@ -32,6 +32,7 @@ public:
 	 */
 	result_t getPackageTypeList(
 		QList<PackageType> *pts,
+		const QString &kw,
 		int *total = nullptr,
 		int page = 1,
 		int count = 20);
@@ -58,6 +59,7 @@ public:
 	 */
 	result_t getPackageList(
 		QList<Package> *pkgs,
+		const QString &kw,
 		int *total = nullptr,
 		int page = 1,
 		int count = 20);
@@ -69,6 +71,12 @@ public:
 	 * @return a result_t object
 	 */
 	result_t addPackage(const Package &package);
+
+	result_t changePackageUDI(const QString &old_pkg_udi, const QString &new_pkg_udi);
+
+	result_t delPackage(const QString& udi);
+
+	result_t delPackageType(int typeId);
 
 	// TODO
 	//result_t releaseInstruments(const QString &udi);

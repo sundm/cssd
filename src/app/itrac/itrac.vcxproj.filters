@@ -432,6 +432,12 @@
     <ClCompile Include="ui\inputip.cpp">
       <Filter>Source Files\ui</Filter>
     </ClCompile>
+    <ClCompile Include="dialog\changeUDIdialog.cpp">
+      <Filter>Source Files\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="dialog\scanTipsdialog.cpp">
+      <Filter>Source Files\dialog</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="devicepage.h">
@@ -742,6 +748,12 @@
     </QtMoc>
     <QtMoc Include="ui\inputip.h">
       <Filter>Source Files\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="dialog\changeUDIdialog.h">
+      <Filter>Source Files\dialog</Filter>
+    </QtMoc>
+    <QtMoc Include="dialog\scanTipsdialog.h">
+      <Filter>Source Files\dialog</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

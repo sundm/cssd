@@ -13,5 +13,7 @@ public:
 	result_t getSurgery(int surgeryId, Surgery *surgery, bool excludeBasicInfo = true);
 
 	result_t addSurgery(const Surgery &surgery);
+
+	result_t delSurgery(int surgeryId);
 };
 

@@ -94,6 +94,9 @@ CREATE TABLE IF NOT EXISTS `t_package` (
   -- 7:dispatched 8:received 9:pre-op-checked 10:post-op-checked 11:recycled 99:recalled
   `status` tinyint(2) NOT NULL DEFAULT 0,
   `is_del` tinyint NOT NULL DEFAULT 0,
+  `pkg_cycle` int unsigned NOT NULL DEFAULT 0,
+  `old_udi` varchar(32) UNIQUE,
+  `old_pkg_cycle` int unsigned,
   KEY `idx_udi` (`udi`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

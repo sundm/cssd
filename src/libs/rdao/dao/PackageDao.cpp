@@ -64,7 +64,7 @@ result_t PackageDao::getPackageType(
 }
 
 result_t PackageDao::getPackageTypeList(
-	QList<PackageType> *pts, int *total/* = nullptr*/, int page/* = 1*/, int count/* = 20*/)
+	QList<PackageType> *pts, const QString &kw, int *total/* = nullptr*/, int page/* = 1*/, int count/* = 20*/)
 {
 	if (!pts) return 0;
 	pts->clear();
@@ -75,6 +75,11 @@ result_t PackageDao::getPackageTypeList(
 		" FROM t_package_type a"
 		" LEFT JOIN t_pack_type b ON a.pack_type_id = b.id"
 		" LEFT JOIN t_dept c ON a.dept_id = c.id";
+	if (!kw.isEmpty())
+	{
+		sql.append(" WHERE a.pinyin LIKE '%").append(kw).append("%'");
+	}
+
 
 	if (paginated) { // do pagination
 		count = qMax(20, count);
@@ -104,6 +109,95 @@ result_t PackageDao::getPackageTypeList(
 		if (!q.nextResult() || !q.first())
 			return "Could not determine the total number";
 		*total = q.value(0).toInt();
+	}
+
+	return 0;
+}
+
+result_t PackageDao::delPackage(const QString& udi)
+{
+	QSqlQuery q;
+	q.prepare("SELECT pkg_udi"
+		" FROM r_recycle"
+		" WHERE pkg_udi = ?");
+	q.addBindValue(udi);
+
+	if (!q.exec())
+		return kErrorDbUnreachable;
+
+	if (!q.first()) {
+		QSqlDatabase db = QSqlDatabase::database();
+		db.transaction();
+
+		QSqlQuery query;
+		query.prepare("DELETE FROM t_package  WHERE udi = ?");
+		query.addBindValue(udi);
+
+		if (!query.exec())
+		{
+			db.rollback();
+			return query.lastError().text();
+		}
+			
+
+		query.prepare("DELETE FROM t_package_detail WHERE pkg_udi = ?");
+		query.addBindValue(udi);
+
+		if (!query.exec())
+		{
+			db.rollback();
+			return query.lastError().text();
+		}
+
+		db.commit();
+	}
+	else
+	{
+		return "存在该包记录，无法删除这个包";
+	}
+
+	return 0;
+}
+
+result_t PackageDao::delPackageType(int typeId)
+{
+	QSqlQuery q;
+	q.prepare("SELECT udi"
+		" FROM t_package"
+		" WHERE type_id = ?");
+	q.addBindValue(typeId);
+
+	if (!q.exec())
+		return kErrorDbUnreachable;
+
+	if (!q.first()) {
+		QSqlDatabase db = QSqlDatabase::database();
+		db.transaction();
+
+		QSqlQuery query;
+		query.prepare("DELETE FROM t_package_type  WHERE id = ?");
+		query.addBindValue(typeId);
+
+		if (!query.exec())
+		{
+			db.rollback();
+			return query.lastError().text();
+		}
+
+		query.prepare("DELETE FROM t_package_type_detail WHERE pkg_type_id = ?");
+		query.addBindValue(typeId);
+
+		if (!query.exec())
+		{
+			db.rollback();
+			return query.lastError().text();
+		}
+
+		db.commit();
+	}
+	else
+	{
+		return "存在该类型包实体，无法删除这个包类型";
 	}
 
 	return 0;
@@ -162,7 +256,7 @@ result_t PackageDao::getPackage(
 	if (!pkg) return 0;
 
 	QSqlQuery q;
-	q.prepare("SELECT a.sn, a.alias, a.photo, a.type_id, a.cycle, a.status,"
+	q.prepare("SELECT a.sn, a.alias, a.photo, a.type_id, a.cycle, a.status, a.is_del,"
 		" b.name, b.category, b.sterilize_type, b.for_implants, b.pack_type_id, b.dept_id, c.name, c.valid_period, d.name"
 		" FROM t_package a"
 		" LEFT JOIN t_package_type b ON a.type_id = b.id"
@@ -185,15 +279,16 @@ result_t PackageDao::getPackage(
 	pkg->typeId = q.value(3).toInt();
 	pkg->cycle = q.value(4).toInt();
 	pkg->status = static_cast<Rt::FlowStatus>(q.value(5).toInt());
-	pkg->typeName = q.value(6).toString();
-	pkg->category = static_cast<Rt::PackageCategory>(q.value(7).toInt());
-	pkg->sterMethod = static_cast<Rt::SterilizeMethod>(q.value(8).toInt());
-	pkg->forImplants = q.value(9).toBool();
-	pkg->packType.id = q.value(10).toInt();
-	pkg->dept.id = q.value(11).toInt();
-	pkg->packType.name = q.value(12).toString();
-	pkg->packType.validPeriod = q.value(13).toUInt();
-	pkg->dept.name = q.value(14).toString();
+	pkg->is_del = q.value(6).toBool();
+	pkg->typeName = q.value(7).toString();
+	pkg->category = static_cast<Rt::PackageCategory>(q.value(8).toInt());
+	pkg->sterMethod = static_cast<Rt::SterilizeMethod>(q.value(9).toInt());
+	pkg->forImplants = q.value(10).toBool();
+	pkg->packType.id = q.value(11).toInt();
+	pkg->dept.id = q.value(12).toInt();
+	pkg->packType.name = q.value(13).toString();
+	pkg->packType.validPeriod = q.value(14).toUInt();
+	pkg->dept.name = q.value(15).toString();
 	pkg->name = DaoUtil::udiName(pkg->typeName, q.value(0).toInt());
 
 	if (!withInstruments) {
@@ -203,7 +298,7 @@ result_t PackageDao::getPackage(
 	q.prepare("SELECT a.udi, a.type_id, a.sn, a.alias, a.photo, a.price, b.name, b.is_vip"
 		" FROM t_instrument a"
 		" LEFT JOIN t_instrument_type b ON a.type_id=b.id"
-		" WHERE a.pkg_udi = ?");
+		" WHERE a.pkg_udi = ? AND a.is_del = 0");
 	q.addBindValue(udi);
 	if (!q.exec())
 		return kErrorDbUnreachable;
@@ -226,7 +321,7 @@ result_t PackageDao::getPackage(
 }
 
 result_t PackageDao::getPackageList(
-	QList<Package> *pkgs, int *total/* = nullptr*/, int page/* = 1*/, int count/* = 20*/)
+	QList<Package> *pkgs, const QString &kw, int *total/* = nullptr*/, int page/* = 1*/, int count/* = 20*/)
 {
 	if (!pkgs) return 0;
 	pkgs->clear();
@@ -238,7 +333,14 @@ result_t PackageDao::getPackageList(
 		" FROM t_package a"
 		" LEFT JOIN t_package_type b ON a.type_id = b.id"
 		" LEFT JOIN t_pack_type c ON b.pack_type_id = c.id"
-		" LEFT JOIN t_dept d ON b.dept_id = d.id";
+		" LEFT JOIN t_dept d ON b.dept_id = d.id"
+		" WHERE a.is_del = 0";
+
+	if (!kw.isEmpty())
+	{
+		sql.append("AND b.pinyin LIKE '%").append(kw).append("%'");
+	}
+
 
 	if (paginated) { // do pagination
 		count = qMax(20, count);
@@ -337,6 +439,107 @@ result_t PackageDao::addPackage(const Package &pkg)
 	if (!q.exec(sql))
 		return q.lastError().text();
 
+	return 0;
+}
+
+result_t PackageDao::changePackageUDI(const QString &old_pkg_udi, const QString &new_pkg_udi)
+{
+	QSqlQuery q;
+	q.prepare("SELECT 1 FROM t_package WHERE udi = ?");
+	q.addBindValue(new_pkg_udi);
+	if (!q.exec())
+		return kErrorDbUnreachable;
+	if (q.first())
+		return "该UDI已经入库，无法替换";
+
+	q.prepare("SELECT * FROM t_package WHERE udi = ?");
+	q.addBindValue(old_pkg_udi);
+	if (!q.exec())
+		return kErrorDbUnreachable;
+	if (q.first()) {
+		QSqlDatabase db = QSqlDatabase::database();
+		db.transaction();
+
+		int type_id = q.value(2).toInt();
+		int sn = q.value(3).toInt();
+		QString alias = q.value(4).toString();
+		QString photo = q.value(5).toString();
+		int cycle = q.value(6).toInt();
+
+		int pkg_cycle = q.value(9).toInt();
+
+		q.prepare("INSERT INTO t_package (udi, type_id, sn, alias, photo, cycle, pkg_cycle, old_udi, old_pkg_cycle)"
+			" VALUES (?, ?, ?, ?, ?, ?, ?,?,?)");
+		q.addBindValue(new_pkg_udi);
+		q.addBindValue(type_id);
+		q.addBindValue(sn);
+		q.addBindValue(alias);
+		q.addBindValue(photo);
+		q.addBindValue(cycle);
+		q.addBindValue(pkg_cycle);
+		q.addBindValue(old_pkg_udi);
+		q.addBindValue(pkg_cycle);
+
+		if (!q.exec())
+		{
+			db.rollback();
+			return q.lastError().text();
+		}
+
+		QString sql = QString("UPDATE t_package"
+			" SET is_del = 1 WHERE udi = '%1' ").arg(old_pkg_udi);
+		if (!q.exec(sql))
+		{
+			db.rollback();
+			return q.lastError().text();
+		}
+
+		sql = QString("SELECT * FROM t_package_detail WHERE pkg_udi = '%1'").arg(old_pkg_udi);
+		if (!q.exec(sql))
+		{
+			db.rollback();
+			return q.lastError().text();
+		}
+
+		QStringList insUdis;
+		sql = QString("INSERT INTO t_package_detail ( pkg_udi, pkg_cycle_stamp, ins_udi, ins_cycle_stamp, bound_tm) VALUES");
+		while(q.next())
+		{
+			int pkg_cycle_stamp = q.value(2).toInt();
+			QString insUDI = q.value(3).toString();
+			int ins_cycle_stamp = q.value(4).toInt();
+
+			QString values = QString(" ('%1', %2, '%3', %4, now()),").arg(new_pkg_udi).arg(pkg_cycle_stamp).arg(insUDI).arg(ins_cycle_stamp);
+			sql.append(values);
+			insUdis << QString("'%1'").arg(insUDI);
+		}
+
+		sql.chop(1);
+		if (!q.exec(sql))
+		{
+			db.rollback();
+			return q.lastError().text();
+		}
+
+		sql = QString("UPDATE t_package_detail"
+			" SET status = 0, unbound_tm = now() WHERE pkg_udi = '%1' AND ins_udi IN (%2)").arg(old_pkg_udi, insUdis.join(','));
+		if (!q.exec(sql))
+		{
+			db.rollback();
+			return q.lastError().text();
+		}
+
+		// update the newest package udi for each instrument in t_instrument
+		sql = QString("UPDATE t_instrument"
+			" SET pkg_udi='%1' WHERE udi IN (%2)").arg(new_pkg_udi, insUdis.join(','));
+		if (!q.exec(sql))
+		{
+			db.rollback();
+			return q.lastError().text();
+		}
+
+		db.commit();
+	}
 	return 0;
 }
 
